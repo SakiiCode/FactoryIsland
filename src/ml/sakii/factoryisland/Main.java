@@ -21,7 +21,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -46,7 +48,7 @@ public class Main
 
 	public final static byte MAJOR = 0;
 	public final static byte MINOR = 8;
-	public final static byte REVISION = 1;
+	public final static byte REVISION = 5;
 	
 	public static boolean devmode = false, nopause = false;
 	public static Color drillGradientBeginColor = new Color(100, 40, 40, 200);
@@ -113,7 +115,7 @@ public class Main
 		try
 		{
 			logStream=new FileOutputStream("log.txt", true);
-			if(!devmode) {
+			if(!devmode) { // ha nincs debug, a fájlba írja a kivételeket
 				PrintStream out = new PrintStream(logStream);
 				System.setErr(out);
 			}
@@ -301,7 +303,8 @@ public class Main
 				GAME.Engine.afterGen();
 			}else {
 				Main.err(GAME.error);
-				statusLabel.setText("Error:"+GAME.error);
+				statusLabel.setText("<html>Error:"+GAME.error+"</html>");
+				GAME=null;
 				return false;
 			}
 		} else
@@ -309,7 +312,8 @@ public class Main
 			GAME = new Game(mapName, 0, LoadMethod.EXISTING, statusLabel);
 			if(GAME.error != null) {
 				Main.err(GAME.error);
-				statusLabel.setText("Error:"+GAME.error);
+				statusLabel.setText("<html>Error:"+GAME.error+"</html>");
+				GAME=null;
 				return false;
 			}
 		}
@@ -321,7 +325,7 @@ public class Main
 
 	private static void openGame() {
 		Main.log("Game setup done.");
-		GAME.Engine.timer.start();
+		GAME.Engine.ticker.start();
 		GAME.Engine.startPhysics();
 		
 		
@@ -517,14 +521,16 @@ public class Main
 		}
 	
 	public static void log(Object message) {
+		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		String msg = "[" + timeStamp + "] INFO: "+message;
 		try
 		{
-			logStream.write(("INFO: "+message+"\r\n").getBytes());
+			logStream.write((msg+"\r\n").getBytes());
 		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		System.out.println(message);
+		System.out.println(msg);
 	}
 	
 	public static void err(Object message) {
@@ -535,7 +541,9 @@ public class Main
 		{
 			e.printStackTrace();
 		}
-		System.err.println(message);
+		if(devmode) { // nem debug esetén ez már át van irányítva ugyanabba a fájlba
+			System.err.println(message);
+		}
 	}
 
 }

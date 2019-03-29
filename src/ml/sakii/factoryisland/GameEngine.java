@@ -38,7 +38,7 @@ public class GameEngine{
 	public CopyOnWriteArrayList<TickListener> TickableBlocks = new CopyOnWriteArrayList<>();
 	public long Tick;
 	//public CopyOnWriteArrayList<Entity> Entities = new CopyOnWriteArrayList<>();
-	Timer timer;
+	Timer ticker;
 	
 	//PhysicsThread physics=null;
 	
@@ -63,7 +63,7 @@ public class GameEngine{
         
 			@Override
              public void run() {*/
-	ActionListener task = new ActionListener() {
+	ActionListener physicsPerformer = new ActionListener() {
 
 		
 		@Override
@@ -166,8 +166,8 @@ public class GameEngine{
 			
 			world = new World(location, this, game, false, statusLabel);
 			
-
-			generateTerrain(seed);
+				generateTerrain(seed);	
+			
 
 			long finishTime = System.currentTimeMillis();
 			Main.log("Done. World generation took: " + (finishTime-startTime)/1000.0f + " seconds.");
@@ -201,7 +201,7 @@ public class GameEngine{
 	
 	private void init() {
 		
-		ActionListener taskPerformer = new ActionListener() {
+		ActionListener tickPerformer = new ActionListener() {
             @Override
 			public void actionPerformed(ActionEvent evt) {
                 //...Perform a task...
@@ -283,13 +283,13 @@ public class GameEngine{
 				
             }};
             
-        timer = new Timer((int)(1000*Main.TICKSPEED) , taskPerformer);
+        ticker = new Timer((int)(1000*Main.TICKSPEED) , tickPerformer);
         
         //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain); 
          
         
         
-        physics = new Timer(1000/physicsFPS, task);
+        physics = new Timer(1000/physicsFPS, physicsPerformer);
         
        // startPhysics();
 		//physics = new java.util.Timer();
@@ -311,7 +311,7 @@ public class GameEngine{
 		{
 			float JumpDistance = resultant / physicsFPS * VerticalVector.z;
 			if (resultant < 0)
-			{// lefelï¿½ esik ï¿½nmagï¿½hoz kï¿½pest
+			{// lefelé esik önmagához képest
 				Block under = world.getBlockUnderEntity(false, true, entity);// world.getBlockAtF(entity.ViewFrom.x,
 																			// entity.ViewFrom.y, entity.ViewFrom.z+JumpDistance);
 				if (VerticalVector.z == 1)
@@ -329,7 +329,7 @@ public class GameEngine{
 				} else
 				{
 					if (under != Block.NOTHING && under.z <= entity.getPos().z + 1.7f + JumpDistance)
-					{ // beleesne egy blokkba alulrï¿½l
+					{ // beleesne egy blokkba alulról
 						entity.getPos().z = under.z - 1.7f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
@@ -339,7 +339,7 @@ public class GameEngine{
 					}
 				}
 			} else if (resultant > 0)
-			{ // felfelï¿½ ugrik ï¿½nmagï¿½hoz kï¿½pest
+			{ // felfelé ugrik  önmagához képest
 				Block above = world.getBlockUnderEntity(false, false, entity);// world.getBlockAtF(entity.ViewFrom.x,
 																				// entity.ViewFrom.y,
 																				// entity.ViewFrom.z+JumpDistance);
@@ -358,7 +358,7 @@ public class GameEngine{
 				} else
 				{
 					if (above != Block.NOTHING && above.z + 1 >= entity.getPos().z + JumpDistance)
-					{ // belefejelne egy blokkba felï¿½lrï¿½l
+					{ // belefejelne egy blokkba felülrõl
 							entity.getPos().z = above.z + 1.01f;
 							entity.JumpVelocity = 0;
 							entity.GravityVelocity = 0;
@@ -634,6 +634,7 @@ public class GameEngine{
 	
 
 	public void startPhysics() {
+		physics2=System.currentTimeMillis();
 		physics.start();
 		//physics = new java.util.Timer();
 		//physics.scheduleAtFixedRate(task, 0, 1000/physicsFPS);

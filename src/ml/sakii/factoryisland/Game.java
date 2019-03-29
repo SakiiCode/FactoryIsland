@@ -31,6 +31,12 @@
  *  TODO kovi verzioban elet, nap
  *  * repules javitasok
  *  
+ *  
+ *  0.8.1 utan
+ *  Fizika timer javitva
+ *  outofmemoryerror mutatasa jo a palyabetolteskor
+ *  logolas jobb, van idokod
+ *  van skylight
  */
 
 package ml.sakii.factoryisland;
@@ -184,11 +190,16 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 
 		}catch(Exception e) {
+			System.gc();
 			e.printStackTrace();
 			error=e.getMessage();
 			return;
-		}finally {
-			
+		} catch (OutOfMemoryError e) {
+			System.gc();
+			e.printStackTrace();
+			error="Out of memory! Use the start.bat file to launch the game!";
+			return;
+		
 		}
 		PE = new PlayerEntity(Engine);
 		
@@ -225,13 +236,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		
 		SwitchInventory(true);
 
-		
-		
-	}
-	
-
-	 void init()
-	{
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
@@ -243,6 +247,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Game.this.requestFocusInWindow();
 			}
 		});
+		
+	}
+	
+
+	private void init()
+	{
+
 		//this.setDoubleBuffered(true);
 		setCursor(invisibleCursor);
 
@@ -525,7 +536,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
 				debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 				debugInfo.add("Selected Block:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
-				debugInfo.add("SelectedPolygon: "+SelectedPolygon);
+				if(SelectedPolygon != null) {
+					debugInfo.add("SelectedPolygon: "+SelectedPolygon+",light:"+SelectedPolygon.getLight()+",spawn:"+Engine.world.SpawnableSurface.contains(SelectedPolygon.spawnpoint));
+				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
@@ -552,6 +565,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						PE.getPos().z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));
 				debugInfo.add("flying: " + PE.flying +", Ctrl: "+key[7]);
 				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps );
+				
 					
 				// DEBUG SZÖVEG
 				g.setColor(Color.BLACK);
@@ -909,7 +923,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			key[5] = true;
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_F)
+		/*if (arg0.getKeyCode() == KeyEvent.VK_F)
 		{
 			locked = !locked;
 			if (locked)
@@ -919,7 +933,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				Engine.timer.start();
 			}
-		}
+		}*/
 		if (arg0.getKeyCode() == KeyEvent.VK_F3)
 		{
 			F3 = !F3;
@@ -1221,7 +1235,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 		//running = false;
 		renderThread.kill();
-		Engine.timer.stop();
+		Engine.ticker.stop();
 		Engine.stopPhysics();
 		if (Engine.client != null)
 		{
@@ -1252,7 +1266,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		//running = false;
 		renderThread.kill();
 		if (Engine.server == null) {
-			Engine.timer.stop();
+			Engine.ticker.stop();
 			Engine.stopPhysics();
 		}
 			
@@ -1274,20 +1288,22 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	void resume()
 	{
 		Main.focused = true;
-		addKeyListener(this);
-		addMouseListener(this);
-		addMouseWheelListener(this);
+		
 		setCursor(invisibleCursor);
 		if (Engine.server == null) {
-			Engine.timer.start();
+			Engine.ticker.start();
 			Engine.startPhysics();
 		}
 		firstframe = true;
 		//running = true;
 		renderThread = new RenderThread(this);
 		renderThread.start();
-		Main.SwitchWindow("game");
+		
+		addKeyListener(this);
+		addMouseListener(this);
+		addMouseWheelListener(this);
 		currentTime=System.nanoTime();
+		Main.SwitchWindow("game");
 
 	}
 

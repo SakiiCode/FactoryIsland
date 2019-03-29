@@ -7,7 +7,8 @@ import java.awt.image.BufferedImage;
 public class Surface {
 	@Override
 	public String toString() {
-		return "Surface [Texture=" + Texture + ", c=" + c + ", p=" + p + ", color=" + color + ", paint=" + paint + "]";
+		//return "Surface [Texture=" + Texture + ", c=" + c + ", p=" + p + ", color=" + color + ", paint=" + paint + "]";
+		return c+"";
 	}
 
 	public BufferedImage Texture;

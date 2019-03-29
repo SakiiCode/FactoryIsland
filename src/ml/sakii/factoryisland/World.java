@@ -350,6 +350,13 @@ public class World {
 				}
 			}
 		}*/
+		addLight(b.x, b.y, b.z+1, Block.NOTHING, 1, null);
+		addLight(b.x, b.y, b.z-1, Block.NOTHING, 1, null);
+		addLight(b.x, b.y+1, b.z, Block.NOTHING, 1, null);
+		addLight(b.x, b.y-1, b.z, Block.NOTHING, 1, null);
+		addLight(b.x+1, b.y, b.z, Block.NOTHING, 1, null);
+		addLight(b.x-1, b.y, b.z, Block.NOTHING, 1, null);
+		
 		for(Block source : sources) {
 			addLight(source.x, source.y, source.z, source, source.lightLevel, null);
 		}
@@ -539,12 +546,12 @@ public class World {
 					if(current==null || current<intensity) {
 						//poly.lightSources.put(source, intensity);
 						poly.addSource(source, intensity);
-						Vector spawnpoint = new Vector().set(poly.centroid).add(new Vector(0, 0, 1.7f));
-						if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<3 && !SpawnableSurface.contains(spawnpoint)) {
-							SpawnableSurface.add(spawnpoint);
+						//Vector spawnpoint = new Vector().set(poly.centroid).add(new Vector(0, 0, 1.7f));
+						if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<3 && !SpawnableSurface.contains(poly.spawnpoint)) {
+							SpawnableSurface.add(poly.spawnpoint);
 						
-						}else if(SpawnableSurface.contains(spawnpoint)) {
-							SpawnableSurface.remove(spawnpoint);
+						}else if(SpawnableSurface.contains(poly.spawnpoint)) {
+							SpawnableSurface.remove(poly.spawnpoint);
 						}
 					}
 					
@@ -621,12 +628,12 @@ public class World {
 
 					//poly.lightSources.remove(source);
 					poly.removeSource(source);
-					Vector spawnpoint = new Vector().set(poly.centroid).add(new Vector(0, 0, 1.7f));
-					if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<7 && !SpawnableSurface.contains(spawnpoint)) {
-						SpawnableSurface.add(spawnpoint);
+					//Vector spawnpoint = new Vector().set(poly.centroid).add(new Vector(0, 0, 1.7f));
+					if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<7 && !SpawnableSurface.contains(poly.spawnpoint)) {
+						SpawnableSurface.add(poly.spawnpoint);
 					
-					}else if(SpawnableSurface.contains(spawnpoint)) {
-						SpawnableSurface.remove(spawnpoint);
+					}else if(SpawnableSurface.contains(poly.spawnpoint)) {
+						SpawnableSurface.remove(poly.spawnpoint);
 					}
 				}
 				

@@ -3,6 +3,8 @@ package ml.sakii.factoryisland;
 public class Vector {
 	public float x, y, z;
 	
+	public static final Vector PLAYER = new Vector(0, 0, 1.7f);
+	
 	public Vector(){
 		this.x = 0;
 		this.y = 0;

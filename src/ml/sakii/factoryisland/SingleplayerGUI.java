@@ -201,7 +201,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 		
 		statusLabel = new JLabel("");
 		statusLabel.setLocation(submitButton.getX(), submitButton.getY()+70);
-		statusLabel.setSize(400,100);
+		statusLabel.setSize(submitButton.getWidth(),submitButton.getHeight()*2);
 		statusLabel.setVisible(true);
 		
 		
@@ -275,7 +275,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	    }else if(c.equals("delete")){
 	        int dialogButton = JOptionPane.YES_NO_OPTION;
 
-	    	int dialogResult = JOptionPane.showConfirmDialog (null, "Biztosan törlöd ezt a pályát?","Warning",dialogButton);
+	    	int dialogResult = JOptionPane.showConfirmDialog (null, "Do you really want to delete this world?","Warning",dialogButton);
 	    	if(dialogResult == JOptionPane.YES_OPTION){
 	    		delete();
 	    	}
@@ -325,19 +325,20 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 		(new Thread() {
 			  @Override
 				public void run() {
-				  if(Main.launchWorld(mapName, generate, statusLabel)) {
-				    	statusLabel.setText("");
-				    	seedField.setText("");
-				    	nameField.setText("");
-				    	submitButton.setEnabled(true);
-				    	worldsList.setEnabled(true);
-				    	nameField.setEnabled(true);
-						seedField.setEnabled(true);
-						generateButton.setEnabled(true);
-						deleteButton.setEnabled(true);
-				  }else {
+				  if(!Main.launchWorld(mapName, generate, statusLabel)) {
 					  SingleplayerGUI.this.requestFocusInWindow();
+					  
+				  }else {
+				  statusLabel.setText("");
 				  }
+			    	seedField.setText("");
+			    	nameField.setText("");
+			    	submitButton.setEnabled(true);
+			    	worldsList.setEnabled(true);
+			    	nameField.setEnabled(true);
+					seedField.setEnabled(true);
+					generateButton.setEnabled(true);
+					deleteButton.setEnabled(true);
 
 	  }
 	 }).start();

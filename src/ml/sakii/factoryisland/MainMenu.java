@@ -97,16 +97,21 @@ public class MainMenu extends JPanel implements ActionListener{
 			
 		}
 		
-		
-		JLabel instructions = new JLabel("<html><body><center>Controls</center><ul><li>WASD - move</li><li>Ctrl - toggle fly</li><li>Space - jump / fly up</li><li>Shift - fly down</li><li>Escape - pause</li><li>G - add any item to inventory</li><li>Q - switch between inventories</li><li>F2 - save screenshot</li><li>F6 - open map to LAN multiplayer</li></ul>"
+		String data = "<html><body><center>Controls</center><ul><li>WASD - move</li><li>Ctrl - toggle fly</li><li>Space - jump / fly up</li><li>Shift - fly down</li><li>Escape - pause</li><li>G - add any item to inventory</li><li>Q - switch between inventories</li><li>F2 - save screenshot</li><li>F6 - open map to LAN multiplayer</li></ul>"
 				+ "&nbsp;&nbsp;"+"Early Access Alpha v"+Main.MAJOR+"."+Main.MINOR+"."+Main.REVISION+"<br>"
 				+ "&nbsp;&nbsp;&nbsp;&nbsp;Created by Sakii <br>"
-				+ "&nbsp;&nbsp;&nbsp;&nbsp;http://sakii.itch.io/factoryisland<hr>"
-				+ "<center>System Info</center><br>"
+				+ "&nbsp;&nbsp;&nbsp;&nbsp;http://sakii.itch.io/factoryisland<hr>";
+		
+		String data2 = "<center>System Info</center><br>"
 				+ "&nbsp;&nbsp;"+System.getProperty("os.name")+"<br>"
 				+ "&nbsp;&nbsp;"+System.getProperty("java.version")+" "+System.getProperty("sun.arch.data.model") +" bits JVM<br>"
 				+ "&nbsp;&nbsp;"+Runtime.getRuntime().totalMemory()/1000/1000+"/"+Runtime.getRuntime().maxMemory()/1000/1000+" MB of memory<br>"
-				+ "</body></html>");
+				+ "</body></html>";
+		Main.log("---------------------------------------------------");
+		String[] logged =data2.replaceAll("<br>","\n").replaceAll("<\\/?\\w+>", "").replaceAll("&nbsp;"," ").split("\n"); 
+		for(String line : logged) {Main.log(line);}
+		
+		JLabel instructions = new JLabel(data+data2);
 		instructions.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
 		instructions.setForeground(Color.WHITE);
 		instructions.setBackground(new Color(0.2f, 0.2f, 0.2f, 0.5f));

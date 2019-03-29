@@ -48,6 +48,7 @@ public class Polygon3D extends Object3D{
 	
 	private final HashMap<Block, Integer> lightSources = new HashMap<>();
 	private Color4 lightedcolor;
+	Vector spawnpoint=new Vector();
 	
 	public Polygon3D(Vertex[] vertices, Surface s) {
 		
@@ -563,6 +564,7 @@ public class Polygon3D extends Object3D{
 	    }
 
 	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
+	    this.spawnpoint.set(centroid).add(Vector.PLAYER);
 	}
 
 	
