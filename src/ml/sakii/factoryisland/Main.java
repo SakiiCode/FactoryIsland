@@ -299,7 +299,7 @@ public class Main
 		{
 			GAME = new Game(mapName, seed, LoadMethod.GENERATE, statusLabel);
 			if(GAME.error==null) {
-				statusLabel.setText("Post-worldgen");
+				statusLabel.setText("Executing post-worldgen instructions...");
 				GAME.Engine.afterGen();
 			}else {
 				Main.err(GAME.error);

@@ -35,7 +35,7 @@
  *  0.8.1 utan
  *  Fizika timer javitva
  *  outofmemoryerror mutatasa jo a palyabetolteskor
- *  logolas jobb, van idokod
+ *  logolas jobb, van idokod is
  *  van skylight
  */
 

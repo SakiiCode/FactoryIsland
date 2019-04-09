@@ -166,7 +166,7 @@ public class GameEngine{
 			
 			world = new World(location, this, game, false, statusLabel);
 			
-				generateTerrain(seed);	
+			generateTerrain(seed, statusLabel);	
 			
 
 			long finishTime = System.currentTimeMillis();
@@ -380,7 +380,7 @@ public class GameEngine{
 	
    
 	
-	private void generateTerrain(long seed) {
+	private void generateTerrain(long seed, JLabel statusLabel) {
 		
 		world.seed = seed;
 
@@ -391,7 +391,7 @@ public class GameEngine{
 		int sealevel = 0;//world.CHUNK_HEIGHT/2;
 		
 		Main.log("- Creating earth above sea level...");
-		
+		statusLabel.setText("- Creating earth above sea level...");
 		System.gc();
 
 		int hillCount = RandomGen.nextInt(8)+8;
@@ -418,6 +418,7 @@ public class GameEngine{
 			}
 		}
 		Main.log("- Creating earth under sea level...");
+		statusLabel.setText("- Creating earth under sea level...");
 		System.gc();
 		hillCount = RandomGen.nextInt(8)+8;
 
@@ -445,6 +446,7 @@ public class GameEngine{
 		}
 		System.gc();
 		Main.log("- Adding pond...");
+		statusLabel.setText("- Adding pond...");
 		int top = world.getTop(0, 0);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
 
 		for(int i = -1; i <= 1; i++)
@@ -483,6 +485,7 @@ public class GameEngine{
 		
 		//int bushCount = RandomGen.nextInt(10)+5;
 		Main.log("- Planting tree ...");
+		statusLabel.setText("- Planting tree ...");
 		
 		ArrayList<Block> grasses = new ArrayList<>();
 		for(Block b : world.getWhole(false)){
@@ -522,6 +525,8 @@ public class GameEngine{
 			world.addBlock(new SaplingBlock(0, 0, 1, this), true);
 		}
 		
+		Main.log("- Lunar module landing ...");
+		statusLabel.setText("- Lunar module landing ...");
 		
 		int lmbx = RandomGen.nextInt(60)-30;
 		int lmby = RandomGen.nextInt(60)-30;
@@ -549,7 +554,7 @@ public class GameEngine{
 	}
 	
 	void afterGen() {
-		Main.log(" - Executing post-worldgen instructions...");
+		Main.log("- Executing post-worldgen instructions...");
 		if(Main.Mods.size()>0) {
 			
 			for(String mod : Main.Mods) {
