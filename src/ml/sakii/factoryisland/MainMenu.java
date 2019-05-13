@@ -110,7 +110,7 @@ public class MainMenu extends JPanel implements ActionListener{
 		Main.log("---------------------------------------------------");
 		String[] logged =data2.replaceAll("<br>","\n").replaceAll("<\\/?\\w+>", "").replaceAll("&nbsp;"," ").split("\n"); 
 		for(String line : logged) {Main.log(line);}
-		Main.log("&nbsp;&nbsp;"+"Early Access Alpha v"+Main.MAJOR+"."+Main.MINOR+"."+Main.REVISION);
+		Main.log("  Early Access Alpha v"+Main.MAJOR+"."+Main.MINOR+"."+Main.REVISION);
 		JLabel instructions = new JLabel(data+data2);
 		instructions.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
 		instructions.setForeground(Color.WHITE);

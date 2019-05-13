@@ -36,7 +36,11 @@ public class Color4 extends Color{
 	
 	
 	public Color4(Color c1) {
-		super(c1.getRGB());
+		super(c1.getRGB(),true);
+	}
+	
+	public Color4(int rgb) {
+		super(rgb, true);
 	}
 
 	public Color4 blend(Color4 c1) {
@@ -74,8 +78,8 @@ public class Color4 extends Color{
 		return new Color4(r01, g01, b01, 1);
 	}
 	
-	public Color4 blend3(Color4 c1) {
-		Color4 c0=this;
+	public Color4 blend3(Color4 c0) { //efölé c0
+		Color4 c1=this;
 		float a0=c0.getAlpha()/255f;
 		float a1=c1.getAlpha()/255f;
 		float r0=c0.getRed()/255f;
@@ -112,7 +116,9 @@ public class Color4 extends Color{
 		return new Color4((int) r, (int) g, (int) b, (int) a);
 	}
 	
-
+	public Color4 newAlpha(int alpha) {
+		return new Color4(getRed(),getGreen(),getBlue(),alpha);
+	}
 	
 	@Override
 	public String toString(){

@@ -47,8 +47,8 @@ public class Main
 {
 
 	public final static byte MAJOR = 0;
-	public final static byte MINOR = 8;
-	public final static byte REVISION = 5;
+	public final static byte MINOR = 9;
+	public final static byte REVISION = -1;
 	
 	public static boolean devmode = false, nopause = false;
 	public static Color drillGradientBeginColor = new Color(100, 40, 40, 200);
@@ -80,6 +80,7 @@ public class Main
 	public static Surface[] waters, oils;
 	public static Color wmSideColor, wmGradientBeginColor, wmPoweredColor;
 	static final JPanel Base = new JPanel(new CardLayout());
+	
 	static Clip BGMusic;
 
 	static boolean focused = true;
@@ -130,6 +131,12 @@ public class Main
 			public void run()
 			{
 				setupWindow();
+				
+				if(args[0].equals("-map")) {
+					SwitchWindow("generate");
+					launchWorld(args[1], false, ((SingleplayerGUI)Base.getComponents()[0]).statusLabel);
+					
+				}
 			}
 		});
 		
@@ -264,7 +271,7 @@ public class Main
 
 
 		SwitchWindow("mainmenu");
-
+		
 		Frame.setVisible(true);
 		Main.log(Config.username + " @ "+ Frame.getBounds().toString());
 

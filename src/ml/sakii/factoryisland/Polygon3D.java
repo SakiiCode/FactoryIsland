@@ -47,7 +47,7 @@ public class Polygon3D extends Object3D{
 	private int light=0;
 	
 	private final HashMap<Block, Integer> lightSources = new HashMap<>();
-	private Color4 lightedcolor;
+	Color4 lightedcolor; //TODO private
 	Vector spawnpoint=new Vector();
 	
 	public Polygon3D(Vertex[] vertices, Surface s) {
@@ -162,7 +162,7 @@ public class Polygon3D extends Object3D{
 		return lightSources.keySet();
 	}
 	
-	@SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	public void recalcLightedColor() {
 		light=0;
 		for(int intensity : lightSources.values()) {
@@ -177,20 +177,21 @@ public class Polygon3D extends Object3D{
 			lightedcolor=new Color4(s.c);
 			for(int i=0;i<Block.MAXLIGHT-light;i++) {
 				
-				lightedcolor= lightedcolor.blend2(new Color4(0, 0, 0, 0.5f));
+				lightedcolor= lightedcolor.blend3(new Color4(0, 0, 0, 0.1f));
 				//Main.log(lightedcolor.toString());
 			}
 		}else if(Config.brightness<9) {
 			lightedcolor=new Color4(s.c);
 			for(int i=0;i<Block.MAXLIGHT-light;i++) {
 				
-				lightedcolor= lightedcolor.blend2(new Color4(0, 0, 0, (10-Config.brightness)/11.5f));
+				lightedcolor= lightedcolor.blend3(new Color4(0, 0, 0, 0.5f));//(10-Config.brightness)/10f));
 				//Main.log(lightedcolor.toString());
 			}
 			
 		}else {
 			lightedcolor=new Color4(s.c);
 		}
+		lightedcolor = lightedcolor.newAlpha(s.c.getAlpha());
 	}
 	
 	@SuppressWarnings("unused")
@@ -207,7 +208,7 @@ public class Polygon3D extends Object3D{
 		}else if(Config.brightness<9) { // altalanos sotetseg, config gradiens
 			overlay=new Color4(0, 0, 0, 0);
 			for(int i=0;i<Block.MAXLIGHT-light;i++) {
-				overlay= overlay.blend3(new Color4(0, 0, 0, (10-Config.brightness)/10f));
+				overlay= overlay.blend3(new Color4(0, 0, 0, 0.5f));//(10-Config.brightness)/10f));
 				
 			}
 			
@@ -216,6 +217,22 @@ public class Polygon3D extends Object3D{
 		}
 		
 		return overlay;
+	}*/
+	
+	
+	
+	public Color4 getLightOverlay() {
+		light=0;
+		for(int intensity : lightSources.values()) {
+			if(intensity>light) {
+				light=intensity;
+			}
+		}
+		return new Color4(0f, 0f, 0f, (float)Math.pow(0.98, light+1));
+	}
+	
+	public void recalcLightedColor() {
+		lightedcolor = new Color4(s.c).blend3(getLightOverlay());
 	}
 	
 	public int getLight() {
@@ -330,15 +347,16 @@ public class Polygon3D extends Object3D{
 					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
 					 	double u=uz/iz;
 					 	double v=vz/iz;
-					 	int rgb=0;
+					 	//int rgb=0;
 					 	//try {
-					 		rgb = s.Texture.getRGB((int)u, (int)v);
+					 		Color4 rgb = new Color4(s.Texture.getRGB((int)u, (int)v));					 		
+					 		Color4 light = new Color4(FrameBuffer.getRGB(x, y)).blend3(rgb);//.blend3(getLightOverlay());
 					 	/*}catch(Exception e) {
 					 		Main.log(e.getMessage() + " on texture");
 					 		Main.log("u= "+u+" ,v="+v);
 					 	}
 					 	try {*/
-					 		FrameBuffer.setRGB(x, y, rgb);
+					 		FrameBuffer.setRGB(x, y, light.getRGB());
 					 	/*}catch(Exception e) {
 					 		Main.log(e.getMessage() + " on framebuffer");
 					 		//Main.log(this);
@@ -347,7 +365,7 @@ public class Polygon3D extends Object3D{
 					 		Main.log(FrameBuffer.getWidth()+","+FrameBuffer.getHeight());
 					 		Main.log("------------------------------------------------------------------");
 					 	}*/
-
+					 		//lighted=true;
 					}
 					
 				}
@@ -359,7 +377,16 @@ public class Polygon3D extends Object3D{
 		if(s.paint){
 			((Graphics2D)g).setPaint(s.p);
 			g.fillPolygon(polygon);
-			((Graphics2D)g).setPaint(Color.BLACK);
+			//((Graphics2D)g).setPaint(Color.BLACK);
+		}
+		
+		if(!lighted) {
+			
+			Color4 lightedc=getLightOverlay();
+			//Graphics2D g2 =((Graphics2D)g); 
+			g.setColor(lightedc);
+			g.fillPolygon(polygon);
+			
 		}
 		
 
@@ -392,14 +419,7 @@ public class Polygon3D extends Object3D{
 		}
 		
 		
-		if(!lighted) {
-			
-			Color4 lightedc=getLightOverlay();
-			Graphics2D g2 =((Graphics2D)g); 
-			g2.setPaint(lightedc);
-			g2.fillPolygon(polygon);
-			
-		}
+
 		
 		if(selected){
 			((Graphics2D)g).setPaint(new RadialGradientPaint(
@@ -411,6 +431,8 @@ public class Polygon3D extends Object3D{
 			g.fillPolygon(polygon);
 
 		}
+		
+
 	}
 	
 	

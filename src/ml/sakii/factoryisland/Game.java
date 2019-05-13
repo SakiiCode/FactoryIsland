@@ -1,42 +1,9 @@
 /*
  * Changlelog:
  * 
- *  + Kreatív mód, multiplayerben is
- *  * Lehet csinálni relogint
- *  + Multiplayer végtelen ciklusba delay -> teljesítmény növ.
- *  * pozíció, aim mindenhol jól betöltõdik
- *  * mar nem kell escapelni mp csatlakozáskor (ertelmetlen kod bennmaradt!)
- *  + pálya törlés
- *  + elozo palya alapbol kivalasztva
- *  * fix távolságtartás
- * 	+ log file
- * 	+ fények
- * 	+ screenshot mentés
- *  + latszik a log a  status labelben, vmiert gyorsabban valt ablakot (?)
- *  + egyszerûsített gomb kód
- *  + infók a fõmenüben
- *  + PE
- *  + entity rendszer
- *  + ûrlény AI
- *  + fizika külön szálon
- *  + seterr, setout ha nem devmode
- *  + ûrlények,entity rendszer mpben
- *  + render kulon szalon
- *  * dinamikus font meret
- *  * fix 7-es brightness
- *  * nopause ujra megy
- *  * delete confirm
- *  * ui atrendezes, fixes singleplayerGUI-ban
- *  * finomhangolasok
- *  TODO kovi verzioban elet, nap
- *  * repules javitasok
- *  
- *  
- *  0.8.1 utan
- *  Fizika timer javitva
- *  outofmemoryerror mutatasa jo a palyabetolteskor
- *  logolas jobb, van idokod is
- *  van skylight
+
+ * Atlatszo viz
+ * feny jol mukodik, TODO vmiert csillog a szele
  */
 
 package ml.sakii.factoryisland;
@@ -104,8 +71,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	 static final long serialVersionUID = 2515747642091598425L;
 
 	public GameEngine Engine;
-	//public final EAngle PE.ViewAngle = new EAngle(-135, 0);
-	//public final Vector PE.getPos() = new Vector(19.5f, 19.5f, 15.0f);
 	public PlayerEntity PE;
 	public final HashMap<String, PlayerMP> playerList = new HashMap<>();
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
@@ -180,7 +145,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	boolean customfly=false;
 
 	
-	//Timer renderTimer = new Timer();//1000/30, renderAction);
 	RenderThread renderThread = new RenderThread(this);
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
@@ -290,21 +254,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Stars[i] = new Star(this);
 		}
 
-		//renderTimer.scheduleAtFixedRate(renderAction, 0, 1000/60);
 
 	}
 	
-	/*@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
-		
-
-
-
-		
-	}*/
 
 	void render(Graphics g) {
 		
@@ -425,8 +378,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					VisibleCount++;
 				}
 			});
-			//Buffer2 = Main.deepCopy(FrameBuffer);
-			//fb.dispose();
+
 			
 			
 			if (SelectedPolygon == null)
@@ -500,13 +452,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if (activeInventory != null)
 			{
 				fb.drawImage(op.filter(FrameBuffer, null), 0, 0, null);
-						//FrameBuffer=;
-
-			//	g.drawImage(op.filter(Buffer2, null), 0, 0, Main.Frame.getWidth(), Main.Frame.getHeight(), null);
-			}/* else
-			{
-				g.drawImage(Buffer2, 0, 0, Main.Frame.getWidth(), Main.Frame.getHeight(), null);
-			}*/
+			}
 
 			if (ViewBlock instanceof WaterBlock)
 			{
@@ -538,6 +484,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("Selected Block:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 				if(SelectedPolygon != null) {
 					debugInfo.add("SelectedPolygon: "+SelectedPolygon+",light:"+SelectedPolygon.getLight()+",spawn:"+Engine.world.SpawnableSurface.contains(SelectedPolygon.spawnpoint));
+					debugInfo.add("lighted:"+SelectedPolygon.lightedcolor+",surface:"+new Color4(SelectedPolygon.s.c)+",overlay:"+SelectedPolygon.getLightOverlay());
 				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
@@ -804,84 +751,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 			GameEngine.doGravity(PE, Engine.world, (int) FPS);
 		}
-		/*
-			Vector VerticalVector = PE.VerticalVector;
-			if (!Engine.world.getBlockAtF(PE.getPos().x, PE.getPos().y,
-					PE.getPos().z - ((1.7f + World.GravityAcceleration / FPS) * VerticalVector.z)).solid)
-			{
-				PE.GravityVelocity -= World.GravityAcceleration / FPS;
-			}
-	
-			float resultant = (PE.JumpVelocity + PE.GravityVelocity);
-			if (Math.abs(PE.JumpVelocity) + Math.abs(PE.GravityVelocity) != 0f)
-			{
-				float JumpDistance = resultant / FPS * VerticalVector.z;
-				if (resultant < 0)
-				{// lefelé esik önmagához képest
-					Block under = Engine.world.getBlockUnderEntity(false, true, PE);// world.getBlockAtF(PE.getPos().x,
-																				// PE.getPos().y, PE.getPos().z+JumpDistance);
-					if (VerticalVector.z == 1)
-					{
-	
-						if (under != Block.NOTHING && under.z + 1 >= PE.getPos().z - 1.7f + JumpDistance)
-						{ // beleesne egy blokkba felülrõl
-							PE.getPos().z = under.z + 2.7f;
-							PE.JumpVelocity = 0;
-							PE.GravityVelocity = 0;
-						} else
-						{
-							PE.getPos().z += JumpDistance;
-						}
-					} else
-					{
-						if (under != Block.NOTHING && under.z <= PE.getPos().z + 1.7f + JumpDistance)
-						{ // beleesne egy blokkba alulról
-							PE.getPos().z = under.z - 1.7f;
-							PE.JumpVelocity = 0;
-							PE.GravityVelocity = 0;
-						} else
-						{
-							PE.getPos().z += JumpDistance;
-						}
-					}
-				} else if (resultant > 0)
-				{ // felfelé ugrik önmagához képest
-					Block above = Engine.world.getBlockUnderEntity(false, false, PE);// world.getBlockAtF(PE.getPos().x,
-																					// PE.getPos().y,
-																					// PE.getPos().z+JumpDistance);
-	
-					if (VerticalVector.z == 1)
-					{
-						if (above != Block.NOTHING && above.z <= PE.getPos().z + JumpDistance)
-						{ // belefejelne egy blokkba alulról
-							PE.getPos().z = above.z - 0.01f;
-							PE.JumpVelocity = 0;
-							PE.GravityVelocity = 0;
-						} else
-						{
-							PE.getPos().z += JumpDistance;
-						}
-					} else
-					{
-						if (above != Block.NOTHING && above.z + 1 >= PE.getPos().z + JumpDistance)
-						{ // belefejelne egy blokkba felülrõl
-							PE.getPos().z = above.z + 1.01f;
-							PE.JumpVelocity = 0;
-							PE.GravityVelocity = 0;
-						} else
-						{
-							PE.getPos().z += JumpDistance;
-						}
-	
-					}
-				}
-	
-			}
-	
-			if (PE.JumpVelocity > 0)
-			{
-				PE.JumpVelocity = Math.max(0, PE.JumpVelocity - World.GravityAcceleration / FPS);
-			}*/
 		
 
 	}
@@ -1207,7 +1076,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			activeInventory.getInv().hotbarIndex = -1;
 			activeInventory.getInv().SelectedStack = null;
-			// activeInventory.setIndex(-1);
 		} else
 		{
 			SwitchInventory(true);
@@ -1254,7 +1122,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.world.saveByShutdown();
 		}
 		Objects.clear();
-		//Entities.clear();
 		Main.SwitchWindow("mainmenu");
 		Main.Base.remove(this);
 		Main.GAME = null;
