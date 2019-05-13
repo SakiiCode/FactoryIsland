@@ -66,45 +66,7 @@ public class Color4 {
 		return buffer;
 	}
 		
-/*
-	public Color4(int rgb) {
-		super(rgb, true);
-	}*/
 
-	/*public Color4 blend(Color4 c1) {
-		double weight0 = getAlpha()/255d;
-		double weight1 = 1-(getAlpha()/255d);
-		  
-		  
-		double r = this.getRed() * weight0 + c1.getRed() * weight1;
-		double g = this.getGreen() * weight0 + c1.getGreen() * weight1;
-		double b = this.getBlue() * weight0 + c1.getBlue() * weight1;
-		double a = Math.min(this.getAlpha() + c1.getAlpha(),255);
-
-		return new Color4((int) r, (int) g, (int) b, (int) a);
-	}*/
-	
-	/*public Color4 blend2(Color4 c1) {
-		Color4 c0=this;
-		float a1=c1.getAlpha()/255f;
-		float a0=1-a1;
-		float r0=c0.getRed()/255f;
-		float r1=c1.getRed()/255f;
-		float g0=c0.getGreen()/255f;
-		float g1=c1.getGreen()/255f;
-		float b0=c0.getBlue()/255f;
-		float b1=c1.getBlue()/255f;
-		
-		float a01 = (1 - a0)*a1 + a0;
-
-		float r01 = ((1 - a0)*a1*r1 + a0*r0) / a01;
-
-		float g01 = ((1 - a0)*a1*g1 + a0*g0) / a01;
-
-		float b01 = ((1 - a0)*a1*b1 + a0*b0) / a01;
-
-		return new Color4(r01, g01, b01, 1);
-	}*/
 	
 	public Color4 blend(Color4 c0) { //efölé c0
 		float a0=c0.getAlpha()/255f;
@@ -171,21 +133,7 @@ public class Color4 {
 		this.buffer = Color.BLACK;
 	}
 	
-	
-	/*public Color4 interpolate(Color4 c1, double ratio) {
-	  
-		double r = this.getRed() + (c1.getRed() - this.getRed()) * ratio;
-		double g = this.getGreen() + (c1.getGreen() - this.getGreen()) * ratio;
-		double b = this.getBlue() + (c1.getBlue() - this.getBlue()) * ratio;
-		double a = this.getAlpha() + (c1.getAlpha() - this.getAlpha()) * ratio;
 
-		return new Color4((int) r, (int) g, (int) b, (int) a);
-	}*/
-	
-	/*public Color4 newAlpha(int alpha) {
-		return new Color4(getRed(),getGreen(),getBlue(),alpha);
-	}*/
-	
 	
 	/**
      * Creates a new <code>Color</code> that is a brighter version of this
@@ -264,6 +212,12 @@ public class Color4 {
 	public String toString(){
 		return "Color4("+getRed()+","+getGreen()+","+getBlue()+","+getAlpha()+")";
 		
+	}
+
+	public Color4 setAlpha(int pow)
+	{
+		construct(r, g, b, pow);
+		return this;
 	}
 	  
 }

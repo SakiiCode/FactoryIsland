@@ -17,9 +17,9 @@ public class GradientCalculator {
 		float[] begin = values[1];
 		float[] end = values[2];
 		
-		 Point2D begin1p = Main.GAME.convert3Dto2D(new Vector(x+begin1[0], y+begin1[1], z+begin1[2]));
-		 Point2D beginp = Main.GAME.convert3Dto2D(new Vector(x+begin[0], y+begin[1], z+begin[2]));
-		 Point2D endp= Main.GAME.convert3Dto2D(new Vector(x+end[0], y+end[1], z+end[2]));
+		 Point2D begin1p = Main.GAME.convert3Dto2D(new Vector(x+begin1[0], y+begin1[1], z+begin1[2]), new Point2D.Float());
+		 Point2D beginp = Main.GAME.convert3Dto2D(new Vector(x+begin[0], y+begin[1], z+begin[2]), new Point2D.Float());
+		 Point2D endp= Main.GAME.convert3Dto2D(new Vector(x+end[0], y+end[1], z+end[2]), new Point2D.Float());
 		
 		return new Point2D[]{begin1p, beginp, endp};
 		

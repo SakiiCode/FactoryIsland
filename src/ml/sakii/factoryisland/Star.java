@@ -2,11 +2,11 @@ package ml.sakii.factoryisland;
 
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
-
 public class Star {
 	final Vector pos, pos2=new Vector();
 	final float size;
 	final Game game;
+	private final Point2D.Float p = new Point2D.Float();
 	
 	public Star(Game game) {
 		//int face = (int)(Math.random()*5);
@@ -26,7 +26,7 @@ public class Star {
 		
 		if(game.ViewVector.DotProduct(pos) > 0) {
 			pos2.set(pos).add(game.PE.getPos());
-			Point2D p = game.convert3Dto2D(pos2);
+			game.convert3Dto2D(pos2,p);
 			g.fillOval((int)p.getX(), (int)p.getY(), (int)(size*game.ratio), (int)(size*game.ratio));
 		}
 	}

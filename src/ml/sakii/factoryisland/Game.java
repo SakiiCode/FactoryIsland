@@ -3,7 +3,10 @@
  * 
 
  * Atlatszo viz
- * feny jol mukodik, TODO vmiert csillog a szele
+ * mindenhol Color4 -> memoria sporolas
+ * Texturas modban nincs arnyek
+ * 2Dto3D optimalizalas
+ * 
  */
 
 package ml.sakii.factoryisland;
@@ -16,6 +19,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
@@ -98,6 +102,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	 float centerX, centerY, McenterX, McenterY;
 
 	 float difX, difY;
+	 Point2D.Float dP=new Point2D.Float();
 
 	 float dx, dy;
 	 boolean F3 = false;
@@ -146,6 +151,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	
 	RenderThread renderThread = new RenderThread(this);
+
+	private Paint crosshairColor=new Color(1.0f, 1.0f, 1.0f, 0.2f);
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 
@@ -236,9 +243,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		resizeScreen(Config.width, Config.height);
 		//resizeScreen(Main.Frame.getWidth(), Main.Frame.getHeight());
 		ViewTo.set(PE.getPos()).add(ViewVector);
-		Point2D.Float P = P(ViewTo);
-		dx = -Config.zoom * P.x + centerX;
-		dy = -Config.zoom * P.y + centerY;
+		setP(ViewTo,dP);
+		dx = -Config.zoom * dP.x + centerX;
+		dy = -Config.zoom * dP.y + centerY;
 
 		try
 		{
@@ -323,10 +330,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				if (!locked) ViewFrustum.update();
 
 				ViewTo.set(PE.getPos()).add(ViewVector);
-				Point2D.Float P = P(ViewTo);
+				setP(ViewTo,dP);
 
-				dx = -Config.zoom * P.x + centerX;
-				dy = -Config.zoom * P.y + centerY;
+				dx = -Config.zoom * dP.x + centerX;
+				dy = -Config.zoom * dP.y + centerY;
 
 				firstframe = false;
 			}
@@ -460,7 +467,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				g.fillRect(0, 0, Main.Frame.getWidth(), Main.Frame.getHeight());
 			}
 
-			((Graphics2D) g).setPaint(new Color(1.0f, 1.0f, 1.0f, 0.2f));
+			((Graphics2D) g).setPaint(crosshairColor);
 
 			int cX = (int)centerX;
 			int cY = (int)centerY;
@@ -524,7 +531,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					int i = 0;
 					while (iter.hasNext())
 					{
-						g.drawString(iter.next(), 40, 40 + i + j);
+						g.drawString(iter.next(), 20, 40 + i + j);
 						i += g.getFont().getSize()*(1.2f+(FrameBuffer.getHeight()-320f)/704f);
 					}
 					g.setColor(Color.WHITE);
@@ -1024,15 +1031,34 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 
-	public Point2D convert3Dto2D(Vector v)
+
+	
+	public Point2D.Float convert3Dto2D(Vector v, Point2D.Float point)
 	{
-		Point2D.Float P = P(v);
-		float x2d = dx + Config.zoom * P.x;
-		float y2d = dy + Config.zoom * P.y;
+		setP(v, point);
+		float x2d = dx + Config.zoom * point.x;
+		float y2d = dy + Config.zoom * point.y;
 
-		P.setLocation(x2d, y2d);
-		return P;
+		point.setLocation(x2d, y2d);
+		return point;
 
+	}
+	
+	 private void setP(Vector v, Point2D.Float point)
+	{
+
+		float t = v.substract(PE.getPos()).DotProduct(ViewVector);
+		v.multiply(1 / t).add(PE.getPos());
+
+		// Vector ViewToPoint = v.cpy().substract(PE.getPos());
+		// ViewToPoint.set(v);
+		// ViewToPoint.substract(PE.getPos());
+
+		// float t = ViewVector.DotProduct(ViewToPoint);
+
+		// ViewToPoint.multiply(1/t).add(PE.getPos());
+		point.setLocation(RightViewVector.DotProduct(v), BottomViewVector.DotProduct(v));
+		//return point;
 	}
 
 	@Override
@@ -1145,7 +1171,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		removeMouseWheelListener(this);
 		for (int i = 0; i < key.length; i++)
 		{
-			key[i] = false;
+			if(i!=7)
+				key[i] = false;
 		}
 
 		Main.PausedBG = op.filter(FrameBuffer, null);
@@ -1210,15 +1237,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 		if (!local && activeInventory != null)
 		{
-			/*
-			 * if(localInvActive) { Engine.Inv.hotbarIndex=-1;
-			 * Engine.Inv.SelectedStack=null;
-			 * 
-			 * if(activeInventory.getInv().items.size()>0) {
-			 * activeInventory.getInv().hotbarIndex=0;
-			 * activeInventory.getInv().SelectedStack=activeInventory.getInv().items.get(0);
-			 * } }else {
-			 */
+
 			Engine.Inv.hotbarIndex = -1;
 			Engine.Inv.SelectedStack = null;
 
@@ -1250,18 +1269,22 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	
 
-	 static HashMap<BlockFace, Block> getBlocksCollidingWithPlayer(float x, float y, float z, World world, Entity entity)
+	 static Block[] getBlocksCollidingWithPlayer(float x, float y, float z, World world, Entity entity)
 	{
-		HashMap<BlockFace, Block> result = new HashMap<>();
+		//HashMap<BlockFace, Block> result = new HashMap<>();
+		 Block[] result = new Block[3];
 		int dx = (int) Math.floor(x);
 		int dy = (int) Math.floor(y);
 		int dz1 = (int) Math.floor(z);
 		int dz2 = (int) Math.floor(z - 1f * entity.VerticalVector.z);
 		int dz3 = (int) Math.floor(z - 1.699f * entity.VerticalVector.z);
 
-		result.put(BlockFace.TOP, world.getBlockAt(dx, dy, dz1));
+		/*result.put(BlockFace.TOP, world.getBlockAt(dx, dy, dz1));
 		result.put(BlockFace.NONE, world.getBlockAt(dx, dy, dz2));
-		result.put(BlockFace.BOTTOM, world.getBlockAt(dx, dy, dz3));
+		result.put(BlockFace.BOTTOM, world.getBlockAt(dx, dy, dz3));*/
+		result[0]=world.getBlockAt(dx, dy, dz1);
+		result[1]=world.getBlockAt(dx, dy, dz2);
+		result[2]=world.getBlockAt(dx, dy, dz3);
 
 		return result;
 
@@ -1274,15 +1297,15 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		float nextX = entity.getPos().x + direction.x * coefficient / FPS;
 		float nextY = entity.getPos().y + direction.y * coefficient / FPS;
 
-		HashMap<BlockFace, Block> blocks6X = getBlocksCollidingWithPlayer(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, world, entity);
-		HashMap<BlockFace, Block> blocks6Y = getBlocksCollidingWithPlayer(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, world, entity);
-		Block nextBlockX1 = blocks6X.get(BlockFace.TOP);
-		Block nextBlockX2 = blocks6X.get(BlockFace.NONE);
-		Block nextBlockX3 = blocks6X.get(BlockFace.BOTTOM);
+		Block[] blocks6X = getBlocksCollidingWithPlayer(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, world, entity);
+		Block[] blocks6Y = getBlocksCollidingWithPlayer(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, world, entity);
+		Block nextBlockX1 = blocks6X[0];//.get(BlockFace.TOP);
+		Block nextBlockX2 = blocks6X[1];//.get(BlockFace.NONE);
+		Block nextBlockX3 = blocks6X[2];//.get(BlockFace.BOTTOM);
 
-		Block nextBlockY1 = blocks6Y.get(BlockFace.TOP);
-		Block nextBlockY2 = blocks6Y.get(BlockFace.NONE);
-		Block nextBlockY3 = blocks6Y.get(BlockFace.BOTTOM);
+		Block nextBlockY1 = blocks6Y[0];//.get(BlockFace.TOP);
+		Block nextBlockY2 = blocks6Y[1];//.get(BlockFace.NONE);
+		Block nextBlockY3 = blocks6Y[2];//.get(BlockFace.BOTTOM);
 
 		if (!nextBlockX1.solid && !nextBlockX2.solid && !nextBlockX3.solid)
 		{
@@ -1347,22 +1370,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 
-	 Point2D.Float P(Vector v)
-	{
 
-		float t = v.substract(PE.getPos()).DotProduct(ViewVector);
-		v.multiply(1 / t).add(PE.getPos());
-
-		// Vector ViewToPoint = v.cpy().substract(PE.getPos());
-		// ViewToPoint.set(v);
-		// ViewToPoint.substract(PE.getPos());
-
-		// float t = ViewVector.DotProduct(ViewToPoint);
-
-		// ViewToPoint.multiply(1/t).add(PE.getPos());
-
-		return new Point2D.Float(RightViewVector.DotProduct(v), BottomViewVector.DotProduct(v));
-	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0)

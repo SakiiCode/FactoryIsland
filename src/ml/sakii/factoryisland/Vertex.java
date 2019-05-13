@@ -14,6 +14,7 @@ public class Vertex {
 	final Point proj;
 	private final Vector ViewToPoint = new Vector();
 	static final Vertex NULL = new Vertex(0, 0, 0, 0, 0);
+	private final Point2D.Float spec = new Point2D.Float();
 	
 	public Vertex(float x, float y, float z, int u, int v) {
 		this.pos=new Vector(x, y,z);
@@ -51,7 +52,7 @@ public class Vertex {
 		
 		// 2d koordináták kiszámítása
 		ViewToPoint.set(pos);
-		Point2D spec = Main.GAME.convert3Dto2D(ViewToPoint);
+		Main.GAME.convert3Dto2D(ViewToPoint, spec);
 		proj.x = (int)spec.getX();
 		proj.y = (int)spec.getY();
 		

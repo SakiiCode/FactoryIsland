@@ -48,7 +48,13 @@ public class Polygon3D extends Object3D{
 	
 	private final HashMap<Block, Integer> lightSources = new HashMap<>();
 	private Color4 lightedcolor = new Color4(); //TODO private
+	private Color4 overlay=new Color4();
+	Color4 pixel = new Color4();
 	Vector spawnpoint=new Vector();
+	Point2D.Double centroid2D = new Point2D.Double();
+	private float[] fractions = new float[]{0.5f,1.0f};
+	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
+	
 	
 	public Polygon3D(Vertex[] vertices, Surface s) {
 		
@@ -162,64 +168,6 @@ public class Polygon3D extends Object3D{
 		return lightSources.keySet();
 	}
 	
-	/*@SuppressWarnings("unused")
-	public void recalcLightedColor() {
-		light=0;
-		for(int intensity : lightSources.values()) {
-			if(intensity>light) {
-				light=intensity;
-			}
-		}
-		
-		if(Config.brightness==6 && light==0) {
-			lightedcolor=new Color4(Color.BLACK);
-		}else if(Config.brightness==6 && light>0){
-			lightedcolor=new Color4(s.c);
-			for(int i=0;i<Block.MAXLIGHT-light;i++) {
-				
-				lightedcolor= lightedcolor.blend3(new Color4(0, 0, 0, 0.1f));
-				//Main.log(lightedcolor.toString());
-			}
-		}else if(Config.brightness<9) {
-			lightedcolor=new Color4(s.c);
-			for(int i=0;i<Block.MAXLIGHT-light;i++) {
-				
-				lightedcolor= lightedcolor.blend3(new Color4(0, 0, 0, 0.5f));//(10-Config.brightness)/10f));
-				//Main.log(lightedcolor.toString());
-			}
-			
-		}else {
-			lightedcolor=new Color4(s.c);
-		}
-		lightedcolor = lightedcolor.newAlpha(s.c.getAlpha());
-	}
-	
-	@SuppressWarnings("unused")
-	private Color4 getLightOverlay() {
-		Color4 overlay;
-		if(Config.brightness==6 && light==0) { // legsotetebb, megvilagitas nelkul
-			overlay=new Color4(Color.BLACK);
-		}else if(Config.brightness==6 && light>0){ // legsotetebb, de megvilagitva, 0.5-os gradiens
-			overlay=new Color4(0, 0, 0, 0);
-			for(int i=0;i<Block.MAXLIGHT-light;i++) {
-				
-				overlay= overlay.blend3(new Color4(0, 0, 0, 0.5f));
-			}
-		}else if(Config.brightness<9) { // altalanos sotetseg, config gradiens
-			overlay=new Color4(0, 0, 0, 0);
-			for(int i=0;i<Block.MAXLIGHT-light;i++) {
-				overlay= overlay.blend3(new Color4(0, 0, 0, 0.5f));//(10-Config.brightness)/10f));
-				
-			}
-			
-		}else { // kozvetlen vilagitas
-			overlay=new Color4(0, 0, 0, 0);
-		}
-		
-		return overlay;
-	}*/
-	
-	
 	
 	public Color4 getLightOverlay() {
 		light=0;
@@ -228,7 +176,7 @@ public class Polygon3D extends Object3D{
 				light=intensity;
 			}
 		}
-		return new Color4(0f, 0f, 0f, (float)Math.pow(0.8, light+1));
+		return overlay.setAlpha((int)(Math.pow(0.8, light+1)*255));
 	}
 	
 	public Color4 getLightedColor() {
@@ -343,7 +291,6 @@ public class Polygon3D extends Object3D{
 
 					int xmin2=Math.max(xmin, 0);
 					int xmax2=Math.min(xmax, FrameBuffer.getWidth());
-					Color4 pixel = new Color4();
 					for(int x=xmin2;x<xmax2;x++)
 					{
 					 
@@ -432,10 +379,10 @@ public class Polygon3D extends Object3D{
 		
 		if(selected){
 			((Graphics2D)g).setPaint(new RadialGradientPaint(
-					calculateCentroid(polygon),
+					calculateCentroid(polygon, centroid2D),
 					getRadius(polygon),
-					new float[]{0.5f,1.0f},
-					new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK},
+					fractions ,
+					colors ,
 					CycleMethod.NO_CYCLE));
 			g.fillPolygon(polygon);
 
@@ -449,8 +396,12 @@ public class Polygon3D extends Object3D{
 
 	public void recalcNormal() {
 		if(Vertices.length>0) {
-			Plane p = new Plane(Vertices[0].pos, Vertices[1].pos, Vertices[2].pos);
-			normal.set(p.normal);
+			Vector v0 = Vertices[0].pos;
+			Vector v1 = Vertices[1].pos;
+			Vector v2 = Vertices[2].pos;
+			normal.set(new Vector().set(v1).substract(v0).CrossProduct(new Vector().set(v1).substract(v2)));
+			//Plane p = new Plane(Vertices[0].pos, Vertices[1].pos, Vertices[2].pos);
+			//normal.set(p.normal);
 		}
 	}
 	
@@ -483,7 +434,7 @@ public class Polygon3D extends Object3D{
 	}
 	
 	
-	private static Point2D.Double calculateCentroid(Polygon polygon) {
+	private static Point2D.Double calculateCentroid(Polygon polygon, Point2D.Double point) {
 	    double x = 0d;
 	    double y = 0d;
 	    for (int i = 0;i < polygon.npoints;i++){
@@ -494,7 +445,8 @@ public class Polygon3D extends Object3D{
 	    x = x/polygon.npoints;
 	    y = y/polygon.npoints;
 
-	    return new Point2D.Double(x, y);
+	    point.setLocation(x, y);
+	    return point;
 	}
 	
 	private void clearClip() {

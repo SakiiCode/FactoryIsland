@@ -14,6 +14,7 @@ public class Text3D extends Object3D
 	public Vector location;
 	public int x, y;
 	private final Vector ViewToPoint = new Vector();
+	private final Point2D.Float proj = new Point2D.Float();
 
 	public Text3D(String text, float x, float y, float z)
 	{
@@ -33,7 +34,7 @@ public class Text3D extends Object3D
 		if (ViewToPoint.DotProduct(Main.GAME.ViewVector) > 0)
 		{
 			ViewToPoint.set(location);
-			Point2D proj = Main.GAME.convert3Dto2D(ViewToPoint);
+			Main.GAME.convert3Dto2D(ViewToPoint, proj);
 			x = (int) proj.getX();
 			y = (int) proj.getY();
 			return true;
