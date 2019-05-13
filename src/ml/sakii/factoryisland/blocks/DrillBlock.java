@@ -2,6 +2,8 @@ package ml.sakii.factoryisland.blocks;
 
 
 import java.awt.Color;
+
+import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
@@ -10,7 +12,7 @@ public class DrillBlock extends SimpleMachine{
 	public DrillBlock(int x, int y, int z, GameEngine engine) {
 		super("Drill", x, y, z, 
 				Main.drillSideColor,
-				Main.drillGradientBeginColor,Main.drillGradientBeginColor, Color.RED, engine);
+				Main.drillGradientBeginColor,Main.drillGradientBeginColor, new Color4(Color.RED), engine);
 				
 	}
 	

@@ -1,9 +1,9 @@
 package ml.sakii.factoryisland.blocks;
 
-import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.geom.Point2D;
 
+import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
@@ -14,19 +14,19 @@ public class SimpleMachine extends Block
 		implements InteractListener, PlaceListener, PowerListener, TextureListener, LoadListener, MetadataListener
 {
 	public Polygon3D TargetPolygon;
-	private Color side;
-	private Color front;
-	private Color active;
+	private Color4 side;
+	private Color4 front;
+	private Color4 active;
 
-	public SimpleMachine(String name, int x, int y, int z, Color side, Color front, Color active, Color target, GameEngine engine)
+	public SimpleMachine(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 target, GameEngine engine)
 	{
 		super(name, x, y, z,
-				new Surface(side, new GradientPaint(0, 0, front, 0, 0, side)),
-				new Surface(side, new GradientPaint(0, 0, front, 0, 0, side)),
-				new Surface(side, new GradientPaint(0, 0, front, 0, 0, side)),
-				new Surface(side, new GradientPaint(0, 0, front, 0, 0, side)),
-				new Surface(side, new GradientPaint(0, 0, front, 0, 0, side)),
-				new Surface(side, new GradientPaint(0, 0, front, 0, 0, side)), engine);
+				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
+				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
+				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
+				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
+				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
+				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())), engine);
 
 		this.side = side;
 		this.front = front;
@@ -151,10 +151,10 @@ public class SimpleMachine extends Block
 			Point2D endPerp = GradientCalculator.getPerpendicular(begin1, begin, begin, begin.distance(end));
 			String level = BlockMeta.get("active");
 			if(level ==null || Integer.valueOf(level)==0) {
-				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front, endPerp, side);
+				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front.getColor(), endPerp, side.getColor());
 				
 			}else {
-				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front, endPerp, active);				
+				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front.getColor(), endPerp, active.getColor());				
 			}
 			
 		}

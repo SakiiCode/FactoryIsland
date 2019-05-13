@@ -184,7 +184,7 @@ public class Block extends Object3D
 
 		if (Polygons.get(0).s.color)
 		{ // TOP
-			g.setColor(Polygons.get(0).s.c);
+			g.setColor(Polygons.get(0).s.c.getColor());
 			g.fillPolygon(top);
 		} else
 		{
@@ -196,7 +196,7 @@ public class Block extends Object3D
 
 		if (Polygons.get(3).s.color)
 		{ // NORTH
-			g.setColor(Polygons.get(3).s.c);
+			g.setColor(Polygons.get(3).s.c.getColor());
 			g.fillPolygon(front);
 		} else
 		{
@@ -208,7 +208,7 @@ public class Block extends Object3D
 
 		if (Polygons.get(4).s.color)
 		{ // WEST
-			g.setColor(Polygons.get(4).s.c);
+			g.setColor(Polygons.get(4).s.c.getColor());
 			g.fillPolygon(side);
 		} else
 		{
@@ -249,7 +249,7 @@ public class Block extends Object3D
 
 		if (Polygons.get(0).s.color)
 		{ // TOP
-			g.setColor(Polygons.get(0).s.c);
+			g.setColor(Polygons.get(0).s.c.getColor());
 			g.fillPolygon(top);
 		} else
 		{
@@ -261,7 +261,7 @@ public class Block extends Object3D
 
 		if (Polygons.get(3).s.color)
 		{ // NORTH
-			g.setColor(Polygons.get(3).s.c);
+			g.setColor(Polygons.get(3).s.c.getColor());
 			g.fillPolygon(front);
 		} else
 		{
@@ -273,7 +273,7 @@ public class Block extends Object3D
 
 		if (Polygons.get(4).s.color)
 		{ // WEST
-			g.setColor(Polygons.get(4).s.c);
+			g.setColor(Polygons.get(4).s.c.getColor());
 			g.fillPolygon(side);
 		} else
 		{

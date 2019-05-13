@@ -4,6 +4,7 @@ package ml.sakii.factoryisland.blocks;
 import java.awt.Color;
 import java.util.Map.Entry;
 
+import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
@@ -12,7 +13,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
 		super("WaterMill", x, y, z,  
-				Main.wmSideColor,Main.wmGradientBeginColor,Main.wmPoweredColor, Color.BLUE, engine);
+				Main.wmSideColor,Main.wmGradientBeginColor,Main.wmPoweredColor, new Color4(Color.BLUE), engine);
 	}
 	
 	

@@ -18,7 +18,7 @@ public class MainMenuButton extends JButton{
 		this.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
 		//this.setText(text);
 		//this.setIcon(null);
-		this.setBackground(Main.stone.c.darker().darker());
+		this.setBackground(new Color4().set(Main.stone.c).darker().darker().getColor());
 		this.setForeground(Color.WHITE);
 		this.setHorizontalAlignment(SwingConstants.LEFT);
 		this.setVerticalAlignment(SwingConstants.CENTER);

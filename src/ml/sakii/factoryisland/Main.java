@@ -50,10 +50,10 @@ public class Main
 	public final static byte MINOR = 9;
 	public final static byte REVISION = -1;
 	
-	public static boolean devmode = false, nopause = false;
-	public static Color drillGradientBeginColor = new Color(100, 40, 40, 200);
+	public static boolean devmode = true, nopause = false;
+	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
 	public static BufferedImage drillSide;
-	public static Color drillSideColor, drillFrontColor, chestModule, tankModule;
+	public static Color4 drillSideColor, drillFrontColor, chestModule, tankModule;
 	public static Surface fire;
 
 	public final static JFrame Frame = new JFrame();
@@ -78,7 +78,7 @@ public class Main
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
 	public static Surface[] waters, oils;
-	public static Color wmSideColor, wmGradientBeginColor, wmPoweredColor;
+	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;
 	static final JPanel Base = new JPanel(new CardLayout());
 	
 	static Clip BGMusic;
@@ -132,8 +132,12 @@ public class Main
 			{
 				setupWindow();
 				
-				if(args[0].equals("-map")) {
+				if(args.length>0 && args[0].equals("-map")) {
 					SwitchWindow("generate");
+					/*SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
+					sp.worldsList.setSelectedValue(args[1], true);
+					sp.join(false);
+					*/
 					launchWorld(args[1], false, ((SingleplayerGUI)Base.getComponents()[0]).statusLabel);
 					
 				}
@@ -398,8 +402,8 @@ public class Main
 		leaf = new Surface(loadTexture("textures/blocks/leaf3.png"));
 		sapling = new Surface(new Color(150, 100, 50).darker());
 		saplingTop = new Surface(Color.GREEN);
-		chestModule = new Color(85, 85, 85);
-		tankModule = new Color(255, 153, 0);
+		chestModule = new Color4(85, 85, 85);
+		tankModule = new Color4(255, 153, 0);
 		playerSide = new Surface(Color.BLUE);
 		playerFront = new Surface(Color.RED);
 		alienSide = new Surface(Color.GREEN.brighter());
@@ -407,13 +411,13 @@ public class Main
 		drillSide = loadTexture("textures/blocks/drill_side5.png");
 		drillSideColor = Surface.averageColor(drillSide);
 		//Color4 tmp = new Color4(drillGradientBeginColor);
-		drillFrontColor = drillSideColor.darker().darker();//tmp.blend(drillSideColor);
+		drillFrontColor = new Color4().set(drillSideColor).darker().darker();//tmp.blend(drillSideColor);
 		lamp = new Surface(new Color(240, 220, 170));
 
-		wmSideColor = new Color(200, 200, 255);
-		wmGradientBeginColor = new Color(20, 20, 70);
+		wmSideColor = new Color4(200, 200, 255);
+		wmGradientBeginColor = new Color4(20, 20, 70);
 		fire = new Surface(new Color(255, 153, 0));
-		wmPoweredColor = fire.c.brighter();
+		wmPoweredColor = new Color4().set(fire.c).brighter();
 
 		BufferedReader reader = new BufferedReader(
 				new InputStreamReader(Main.class.getResourceAsStream("blocks/BlockRegistry.txt")));
@@ -440,15 +444,7 @@ public class Main
 			mods.mkdir();
 		} else
 		{
-			/*
-			 * File[] listOfFiles = mods.listFiles(); if(listOfFiles != null) { for(File mod
-			 * : listOfFiles) { String[] parts = mod.getName().split("\\.");
-			 * if(parts[parts.length-1].equals("js")) {
-			 * 
-			 * @SuppressWarnings("unused") ModBlock modBlock = new ModBlock(parts[0], 0, 0,
-			 * 0, null); } } }
-			 */
-			// File file = new File("mods");
+
 			File[] directories = mods.listFiles(new FilenameFilter()
 			{
 				@Override
@@ -468,7 +464,6 @@ public class Main
 				}
 
 			}
-			// Main.log(Arrays.toString(directories));
 		}
 
 		File saves = new File("saves");

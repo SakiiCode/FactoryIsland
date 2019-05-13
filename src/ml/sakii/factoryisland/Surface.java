@@ -12,27 +12,45 @@ public class Surface {
 	}
 
 	public BufferedImage Texture;
-	public Color c;
+	public Color4 c;
 	public Paint p;
 	public boolean color;
 	public boolean paint;
 	
-	
+	//ModBlock-hoz kell
 	public Surface(Object o) {
-		if(o instanceof Color) {
-			this.c = (Color)o;
+		if(o instanceof Color4) {
+			this.c = (Color4) o;
 			color = true;
 			paint = false;
-		}else {
+		}else if(o instanceof BufferedImage){
 			this.Texture = (BufferedImage)o;
 			this.c = averageColor((BufferedImage)o);
 			color = false;
 			paint = false;
-		}
+		}else if(o instanceof Color) {
+			this.c = new Color4((Color)o);
+			color = true;
+			paint = false;
+		} else
+			try
+			{
+				throw new Exception();
+			} catch (Exception e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		
 	}
 	
-	public Surface(Color c){
+	/*public Surface(Color c){
+		this.c = new Color4(c);
+		color = true;
+		paint = false;
+	}
+	
+	public Surface(Color4 c){
 		this.c = c;
 		color = true;
 		paint = false;
@@ -43,9 +61,9 @@ public class Surface {
 		this.c = averageColor(img);
 		color = false;
 		paint = false;
-	}
+	}*/
 	
-	public Surface(Color c, Paint p){
+	public Surface(Color4 c, Paint p){
 		this.c = c;
 		color = true;
 		this.p = p;
@@ -73,7 +91,7 @@ public class Surface {
 		return new Surface(Texture);
 	}
 	
-	static Color averageColor(BufferedImage bi) {
+	static Color4 averageColor(BufferedImage bi) {
 		int x0=0, y0=0, w=bi.getWidth(), h=bi.getHeight();
 
 	    int x1 = x0 + w;
@@ -93,7 +111,7 @@ public class Surface {
 	    int avgg = sumg / num;
 	    int avgb = sumb / num;
 	    int avga = suma / num;
-	    return new Color(avgr, avgg, avgb, avga);
+	    return new Color4(avgr, avgg, avgb, avga);
 	}
 
 }

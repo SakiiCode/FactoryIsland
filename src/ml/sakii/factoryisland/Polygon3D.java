@@ -47,13 +47,13 @@ public class Polygon3D extends Object3D{
 	private int light=0;
 	
 	private final HashMap<Block, Integer> lightSources = new HashMap<>();
-	Color4 lightedcolor; //TODO private
+	private Color4 lightedcolor = new Color4(); //TODO private
 	Vector spawnpoint=new Vector();
 	
 	public Polygon3D(Vertex[] vertices, Surface s) {
 		
 		this.Vertices = vertices;
-		//this.clip.addAll(Arrays.asList(vertices));
+		
 		this.s = s;
 		for(int i=0;i<clip.length;i++) {
 			clip[i]=new Vertex(Vertex.NULL);
@@ -228,11 +228,15 @@ public class Polygon3D extends Object3D{
 				light=intensity;
 			}
 		}
-		return new Color4(0f, 0f, 0f, (float)Math.pow(0.98, light+1));
+		return new Color4(0f, 0f, 0f, (float)Math.pow(0.8, light+1));
+	}
+	
+	public Color4 getLightedColor() {
+		return lightedcolor;
 	}
 	
 	public void recalcLightedColor() {
-		lightedcolor = new Color4(s.c).blend3(getLightOverlay());
+		lightedcolor.set(s.c).blend(getLightOverlay());
 	}
 	
 	public int getLight() {
@@ -247,11 +251,11 @@ public class Polygon3D extends Object3D{
 		boolean lighted=false;
 		if(s.color || !Config.useTextures || AvgDist > 25){
 
-			if(!s.paint) {
-				g.setColor(lightedcolor);
+			if(!s.paint && !Config.useTextures) {
+				g.setColor(lightedcolor.getColor());
 				lighted=true;
 			}else {
-				g.setColor(s.c);
+				g.setColor(s.c.getColor());
 			}
 			g.fillPolygon(polygon);
 			
@@ -339,6 +343,7 @@ public class Polygon3D extends Object3D{
 
 					int xmin2=Math.max(xmin, 0);
 					int xmax2=Math.min(xmax, FrameBuffer.getWidth());
+					Color4 pixel = new Color4();
 					for(int x=xmin2;x<xmax2;x++)
 					{
 					 
@@ -349,14 +354,15 @@ public class Polygon3D extends Object3D{
 					 	double v=vz/iz;
 					 	//int rgb=0;
 					 	//try {
-					 		Color4 rgb = new Color4(s.Texture.getRGB((int)u, (int)v));					 		
-					 		Color4 light = new Color4(FrameBuffer.getRGB(x, y)).blend3(rgb);//.blend3(getLightOverlay());
+					 		int rgb = pixel.set(FrameBuffer.getRGB(x, y)).blend(s.Texture.getRGB((int)u, (int)v)).getRGB();
+					 		//Color4 rgb = new Color4();					 		
+					 		//Color4 light = new Color4().blend3(rgb);//.blend3(getLightOverlay());
 					 	/*}catch(Exception e) {
 					 		Main.log(e.getMessage() + " on texture");
 					 		Main.log("u= "+u+" ,v="+v);
 					 	}
 					 	try {*/
-					 		FrameBuffer.setRGB(x, y, light.getRGB());
+					 		FrameBuffer.setRGB(x, y, rgb);
 					 	/*}catch(Exception e) {
 					 		Main.log(e.getMessage() + " on framebuffer");
 					 		//Main.log(this);
@@ -380,12 +386,15 @@ public class Polygon3D extends Object3D{
 			//((Graphics2D)g).setPaint(Color.BLACK);
 		}
 		
-		if(!lighted) {
+		if(!lighted && !Config.useTextures) {
 			
 			Color4 lightedc=getLightOverlay();
 			//Graphics2D g2 =((Graphics2D)g); 
-			g.setColor(lightedc);
+			g.setColor(lightedc.getColor());
 			g.fillPolygon(polygon);
+			//Graphics2D g2 = (Graphics2D) g;
+            //g2.setStroke(new BasicStroke(2));
+			//g.drawPolygon(polygon);
 			
 		}
 		

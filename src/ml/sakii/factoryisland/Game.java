@@ -456,7 +456,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			if (ViewBlock instanceof WaterBlock)
 			{
-				g.setColor(ViewBlock.Polygons.get(0).s.c);
+				g.setColor(ViewBlock.Polygons.get(0).s.c.getColor());
 				g.fillRect(0, 0, Main.Frame.getWidth(), Main.Frame.getHeight());
 			}
 
@@ -484,7 +484,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("Selected Block:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 				if(SelectedPolygon != null) {
 					debugInfo.add("SelectedPolygon: "+SelectedPolygon+",light:"+SelectedPolygon.getLight()+",spawn:"+Engine.world.SpawnableSurface.contains(SelectedPolygon.spawnpoint));
-					debugInfo.add("lighted:"+SelectedPolygon.lightedcolor+",surface:"+new Color4(SelectedPolygon.s.c)+",overlay:"+SelectedPolygon.getLightOverlay());
+					debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surface:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
 				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
