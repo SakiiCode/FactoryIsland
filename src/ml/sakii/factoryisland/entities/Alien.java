@@ -13,6 +13,7 @@ public class Alien extends Entity {
 
 	float[] fxy, fxy1, fx1y1, fx1y;
 	public Vector target;
+	public boolean locked=false;
 	
 	public Alien(Vector ViewFrom, EAngle aim, String name,long ID, GameEngine engine){
 		super("Alien",ViewFrom, aim, name,ID, engine);
@@ -78,14 +79,15 @@ public class Alien extends Entity {
 		return new float[]{newX, newY};
 	}
 	
+	@Override
 	public void update(){
 		//yaw += Math.toRadians(90);
 		//yaw = -yaw;
 		float yaw2 = (float) (-ViewAngle.yaw +Math.PI/2);
 
-		float x = getPos().x;
-		float y = getPos().y;
-		float z = getPos().z;
+		float x = ViewFrom.x;
+		float y = ViewFrom.y;
+		float z = ViewFrom.z;
 		
 		float z0 = z-1.7f;	
 		
@@ -111,7 +113,7 @@ public class Alien extends Entity {
 				((Polygon3D)p).recalcNormal();
 				((Polygon3D)p).recalcCentroid();
 			}else {
-				((Text3D)p).location.set(getPos());				
+				((Text3D)p).location.set(ViewFrom);				
 			}
 		}
 		
