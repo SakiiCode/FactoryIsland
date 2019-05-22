@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -12,7 +13,6 @@ import javax.swing.Timer;
 
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.GrassBlock;
-import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.ChestModuleBlock;
 import ml.sakii.factoryisland.blocks.TankModuleBlock;
 import ml.sakii.factoryisland.blocks.ModBlock;
@@ -26,7 +26,7 @@ import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.items.PlayerInventory;
-import ml.sakii.factoryisland.items.Item;
+import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.net.GameClient;
 import ml.sakii.factoryisland.net.GameServer;
 import ml.sakii.factoryisland.net.PlayerMPData;
@@ -58,103 +58,8 @@ public class GameEngine{
 
 	long physics1, physics2;
 	float actualphysicsfps;
-	
-	/*TimerTask task = new TimerTask() {
-        
-			@Override
-             public void run() {*/
-	ActionListener physicsPerformer = new ActionListener() {
+	long lastupdate;
 
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-
-		{
-			physics1 = physics2;
-				physics2 = System.currentTimeMillis();
-
-				if (physics1 == 0L)
-				{
-					actualphysicsfps = 60;
-					//measurement = (float) CalcAverageTick(FPS);
-				} else
-				{
-					actualphysicsfps = 1000f / (physics2 - physics1);
-					//measurement = (float) CalcAverageTick(FPS);
-				}
-				
-				world.getAllEntities().parallelStream().forEach(entity-> /*);
-				for(Entity entity : world.getAllEntities()) */{
-					if(entity instanceof Alien && entity.VerticalVector.equals(Main.GAME.PE.VerticalVector)) {
-						Alien alien = (Alien)entity;
-						Vector closest = null;
-						
-						if(server==null) {
-							if(Main.GAME.PE.getPos().distance(alien.getPos())<10)
-								closest = Main.GAME.PE.getPos();
-						}else {
-							float dst=Float.MAX_VALUE;
-							
-							for(PlayerMPData player : server.clients.values()) {
-								float distance = player.position.distance(alien.getPos());
-								if(distance<10 && distance < dst) {
-									dst=distance;
-									closest=player.position;
-								}
-							}
-						}
-						
-						if(closest!=null) {
-							alien.target.set(closest);
-							//Main.log("closest:"+new Vector().set(closest).substract(alien.ViewFrom));
-						}else {
-							//	Main.log("random:"+new Vector().set(alien.target).substract(alien.ViewFrom));
-						}
-					
-						alien.target.z=alien.getPos().z;
-						
-						Vector aim = new Vector().set(alien.target).substract(alien.getPos());
-						if(aim.getLength()>0.2f) {
-							aim.normalize();
-							
-							if(!Game.move(aim, 2, alien, physicsFPS, world)){
-								alien.jump();
-							}
-							
-							alien.ViewAngle.yaw=(float) Math.atan2(aim.x, aim.y);
-							alien.update();
-						}
-						
-					}
-				
-					if(!(entity instanceof PlayerEntity)) {
-						if (world.getBlockUnderEntity(false, true, entity) == Block.NOTHING)
-						{
-							entity.fly(true);
-						} else
-						{
-							entity.fly(false);
-						}
-						if (!entity.flying)
-						{
-					
-							doGravity(entity, world, physicsFPS);
-						
-						
-						}
-					}
-				
-				
-				}); // minden entity kï¿½d vï¿½ge
-        	
-			}
-
-
-        
-        };
-	
-	
-	
 	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 		init();
 		
@@ -185,14 +90,9 @@ public class GameEngine{
 			String str ="Map loading done: " + world.getSize() + " block loaded."; 
 			Main.log(str);
 			statusLabel.setText(str);
-			break;
 		}
 		
-		for(Block b : world.getWhole(false)) {
-			if(b instanceof LoadListener) {
-				((LoadListener)b).onLoad();
-			}
-		}
+		
 				
 	}
 
@@ -214,7 +114,21 @@ public class GameEngine{
 						if(Tick % ((Block)b).refreshRate == 0){
 							if(!b.tick(Tick)){
 								TickableBlocks.remove(b);
+								
+								
+								for (Block b2 : world.get6Blocks(((Block)b), false).values())
+								{
+									if (b2 instanceof TickListener && (client == null || (client != null && client != null)))
+									{
+										//addToUpdates((TickListener) b2);
+										if(!TickableBlocks.contains(b2)) {
+											TickableBlocks.add((TickListener) b2);
+										}
+									}
+								}
 							}
+							
+							
 						}
 							
 						
@@ -235,18 +149,20 @@ public class GameEngine{
 					if(Tick % (2f/Main.TICKSPEED) == 0) {
 						for(Entity entity : world.getAllEntities()) {
 							if(entity instanceof Alien) {
-								Alien alien = ((Alien) entity);
 								
-								if(alien.getPos().distance(new Vector())>56) {
-									world.killEntity(alien.ID);
-								}else {
+								Alien alien = ((Alien) entity);
+								Vector alienPos = alien.getPos();
+								
+								if(alienPos.distance(new Vector())>56) {
+									world.killEntity(alien.ID, true);
+								}else if(!alien.locked){
 									double random = Math.random();
 									//float dst = entity.getPos().distance(alien.target); 
 									if(random < 0.4) {
-										alien.target.set(entity.getPos());
+										alien.target.set(alienPos);
 									}else if(random>0.4){
 										Random rnd = new Random();
-										alien.target.set(new Vector(rnd.nextInt(20)-10, rnd.nextInt(20)-10, entity.getPos().z).add(entity.getPos()));
+										alien.target.set(new Vector(rnd.nextInt(20)-10, rnd.nextInt(20)-10, alienPos.z).add(alienPos));
 									}
 									//Main.log("target:"+(new Vector().set(alien.target).substract(entity.getPos())));
 									//Main.log("--------------------------------");
@@ -255,31 +171,52 @@ public class GameEngine{
 						}
 					}
             	}
-				
-				if(Main.GAME != null && client != null && (Tick % (1/*/Main.TICKSPEED*/) == 0)){
-					currentPos[0]=r(Main.GAME.PE.getPos().x,2);
-					currentPos[1]=r(Main.GAME.PE.getPos().y,2);
-					currentPos[2]=r(Main.GAME.PE.getPos().z,2);
-					currentPos[3]=r(Main.GAME.PE.ViewAngle.yaw,3);
-					currentPos[4]=r(Main.GAME.PE.ViewAngle.pitch,3);
-					for(int i=0;i<5;i++) {
-						if(previousPos[i] != currentPos[i]) {
-							client.sendData("04," + Config.username + "," + 
-									r(Main.GAME.PE.getPos().x,2) + "," + 
-									r(Main.GAME.PE.getPos().y, 2) + "," + 
-									r(Main.GAME.PE.getPos().z,2) + "," + 
-									r(Main.GAME.PE.ViewAngle.yaw,3) +"," +  
-									r(Main.GAME.PE.ViewAngle.pitch,3) );
-							previousPos[0]=currentPos[0];
-							previousPos[1]=currentPos[1];
-							previousPos[2]=currentPos[2];
-							previousPos[3]=currentPos[3];
-							previousPos[4]=currentPos[4];
-							break;
+				if(Tick % Main.ENTITYSYNCRATE == 0) {
+					if(Main.GAME != null && client != null){
+						Vector PEPos = Main.GAME.PE.getPos();
+						currentPos[0]=r(PEPos.x,2);
+						currentPos[1]=r(PEPos.y,2);
+						currentPos[2]=r(PEPos.z,2);
+						currentPos[3]=r(Main.GAME.PE.ViewAngle.yaw,3);
+						currentPos[4]=r(Main.GAME.PE.ViewAngle.pitch,3);
+						for(int i=0;i<5;i++) {
+							if(previousPos[i] != currentPos[i]) {
+								client.sendData("04," + Config.username + "," + 
+										r(PEPos.x,2) + "," + 
+										r(PEPos.y, 2) + "," + 
+										r(PEPos.z,2) + "," + 
+										r(Main.GAME.PE.ViewAngle.yaw,3) +"," +  
+										r(Main.GAME.PE.ViewAngle.pitch,3) );
+								previousPos[0]=currentPos[0];
+								previousPos[1]=currentPos[1];
+								previousPos[2]=currentPos[2];
+								previousPos[3]=currentPos[3];
+								previousPos[4]=currentPos[4];
+								break;
+							}
 						}
+						
 					}
 					
+					if(server != null) {
+						for(Entry<String,PlayerMPData> entry : server.clients.entrySet()) {
+							String name = entry.getKey();
+							if(!name.equals(Config.username)) {
+								StringBuilder data = new StringBuilder();
+								data.append("16");
+								for(Entity e : world.getAllEntities()) {
+									data.append(",");
+									data.append(e);
+								
+								}
+								server.sendData(data.toString(), entry.getValue().socket);
+							}
+						}
+					}
+				
 				}
+				
+				
 				
             }};
             
@@ -287,7 +224,114 @@ public class GameEngine{
         
         //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain); 
          
-        
+        ActionListener physicsPerformer = new ActionListener() {
+
+    		
+    		@Override
+    		public void actionPerformed(ActionEvent e)
+
+    		{
+    			physics1 = physics2;
+    				physics2 = System.currentTimeMillis();
+
+    				if (physics1 == 0L)
+    				{
+    					actualphysicsfps = 60;
+    					//measurement = (float) CalcAverageTick(FPS);
+    				} else
+    				{
+    					actualphysicsfps = 1000f / (physics2 - physics1);
+    					//measurement = (float) CalcAverageTick(FPS);
+    				}
+    				
+    				world.getAllEntities().parallelStream().forEach(entity-> /*);
+    				for(Entity entity : world.getAllEntities()) */{
+    					if(entity instanceof Alien && entity.VerticalVector.equals(Main.GAME.PE.VerticalVector)) {
+    						Alien alien = (Alien)entity;
+    						Vector closest = null;
+    						
+    						Vector PEPos = Main.GAME.PE.getPos();
+    						Vector alienPos = alien.getPos();
+    						
+    						if(server==null) {
+    							if(PEPos.distance(alienPos)<10)
+    								closest = PEPos;
+    						}else {
+    							float dst=Float.MAX_VALUE;
+    							
+    							for(PlayerMPData player : server.clients.values()) {
+    								float distance = player.position.distance(alienPos);
+    								if(distance<10 && distance < dst) {
+    									dst=distance;
+    									closest=player.position;
+    								}
+    							}
+    						}
+    						
+    						if(closest!=null) {
+    							alien.target.set(closest);
+    							alien.locked=true;
+    							//Main.log("closest:"+new Vector().set(closest).substract(alien.ViewFrom));
+    						}else {
+    							alien.locked=false;
+    							//	Main.log("random:"+new Vector().set(alien.target).substract(alien.ViewFrom));
+    						}
+    					
+    						alien.target.z=alienPos.z;
+    						
+    						Vector aim = new Vector().set(alien.target).substract(alienPos);
+    						if(aim.getLength()>0.2f) {
+    							aim.normalize();
+    							
+    							//long time=System.currentTimeMillis();
+    							
+    							//if(client == null || ((client != null && server != null)&& time-lastupdate>Main.TICKSPEED*1000*Main.ENTITYSYNCRATE) ) {
+    								if(!world.walk(aim, 2, alien, physicsFPS, false)){
+    									alien.jump();
+    								}
+    							/*	lastupdate=time;
+    							}else if(client != null && server != null) {
+    								
+    								if(!world.walk(aim, 2, alien, physicsFPS, false)){
+    									alien.jump();
+    								}
+    								//lastupdate=time;
+    							}
+    							*/
+    							alien.ViewAngle.yaw=(float) Math.atan2(aim.x, aim.y);
+    							alien.update();
+    						}
+    						
+    					}
+    				
+    					if(!(entity instanceof PlayerEntity)) {
+    						Block under = world.getBlockUnderEntity(false, true, entity);
+    						if (!entity.flying && under == Block.NOTHING)
+    						{
+    							entity.fly(true);
+    						} else if(entity.flying && under != Block.NOTHING)
+    						{
+    							entity.fly(false);
+    						}
+    						if (!entity.flying)
+    						{
+    					
+    							doGravity(entity, world, physicsFPS);
+    						
+    						
+    						}
+    					}
+    				
+    				
+    				}); // minden entity kód vége
+            	
+    			}
+
+
+            
+            };
+    	
+    	
         
         physics = new Timer(1000/physicsFPS, physicsPerformer);
         
@@ -299,9 +343,10 @@ public class GameEngine{
 	
 	static void doGravity(Entity entity, World world, int physicsFPS) {
 		//float FPS=Main.PHYSICS_FPS;
+		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
-		if (!world.getBlockAtF(entity.getPos().x, entity.getPos().y,
-				entity.getPos().z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z)).solid)
+		if (!world.getBlockAtF(entityPos.x, entityPos.y,
+				entityPos.z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z)).solid)
 		{
 			entity.GravityVelocity -= World.GravityAcceleration / physicsFPS;
 		}
@@ -317,25 +362,25 @@ public class GameEngine{
 				if (VerticalVector.z == 1)
 				{
 	
-					if (under != Block.NOTHING && under.z + 1 >= entity.getPos().z - 1.7f + JumpDistance)
+					if (under != Block.NOTHING && under.z + 1 >= entityPos.z - 1.7f + JumpDistance)
 					{ // beleesne egy blokkba felï¿½lrï¿½l
-						entity.getPos().z = under.z + 2.7f;
+						entityPos.z = under.z + 2.7f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
 					} else
 					{
-						entity.getPos().z += JumpDistance;
+						entityPos.z += JumpDistance;
 					}
 				} else
 				{
-					if (under != Block.NOTHING && under.z <= entity.getPos().z + 1.7f + JumpDistance)
+					if (under != Block.NOTHING && under.z <= entityPos.z + 1.7f + JumpDistance)
 					{ // beleesne egy blokkba alulról
-						entity.getPos().z = under.z - 1.7f;
+						entityPos.z = under.z - 1.7f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
 					} else
 					{
-						entity.getPos().z += JumpDistance;
+						entityPos.z += JumpDistance;
 					}
 				}
 			} else if (resultant > 0)
@@ -346,25 +391,25 @@ public class GameEngine{
 	
 				if (VerticalVector.z == 1)
 				{
-					if (above != Block.NOTHING && above.z <= entity.getPos().z + JumpDistance)
+					if (above != Block.NOTHING && above.z <= entityPos.z + JumpDistance)
 					{ // belefejelne egy blokkba alulrï¿½l
-						entity.getPos().z = above.z - 0.01f;
+						entityPos.z = above.z - 0.01f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
 					} else
 					{
-						entity.getPos().z += JumpDistance;
+						entityPos.z += JumpDistance;
 					}
 				} else
 				{
-					if (above != Block.NOTHING && above.z + 1 >= entity.getPos().z + JumpDistance)
+					if (above != Block.NOTHING && above.z + 1 >= entityPos.z + JumpDistance)
 					{ // belefejelne egy blokkba felülrõl
-							entity.getPos().z = above.z + 1.01f;
+							entityPos.z = above.z + 1.01f;
 							entity.JumpVelocity = 0;
 							entity.GravityVelocity = 0;
 					} else
 					{
-							entity.getPos().z += JumpDistance;
+							entityPos.z += JumpDistance;
 					}
 	
 				}
@@ -411,7 +456,7 @@ public class GameEngine{
 						int offsetX = (int) (x+k);
 						int offsetY = (int) (y+l);
 						if(world.getBlockAt(offsetX, offsetY, j) == Block.NOTHING) {
-							world.addBlock(new StoneBlock(offsetX,offsetY,j,this), false);
+							world.addBlockNoReplace(new StoneBlock(offsetX,offsetY,j,this), false);
 						}
 					}
 				}
@@ -438,7 +483,7 @@ public class GameEngine{
 						int offsetY = (int) (y+l);
 						if(world.getBlockAt(offsetX, offsetY, j) == Block.NOTHING) {
 
-							world.addBlock(new StoneBlock(offsetX,offsetY,j,this), false);
+							world.addBlockNoReplace(new StoneBlock(offsetX,offsetY,j,this), false);
 						}
 					}
 				}
@@ -451,17 +496,17 @@ public class GameEngine{
 
 		for(int i = -1; i <= 1; i++)
 			for(int j = -1; j <= 1; j++)
-				world.addBlock(new WaterBlock(i, j, top, this), true);
+				world.addBlockReplace(new WaterBlock(i, j, top, this), false);
 		
 		Main.log("- Sprinkling sand and grass...");
 		
 		for(Block b : world.getWhole(false)){
 			if(!b.name.equals("Water") && !b.name.equals("Old")){
 				if(isNearWater(b)){
-					world.addBlock(new GrassBlock(b.x, b.y, b.z,this), true);
+					world.addBlockReplace(new GrassBlock(b.x, b.y, b.z,this), false);
 				}
 				if(world.getBlockAt(b.x, b.y, b.z+1) instanceof WaterBlock){
-					world.addBlock(new SandBlock(b.x, b.y, b.z,this), true);
+					world.addBlockReplace(new SandBlock(b.x, b.y, b.z,this), false);
 				}
 
 			}
@@ -519,10 +564,10 @@ public class GameEngine{
 			int index = RandomGen.nextInt(grasses.size());
 			Block grass = grasses.get(index);
 			//}while(world.getBlockAt(grass.x, grass.y, grass.z+1) != Block.NOTHING);
-			world.addBlock(new SaplingBlock(grass.x, grass.y, grass.z+1, this), true);
+			world.addBlockReplace(new SaplingBlock(grass.x, grass.y, grass.z+1, this), false);
 		}else {
 			Main.err("No grass found!!");
-			world.addBlock(new SaplingBlock(0, 0, 1, this), true);
+			world.addBlockReplace(new SaplingBlock(0, 0, 1, this), false);
 		}
 		
 		Main.log("- Lunar module landing ...");
@@ -549,7 +594,10 @@ public class GameEngine{
 				}
 			}
 		}
-		world.addBlocks(lunarModule, true);
+		//world.addBlocks(lunarModule, true);
+		for(int i=0;i<24;i++) {
+			world.addBlockReplace(lunarModule[i], true);
+		}
 		
 	}
 	
@@ -592,7 +640,7 @@ public class GameEngine{
 		if(Main.ModRegistry.contains(name)) {
 			return createApiBlock(name, x, y, z);
 		}
-		Item item = Main.Items.get(name);
+		ItemType item = Main.Items.get(name);
 		String className = item.className;
 		return createBlock(className, x, y, z, this);
 	}
