@@ -1,16 +1,35 @@
 package ml.sakii.factoryisland.items;
 
+import ml.sakii.factoryisland.Main;
+
 public class ItemStack {
-	public Item kind;
+	@Override
+	public String toString()
+	{
+		return "ItemStack(" + kind + "=" + amount + ")";
+	}
+
+
+
+	public ItemType kind;
 	public int amount;
 	
 	
-	public ItemStack(Item item, int amount){
+	public ItemStack(ItemType item, int amount){
 		this.kind = item;
 		this.amount = amount;
 	}
 	
-
+	public ItemStack() {
+		kind=Main.Items.get("Stone");
+		amount=1;
+	}
+	
+	public ItemStack set(ItemType kind, int amount) {
+		this.kind=kind;
+		this.amount=amount;
+		return this;
+	}
 
 	@Override
 	public int hashCode() {
