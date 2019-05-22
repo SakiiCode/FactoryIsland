@@ -15,18 +15,13 @@ import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Random;
-
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -39,8 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import ml.sakii.factoryisland.blocks.ModBlock;
-import ml.sakii.factoryisland.items.Item;
-import ml.sakii.factoryisland.items.ItemStack;
+import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
 public class Main
@@ -63,7 +57,7 @@ public class Main
 	 * static HashMap<String, BufferedImage> ItemTextures = new HashMap<>(); public
 	 * static HashMap<String, BufferedImage> ViewmodelTextures = new HashMap<>();
 	 */
-	public static final HashMap<String, Item> Items = new HashMap<>(11);
+	public static final HashMap<String, ItemType> Items = new HashMap<>(20);
 
 	// public static byte MMframeCount = 0;
 
@@ -73,7 +67,8 @@ public class Main
 	public final static int MP_PACKET_EACH = 300;
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
 			alienFront, alienSide;
-	public final static float TICKSPEED = 0.05f;
+	public final static float TICKSPEED = 0.05f; // 1 tick every 0.05s
+	public final static int ENTITYSYNCRATE = 3; //every 3 ticks (=0.15s)
 	public final static int PHYSICS_FPS = 10;
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
@@ -108,12 +103,13 @@ public class Main
 	
 
 	private static int screen;
-	static FileOutputStream logStream;
+	//static FileOutputStream logStream;
 	
 	
+	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception
 	{
-		try
+		/*try
 		{
 			logStream=new FileOutputStream("log.txt", true);
 			if(!devmode) { // ha nincs debug, a fájlba írja a kivételeket
@@ -123,44 +119,76 @@ public class Main
 		} catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
-		}
+		}*/
 		
-		javax.swing.SwingUtilities.invokeLater(new Runnable()
+		System.setOut(new ProxyPrintStream(System.out, "log.txt"));
+        System.setErr(new ProxyPrintStream(System.err, "log.txt"));
+		
+		/*javax.swing.SwingUtilities.invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
-			{
-				setupWindow();
+			{*/
+        		if(args.length>2 && args[2].equals("-name")) {
+        			setupWindow(args[3]);
+        		}else {
+        			setupWindow(null);
+        		}
 				
 				if(args.length>0 && args[0].equals("-map")) {
 					SwitchWindow("generate");
-					/*SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
+					SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
 					sp.worldsList.setSelectedValue(args[1], true);
 					sp.join(false);
-					*/
-					launchWorld(args[1], false, ((SingleplayerGUI)Base.getComponents()[0]).statusLabel);
+					
+					//launchWorld(args[1], false, ((SingleplayerGUI)Base.getComponents()[0]).statusLabel);
 					
 				}
-			}
-		});
+				
+
+				
+			/*}
+		});*/
 		
 
 		
 	}
 
-	public static void setupWindow()
+	/*private static void launchDevWorld()
 	{
 
-		if (Config.username.equals("Guest"))
-		{
-			//Config.Prefs.remove("username");
-			Config.username = "Guest" + new Random().nextInt(100000);
+		GAME = new Game("", 0, LoadMethod.DEVELOPMENT, new JLabel());
+		if(GAME.error != null) {
+			Main.err(GAME.error);
+			JOptionPane.showMessageDialog(Main.Frame, "Error:"+GAME.error);
+			GAME=null;
+			return;
 		}
 
-		String username = JOptionPane.showInputDialog("Enter username", Config.username);
-		Config.username = username == null ? Config.username : username;
+	
+		openGame();
+	}*/
+
+	public static void setupWindow(String username)
+	{
+		if(username == null) {
+		//if (Config.username.equals("Guest"))
+		//{
+			//Config.Prefs.remove("username");
+			//Config.username = "Guest" + new Random().nextInt(100000);
+		//}
+
+		String username2 = JOptionPane.showInputDialog("Enter username", Config.username);
+		Config.username = username2 == null ? Config.username : username2;
 
 		Config.save();
+		}else {
+			//if(username.equals("Guest")) {
+				
+			//}
+				
+			Config.username = username;
+		}
 
 		GraphicsDevice[] gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		String[] resolutions = new String[gs.length];
@@ -237,13 +265,13 @@ public class Main
 				{
 					GAME.disconnect();
 				}
-				try
+				/*try
 				{
 					logStream.close();
 				} catch (IOException e1)
 				{
 					e1.printStackTrace();
-				}
+				}*/
 			}
 
 			@Override
@@ -337,7 +365,8 @@ public class Main
 	private static void openGame() {
 		Main.log("Game setup done.");
 		GAME.Engine.ticker.start();
-		GAME.Engine.startPhysics();
+		if(GAME.Engine.client == null)
+			GAME.Engine.startPhysics();
 		
 		
 		//focused = true;
@@ -429,10 +458,10 @@ public class Main
 			{
 
 				GameEngine.nullBlock("ml.sakii.factoryisland.blocks." + line + "Block");
-				PlayerInventory.Creative.items.add(new ItemStack(Items.get(line), 1));
+				PlayerInventory.Creative.add(Items.get(line), 1, false);
 			}
-			PlayerInventory.Creative.hotbarIndex=0;
-			PlayerInventory.Creative.SelectedStack=PlayerInventory.Creative.items.get(0);
+			//PlayerInventory.Creative.hotbarIndex=0;
+			//PlayerInventory.Creative.SelectedStack=PlayerInventory.Creative.items.get(0);
 		} catch (IOException e1)
 		{
 			e1.printStackTrace();
@@ -525,27 +554,27 @@ public class Main
 	public static void log(Object message) {
 		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		String msg = "[" + timeStamp + "] INFO: "+message;
-		try
+		/*try
 		{
 			logStream.write((msg+"\r\n").getBytes());
 		} catch (IOException e)
 		{
 			e.printStackTrace();
-		}
+		}*/
 		System.out.println(msg);
 	}
 	
 	public static void err(Object message) {
-		try
+		/*try
 		{
 			logStream.write(("ERROR:"+message+"\r\n").getBytes());
 		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		if(devmode) { // nem debug esetén ez már át van irányítva ugyanabba a fájlba
-			System.err.println(message);
-		}
+		if(devmode) { // nem debug esetén ez már át van irányítva ugyanabba a fájlba*/
+			System.err.println("ERROR:"+message);
+		//}
 	}
 
 }
