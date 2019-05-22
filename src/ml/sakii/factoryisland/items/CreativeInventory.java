@@ -15,7 +15,10 @@ public class CreativeInventory extends PlayerInventory
 	}
 
 	@Override
-	public Item add(Item kind, int amount, boolean resend){
-		return kind;
+	public ItemType add(ItemType kind, int amount, boolean resend){
+		if(items.containsKey(kind)) {
+			return kind;
+		}
+			return super.add(kind, amount, resend);
 	}
 }

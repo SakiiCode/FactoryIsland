@@ -37,7 +37,7 @@ import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.items.PlayerInventory;
-import ml.sakii.factoryisland.items.ItemStack;
+import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.net.PlayerMPData;
 
 public class World {
@@ -60,10 +60,15 @@ public class World {
 	
 	ArrayList<Vector> SpawnableSurface = new ArrayList <>();
 	
+
+	
 	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
 		Engine = engine;
 		this.game = game;
 		this.worldName = worldName;
+		
+		
+		
 		if(existing) {
 			loadWorld(engine, statusLabel);
 		}else if(Config.creative){
@@ -71,6 +76,8 @@ public class World {
 			game.creative=true;
 			engine.Inv=PlayerInventory.Creative;
 		}
+		
+		
 	}
 
 	private void loadWorld(GameEngine engine, JLabel statusLabel) {
@@ -138,7 +145,8 @@ public class World {
 			}
 			
 			statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Adding Block");
-			addBlock(b, true);
+			addBlockNoReplace(b, true);
+			//ReplaceBlock(b, true);
 			//b.onLoad();
 
 		}
@@ -181,8 +189,8 @@ public class World {
 		}else {
 			game.creative=false;
 			if(!loadedInv.items.isEmpty())
-				for(ItemStack stack : loadedInv.items) {
-					engine.Inv.add(stack.kind, stack.amount, false);
+				for(Entry<ItemType, Integer> stack : loadedInv.items.entrySet()) {
+					engine.Inv.add(stack.getKey(), stack.getValue(), false);
 			}
 		}
 		
@@ -294,19 +302,65 @@ public class World {
 		return getBlockAt((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
 	}
 	
-	public boolean addBlock(Block b, boolean overwrite) {
-		if(b == Block.NOTHING) {
+	public void addBlockNoReplace(Block b, boolean resend) {
+		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
+			if(resend && Engine.client != null) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("05,"+b.name+","+b.x+","+b.y+","+b.z);
+				for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
+					sb.append(",");
+					sb.append(entry.getKey()+","+entry.getValue());
+				}
+				Engine.client.sendData(sb.toString());
+			}else {
+				ReplaceBlock(b);
+			}
+			//return true;
+		}
+		//return false;
+	}
+	
+	public void addBlockReplace(Block b, boolean resend) {
+		Block existing =getBlockAt(b.x, b.y, b.z); 
+		if(existing != Block.NOTHING) {
+			destroyBlock(existing, resend);
+		}
+			if(resend && Engine.client != null) {
+				//Engine.client.sendData("05,"+b.name+","+b.x+","+b.y+","+b.z);
+				StringBuilder sb = new StringBuilder();
+				sb.append("05,"+b.name+","+b.x+","+b.y+","+b.z);
+				for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
+					sb.append(",");
+					sb.append(entry.getKey()+","+entry.getValue());
+				}
+				Engine.client.sendData(sb.toString());
+			}else {
+				ReplaceBlock(b);
+			}
+			//return false;
+		//}else {
+			/*if(resend && Engine.client != null) {
+				Engine.client.sendData("05,"+b.name+","+b.x+","+b.y+","+b.z);
+			}else {
+				ReplaceBlock(b);
+			}*/
+			//return true;
+		//}
+	}
+	
+	private void ReplaceBlock(Block b) {
+		/*if(b == Block.NOTHING) {
 			Main.err("Attempted to add nothing block");
 			return false;
 		}
 		Block local = getBlockAt(b.x, b.y, b.z);
 		if (local != Block.NOTHING) {
 			if (overwrite) {
-				destroyBlock(local);
+				destroyBlock(local, true);
 			} else {
 				return false;
 			}
-		}
+		}*/
 		ArrayList<Block> sources=new ArrayList<>();
 		for(Block nearby : get6Blocks(b, false).values()) {
 			for(Polygon3D poly : nearby.Polygons) {
@@ -361,47 +415,51 @@ public class World {
 			addLight(source.x, source.y, source.z, source, source.lightLevel, null);
 		}
 		
-		return true;
+		//return true;
 	}
 
 
-	public void destroyBlock(Block b) {
-		Block local = getBlockAt(b.x, b.y, b.z);
-		if (local == Block.NOTHING) {
-			return;
-		}
-
-		for (Block bu : get6Blocks(b, false).values()) {
-			if (bu instanceof TickListener) {
-				Engine.TickableBlocks.add((TickListener) bu);
+	public void destroyBlock(Block b, boolean resend) {
+		if(resend && Engine.client != null) {
+			Engine.client.sendData(("06," + b.x + "," + b.y	+ "," + b.z));
+		}else {
+			Block local = getBlockAt(b.x, b.y, b.z);
+			if (local == Block.NOTHING) {
+				return;
 			}
-		}
-
-		Point3D p = new Point3D(b.x, b.y, b.z);
-		Blocks.remove(p);
-
-		if (b instanceof TickListener) {
-			Engine.TickableBlocks.remove(b);
-		}
-		
-		if (b instanceof TextureListener) {
-			game.TextureBlocks.remove(b);
-		}
-
-		filterAdjecentBlocks(b);
-
-		if(game != null) {
-			game.Objects.removeAll(b.Polygons);
-		}
-		
-		Blocks.remove(b);
-		if(b instanceof LightListener)
-			removeLight(b.x, b.y, b.z, b, b.lightLevel, null);
-		for(Polygon3D poly : b.Polygons) {
-			//for(Block source : poly.lightSources.keySet()) {
-			for(Block source : poly.getSources()) {
-				if(source!=b)
-					addLight(source.x, source.y, source.z, source, source.lightLevel, null);
+	
+			for (Block bu : get6Blocks(b, false).values()) {
+				if (bu instanceof TickListener) {
+					Engine.TickableBlocks.add((TickListener) bu);
+				}
+			}
+	
+			Point3D p = new Point3D(b.x, b.y, b.z);
+			Blocks.remove(p);
+	
+			if (b instanceof TickListener) {
+				Engine.TickableBlocks.remove(b);
+			}
+			
+			if (b instanceof TextureListener) {
+				game.TextureBlocks.remove(b);
+			}
+	
+			filterAdjecentBlocks(b);
+	
+			if(game != null) {
+				game.Objects.removeAll(b.Polygons);
+			}
+			
+			Blocks.remove(b);
+			if(b instanceof LightListener)
+				removeLight(b.x, b.y, b.z, b, b.lightLevel, null);
+			for(Polygon3D poly : b.Polygons) {
+				//for(Block source : poly.lightSources.keySet()) {
+				for(Block source : poly.getSources()) {
+					if(source!=b)
+						addLight(source.x, source.y, source.z, source, source.lightLevel, null);
+				}
 			}
 		}
 	}
@@ -420,20 +478,122 @@ public class World {
 	}
 	
 	
-	public void killEntity(long ID) {
-		Entity e = Entities.remove(ID);
+	public void killEntity(long ID, boolean resend) {
 		
-		if(Engine.server != null && Engine.client != null) {
+		if(resend && Engine.client != null) { 
 			Engine.client.sendData("17,"+ID);
 			
-		}
-		
-		if(game != null) {
-				game.Objects.removeAll(e.Objects);
+		}else {
+			Entity e = Entities.get(ID);
+			if(game != null && e != null) {
+					game.Objects.removeAll(e.Objects);
+			}
+			
+			 Entities.remove(ID);
 		}
 		
 	}
 
+	boolean walk(Vector direction, float coefficient, Entity entity, float FPS, boolean resend)
+	{
+		boolean success=true;
+		float targetX, targetY;
+		float nextX = entity.getPos().x + direction.x * coefficient / FPS;
+		float nextY = entity.getPos().y + direction.y * coefficient / FPS;
+
+		Block[] blocks6X = getCollidingBlocks(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, entity);
+		Block[] blocks6Y = getCollidingBlocks(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, entity);
+		Block nextBlockX1 = blocks6X[0];//.get(BlockFace.TOP);
+		Block nextBlockX2 = blocks6X[1];//.get(BlockFace.NONE);
+		Block nextBlockX3 = blocks6X[2];//.get(BlockFace.BOTTOM);
+
+		Block nextBlockY1 = blocks6Y[0];//.get(BlockFace.TOP);
+		Block nextBlockY2 = blocks6Y[1];//.get(BlockFace.NONE);
+		Block nextBlockY3 = blocks6Y[2];//.get(BlockFace.BOTTOM);
+
+		if (!nextBlockX1.solid && !nextBlockX2.solid && !nextBlockX3.solid)
+		{
+			targetX = nextX;
+		}else {
+			int bx;
+			if(nextBlockX1.solid) {
+				bx=nextBlockX1.x;
+			//	by=nextBlockX1.y;
+			}else if(nextBlockX2.solid) {
+				bx=nextBlockX2.x;
+			//	by=nextBlockX2.y;
+			}else{
+				bx=nextBlockX3.x;
+			//	by=nextBlockX3.y;
+			}
+			
+			
+			if(direction.x<0) {
+				targetX=bx+1+World.BLOCK_RANGE;
+			}else {
+				targetX=bx-World.BLOCK_RANGE;
+
+
+				
+			}
+			success=false;
+		}
+		if (!nextBlockY1.solid && !nextBlockY2.solid && !nextBlockY3.solid)
+		{
+			targetY = nextY;
+		}else {
+			
+			int by;
+			if(nextBlockY1.solid) {
+			//	bx=nextBlockX1.x;
+				by=nextBlockY1.y;
+			}else if(nextBlockY2.solid) {
+			//	bx=nextBlockX2.x;
+				by=nextBlockY2.y;
+			}else{
+			//	bx=nextBlockX3.x;
+				by=nextBlockY3.y;
+			}
+			
+			if(direction.y<0) {
+				targetY=by+1+World.BLOCK_RANGE;
+			}else {
+				targetY=by-World.BLOCK_RANGE;
+
+
+				
+			}
+			
+			success=false;
+		}
+
+		entity.move(targetX, targetY, entity.getPos().z, resend);
+		return success;
+
+
+	}
+	
+	 Block[] getCollidingBlocks(float x, float y, float z, Entity entity)
+	{
+		//HashMap<BlockFace, Block> result = new HashMap<>();
+		 Block[] result = new Block[3];
+		int dx = (int) Math.floor(x);
+		int dy = (int) Math.floor(y);
+		int dz1 = (int) Math.floor(z);
+		int dz2 = (int) Math.floor(z - 1f * entity.VerticalVector.z);
+		int dz3 = (int) Math.floor(z - 1.699f * entity.VerticalVector.z);
+
+		/*result.put(BlockFace.TOP, world.getBlockAt(dx, dy, dz1));
+		result.put(BlockFace.NONE, world.getBlockAt(dx, dy, dz2));
+		result.put(BlockFace.BOTTOM, world.getBlockAt(dx, dy, dz3));*/
+		result[0]=getBlockAt(dx, dy, dz1);
+		result[1]=getBlockAt(dx, dy, dz2);
+		result[2]=getBlockAt(dx, dy, dz3);
+
+		return result;
+
+	}
+	
 	public HashMap<BlockFace, Block> get6Blocks(Block center, boolean includeNothing) {
 		HashMap<BlockFace, Block> result = new HashMap<>();
 
@@ -758,10 +918,11 @@ public class World {
 	public Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {
 		TreeSet<Block> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
 		//TreeSet<Integer> playerColumn = new TreeSet<>();
-		
-		int x=(int) Math.floor(entity.getPos().x) ;
-		int y= (int) Math.floor(entity.getPos().y);
-		int feetZ = (int) Math.floor(entity.getPos().z);
+		Vector entityPos = entity.getPos();
+
+		int x=(int) Math.floor(entityPos.x) ;
+		int y= (int) Math.floor(entityPos.y);
+		int feetZ = (int) Math.floor(entityPos.z);
 		
 		Block nothing = new Nothing();
 		nothing.z=feetZ;
@@ -769,14 +930,13 @@ public class World {
 		for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
 			Point3D pos = entry.getKey();
 			Block b = entry.getValue();
-
 			if (pos.x == x && pos.y == y && b.solid) {
 				playerColumn.add(b);
-			}else if((pos.x-BLOCK_RANGE < entity.getPos().x && entity.getPos().x < pos.x+1+BLOCK_RANGE)
+			}else if((pos.x-BLOCK_RANGE < entityPos.x && entityPos.x < pos.x+1+BLOCK_RANGE)
 					&&  pos.y == y && b.solid) {
 					
 				playerColumn.add(b);
-			}else if((pos.y-BLOCK_RANGE < entity.getPos().y && entity.getPos().y < pos.y+1+BLOCK_RANGE)
+			}else if((pos.y-BLOCK_RANGE < entityPos.y && entityPos.y < pos.y+1+BLOCK_RANGE)
 					&&  pos.x == x && b.solid) {
 					
 				playerColumn.add(b);
@@ -843,6 +1003,7 @@ public class World {
 	}
 
 	public void saveByShutdown() {
+
 		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
 		
 		
@@ -926,9 +1087,9 @@ public class World {
 			
 			if(b instanceof BlockInventoryInterface) {
 				Element Inv = document.createElement("inventory");
-				for (ItemStack entry : ((BlockInventoryInterface)b).getInv().items) {
-					Element stack = document.createElement(entry.kind.name);
-					stack.setTextContent(entry.amount+"");
+				for (Entry<ItemType, Integer> entry : ((BlockInventoryInterface)b).getInv().items.entrySet()) {
+					Element stack = document.createElement(entry.getKey().name);
+					stack.setTextContent(entry.getValue()+"");
 					Inv.appendChild(stack);
 				}
 				BlockElement.appendChild(Inv);
@@ -1012,9 +1173,9 @@ public class World {
 		
 		//Element players = document.createElement("players");
 		//Element localPlayer = document.createElement(Config.username);
-		for (ItemStack is : inventory.items) {
-			Element stack = document.createElement(is.kind.name);
-			stack.setTextContent(is.amount + "");
+		for (Entry<ItemType, Integer> is : inventory.items.entrySet()) {
+			Element stack = document.createElement(is.getKey().name);
+			stack.setTextContent(is.getValue() + "");
 			root.appendChild(stack);
 		}
 		root.setAttribute("x", ""+position.x);
@@ -1165,12 +1326,12 @@ public class World {
 
 	}
 
-	public void addBlocks(Block[] blockArray, boolean overwrite) {
+	/*public void addBlocks(Block[] blockArray, boolean overwrite) {
 		for(Block b : blockArray) {
 			addBlock(b, overwrite);
 		}
 		
-	}
+	}*/
 
 	/*public void remapLight()
 	{
