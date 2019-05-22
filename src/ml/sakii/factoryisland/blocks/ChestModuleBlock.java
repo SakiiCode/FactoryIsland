@@ -1,11 +1,13 @@
 package ml.sakii.factoryisland.blocks;
 
 
+import java.util.Map.Entry;
+
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.items.BlockInventory;
-import ml.sakii.factoryisland.items.ItemStack;
+import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
 public class ChestModuleBlock extends Block implements InteractListener, BlockInventoryInterface, BreakListener, WorldGenListener{
@@ -45,11 +47,11 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	@Override
 	public boolean breaked(String username) {
 		//Engine.Inv.addOne(Main.Items.get("ChestModule"));
-		for(ItemStack is : inv.items) {
+		for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
 			if(Engine.client==null) {
-				Engine.Inv.add(is.kind, is.amount, true);
+				Engine.Inv.add(is.getKey(), is.getValue(), true);
 			}else {
-				Engine.client.sendData("10,"+username+","+is.kind.name+","+is.amount);
+				Engine.client.sendData("10,"+username+","+is.getKey().name+","+is.getValue());
 			}
 		}
 		return true;

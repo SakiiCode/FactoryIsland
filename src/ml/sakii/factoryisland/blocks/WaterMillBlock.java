@@ -14,13 +14,15 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
 		super("WaterMill", x, y, z,  
 				Main.wmSideColor,Main.wmGradientBeginColor,Main.wmPoweredColor, new Color4(Color.BLUE), engine);
+		BlockMeta.put("active", "0");
+
 	}
 	
 	
 	
 	@Override
-	public void onMetadataUpdate(String key, String value) {
-		super.onMetadataUpdate(key, value);
+	public boolean onMetadataUpdate(String key, String value) {
+		BlockMeta.put(key, value);
 		
 		if(key.equals("active")){
 			if(Integer.parseInt(value)>0){
@@ -37,6 +39,8 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 				}
 			}
 		}
+		
+		return true;
 	}
 
 
@@ -74,7 +78,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 		if(tBlock instanceof WaterBlock){
 			WaterBlock targetBlock = (WaterBlock)tBlock;
 			if(targetBlock.getHeight() < 4){
-				setMetadata("active", "1");
+				setMetadata("active", "1", true);
 				for(Entry<BlockFace, Block> e : get6Blocks(this, false).entrySet()){
 					BlockFace face = e.getKey();
 					Block b = e.getValue();
@@ -89,7 +93,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 				//this.addPower(10, BlockFace.NONE);
 			}else if(targetBlock.getHeight() == 4){
 
-				setMetadata("active", "0");
+				setMetadata("active", "0", true);
 				//setMetadata("powered", "0");
 				for(Entry<BlockFace, Block> e : get6Blocks(this, false).entrySet()){
 					BlockFace face = e.getKey();
@@ -119,7 +123,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 			}*/
 			
 		}else{
-			setMetadata("active", "0");
+			setMetadata("active", "0", true);
 			for(Entry<BlockFace, Block> e : get6Blocks(this, false).entrySet()){
 				BlockFace face = e.getKey();
 				Block b = e.getValue();

@@ -48,7 +48,7 @@ public class SimpleMachine extends Block
 	@Override
 	public void interact(BlockFace target)
 	{
-		setMetadata("target", target.id + "");
+		setMetadata("target", target.id + "", true);
 
 	}
 
@@ -166,19 +166,21 @@ public class SimpleMachine extends Block
 	public void placed(BlockFace SelectedFace)
 	{
 		BlockFace target = SelectedFace.getOpposite();
-		setMetadata("target", target.id + "");
+		setMetadata("target", target.id + "", true);
 
 	}
 
 
 
 	@Override
-	public void onMetadataUpdate(String key, String value)
+	public boolean onMetadataUpdate(String key, String value)
 	{
 		if (key.equals("target"))
 		{
 			setTarget(BlockFace.values[Integer.parseInt(value)]);
 		}
+		
+		return false;
 	}
 
 
@@ -201,7 +203,7 @@ public class SimpleMachine extends Block
 	{
 		powers.put(relativeFrom, power);
 		work();
-		setMetadata("powered", getCharge() + "");
+		setMetadata("powered", getCharge() + "", true);
 
 	}
 
@@ -209,7 +211,7 @@ public class SimpleMachine extends Block
 	public void removePower(BlockFace relativeFrom)
 	{
 		powers.remove(relativeFrom);
-		setMetadata("powered", getCharge() + "");
+		setMetadata("powered", getCharge() + "", true);
 
 	}
 	

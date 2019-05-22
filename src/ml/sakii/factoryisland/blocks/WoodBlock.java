@@ -23,7 +23,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 	}
 
 	@Override
-	public void onMetadataUpdate(String key, String value)
+	public boolean onMetadataUpdate(String key, String value)
 	{
 		if(key.equals("powered")){
 			int charge = Integer.parseInt(value);
@@ -38,6 +38,8 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 				}
 			}
 		}
+		
+		return false;
 		
 	}
 	
@@ -71,7 +73,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 	public void addPower(int power, BlockFace relativeFrom) {
 		powers.put(relativeFrom, power);
 		spreadPower(power-1);
-		setMetadata("powered", getCharge()+"");
+		setMetadata("powered", getCharge()+"", true);
 	}
 	
 	private void spreadPower(int targetPower){
@@ -106,7 +108,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 				
 			}
 
-		setMetadata("powered", getCharge()+"");
+		setMetadata("powered", getCharge()+"", true);
 
 		
 	}
@@ -122,7 +124,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 				}
 				
 			}
-		return false;
+		return true;
 	}
 
 
