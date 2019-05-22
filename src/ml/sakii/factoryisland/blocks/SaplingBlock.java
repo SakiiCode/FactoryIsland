@@ -1,5 +1,6 @@
 package ml.sakii.factoryisland.blocks;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 import ml.sakii.factoryisland.GameEngine;
@@ -36,14 +37,15 @@ public class SaplingBlock extends Block implements TickListener{
 
 	@Override
 	public boolean tick(long tickCount) {
-		if(placedTick() > -1 && tickCount > placedTick()+growTime()){
-			addBlock(new WoodBlock(x, y, z, Engine), true);
+		ArrayList<Block> tree = new ArrayList<>();
+		if(tickCount > placedTick()+growTime()){
+			tree.add(new WoodBlock(x, y, z, Engine));
 			
-			addBlock(new WoodBlock(x, y, z+1, Engine), false);
+			tree.add(new WoodBlock(x, y, z+1, Engine));
 		
-			addBlock(new WoodBlock(x, y, z+2, Engine), false);
+			tree.add(new WoodBlock(x, y, z+2, Engine));
 		
-			addBlock(new WoodBlock(x, y, z+3, Engine), false);
+			tree.add(new WoodBlock(x, y, z+3, Engine));
 
 			Random leafRadius = new Random();
 			int bigHeight = 1+leafRadius.nextInt(3);
@@ -54,7 +56,7 @@ public class SaplingBlock extends Block implements TickListener{
 						for(int k=-2;k<=2;k++){
 
 							if(getBlockAt(x+j, y+k, z+2+i) == Block.NOTHING)
-								addBlock(new LeafBlock(x+j, y+k, z+2+i, Engine), false);
+								tree.add(new LeafBlock(x+j, y+k, z+2+i, Engine));
 						}
 						
 					}
@@ -64,7 +66,7 @@ public class SaplingBlock extends Block implements TickListener{
 						for(int k=-1;k<=1;k++){
 
 							if(getBlockAt(x+j, y+k, z+2+i) == Block.NOTHING)
-								addBlock(new LeafBlock(x+j, y+k, z+2+i, Engine), false);
+								tree.add(new LeafBlock(x+j, y+k, z+2+i, Engine));
 						}
 						
 					}
@@ -72,11 +74,17 @@ public class SaplingBlock extends Block implements TickListener{
 				}
 			}
 			
-		}else if(placedTick() ==-1){
-			Main.log("-1 volt a placedtick");
+			Engine.world.addBlockReplace(tree.get(0), true);
+			for(int i=1;i<tree.size();i++) {
+				Engine.world.addBlockNoReplace(tree.get(i), true);
+			}
+			
+			return false;
 		}
-		
 		return true;
+
+		
+		
 	}
 	
 	
