@@ -6,12 +6,9 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Polygon3D;
 
-public class WaterBlock extends Block implements TickListener, LoadListener, MetadataListener{
+public class WaterBlock extends Block implements TickListener, LoadListener, MetadataListener, BreakListener{
 
-	
-	//private final Color paint = new Color(180, 200, 255);
-	//Color heightmapped = paint;
-	
+
 	
 	public WaterBlock(int x, int y, int z, GameEngine engine) {
 		super("Water",x, y, z,Main.waters[4], Main.waters[4], Main.waters[4], Main.waters[4], Main.waters[4], Main.waters[4],engine);
@@ -35,7 +32,7 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 	
 
 	public void setHeight(int newHeight){
-		setMetadata("height",""+newHeight);
+		setMetadata("height",""+newHeight, true);
 		heightMap();
 		
 	}
@@ -49,25 +46,17 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 	}
 
 	@Override
-	public void onMetadataUpdate(String key, String value)
+	public boolean onMetadataUpdate(String key, String value)
 	{
+		BlockMeta.put(key, value);
 		if(key.equals("height")){
 			heightMap();
 		}
+		
+		return true;
 	}
 
-/*	
-	@Override
-	public void setMetadata(String key, String value){
-		
-			super.setMetadata(key, value);
-		}else {
-			BlockMeta.put(key, value);
-			super.setMetadata(key, value);
-		}
-		
-		
-	}*/
+
 	
 	@Override
 	public void onLoad(){
@@ -80,6 +69,7 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 
 			boolean hasEmptyNearby=false,hasPlusOneNearby=false,hasBiggerNearby=false;
 			int biggerheight=0;
+			int height = getHeight();
 			for(Entry<BlockFace,Block> entry : get6Blocks(this,true).entrySet()){
 				BlockFace key = entry.getKey();
 				Block value = entry.getValue();
@@ -91,9 +81,9 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 						//WaterBlock wb = (WaterBlock)value;
 						int otherHeight = value.getHeight();
 						
-						if(otherHeight == getHeight()+1){
+						if(otherHeight == height+1){
 							hasPlusOneNearby=true;
-						}else if(otherHeight > getHeight() + 1){
+						}else if(otherHeight > height + 1){
 							if(biggerheight<otherHeight){
 								biggerheight=otherHeight;
 								
@@ -112,17 +102,19 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 			
 			
 			if(hasBiggerNearby){
-				if(getHeight() != 4){
+				if(height != 4){
 					setHeight(biggerheight-1);
 				
 				}
 			}else if(!hasPlusOneNearby){
-				if(getHeight() != 4){
-					if(getHeight() == 1){
-						deleteBlock(this);
+				if(height != 4){
+					if(height == 1){
+						//deleteBlock(this);
+						Engine.world.destroyBlock(this, true);
+
 						return false;
 					}
-					setHeight(getHeight()-1);
+					setHeight(height-1);
 				}
 				
 			}
@@ -146,8 +138,8 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 								if(wkey != BlockFace.TOP && wkey != BlockFace.BOTTOM){
 									if(wvalue.name.equals("Water")){
 										WaterBlock wb = (WaterBlock)wvalue;
-										int wotherHeight = Integer.parseInt(wb.BlockMeta.get("height"));
-										if(wotherHeight > getHeight() + 1 && biggestyet < wotherHeight){
+										int wotherHeight = wb.getHeight();
+										if(wotherHeight > height + 1 && biggestyet < wotherHeight){
 											biggestyet=wotherHeight;
 											//water1.setHeight(wotherHeight - 1);
 											//water1.BlockMeta.put("height", ""+(wotherHeight - 1));
@@ -157,13 +149,14 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 								}
 							}
 							WaterBlock water1;
+
 							if(biggestyet==0){
-								water1 = new WaterBlock(x + key.direction[0], y + key.direction[1], z + key.direction[2], getHeight()-1,Engine);
-								
+								water1 = new WaterBlock(x + key.direction[0], y + key.direction[1], z + key.direction[2], height-1,Engine);
 							}else{
 								water1 = new WaterBlock(x + key.direction[0], y + key.direction[1], z + key.direction[2], biggestyet-1,Engine);
+
 							}
-							addBlock(water1, false);
+							Engine.world.addBlockNoReplace(water1, true);
 
 						}
 					}
@@ -179,13 +172,13 @@ public class WaterBlock extends Block implements TickListener, LoadListener, Met
 			
 	}
 
-
-	
-	/*@Override
-	public void updateTexture(double x3, double y3, double z3){
-		super.updateTexture(x3, y3, z3);
-		for(Polygon3D p : Polygons){
-			p.faceFilter = true;
+	@Override
+	public boolean breaked(String username)
+	{
+		if(getHeight()==4) {
+			return true;
 		}
-	}*/
+		return false;
+	}
 }
+
