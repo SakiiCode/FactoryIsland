@@ -6,7 +6,21 @@
  * mindenhol Color4 -> memoria sporolas
  * Texturas modban nincs arnyek
  * 2Dto3D optimalizalas
- * 
+ * stderr, stdout fajlba es konzolra is
+ * killEntity NPE fix
+ * multiplayer mozgas fix
+ * blokk tores javitasa, BreakListener
+ * TODO lighting rosszul mukodik mpben
+ * chestek betoltodnek es megy a swapitem mp-ben
+ * entity mozgas es ölés mpben fix
+ * blokklerakas es kiutes ujrairva
+ * nagyon sok entity.getPos() cachelve
+ * hotbarIndex=0 és onLoad a Game-ben lett
+ * összes entityt egyszerre synceli
+ * fa visszanövés fix
+ * víz mûködik mpben
+ * TODO vmiert maradnak tickelo blokkok
+ * TODO lampa vmiert Stone-t ad vissza
  */
 
 package ml.sakii.factoryisland;
@@ -57,13 +71,14 @@ import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.BreakListener;
 import ml.sakii.factoryisland.blocks.InteractListener;
+import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.PlaceListener;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.entities.PlayerMP;
-import ml.sakii.factoryisland.items.Item;
+import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.net.GameClient;
@@ -80,7 +95,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
 
 	public boolean moved;
-	public BlockInventoryInterface activeInventory;
+	public BlockInventoryInterface remoteInventory;
 
 	final Vector BottomViewVector = new Vector(), TopViewVector = new Vector(), RightViewVector = new Vector(),
 			LeftViewVector = new Vector();
@@ -178,7 +193,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		previousPos = new Vector().set(PE.getPos());
 		previousAim = new EAngle(PE.ViewAngle.yaw, PE.ViewAngle.pitch);
 		switch(loadmethod) {
-
 		case MULTIPLAYER:
 
 			String[] addr = location.split(":");
@@ -193,7 +207,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			File playerFile = new File("saves/" + location + "/" + Config.username + ".xml");
 			if (playerFile.exists())
 			{
-					PE.move(Engine.world.loadVector(Config.username, "x", "y", "z"));
+					PE.move(Engine.world.loadVector(Config.username, "x", "y", "z"), false);
 					PE.ViewAngle.set(Engine.world.loadVector(Config.username, "yaw", "pitch", "yaw"));
 					break;
 			}
@@ -203,9 +217,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			teleportToSpawn();
 		}
 		
+		for(Block b : Engine.world.getWhole(false)) {
+			if(b instanceof LoadListener) {
+				((LoadListener)b).onLoad();
+			}
+		}
+		
+		if(Engine.Inv.items.size()>0) {
+			Engine.Inv.hotbarIndex=0;
+		}
+		
 		Engine.world.addEntity(PE);
 		
-		SwitchInventory(true);
+		//SwitchInventory(true);
 
 		addKeyListener(this);
 		addMouseListener(this);
@@ -310,8 +334,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			BackViewVector.set(ViewVector).CrossProduct(PE.VerticalVector).CrossProduct(PE.VerticalVector);
 			FrontViewVector.set(BackViewVector).multiply(-1);
 			Controls();
-			moved = !previousPos.equals(PE.getPos()) || !previousAim.equals(PE.ViewAngle);
-			previousPos.set(PE.getPos());
+			Vector PEPos = PE.getPos();
+			moved = !previousPos.equals(PEPos) || !previousAim.equals(PE.ViewAngle);
+			previousPos.set(PEPos);
 			previousAim.pitch = PE.ViewAngle.pitch;
 			previousAim.yaw = PE.ViewAngle.yaw;
 
@@ -329,7 +354,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 				if (!locked) ViewFrustum.update();
 
-				ViewTo.set(PE.getPos()).add(ViewVector);
+				ViewTo.set(PEPos).add(ViewVector);
 				setP(ViewTo,dP);
 
 				dx = -Config.zoom * dP.x + centerX;
@@ -357,7 +382,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Stars[i].draw(fb);
 			}
 
-			ViewBlock = Engine.world.getBlockAtF(PE.getPos().x, PE.getPos().y, PE.getPos().z);
+			ViewBlock = Engine.world.getBlockAtF(PEPos.x, PEPos.y, PEPos.z);
 			if (ViewBlock != Block.NOTHING && !ViewBlock.transparent)
 			{
 				for (Polygon3D p : ViewBlock.Polygons)
@@ -393,6 +418,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				SelectedBlock.select(BlockFace.NONE);
 				SelectedBlock = Block.NOTHING;
 				SelectedFace = BlockFace.NONE;
+				SelectedEntity=null;
+
 			} else
 			{
 				if (SelectedBlock.HitboxPolygons.containsKey(SelectedPolygon))
@@ -446,17 +473,22 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 									SelectedEntity=e;
 									break;
 								}
-								SelectedEntity=null;
 							}
 							
 						}
 
 					}
+					
+					
 
 				}
+				
+
+				
+				
 
 			}
-			if (activeInventory != null)
+			if (remoteInventory != null)
 			{
 				fb.drawImage(op.filter(FrameBuffer, null), 0, 0, null);
 			}
@@ -479,26 +511,29 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			int fontSize = (int) (Math.cbrt(FrameBuffer.getHeight())*2);
 			g.setFont(new Font("SANS", Font.BOLD, fontSize));
 			g.setColor(Color.GRAY);
-			float viewportscale=(float) Math.sqrt(FrameBuffer.getWidth()*FrameBuffer.getHeight()/1280f/1024f);
+			float viewportscale=(float) Math.sqrt(FrameBuffer.getWidth()*FrameBuffer.getHeight()*1f/Main.Frame.getWidth()/Main.Frame.getHeight());
 
 			if (F3)
 			{
 
 				debugInfo.clear();
-				debugInfo.add("Eye:" + PE.getPos());
+				debugInfo.add("Eye:" + PEPos);
 				debugInfo.add("yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
 				debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 				debugInfo.add("Selected Block:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 				if(SelectedPolygon != null) {
 					debugInfo.add("SelectedPolygon: "+SelectedPolygon+",light:"+SelectedPolygon.getLight()+",spawn:"+Engine.world.SpawnableSurface.contains(SelectedPolygon.spawnpoint));
 					debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surface:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
+				}else {
+					debugInfo.add("SelectedPolygon: null");
+					debugInfo.add("");
 				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
 				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock));
-				debugInfo.add("Blocks: " + Engine.world.getSize());
+				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.hotbarIndex+", seleceted:"+((Engine.Inv.hotbarIndex>-1 ) ? Engine.Inv.getSelectedStack():""));
 				if (Engine.client != null)
 				{
 					debugInfo.add("PacketCount: " + Engine.client.packetCount);
@@ -515,8 +550,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						+ (PE.JumpVelocity - PE.GravityVelocity));
 				//debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
 				debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE));
-				debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PE.getPos().x, PE.getPos().y,
-						PE.getPos().z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));
+				debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PEPos.x, PEPos.y,
+						PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));
 				debugInfo.add("flying: " + PE.flying +", Ctrl: "+key[7]);
 				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps );
 				
@@ -535,7 +570,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						i += g.getFont().getSize()*(1.2f+(FrameBuffer.getHeight()-320f)/704f);
 					}
 					g.setColor(Color.WHITE);
-					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
 				}
 			} else
 			{
@@ -548,75 +582,95 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			//INVENTORY SOR
 			if (Engine.Inv.items.size() > 0)
 			{
-				Font defaultFont = g.getFont();
+			//Font defaultFont = g.getFont();
 
-				g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize+2));
-				
-				for (int i = 0; i < Engine.Inv.items.size(); i++)
+			g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize+2));
+			
+			int i = -1;
+			//for (int i = 0; i < Engine.Inv.items.size(); i++)
+			for(Entry<ItemType, Integer>  stack : Engine.Inv.items.entrySet())
+			{
+				ItemType kind = stack.getKey();
+				int amount = stack.getValue();
+				ItemStack SelectedStack = Engine.Inv.getSelectedStack();
+				i++;
+				//ItemStack stack = Engine.Inv.items.get(i);
+				ItemType item = Main.Items.get(kind.name);
+				BufferedImage icon = item.ItemTexture;// stack.kind.getTexture();
+				w = (int) (icon.getWidth()*viewportscale);
+				h = (int) (icon.getHeight()*viewportscale);
+				offset = w / 3;
+				g.drawImage(icon, i * w, FrameBuffer.getHeight() - h,w, h, null);
+
+				int textX = i * w + offset;
+				int textY = FrameBuffer.getHeight() - h;
+
+				if (i != Engine.Inv.hotbarIndex)
 				{
-					ItemStack stack = Engine.Inv.items.get(i);
-					BufferedImage icon = Main.Items.get(stack.kind.name).ItemTexture;// stack.kind.getTexture();
-					w = (int) (icon.getWidth()*viewportscale);
-					h = (int) (icon.getHeight()*viewportscale);
-					offset = w / 3;
-					g.drawImage(icon, i * w, FrameBuffer.getHeight() - h,w, h, null);
+					g.setColor(Color.WHITE);
+					g.drawString(amount + "", textX, textY);
 
-					int textX = i * w + offset;
-					int textY = FrameBuffer.getHeight() - h;
+					g.setColor(Color.BLACK);
+					g.drawString(amount + "", textX - 1, textY - 1);
 
-					if (i != Engine.Inv.hotbarIndex)
-					{
-						g.setColor(Color.WHITE);
-						g.drawString(stack.amount + "", textX, textY);
-
-						g.setColor(Color.BLACK);
-						g.drawString(stack.amount + "", textX - 1, textY - 1);
-
-					} else
-					{
-						g.setColor(Color.BLACK);
-						g.drawString(Engine.Inv.SelectedStack.amount + "", textX, textY);
-
-						g.setColor(Color.WHITE);
-						g.drawString(Engine.Inv.SelectedStack.amount + "", textX - 1, textY - 1);
-
-					}
-				}
-
-				g.setFont(defaultFont);
-				// KIJELÖLT FELIRAT
-				if (Engine.Inv.SelectedStack != null)
+				} else
 				{
 					g.setColor(Color.BLACK);
-					g.drawString(Engine.Inv.SelectedStack.kind.name, 25, FrameBuffer.getHeight() - h-offset*3);
+					g.drawString(SelectedStack.amount + "", textX, textY);
+
 					g.setColor(Color.WHITE);
-					g.drawString(Engine.Inv.SelectedStack.kind.name, 25 - 1, FrameBuffer.getHeight() - h-offset*3 - 1);
-				}
-				// VIEWMODEL
-				if (Engine.Inv.hotbarIndex > -1)
-				{
-					BufferedImage viewmodel = Main.Items.get(Engine.Inv.SelectedStack.kind.name).ViewmodelTexture;
-					int wv = viewmodel.getWidth();
-					int hv = viewmodel.getHeight();
+					g.drawString(SelectedStack.amount + "", textX - 1, textY - 1);
 
-					g.drawImage(viewmodel, FrameBuffer.getWidth() / 3 * 2, FrameBuffer.getHeight() - hv, 2 * wv, 2 * hv, null);
 				}
+				//}
 
+				
+
+			}
+			
+			//g.setFont(defaultFont);
+			// KIJELÖLT FELIRAT
+			ItemStack localSelected = Engine.Inv.getSelectedStack();
+
+			if (localSelected != null)
+			{
+				g.setColor(Color.BLACK);
+				g.drawString(localSelected.kind.name, 25, FrameBuffer.getHeight() - h-offset*3);
+				g.setColor(Color.WHITE);
+				g.drawString(localSelected.kind.name, 25 - 1, FrameBuffer.getHeight() - h-offset*3 - 1);
+			
+			// VIEWMODEL
+			if (Engine.Inv.hotbarIndex > -1)
+			{
+				BufferedImage viewmodel = Main.Items.get(localSelected.kind.name).ViewmodelTexture;
+				int wv = viewmodel.getWidth();
+				int hv = viewmodel.getHeight();
+
+				g.drawImage(viewmodel, FrameBuffer.getWidth() / 3 * 2, FrameBuffer.getHeight() - hv, 2 * wv, 2 * hv, null);
+			}
+			}
 			}
 
 			int mainOffset = (int) (150*viewportscale);
-			if (activeInventory != null)
+			if (remoteInventory != null)
 			{
-				if (activeInventory.getInv().items.size() > 0)
-				{
-					Font defaultFont = g.getFont();
+				//if (activeInventory.getInv().items.size() > 0)
+				//{
+					//Font defaultFont = g.getFont();
 
-					g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
+					//g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
 					//int w=0,h=0,offset=0;
-					for (int i = 0; i < activeInventory.getInv().items.size(); i++)
+					//for (int i = 0; i < activeInventory.getInv().items.size(); i++)
+					//{
+						//ItemStack stack = activeInventory.getInv().items.get(i);
+					int i=-1;
+					for(Entry<ItemType, Integer>  stack : remoteInventory.getInv().items.entrySet())
 					{
-						ItemStack stack = activeInventory.getInv().items.get(i);
-						BufferedImage icon = Main.Items.get(stack.kind.name).ItemTexture;// stack.kind.getTexture();
+						ItemType kind = stack.getKey();
+						int amount = stack.getValue();
+						ItemStack SelectedStack = remoteInventory.getInv().getSelectedStack();
+						i++;
+						BufferedImage icon = Main.Items.get(kind.name).ItemTexture;// stack.kind.getTexture();
 						w = (int) (icon.getWidth()*viewportscale);
 						h = (int) (icon.getHeight()*viewportscale);
 						g.drawImage(icon, i * w, FrameBuffer.getHeight() - h - mainOffset,w, h, null);
@@ -624,42 +678,45 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						int textX = i * w + offset;
 						int textY = FrameBuffer.getHeight() - h - mainOffset;
 
-						if (i != activeInventory.getInv().hotbarIndex)
+						if (i != remoteInventory.getInv().hotbarIndex)
 						{
 							g.setColor(Color.WHITE);
-							g.drawString(stack.amount + "", textX, textY);
+							g.drawString(amount + "", textX, textY);
 
 							g.setColor(Color.BLACK);
-							g.drawString(stack.amount + "", textX - 1, textY - 1);
+							g.drawString(amount + "", textX - 1, textY - 1);
 
 						} else
 						{
 							g.setColor(Color.BLACK);
-							g.drawString(activeInventory.getInv().SelectedStack.amount + "", textX, textY);
+							g.drawString(SelectedStack.amount + "", textX, textY);
 
 							g.setColor(Color.WHITE);
-							g.drawString(activeInventory.getInv().SelectedStack.amount + "", textX - 1, textY - 1);
+							g.drawString(SelectedStack.amount + "", textX - 1, textY - 1);
 
 						}
 					}
 
-					g.setFont(defaultFont);
-					if (activeInventory.getInv().SelectedStack != null)
+					//g.setFont(defaultFont);
+					ItemStack remoteSelected = remoteInventory.getInv().getSelectedStack();
+					if (remoteSelected != null)
 					{
 						g.setColor(Color.BLACK);
-						g.drawString(activeInventory.getInv().SelectedStack.kind.name, 25, (int) (FrameBuffer.getHeight() - 100*viewportscale));
+						g.drawString(remoteSelected.kind.name, 25, (int) (FrameBuffer.getHeight() - 100*viewportscale));
 						g.setColor(Color.WHITE);
-						g.drawString(activeInventory.getInv().SelectedStack.kind.name, 25 - 1,
+						g.drawString(remoteSelected.kind.name, 25 - 1,
 								(int) (FrameBuffer.getHeight() - 100*viewportscale - 1));
 					}
 
 					
 
-				}
+				//}
+				
+				
 				g.setColor(Color.BLACK);
-				g.drawString(activeInventory.getBlock().toString(), 25, (int) (FrameBuffer.getHeight() - 100*viewportscale - mainOffset));
+				g.drawString(remoteInventory.getBlock().toString(), 25, (int) (FrameBuffer.getHeight() - 100*viewportscale - mainOffset));
 				g.setColor(Color.WHITE);
-				g.drawString(activeInventory.getBlock().toString(), 25 - 1, (int) (FrameBuffer.getHeight() - 100*viewportscale - 1 - mainOffset));
+				g.drawString(remoteInventory.getBlock().toString(), 25 - 1, (int) (FrameBuffer.getHeight() - 100*viewportscale - 1 - mainOffset));
 			}
 
 
@@ -671,24 +728,24 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		if (key[0]) // W
 		{
-			move(FrontViewVector, speed, PE, FPS, Engine.world);
+			Engine.world.walk(FrontViewVector, speed, PE, FPS, false);
 
 		}
 
 		if (key[1]) // S
 		{
-			move(BackViewVector, speed, PE, FPS, Engine.world);
+			Engine.world.walk(BackViewVector, speed, PE, FPS, false);
 
 		}
 		if (key[2]) // A
 		{
-			move(LeftViewVector, speed, PE, FPS, Engine.world);
+			Engine.world.walk(LeftViewVector, speed, PE, FPS, false);
 
 		}
 
 		if (key[3]) // D
 		{
-			move(RightViewVector, speed, PE, FPS, Engine.world);
+			Engine.world.walk(RightViewVector, speed, PE, FPS, false);
 
 		}
 
@@ -702,39 +759,39 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			PE.ViewAngle.pitch += difY * (Config.sensitivity) / FPS * PE.VerticalVector.z;
 
 		}
-
+		Vector PEPos = PE.getPos();
 		if (PE.flying)
 		{
 			if (key[4])
 			{
-				PE.getPos().z += speed / FPS * PE.VerticalVector.z;
+				PEPos.z += speed / FPS * PE.VerticalVector.z;
 
 			}
 			if (key[5])
 			{
-				PE.getPos().z -= speed / FPS * PE.VerticalVector.z;
+				PEPos.z -= speed / FPS * PE.VerticalVector.z;
 
 			}
 		}
-
-		if (PE.VerticalVector.z == 1 && PE.getPos().z < 0// Engine.world.CHUNK_HEIGHT / 2
-				&& Engine.world.getBlockUnderEntity(true, true, PE) != Block.NOTHING)
+		Block invunder = Engine.world.getBlockUnderEntity(true, true, PE);
+		if (PE.VerticalVector.z == 1 && PEPos.z < 0// Engine.world.CHUNK_HEIGHT / 2
+				&& invunder != Block.NOTHING)
 		{
 			PE.VerticalVector.z = -1;
 			Block above = Engine.world.getBlockUnderEntity(false, true, PE);
-			if (PE.getPos().z >= above.z - 1.7f)
+			if (PEPos.z >= above.z - 1.7f)
 			{
-				PE.getPos().z = above.z - 1.7f;
+				PEPos.z = above.z - 1.7f;
 			}
-		} else if (PE.VerticalVector.z == -1 && PE.getPos().z >= 0// Engine.world.CHUNK_HEIGHT / 2
-				&& Engine.world.getBlockUnderEntity(true, true, PE) != Block.NOTHING)
+		} else if (PE.VerticalVector.z == -1 && PEPos.z >= 0// Engine.world.CHUNK_HEIGHT / 2
+				&& invunder != Block.NOTHING)
 		{
 			PE.VerticalVector.z = 1;
 
 			Block under = Engine.world.getBlockUnderEntity(false, true, PE);
-			if (PE.getPos().z <= under.z + 2.7f)
+			if (PEPos.z <= under.z + 2.7f)
 			{
-				PE.getPos().z = under.z + 2.7f;
+				PEPos.z = under.z + 2.7f;
 			}
 		}
 		
@@ -768,31 +825,31 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (arg0.getKeyCode() == KeyEvent.VK_W)
 		{
 			key[0] = true;
-			if (activeInventory != null)
+			if (remoteInventory != null)
 				openInventory(null);
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_S)
 		{
 			key[1] = true;
-			if (activeInventory != null)
+			if (remoteInventory != null)
 				openInventory(null);
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_A)
 		{
 			key[2] = true;
-			if (activeInventory != null)
+			if (remoteInventory != null)
 				openInventory(null);
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_D)
 		{
 			key[3] = true;
-			if (activeInventory != null)
+			if (remoteInventory != null)
 				openInventory(null);
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_SPACE)
 		{
 			key[4] = true;
-			if (activeInventory != null)
+			if (remoteInventory != null)
 				openInventory(null);
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_SHIFT)
@@ -861,27 +918,24 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 		}
 
-		if (arg0.getKeyCode() == KeyEvent.VK_G)
+		/*if (arg0.getKeyCode() == KeyEvent.VK_G)
 		{
 			String itemName = JOptionPane.showInputDialog(Main.Frame.getContentPane(), "Item name: (case-sensitive)",
 					"Give", JOptionPane.QUESTION_MESSAGE);
 			if (itemName != null && Main.Items.get(itemName) != null)
 			{
 				Engine.Inv.add(Main.Items.get(itemName), 1, true);
+				//if(Engine.Inv.items.size()==1) {
+					//SwitchInventory(true);
+				//}
 			} else
 			{
 				Main.err("Give: no such item");
 			}
-		}
+		}*/
 		if (arg0.getKeyCode() == KeyEvent.VK_Q)
 		{
-			if (localInvActive && activeInventory != null && activeInventory.getInv().items.size() > 0)
-			{
-				SwitchInventory(false);
-			} else if (!localInvActive && Engine.Inv.items.size() > 0)
-			{
-				SwitchInventory(true);
-			}
+			SwapInv();
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_P)
 		{
@@ -943,46 +997,49 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	@Override
 	public void mousePressed(MouseEvent arg0)
 	{
-		if (activeInventory == null)
+		if (remoteInventory == null)
 		{
 			if (arg0.getButton() == MouseEvent.BUTTON1)
 			{
-				if (SelectedBlock != Block.NOTHING && SelectedBlock != null)
+				if (SelectedBlock != Block.NOTHING)
 				{
-					if (SelectedBlock instanceof BlockInventoryInterface
-							&& activeInventory == (((BlockInventoryInterface) SelectedBlock)))
+					/*if (SelectedBlock instanceof BlockInventoryInterface
+							&& remoteInventory == (((BlockInventoryInterface) SelectedBlock)))
 					{
 						SwitchInventory(true);
-					}
-					if (Engine.client == null)
-					{
+					}*/
+					boolean returnAsItem=true;
+					/*if (Engine.client == null)
+					{*/
 						if (SelectedBlock instanceof BreakListener)
 						{
-							((BreakListener) SelectedBlock).breaked(null);
+							returnAsItem = ((BreakListener) SelectedBlock).breaked(Config.username);
 						}
-						Engine.world.destroyBlock(SelectedBlock);
-					} else
+						Engine.world.destroyBlock(SelectedBlock, true);
+					/*} else
 					{
 						Engine.client.sendData(("06," + Config.username + "," + SelectedBlock.x + "," + SelectedBlock.y
 								+ "," + SelectedBlock.z));
-					}
-					if (SelectedBlock.returnOnBreak
+					}*/
+					/*if (SelectedBlock.returnOnBreak
 							&& ((SelectedBlock instanceof WaterBlock && (((WaterBlock) SelectedBlock).getHeight() == 4))
-									|| !(SelectedBlock instanceof WaterBlock)))
+					
+									|| !(SelectedBlock instanceof WaterBlock)))*/
+					if(returnAsItem)
 					{
-						Item item = Main.Items.get(SelectedBlock.name);
-						if (Engine.Inv.items.size() == 0)
+						ItemType item = Main.Items.get(SelectedBlock.name);
+						/*if (Engine.Inv.items.size() == 0) 
 						{
 							Engine.Inv.add(item, 1, true);
 							SwitchInventory(false);
 						} else
-						{
+						{*/
 							Engine.Inv.add(item, 1, true);
-						}
+						//}
 
 					}
 				}else if(SelectedEntity != null) {
-					Engine.world.killEntity(SelectedEntity.ID);
+					Engine.world.killEntity(SelectedEntity.ID, true);
 					
 				}
 				
@@ -996,9 +1053,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 						if (Engine.Inv.hotbarIndex > -1)
 						{
-							if (Engine.Inv.SelectedStack.kind.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(Engine.Inv.SelectedStack.kind.className))
+							ItemStack selected =Engine.Inv.getSelectedStack(); 
+							if (selected.kind.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(selected.kind.className))
 							{
-								Engine.Inv.add(Engine.Inv.SelectedStack.kind, -1, true);
+								Engine.Inv.add(selected.kind, -1, true);
 							}
 						}
 					} else if (SelectedBlock instanceof InteractListener)
@@ -1021,10 +1079,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			if (localInvActive)
 			{
-				SwapItems(false, Engine.Inv.SelectedStack.kind.name);
+				SwapItems(false, Engine.Inv.getSelectedStack().kind.name);
 			} else
 			{
-				SwapItems(true, activeInventory.getInv().SelectedStack.kind.name);
+				SwapItems(true, remoteInventory.getInv().getSelectedStack().kind.name);
 			}
 
 		}
@@ -1046,9 +1104,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	 private void setP(Vector v, Point2D.Float point)
 	{
-
-		float t = v.substract(PE.getPos()).DotProduct(ViewVector);
-		v.multiply(1 / t).add(PE.getPos());
+		 Vector PEPos = PE.getPos();
+		float t = v.substract(PEPos).DotProduct(ViewVector);
+		v.multiply(1 / t).add(PEPos);
 
 		// Vector ViewToPoint = v.cpy().substract(PE.getPos());
 		// ViewToPoint.set(v);
@@ -1077,7 +1135,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Engine.Inv.wheelUp();
 			} else
 			{
-				activeInventory.getInv().wheelUp();
+				remoteInventory.getInv().wheelUp();
 			}
 
 		}
@@ -1089,7 +1147,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Engine.Inv.wheelDown();
 			} else
 			{
-				activeInventory.getInv().wheelDown();
+				remoteInventory.getInv().wheelDown();
 			}
 		}
 
@@ -1097,18 +1155,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	public void openInventory(BlockInventoryInterface inv)
 	{
-		activeInventory = inv;
-		if (activeInventory != null)
+		remoteInventory = inv;
+		if (remoteInventory != null)
 		{
-			activeInventory.getInv().hotbarIndex = -1;
-			activeInventory.getInv().SelectedStack = null;
-		} else
+			remoteInventory.getInv().hotbarIndex = -1;
+			//remoteInventory.getInv().SelectedStack = null;
+		} else //kilépés
 		{
 			SwitchInventory(true);
 		}
 	}
 
-	 String connect(String IP, int port, boolean sendPos)
+	String connect(String IP, int port, boolean sendPos)
 	{
 
 		Engine.client = new GameClient(this);
@@ -1184,9 +1242,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Main.focused = true;
 		
 		setCursor(invisibleCursor);
-		if (Engine.server == null) {
+		if (!Engine.ticker.isRunning()) {
 			Engine.ticker.start();
-			Engine.startPhysics();
+			if(Engine.server != null || Engine.client==null) {
+				Engine.startPhysics();
+			}
 		}
 		firstframe = true;
 		//running = true;
@@ -1233,142 +1293,55 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		return ticksum / MAXSAMPLES;
 	}
 
-	public void SwitchInventory(boolean local)
+	private void SwitchInventory(boolean local)
 	{
-		if (!local && activeInventory != null)
+		if (!local && remoteInventory != null)
 		{
 
 			Engine.Inv.hotbarIndex = -1;
-			Engine.Inv.SelectedStack = null;
+			//Engine.Inv.SelectedStack = null;
 
-			if (activeInventory.getInv().items.size() > 0)
+			if (remoteInventory.getInv().items.size() > 0)
 			{
-				activeInventory.getInv().hotbarIndex = 0;
-				activeInventory.getInv().SelectedStack = activeInventory.getInv().items.get(0);
+				remoteInventory.getInv().hotbarIndex = 0;
+				//remoteInventory.getInv().SelectedStack = remoteInventory.getInv().items.get(0);
 			}
 
 			// }
 			localInvActive = false;
 		} else
 		{
-			if (activeInventory != null)
+			if (remoteInventory != null)
 			{
-				activeInventory.getInv().hotbarIndex = -1;
-				activeInventory.getInv().SelectedStack = null;
+				remoteInventory.getInv().hotbarIndex = -1;
+				//remoteInventory.getInv().SelectedStack = null;
 			}
 
 			if (Engine.Inv.items.size() > 0)
 			{
 				Engine.Inv.hotbarIndex = 0;
-				Engine.Inv.SelectedStack = Engine.Inv.items.get(0);
+				//Engine.Inv.SelectedStack = Engine.Inv.items.get(0);
 			}
 
 			localInvActive = true;
 		}
 	}
+	
+	public void SwapInv() {
+		if (localInvActive && remoteInventory != null && remoteInventory.getInv().items.size() > 0)
+		{
+			SwitchInventory(false);
+		} else if (!localInvActive && Engine.Inv.items.size() > 0)
+		{
+			SwitchInventory(true);
+		}
+	}
 
 	
 
-	 static Block[] getBlocksCollidingWithPlayer(float x, float y, float z, World world, Entity entity)
-	{
-		//HashMap<BlockFace, Block> result = new HashMap<>();
-		 Block[] result = new Block[3];
-		int dx = (int) Math.floor(x);
-		int dy = (int) Math.floor(y);
-		int dz1 = (int) Math.floor(z);
-		int dz2 = (int) Math.floor(z - 1f * entity.VerticalVector.z);
-		int dz3 = (int) Math.floor(z - 1.699f * entity.VerticalVector.z);
-
-		/*result.put(BlockFace.TOP, world.getBlockAt(dx, dy, dz1));
-		result.put(BlockFace.NONE, world.getBlockAt(dx, dy, dz2));
-		result.put(BlockFace.BOTTOM, world.getBlockAt(dx, dy, dz3));*/
-		result[0]=world.getBlockAt(dx, dy, dz1);
-		result[1]=world.getBlockAt(dx, dy, dz2);
-		result[2]=world.getBlockAt(dx, dy, dz3);
-
-		return result;
-
-	}
-
-	static boolean move(Vector direction, float coefficient, Entity entity, float FPS, World world)
-	{
-		boolean success=true;
-		float targetX, targetY;
-		float nextX = entity.getPos().x + direction.x * coefficient / FPS;
-		float nextY = entity.getPos().y + direction.y * coefficient / FPS;
-
-		Block[] blocks6X = getBlocksCollidingWithPlayer(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, world, entity);
-		Block[] blocks6Y = getBlocksCollidingWithPlayer(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, world, entity);
-		Block nextBlockX1 = blocks6X[0];//.get(BlockFace.TOP);
-		Block nextBlockX2 = blocks6X[1];//.get(BlockFace.NONE);
-		Block nextBlockX3 = blocks6X[2];//.get(BlockFace.BOTTOM);
-
-		Block nextBlockY1 = blocks6Y[0];//.get(BlockFace.TOP);
-		Block nextBlockY2 = blocks6Y[1];//.get(BlockFace.NONE);
-		Block nextBlockY3 = blocks6Y[2];//.get(BlockFace.BOTTOM);
-
-		if (!nextBlockX1.solid && !nextBlockX2.solid && !nextBlockX3.solid)
-		{
-			targetX = nextX;
-		}else {
-			int bx;
-			if(nextBlockX1.solid) {
-				bx=nextBlockX1.x;
-			//	by=nextBlockX1.y;
-			}else if(nextBlockX2.solid) {
-				bx=nextBlockX2.x;
-			//	by=nextBlockX2.y;
-			}else{
-				bx=nextBlockX3.x;
-			//	by=nextBlockX3.y;
-			}
-			
-			
-			if(direction.x<0) {
-				targetX=bx+1+World.BLOCK_RANGE;
-			}else {
-				targetX=bx-World.BLOCK_RANGE;
 
 
-				
-			}
-			success=false;
-		}
-		if (!nextBlockY1.solid && !nextBlockY2.solid && !nextBlockY3.solid)
-		{
-			targetY = nextY;
-		}else {
-			
-			int by;
-			if(nextBlockY1.solid) {
-			//	bx=nextBlockX1.x;
-				by=nextBlockY1.y;
-			}else if(nextBlockY2.solid) {
-			//	bx=nextBlockX2.x;
-				by=nextBlockY2.y;
-			}else{
-			//	bx=nextBlockX3.x;
-				by=nextBlockY3.y;
-			}
-			
-			if(direction.y<0) {
-				targetY=by+1+World.BLOCK_RANGE;
-			}else {
-				targetY=by-World.BLOCK_RANGE;
-
-
-				
-			}
-			
-			success=false;
-		}
-		
-		entity.move(targetX, targetY, entity.getPos().z);
-		
-		return success;
-
-
-	}
+	
 
 
 
@@ -1402,12 +1375,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			return false;
 		}
-		boolean success = Engine.world.addBlock(placeable, false);
-		if (success)
-		{
-			if (Engine.client != null)
+		Engine.world.addBlockReplace(placeable, true);
+		/*if (success)
+		{*/
+			/*if (Engine.client != null)
 			{
-				for (Entry<String, Item> entry : Main.Items.entrySet())
+				for (Entry<String, ItemType> entry : Main.Items.entrySet())
 				{
 					String BlockName = entry.getKey();
 					String ClassName = entry.getValue().className;
@@ -1417,15 +1390,15 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 								("05," + Config.username + "," + nextX + "," + nextY + "," + nextZ + "," + BlockName));
 					}
 				}
-			}
+			}*/
 			if (placeable instanceof PlaceListener)
 			{
 				((PlaceListener) placeable).placed(SelectedFace);
 			}
 			return true;
 
-		}
-		return false;
+		/*}
+		return false;*/
 
 	}
 
@@ -1435,24 +1408,24 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			if (!addToLocal)
 			{
-				if (Engine.Inv.items.size() > 0 && activeInventory != null)
+				if (Engine.Inv.items.size() > 0 && remoteInventory != null)
 				{
-					Item removedFromLocal = Engine.Inv.SelectedStack.kind;
-					activeInventory.getInv().add(removedFromLocal, 1, true);
+					ItemType removedFromLocal = Engine.Inv.getSelectedStack().kind;
+					remoteInventory.getInv().add(removedFromLocal, 1, true);
 					Engine.Inv.add(removedFromLocal, -1, true);
 				}
-				if (Engine.client == null && Engine.Inv.items.size() == 0)
-					SwitchInventory(false);
+				//if (Engine.client == null && Engine.Inv.items.size() == 0)
+				//	SwitchInventory(false);
 
 			} else
 			{
-				Item removedFromActiveInv = activeInventory.getInv().SelectedStack.kind;
+				ItemType removedFromActiveInv = remoteInventory.getInv().getSelectedStack().kind;
 				Engine.Inv.add(removedFromActiveInv, 1, true);
-				activeInventory.getInv().add(removedFromActiveInv, -1, true);
+				remoteInventory.getInv().add(removedFromActiveInv, -1, true);
 
 				// if(Engine.client == null &&
-				if (activeInventory.getInv().items.size() == 0)
-					SwitchInventory(true);
+				//if (remoteInventory.getInv().items.size() == 0)
+				//	SwitchInventory(true);
 
 			}
 
@@ -1460,15 +1433,15 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			// 14,Sakii,1,2,3,Stone,true (add to local)
 			Engine.client.sendData(
-					"14," + Config.username + "," + activeInventory.getBlock().x + "," + activeInventory.getBlock().y
-							+ "," + activeInventory.getBlock().z + "," + itemName + "," + addToLocal);
+					"14," + Config.username + "," + remoteInventory.getBlock().x + "," + remoteInventory.getBlock().y
+							+ "," + remoteInventory.getBlock().z + "," + itemName + "," + addToLocal);
 		}
 	}
 
 	 void teleportToSpawn()
 	{
 		Block SpawnBlock = Engine.world.getSpawnBlock();
-		PE.move(SpawnBlock.x + 0.5f, SpawnBlock.y + 0.5f, SpawnBlock.z + 2.7f);
+		PE.move(SpawnBlock.x + 0.5f, SpawnBlock.y + 0.5f, SpawnBlock.z + 2.7f, false);
 	}
 
 }
