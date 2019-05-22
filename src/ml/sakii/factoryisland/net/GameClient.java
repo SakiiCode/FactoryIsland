@@ -115,22 +115,23 @@ public class GameClient extends Thread{
 				if(inputStream.ready()) {
 					message = inputStream.readLine().trim();
 				}else {
-					try
-					{
-						Thread.sleep(CMDTIME);
-					} catch (InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-					continue;
+					
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 				continue;
 			}
 
-			if(message == null || message.isEmpty())
+			if(message == null || message.isEmpty()) {
+				try
+				{
+					Thread.sleep(CMDTIME);
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
 				continue;
+			}
 			
 
 			
@@ -171,7 +172,7 @@ public class GameClient extends Thread{
 			for(int i = 0;i<part.length;i=i+5){
 				Block b = game.Engine.createBlockByName(part[i+1], cInt(part[i+2]), cInt(part[i+3]), cInt(part[i+4]));
 				if(b != Block.NOTHING && b != null){
-					game.Engine.world.addBlock(b, true);
+					game.Engine.world.addBlockReplace(b, false);
 					//toBeDeleted.add(entry);
 					blockcount++;
 				}else{
@@ -233,41 +234,46 @@ public class GameClient extends Thread{
 		
 		case "05": // PLACE BLOCK
 			
-			Block b = game.Engine.createBlockByName(part[4], cInt(part[1]), cInt(part[2]), cInt(part[3]));
-			game.Engine.world.addBlock(b,true);
+			Block b = game.Engine.createBlockByName(part[1], cInt(part[2]), cInt(part[3]), cInt(part[4]));
+			for(int i=5;i<part.length;i+=2) {
+				b.setMetadata(part[i], part[i+1], false);
+			}
+			game.Engine.world.addBlockReplace(b,false);
 
 			break;
 		case "06": // DELETE BLOCK
-			game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3])));
+			game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3])), false);
 			break;
 		case "07": // EDIT METADATA
-			
-			game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3])).setMetadata(part[4], part[5]);
+			Block bl = game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
+			if(bl != Block.NOTHING) {
+				bl.setMetadata(part[4], part[5], false);
+			}
 
 			break;
 		case "10": // ADD TO INVENTORY
-			int size0 = game.Engine.Inv.items.size();
+			//int size0 = game.Engine.Inv.items.size();
 			game.Engine.Inv.add(Main.Items.get(part[2]), cInt(part[3]), false);
-			if(game.Engine.Inv.items.size()==0)
+			/*if(game.Engine.Inv.items.size()==0) TODO ezek a switchinventoryk kellhetnek
 				game.SwitchInventory(false);
 			if(game.Engine.Inv.items.size()==1 && size0==0)
-				game.SwitchInventory(true);
+				game.SwitchInventory(true);*/
 			break;
 		case "13": // ADD TO BLOCK INVENTORY
 			((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]))).getInv().add(Main.Items.get(part[4]), cInt(part[5]), false);
-			if(game.activeInventory.getInv().items.size()==0)
-				game.SwitchInventory(true);
+			/*if(game.remoteInventory.getInv().items.size()==0)
+				game.SwitchInventory(true);*/
 			break;
 		case "14": // SWAP BLOCKS 14,Sakii,1,2,3,Stone,true (add to local)
 			boolean addToLocal = Boolean.parseBoolean(part[6]);
 			game.Engine.Inv.add(Main.Items.get(part[5]), addToLocal ? 1 : -1, false);
 			((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal ? -1 : 1, false);
 			
-			if(game.activeInventory.getInv().items.size()==0) {
+			/*if(game.remoteInventory.getInv().items.size()==0) {
 				game.SwitchInventory(true);
 			}else if(game.Engine.Inv.items.size()==0) {
 				game.SwitchInventory(false);
-			}
+			}*/
 			break;
 
 		case "98": // SERVER CLOSED
@@ -283,7 +289,7 @@ public class GameClient extends Thread{
 			
 			break;
 		case "11": //FORCE MOVE
-			game.PE.move(Float.parseFloat(part[1]), Float.parseFloat(part[2]), Float.parseFloat(part[3]));
+			game.PE.move(Float.parseFloat(part[1]), Float.parseFloat(part[2]), Float.parseFloat(part[3]), false);
 			game.PE.ViewAngle.yaw = Float.parseFloat(part[4]);
 			game.PE.ViewAngle.pitch = Float.parseFloat(part[5]);
 			game.moved=true;
@@ -298,10 +304,16 @@ public class GameClient extends Thread{
 			game.Engine.world.addEntity(e);
 			break;
 		case "16": // MOVE ENTITY
-			game.Engine.world.getEntity(Long.parseLong(part[1])).move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
+			for(int i=1;i<part.length;i+=4) {
+				Entity en = game.Engine.world.getEntity(Long.parseLong(part[i]));
+				if(en!=null) {
+					en.move(Float.parseFloat(part[i+1]), Float.parseFloat(part[i+2]), Float.parseFloat(part[i+3]), false);
+					en.update();
+				}
+			}
 			break;
 		case "17": // KILL ENTITIY
-			game.Engine.world.killEntity(Long.parseLong(part[1]));
+			game.Engine.world.killEntity(Long.parseLong(part[1]), false);
 			break;
 		case "pong":
 			Main.log("ping time: " + (System.currentTimeMillis()-pingTime) + " ms");
@@ -326,7 +338,7 @@ public class GameClient extends Thread{
 			outputStream.flush();
 			if(Main.devmode) {
 				if(ALLCODES.contains(data.split(",")[0])){
-					Main.log("(CLIENT:"+Config.username+") SENT:  "+data);
+					Main.log("(CLIENT:"+Config.username+") SENT:      "+data);
 				}else if(!data.isEmpty()){
 					Main.log("(CLIENT:"+Config.username+") I DUNNO WAT I SENT LOL:  "+data);
 				}

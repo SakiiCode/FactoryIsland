@@ -14,10 +14,9 @@ import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.BreakListener;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
-import ml.sakii.factoryisland.items.ItemStack;
+import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
 public class GameServer extends Thread{
@@ -150,8 +149,8 @@ public class GameServer extends Thread{
 						//és az inventoryt
 						
 						inv = Engine.world.loadInv(senderName, null);
-						for(ItemStack is : inv.items) {
-							sendData("10,server,"+is.kind.name+","+is.amount, socketstream);
+						for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
+							sendData("10,server,"+is.getKey().name+","+is.getValue(), socketstream);
 						}
 						
 						
@@ -172,6 +171,15 @@ public class GameServer extends Thread{
 						//15,className,x,y,z,yaw,pitch,name,ID
 						if(!(e instanceof PlayerEntity))
 							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.ID, socketstream);
+					}
+					
+					//és a blockok inventoryját
+					for(Block b : Engine.world.getWhole(false)) {
+						if(b instanceof BlockInventoryInterface) {
+							for(Entry<ItemType,Integer> entry : ((BlockInventoryInterface) b).getInv().items.entrySet()) {
+								sendData("13,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), socketstream);
+							}
+						}
 					}
 
 					
@@ -229,18 +237,26 @@ public class GameServer extends Thread{
 				
 			
 			case "05": // PLACE BLOCK
-				Block b1 = Engine.createBlockByName(part[5], cInt(part[2]), cInt(part[3]), cInt(part[4]));
-				Engine.world.addBlock(b1, true);
+				Block b1 = Engine.createBlockByName(part[1], cInt(part[2]), cInt(part[3]), cInt(part[4]));
+				for(int i=5;i<part.length;i+=2) {
+					b1.setMetadata(part[i], part[i+1], false);
+				}
+				Engine.world.addBlockReplace(b1, false);
+				
 				//senderID = cInt(part[1]);
 				for(PlayerMPData client : clients.values()){
-					if(!client.username.equals(senderName)) {
+					/*if(!client.username.equals(senderName)) {
 						sendData(("05," + b1.x + "," + b1.y + "," + b1.z + "," + part[5]), client.socket);
 						Main.log("Block place forwarded to "+client.username);
+					}*/
+					if(!client.local) {
+						sendData(message, client.socket);
+
 					}
 				}
 				break;
 			case "06": // DELETE BLOCK
-				Block b = Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]));
+				/*Block b = Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]));
 				if(b!=Block.NOTHING){
 					if(b instanceof BreakListener){
 						((BreakListener)b).breaked(senderName);//.breakedOnServer();
@@ -249,13 +265,24 @@ public class GameServer extends Thread{
 						sendData("06," + cInt(part[2]) + "," + cInt(part[3]) + "," + cInt(part[4]), data.socket);
 					}
 					//Engine.world.destroyBlock(b);
+				}*/
+				
+				Engine.world.destroyBlock(Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3])), false);
+				for(PlayerMPData client : clients.values()){
+					if(!client.local) {
+						sendData(message, client.socket);
+
+					}
 				}
+
 				break;
 			case "07": // EDIT METADATA
-				//Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3])).setMetadata(part[4], part[5]);
-				for(PlayerMPData data : clients.values()) {
-					if(data.username!=Config.username)
-						sendData(message, data.socket);
+				Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3])).setMetadata(part[4], part[5], false);
+				for(PlayerMPData client : clients.values()){
+					if(!client.local) {
+						sendData(message, client.socket);
+
+					}
 				}
 				break;
 			case "10": // ADD TO INVENTORY
@@ -264,8 +291,8 @@ public class GameServer extends Thread{
 				break;
 			case "13": // ADD TO BLOCK INVENTORY
 				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
-				if(Main.GAME != null && Main.GAME.activeInventory.getInv().items.size()==0)
-					Main.GAME.SwitchInventory(true);
+				//if(Main.GAME != null && Main.GAME.remoteInventory.getInv().items.size()==0) TODO ez kellhet
+				//	Main.GAME.SwitchInventory(true);
 				//clients.get(part[1]).inventory.addMore(Main.Items.get(part[2]), cInt(part[3]));
 				for(PlayerMPData client : clients.values()){
 					if(!client.username.equals(senderName)) {
@@ -277,16 +304,16 @@ public class GameServer extends Thread{
 				//sendData(message,socketstream);
 				break;
 			case "14": // SWAP BLOCKS
-				clients.get(part[1]).inventory.add(Main.Items.get(part[2]), cInt(part[3]), false);
-				if(Engine.client == null) // késõbbre ha headless server lesz
-					((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
-				for(PlayerMPData client : clients.values()){
+				boolean addToLocal = Boolean.parseBoolean(part[6]);
+				clients.get(part[1]).inventory.add(Main.Items.get(part[5]), addToLocal?1:-1, false);
+				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal?-1:1, false);
+				//for(PlayerMPData client : clients.values()){
 					//if(client.username.equals(senderName)) {
-						sendData(message, client.socket);
+						sendData(message, socketstream);
 
-						Main.log("item swap forwarded to "+client.username);
+						//Main.log("item swap forwarded to "+client.username);
 					//}
-				}
+				//}
 				break;
 			case "15": // SPAWN ENTITY
 				/*String className = part[1];
@@ -304,16 +331,20 @@ public class GameServer extends Thread{
 				}
 				break;
 			case "16": // MOVE ENTITY
-				//Engine.world.getEntity(Long.parseLong(part[1])).move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-				for(PlayerMPData client : clients.values()){
-					if(!client.local) {
-						sendData(message, client.socket);
-
+				Entity e = Engine.world.getEntity(Long.parseLong(part[1]));
+				if(e!=null) { // lehet h rossz sorrendben jönnek a parancsok és már meghalt
+					e.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
+					for(PlayerMPData client : clients.values()){
+						if(!client.local) {
+							sendData(message, client.socket);
+	
+						}
 					}
 				}
 
 				break;
 			case "17": // KILL ENTITIY
+				Engine.world.killEntity(Long.parseLong(part[1]), false);
 				for(PlayerMPData client : clients.values()){
 					if(!client.local) {
 						sendData(message, client.socket);
@@ -341,7 +372,7 @@ public class GameServer extends Thread{
 			outToClient.flush();
 			if(Main.devmode) {
 				if(GameClient.ALLCODES.contains(data.split(",")[0])){
-					Main.log("(SERVER) SENT:"+data);
+					Main.log("(SERVER) SENT:      "+data);
 				}else{
 					Main.log("(SERVER) I DUNNO WAT I SENT LOL:  "+data);
 				}

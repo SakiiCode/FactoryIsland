@@ -19,7 +19,7 @@ public class Entity{
 	public ArrayList<Object3D> Objects = new ArrayList<>();
 	public ArrayList<Vertex> Vertices = new ArrayList<>();
 	public boolean showName = false;
-	private Vector ViewFrom;
+	Vector ViewFrom;
 	public EAngle ViewAngle;
 	public final float GravityAcceleration = 9.81f; // m/s^2
 	public float GravityVelocity = 0f; // m/s
@@ -85,28 +85,38 @@ public class Entity{
 		
 	}
 
-	public void move(float x, float y, float z) {
-		ViewFrom.set(x, y, z);
-		
-		if(!(this instanceof PlayerEntity) && engine.client != null && engine.server != null) {
-			engine.client.sendData("16,"+ID+","+ViewFrom);
+	public void move(float x, float y, float z, boolean resend) {
+		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND
+			//if(!(this instanceof PlayerEntity)) {// && engine.client != null && engine.server != null) {
+				engine.client.sendData("16,"+ID+","+x+","+y+","+z); 
+			//}
+			
+		}else {
+			ViewFrom.set(x, y, z);
 		}
 		
 	}
 	
-	public void move(Vector v) {
-		move(v.x, v.y, v.z);
+	public void move(Vector v, boolean resend) {
+		move(v.x, v.y, v.z, resend);
 	}
 	
 	public Vector getPos() {
 		return ViewFrom;
 	}
+	
+	public void update() {
+		
+	}
 
 	@Override
 	public String toString()
 	{
-		return "[" + ViewFrom + "," + className + "]\r\n";
+		//return "[" + ViewFrom + "," + className + "]\r\n";
+		return ID+","+ViewFrom;
 	}
+	
+	
 	
 	
 }
