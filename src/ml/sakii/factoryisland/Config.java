@@ -71,7 +71,6 @@ public class Config {
 
 	static void reset()
 	{
-		// TODO Auto-generated method stub
 		try
 		{
 			Prefs.clear();
@@ -89,7 +88,6 @@ public class Config {
 			selectedMap=Prefs.get("selectedMap", "");
 		} catch (BackingStoreException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -28,8 +28,8 @@ public class Polygon3D extends Object3D{
 	
 	
 	public final Vertex[] Vertices;
-	private final Vertex[] clip = new Vertex[15];
-	private final Vertex[] clip2 = new Vertex[15];
+	private final Vertex[] clip = new Vertex[20];
+	private final Vertex[] clip2 = new Vertex[20];
 	private int clipSize, clip2Size;
 	final HashMap<Vertex, UVZ> TextureMap = new HashMap<>();
 	
@@ -47,7 +47,7 @@ public class Polygon3D extends Object3D{
 	private int light=0;
 	
 	private final HashMap<Block, Integer> lightSources = new HashMap<>();
-	private Color4 lightedcolor = new Color4(); //TODO private
+	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
 	Color4 pixel = new Color4();
 	Vector spawnpoint=new Vector();

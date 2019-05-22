@@ -15,7 +15,7 @@ public class LeafBlock extends Block implements BreakListener{
 				Main.leaf,
 				Main.leaf,
 				engine);
-		returnOnBreak=false;
+		//returnOnBreak=false;
 		
 		
 		
@@ -39,7 +39,7 @@ public class LeafBlock extends Block implements BreakListener{
 			}
 
 		}
-		return true;
+		return false;
 		
 	}
 

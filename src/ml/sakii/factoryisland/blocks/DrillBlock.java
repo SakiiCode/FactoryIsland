@@ -19,7 +19,7 @@ public class DrillBlock extends SimpleMachine{
 	@Override
 	void work() {
 		BlockFace target = getTarget();
-		Engine.world.destroyBlock(Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]));
+		Engine.world.destroyBlock(Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]), true);
 	}
 	
 }

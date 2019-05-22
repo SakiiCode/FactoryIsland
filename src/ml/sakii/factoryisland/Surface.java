@@ -38,7 +38,6 @@ public class Surface {
 				throw new Exception();
 			} catch (Exception e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		

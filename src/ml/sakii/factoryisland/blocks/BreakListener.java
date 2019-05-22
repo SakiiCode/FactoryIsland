@@ -2,9 +2,10 @@ package ml.sakii.factoryisland.blocks;
 
 public interface BreakListener {
 	
-	
-	//true ha sajat inventory visszarakast akarsz
-	// fhnev csak multiplayerben szamit
+
+	/**
+	 * @param felhasználónév csak multiplayerben számít
+    * @return <code>boolean</code> return to inventory
+	*/
 	boolean breaked(String username);
-	//void breakedOnServer();
 }

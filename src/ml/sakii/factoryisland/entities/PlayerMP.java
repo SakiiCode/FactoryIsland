@@ -182,6 +182,7 @@ public class PlayerMP extends Entity {
 		return new float[]{newX, newY};
 	}
 	
+	@Override
 	public void update(){
 		//yaw += Math.toRadians(90);
 		yaw2=(float) (-Math.toRadians(yaw) +Math.PI/2);

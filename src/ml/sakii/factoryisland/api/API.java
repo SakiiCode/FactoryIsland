@@ -13,14 +13,14 @@ public class API {
 	
 	public static void setBlock(String name, int x, int y, int z) {
 		Block b = new Block(name, x, y, z);
-		Main.GAME.Engine.world.addBlock(b.b, true);
+		Main.GAME.Engine.world.addBlockReplace(b.b, true);
 	}
 	
 	public static void deleteBlock(int x, int y, int z) {
 		ml.sakii.factoryisland.blocks.Block b = Main.GAME.Engine.world.getBlockAt(x, y, z);
 		if(b!=ml.sakii.factoryisland.blocks.Block.NOTHING) {
 			if (Main.GAME.Engine.client == null) {
-				Main.GAME.Engine.world.destroyBlock(b);
+				Main.GAME.Engine.world.destroyBlock(b, true);
 			} else {
 				Main.GAME.Engine.client.sendData(("06," + Config.username + "," + x + "," + y + "," + z));
 			}
@@ -28,11 +28,11 @@ public class API {
 	}
 	
 	public static void setBlock(Block b) {
-		Main.GAME.Engine.world.addBlock(b.b, true);
+		Main.GAME.Engine.world.addBlockReplace(b.b, true);
 	}
 	
 	public static void teleport(float x, float y, float z) {
-		Main.GAME.PE.move(x, y, z);
+		Main.GAME.PE.move(x, y, z, true);
 		Main.GAME.moved = true;
 	}
 	

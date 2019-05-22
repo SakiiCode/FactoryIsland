@@ -4,7 +4,7 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Polygon3D;
 
-public class LampBlock extends Block implements PlaceListener, BreakListener, LightListener, LoadListener{
+public class LampBlock extends Block implements PlaceListener, LightListener, LoadListener{
 
 	//public int lightLevel=10;
 	//lightLevel=15;
@@ -27,12 +27,12 @@ public class LampBlock extends Block implements PlaceListener, BreakListener, Li
 		Engine.world.addLight(this.x, this.y, this.z, this, lightLevel, null);
 	}
 
-	@Override
+	/*@Override
 	public boolean breaked(String username)
 	{
 		//Engine.world.removeLight(this.x, this.y, this.z, this, lightLevel);
 		return false;
-	}
+	}*/
 	
 
 }

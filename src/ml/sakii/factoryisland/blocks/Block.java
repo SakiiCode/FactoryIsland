@@ -17,7 +17,7 @@ import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vertex;
-import ml.sakii.factoryisland.items.Item;
+import ml.sakii.factoryisland.items.ItemType;
 
 public class Block extends Object3D
 {
@@ -33,7 +33,7 @@ public class Block extends Object3D
 	public ArrayList<Polygon3D> Polygons = new ArrayList<>(6);
 	public final HashMap<BlockFace, Integer> powers = new HashMap<>();
 	public int refreshRate = 1;
-	public boolean returnOnBreak = true;
+	//public boolean returnOnBreak = true;
 
 	public boolean solid;
 
@@ -76,7 +76,7 @@ public class Block extends Object3D
 
 	public void addToUpdates(TickListener e)
 	{
-		if (!Engine.TickableBlocks.contains(e))
+		//if (!Engine.TickableBlocks.contains(e))
 			Engine.TickableBlocks.add(e);
 	}
 
@@ -119,41 +119,29 @@ public class Block extends Object3D
 		}
 	}
 
-	public final void setMetadata(String key, String value)
+	public final void setMetadata(String key, String value, boolean resend)
 	{
-
-		if(this instanceof MetadataListener) {
-			
-			((MetadataListener)this).onMetadataUpdate(key, value);
-			
-			
-		}
-		BlockMeta.put(key, value);
-		
-		if(Engine.server != null && Engine.client != null) {
+		if(resend && Engine.client != null) {
 			Engine.client.sendData(("07," + this.x + "," + this.y + "," + this.z + ","
 					+ key + "," + value));
-		}
 		
-		/*if (Engine.server != null)
-		{
-			for (Entry<String, PlayerMPData> entry : Engine.server.clients.entrySet())
-			{
-				if (!entry.getKey().equals(Config.username))
-				{
-					Engine.server.sendData(("07," + Config.username + "," + this.x + "," + this.y + "," + this.z + ","
-							+ key + "," + value), entry.getValue().socket);
-				}
+		}else {
+			boolean alreadyput = false;
+			if(this instanceof MetadataListener) {
+				
+				alreadyput = ((MetadataListener)this).onMetadataUpdate(key, value);
+				
+				
 			}
-		}*/
-
-		for (Block b : get6Blocks(this, false).values())
-		{
-			if (b instanceof TickListener)
-			{
-				addToUpdates((TickListener) b);
+			if(!alreadyput) {
+				BlockMeta.put(key, value);
 			}
+			
+			
+			
 		}
+
+		
 
 	}
 
@@ -290,15 +278,15 @@ public class Block extends Object3D
 		return icon;
 	}
 
-	void addBlock(Block b, boolean overwrite)
+	/*void addBlock(Block b, boolean overwrite)
 	{
 		Engine.world.addBlock(b, overwrite);
-	}
+	}*/
 
-	void deleteBlock(Block b)
+	/*void deleteBlock(Block b)
 	{
 		Engine.world.destroyBlock(b);
-	}
+	}*/
 
 	void generate(String name, int x, int y, int z, Surface top, Surface bottom, Surface north, Surface south,
 			Surface east, Surface west, float xscale, float yscale, float zscale)
@@ -367,7 +355,7 @@ public class Block extends Object3D
 		if (!Main.Items.containsKey(name))
 		{
 			Main.Items.put(name,
-					new Item(name,
+					new ItemType(name,
 							Main.ModRegistry.contains(name) ? name : "ml.sakii.factoryisland.blocks." + name + "Block",
 							generateIcon(), generateViewmodel()));
 			/*

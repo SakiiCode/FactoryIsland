@@ -121,7 +121,7 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 			return (boolean) invocable.invokeFunction("breaked");
 		} catch (NoSuchMethodException | ScriptException e) {
 			Main.err(e.getMessage());
-			return false;
+			return true;
 		}
 	}
 
