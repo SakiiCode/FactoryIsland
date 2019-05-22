@@ -10,7 +10,7 @@
  * killEntity NPE fix
  * multiplayer mozgas fix
  * blokk tores javitasa, BreakListener
- * TODO lighting rosszul mukodik mpben
+ * fenyek mukodnek mpben
  * chestek betoltodnek es megy a swapitem mp-ben
  * entity mozgas es ölés mpben fix
  * blokklerakas es kiutes ujrairva
@@ -220,6 +220,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		for(Block b : Engine.world.getWhole(false)) {
 			if(b instanceof LoadListener) {
 				((LoadListener)b).onLoad();
+			}
+			if(b.lightLevel>1) {
+				Engine.world.addLight(b.x, b.y, b.z, b, b.lightLevel, null);
 			}
 		}
 		

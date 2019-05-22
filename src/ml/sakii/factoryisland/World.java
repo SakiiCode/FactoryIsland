@@ -29,7 +29,6 @@ import org.w3c.dom.NodeList;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.LightListener;
 import ml.sakii.factoryisland.blocks.Nothing;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
@@ -415,6 +414,10 @@ public class World {
 			addLight(source.x, source.y, source.z, source, source.lightLevel, null);
 		}
 		
+		if(b.lightLevel>1) {
+			addLight(b.x, b.y, b.z, b, b.lightLevel, null);
+		}
+		
 		//return true;
 	}
 
@@ -452,7 +455,7 @@ public class World {
 			}
 			
 			Blocks.remove(b);
-			if(b instanceof LightListener)
+			if(b.lightLevel>1)
 				removeLight(b.x, b.y, b.z, b, b.lightLevel, null);
 			for(Polygon3D poly : b.Polygons) {
 				//for(Block source : poly.lightSources.keySet()) {
