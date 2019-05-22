@@ -1,18 +1,22 @@
 package ml.sakii.factoryisland.items;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
 public class PlayerInventory {
-	public final CopyOnWriteArrayList<ItemStack> items = new CopyOnWriteArrayList<>();
+	//public final CopyOnWriteArrayList<ItemStack> items = new CopyOnWriteArrayList<>();
+	//public final Map<ItemType, Integer> items = Collections.synchronizedMap(new LinkedHashMap<ItemType, Integer>());
+	public final ConcurrentHashMap<ItemType, Integer> items = new ConcurrentHashMap<>();
 	public static final PlayerInventory Creative = new CreativeInventory();
-	public ItemStack SelectedStack = null;
+	//public Entry<ItemType, Integer> SelectedStack = null;
+	private ItemStack SelectedStack = new ItemStack();
 	public int hotbarIndex = -1;
 	GameEngine engine;
-	boolean activateOnFirst=false;
+	boolean activateOnFirst=true;
 	
 	
 	public PlayerInventory(GameEngine engine) {
@@ -22,32 +26,58 @@ public class PlayerInventory {
 
 	
 	
-	public Item add(Item kind, int amount, boolean resend){
+	public ItemType add(ItemType kind, int amount, boolean resend){
 		if(!resend || engine.client == null) {
-			ItemStack stack = getStack(kind);
-			if(stack == null){
-				stack = new ItemStack(kind, amount);
-				items.add(stack);
-			}else{
-				stack.amount +=amount;
-			}
-			if(items.size()==1 && activateOnFirst){
-				hotbarIndex = 0;
-				SelectedStack = items.get(0);
+			int stack = getStack(kind);
+			
+			int originalSize = items.size();
+			//if(stack == 0){ // hozzáad 1-et
+				/*stack = new ItemStack(kind, amount);
+				items.add(stack);*/
+			//	items.put(kind, amount);
+			//}else{
+				//stack.amount +=amount;
+				items.put(kind, stack+amount);
+			//}
+			
+			
+			if(originalSize==0 && items.size()==1){ //üres volt, nem lett üres
+				if(activateOnFirst && Main.GAME != null) {
+					if(Main.GAME.remoteInventory != null && Main.GAME.remoteInventory.getInv().items.size()==0) {
+						hotbarIndex = 0;
+					}else if(Main.GAME.remoteInventory==null) {
+						hotbarIndex = 0;	
+					}
+					//SelectedStack = items.entrySet().toArray(new Entry<ItemType, Integer>[0])[0];
+				}
 			}
 			
-			if(stack.amount==0) {
-				items.remove(stack);
-				if(stack==SelectedStack) {
-					if(hotbarIndex==items.size()){
+			
+			
+			if(stack+amount==0) { //a stack kifogyott
+				
+				//ItemStack selected = getSelectedStack(); 
+				//if(selected != null && kind==selected.kind) {
+					if(hotbarIndex==items.size()-1){
 						hotbarIndex--;
 					}
-					if(hotbarIndex>-1){
+					/*if(hotbarIndex>-1){
 						SelectedStack = items.get(hotbarIndex);
 					}else{
 						SelectedStack = null;
+					}*/
+				//}
+				
+				items.remove(kind);
+				
+				if(items.size()==0){ //nem volt üres, üres lett
+					hotbarIndex=-1;
+					if(Main.GAME.remoteInventory != null) {
+						Main.GAME.SwapInv();
 					}
 				}
+				
+				
 				
 			}
 			
@@ -59,27 +89,40 @@ public class PlayerInventory {
 
 	}
 	
-	public ItemStack getStack(ItemStack is){
+	/*public ItemStack getStack(ItemStack is){
 		if(items.contains(is)){
 			return items.get(items.indexOf(is));
 		}
 		return null;
-	}
+	}*/
 	
-	public ItemStack getStack(Item kind){
-		for(ItemStack is : items){
-			if(is.kind == kind){
-				return is;
+	public ItemStack getSelectedStack(){
+		if(hotbarIndex>-1) { //BlockInventorynál ez kell 
+			@SuppressWarnings("unchecked")
+			Entry<ItemType,Integer> stack =  (Entry<ItemType,Integer>)(items.entrySet().toArray()[hotbarIndex]);
+			if(stack != null) {
+				SelectedStack.set(stack.getKey(), stack.getValue());
+				return SelectedStack;//new ItemStack(stack.getKey(), stack.getValue());
 			}
 		}
 		return null;
+	}
+	
+	public int getStack(ItemType kind){
+		/*for(ItemStack is : items){
+			if(is.kind == kind){
+				return is;
+			}
+		}*/
+		Integer count = items.get(kind);
+		return count==null ? 0 : count;
 	}
 
 	
 	
 	public void clear() {
 		items.clear();
-		SelectedStack=null;
+		//SelectedStack=null;
 		hotbarIndex=-1;
 	}
 	
@@ -87,10 +130,10 @@ public class PlayerInventory {
 		if(hotbarIndex>-1){
 			if(hotbarIndex == items.size()-1){
 				hotbarIndex = 0;
-			}else{
-				hotbarIndex++;
+			}else if(hotbarIndex<items.size()-1) {
+					hotbarIndex++;
 			}
-			SelectedStack = items.get(hotbarIndex);
+			//SelectedStack = items.get(hotbarIndex);
 		}
 		
 	}
@@ -103,7 +146,7 @@ public class PlayerInventory {
 			}else{
 				hotbarIndex--;
 			}
-			SelectedStack = items.get(hotbarIndex);
+			//SelectedStack = items.get(hotbarIndex);
 		}
 	}
 	
