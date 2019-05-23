@@ -187,6 +187,9 @@ public class GameServer extends Thread{
 					pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
 					yaw= Float.parseFloat(part[5]);
 					clients.put(senderName,new PlayerMPData(senderName,pos ,yaw, Float.parseFloat(part[6]), new PlayerInventory(Engine), socketstream, true));
+					if(!Config.creative) {
+						clients.get(senderName).inventory.items.putAll(Engine.Inv.items);
+					}
 				}
 				
 				sendData("loaded",socketstream);
@@ -277,7 +280,11 @@ public class GameServer extends Thread{
 
 				break;
 			case "07": // EDIT METADATA
-				Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3])).setMetadata(part[4], part[5], false);
+				Block bl = Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
+				if(bl != Block.NOTHING) {
+					
+					bl.setMetadata(part[4], part[5], false);
+				}
 				for(PlayerMPData client : clients.values()){
 					if(!client.local) {
 						sendData(message, client.socket);
