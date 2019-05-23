@@ -42,9 +42,9 @@ public class Main
 
 	public final static byte MAJOR = 0;
 	public final static byte MINOR = 9;
-	public final static byte REVISION = -1;
+	public final static byte REVISION = 0;
 	
-	public static boolean devmode = true, nopause = false;
+	public static boolean devmode = false, nopause = false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
 	public static BufferedImage drillSide;
 	public static Color4 drillSideColor, drillFrontColor, chestModule, tankModule;
@@ -78,7 +78,7 @@ public class Main
 	
 	static Clip BGMusic;
 
-	static boolean focused = true;
+	//static boolean focused = true;
 	static BufferedImage GUIBG;
 	static BufferedImage Logo;
 	static BufferedImage MainMenuBG, PausedBG, SettingsBG;
@@ -99,6 +99,7 @@ public class Main
 	
 	
 	private static MultiplayerGUI MPGui;
+	private static PauseGUI pauseGui;
 
 	
 
@@ -234,7 +235,8 @@ public class Main
 		Base.add(MPGui, "connect");
 		Base.add(new MainMenu(), "mainmenu");
 		Base.add(new SettingsGUI(), "settings");
-		Base.add(new PauseGUI(), "pause");
+		pauseGui= new PauseGUI();
+		Base.add(pauseGui, "pause");
 
 		Frame.add(Base);
 		
@@ -244,12 +246,12 @@ public class Main
 			@Override
 			public void windowActivated(WindowEvent e)
 			{
-				focused = true;
+				//focused = true;
 				if (GAME != null)
 				{
 					GAME.centered = false;
 				}
-				Main.log("focused:"+focused);
+				//Main.log("focused:"+focused);
 			}
 
 			@Override
@@ -277,9 +279,9 @@ public class Main
 			@Override
 			public void windowDeactivated(WindowEvent e)
 			{
-				focused = false;
+				//focused = false;
 						
-				Main.log("focused:"+focused);
+				//Main.log("focused:"+focused);
 			}
 
 			@Override
@@ -398,8 +400,10 @@ public class Main
 			}
 
 		}
-			((CardLayout) (Main.Base.getLayout())).show(Base, To);
-
+		((CardLayout) (Main.Base.getLayout())).show(Base, To);
+			/*if(To.equals("pause")) {
+				pauseGui.repaint();
+			}*/
 		PreviousCLCard = CurrentCLCard;
 		CurrentCLCard = To;
 

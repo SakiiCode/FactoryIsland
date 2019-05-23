@@ -7,7 +7,6 @@ public class RenderThread extends Thread
 	private Game game;
 	//BufferedImage secondaryBuffer=new BufferedImage(Main.Frame.getWidth(), Main.Frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
 	private boolean running=true;
-	public boolean pause=false;
 	public RenderThread(Game game) {
 		this.game=game;
 		//this.secondaryBuffer=secondaryBuffer;
@@ -23,9 +22,7 @@ public class RenderThread extends Thread
 			game.render(game.FrameBuffer.getGraphics());
 			game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Frame.getWidth(), Main.Frame.getHeight(), null);
 		}
-		if(pause) {
-			game.pause();
-		}
+
 	}
 	
 	public void kill() {

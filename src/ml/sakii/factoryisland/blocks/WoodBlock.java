@@ -115,7 +115,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 
 	@Override
 	public boolean breaked(String username) {
-		if(getCharge()>1)
+		if(getCharge()>1) {
 			for(Entry<BlockFace, Block> entry : get6Blocks(this, false).entrySet()){
 				Block b = entry.getValue();
 				BlockFace face = entry.getKey();
@@ -124,6 +124,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 				}
 				
 			}
+		}
 		return true;
 	}
 
