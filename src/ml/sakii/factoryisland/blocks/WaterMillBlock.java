@@ -22,19 +22,23 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 	
 	@Override
 	public boolean onMetadataUpdate(String key, String value) {
+		super.onMetadataUpdate(key, value);
 		BlockMeta.put(key, value);
-		
+		int target = getTarget().id;
 		if(key.equals("active")){
-			if(Integer.parseInt(value)>0){
+			if(Integer.parseInt(value) != 0){
 				for(int i=0;i<6;i++){
-					if(i != getTarget().id){
-						Polygons.get(i).s.c = Main.wmPoweredColor;
+					if(i != target){
+						Polygons.get(i).s.c.set(Main.wmPoweredColor);
+						Polygons.get(i).recalcLightedColor();
 					}
 				}
 			}else{
 				for(int i=0;i<6;i++){
-					if(i != getTarget().id){
-						Polygons.get(i).s.c = Main.wmSideColor;
+					if(i != target){
+						
+						Polygons.get(i).s.c.set(Main.wmSideColor);
+						Polygons.get(i).recalcLightedColor();
 					}
 				}
 			}
@@ -51,13 +55,17 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 			if(Integer.parseInt(BlockMeta.get("active"))>0){
 				for(int i=0;i<6;i++){
 					if(i != getTarget().id){
-						Polygons.get(i).s.c = Main.wmPoweredColor;
+						Polygons.get(i).s.c.set(Main.wmPoweredColor);
+						Polygons.get(i).recalcLightedColor();
+
 					}
 				}
 			}else{
 				for(int i=0;i<6;i++){
 					if(i != getTarget().id){
-						Polygons.get(i).s.c = Main.wmSideColor;
+						Polygons.get(i).s.c.set(Main.wmSideColor);
+						Polygons.get(i).recalcLightedColor();
+
 					}
 				}
 			}

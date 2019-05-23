@@ -14,9 +14,9 @@ public class SimpleMachine extends Block
 		implements InteractListener, PlaceListener, PowerListener, TextureListener, LoadListener, MetadataListener
 {
 	public Polygon3D TargetPolygon;
-	private Color4 side;
-	private Color4 front;
-	private Color4 active;
+	private Color4 side=new Color4();
+	private Color4 front=new Color4();
+	private Color4 active=new Color4();
 
 	public SimpleMachine(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 target, GameEngine engine)
 	{
@@ -27,10 +27,11 @@ public class SimpleMachine extends Block
 				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
 				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())),
 				new Surface(side, new GradientPaint(0, 0, front.getColor(), 0, 0, side.getColor())), engine);
-
-		this.side = side;
-		this.front = front;
-		this.active=active;
+		BlockMeta.put("target", BlockFace.TOP.id + "");
+		BlockMeta.put("powered", "0");
+		this.side.set(side);
+		this.front.set(front);
+		this.active.set(active);
 
 		TargetPolygon = new Polygon3D(new Vertex[]
 		{ new Vertex(new Vector(), 0, 0), new Vertex(new Vector(), 0, 0), new Vertex(new Vector(), 0, 0),
@@ -39,8 +40,7 @@ public class SimpleMachine extends Block
 		Polygons.add(TargetPolygon);
 		
 		
-		BlockMeta.put("target", BlockFace.TOP.id + "");
-		BlockMeta.put("powered", "0");
+
 		setTarget(BlockFace.TOP);
 		
 	}
@@ -58,19 +58,19 @@ public class SimpleMachine extends Block
 	{
 		BlockFace target = getTarget();
 		
-		Polygons.get(target.id).s.c = side;
+		Polygons.get(target.id).s.c.set(side);
 		Polygons.get(target.id).s.paint = true;
 		Polygons.get(target.id).recalcLightedColor();
 		
-		Polygons.get(target.opposite).s.c = side;
+		Polygons.get(target.opposite).s.c.set(side);
 		Polygons.get(target.opposite).s.paint = true;
 		Polygons.get(target.opposite).recalcLightedColor();
 
-		Polygons.get(newTarget.id).s.c = front;
+		Polygons.get(newTarget.id).s.c.set(front);
 		Polygons.get(newTarget.id).s.paint = false;
 		Polygons.get(newTarget.id).recalcLightedColor();
 
-		Polygons.get(newTarget.opposite).s.c = side;
+		Polygons.get(newTarget.opposite).s.c.set(side);
 		Polygons.get(newTarget.opposite).s.paint = false;
 		Polygons.get(newTarget.opposite).recalcLightedColor();
 		
@@ -139,7 +139,7 @@ public class SimpleMachine extends Block
 	public void updateTexture()
 	{
 		BlockFace target = getTarget();
-
+		//target = target==BlockFace.NONE?BlockFace.TOP:target;
 		for (BlockFace nearby : target.getNearby())
 		{
 
@@ -152,9 +152,10 @@ public class SimpleMachine extends Block
 			String level = BlockMeta.get("active");
 			if(level ==null || Integer.valueOf(level)==0) {
 				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front.getColor(), endPerp, side.getColor());
-				
+				Polygons.get(nearby.id).s.paint=true;
 			}else {
-				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front.getColor(), endPerp, active.getColor());				
+				Polygons.get(nearby.id).s.p = new GradientPaint(begin, front.getColor(), endPerp, active.getColor());
+				Polygons.get(nearby.id).s.paint=true;
 			}
 			
 		}
@@ -191,8 +192,8 @@ public class SimpleMachine extends Block
 		
 		for(int i=0;i<6;i++) {
 			Polygon3D poly=Polygons.get(i);
-			poly.s.c = side;
-			poly.s.paint = true;
+			poly.s.c.set(side);
+			poly.s.paint = false;
 			poly.recalcLightedColor();
 		}
 		setTarget(getTarget());

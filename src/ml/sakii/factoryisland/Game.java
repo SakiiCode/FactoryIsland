@@ -19,8 +19,11 @@
  * összes entityt egyszerre synceli
  * fa visszanövés fix
  * víz mûködik mpben
- * TODO vmiert maradnak tickelo blokkok
- * TODO lampa vmiert Stone-t ad vissza
+ * viz tickeles nem vegtelen
+ * watermill megy mpben
+ * pause fix
+ * lampa mar nem kovet ad vissza spben
+ * helyi inventoryt is synceli szerver indításkor
  */
 
 package ml.sakii.factoryisland;
@@ -74,6 +77,7 @@ import ml.sakii.factoryisland.blocks.InteractListener;
 import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.PlaceListener;
 import ml.sakii.factoryisland.blocks.TextureListener;
+import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
@@ -310,14 +314,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				measurement = (float) CalcAverageTick(FPS);
 			}
 
-			if (Main.focused && centered)
+			if (Main.Frame.isActive() && centered)
 			{
 				Point arg0 = MouseInfo.getPointerInfo().getLocation();
 				difX = McenterX - (float) (arg0.getX());
 				difY = McenterY - (float) (arg0.getY());
 			}
 
-			if ((Main.focused))
+			if ((Main.Frame.isActive()))
 			{
 				try
 				{
@@ -327,10 +331,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 					Main.log("Could not center mouse:" + e.getMessage());
 				}
-			}else if(!Main.focused && !Main.nopause){
+			}else if(!Main.Frame.isActive() && !Main.nopause){
 				Main.log("game not in focus");
-				renderThread.pause=true;
-				renderThread.kill();
+				//renderThread.kill();
+				pause();
 				return;
 			}
 
@@ -870,6 +874,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Engine.timer.start();
 			}
 		}*/
+		if (arg0.getKeyCode() == KeyEvent.VK_F)
+		{
+			for(TickListener t : Engine.TickableBlocks) {
+				Block b = (Block)t;
+				System.out.println(b);
+			}
+		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F3)
 		{
 			F3 = !F3;
@@ -1018,7 +1029,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						{
 							returnAsItem = ((BreakListener) SelectedBlock).breaked(Config.username);
 						}
-						Engine.world.destroyBlock(SelectedBlock, true);
+						ItemType item = Main.Items.get(SelectedBlock.name);
+					Engine.world.destroyBlock(SelectedBlock, true);
 					/*} else
 					{
 						Engine.client.sendData(("06," + Config.username + "," + SelectedBlock.x + "," + SelectedBlock.y
@@ -1030,14 +1042,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 									|| !(SelectedBlock instanceof WaterBlock)))*/
 					if(returnAsItem)
 					{
-						ItemType item = Main.Items.get(SelectedBlock.name);
+						
 						/*if (Engine.Inv.items.size() == 0) 
 						{
 							Engine.Inv.add(item, 1, true);
 							SwitchInventory(false);
 						} else
 						{*/
-							Engine.Inv.add(item, 1, true);
+							Engine.Inv.add( item, 1, true);
 						//}
 
 					}
@@ -1223,8 +1235,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.ticker.stop();
 			Engine.stopPhysics();
 		}
-			
-		Main.focused = false;
+		Main.PausedBG = Main.deepCopy(op.filter(Main.deepCopy(FrameBuffer), null));
+
+		//Main.focused = false;
 		centered = false;
 		setCursor(Cursor.getDefaultCursor());
 		removeKeyListener(this);
@@ -1236,13 +1249,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				key[i] = false;
 		}
 
-		Main.PausedBG = op.filter(FrameBuffer, null);
 		Main.SwitchWindow("pause");
 	}
 
 	void resume()
 	{
-		Main.focused = true;
+		//Main.focused = true;
 		
 		setCursor(invisibleCursor);
 		if (!Engine.ticker.isRunning()) {
@@ -1378,7 +1390,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			return false;
 		}
-		Engine.world.addBlockReplace(placeable, true);
+
+		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
+		if (placeable instanceof PlaceListener) //simplemachine miatt addblock utan
+		{
+			((PlaceListener) placeable).placed(SelectedFace);
+		}
+		return success;
 		/*if (success)
 		{*/
 			/*if (Engine.client != null)
@@ -1394,11 +1412,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					}
 				}
 			}*/
-			if (placeable instanceof PlaceListener)
-			{
-				((PlaceListener) placeable).placed(SelectedFace);
-			}
-			return true;
+			
 
 		/*}
 		return false;*/

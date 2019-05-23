@@ -12,7 +12,7 @@ public class Surface {
 	}
 
 	public BufferedImage Texture;
-	public Color4 c;
+	public Color4 c=new Color4();
 	public Paint p;
 	public boolean color;
 	public boolean paint;
@@ -20,7 +20,7 @@ public class Surface {
 	//ModBlock-hoz kell
 	public Surface(Object o) {
 		if(o instanceof Color4) {
-			this.c = (Color4) o;
+			this.c.set((Color4) o);
 			color = true;
 			paint = false;
 		}else if(o instanceof BufferedImage){
@@ -29,7 +29,7 @@ public class Surface {
 			color = false;
 			paint = false;
 		}else if(o instanceof Color) {
-			this.c = new Color4((Color)o);
+			this.c.set(new Color4((Color)o));
 			color = true;
 			paint = false;
 		} else
@@ -63,7 +63,7 @@ public class Surface {
 	}*/
 	
 	public Surface(Color4 c, Paint p){
-		this.c = c;
+		this.c.set(c);
 		color = true;
 		this.p = p;
 		paint = true;

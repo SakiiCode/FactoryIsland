@@ -27,8 +27,9 @@ public enum BlockFace {
 	public BlockFace[] getNearby(){
 		BlockFace[] ids = new BlockFace[4];
 		int idIndex = 0;
+		BlockFace opposite = getOpposite();
 		for(BlockFace face : BlockFace.values){
-			if(face != this && face != getOpposite() && face != BlockFace.NONE){
+			if(face != this && face != opposite && face != BlockFace.NONE){
 				ids[idIndex] = face;
 				idIndex++;
 			}

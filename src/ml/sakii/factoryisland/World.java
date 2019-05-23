@@ -301,7 +301,7 @@ public class World {
 		return getBlockAt((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
 	}
 	
-	public void addBlockNoReplace(Block b, boolean resend) {
+	public boolean addBlockNoReplace(Block b, boolean resend) {
 		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
 			if(resend && Engine.client != null) {
 				StringBuilder sb = new StringBuilder();
@@ -314,9 +314,11 @@ public class World {
 			}else {
 				ReplaceBlock(b);
 			}
-			//return true;
+			return true;
+		}else {
+			
 		}
-		//return false;
+		return false;
 	}
 	
 	public void addBlockReplace(Block b, boolean resend) {
@@ -425,21 +427,24 @@ public class World {
 	public void destroyBlock(Block b, boolean resend) {
 		if(resend && Engine.client != null) {
 			Engine.client.sendData(("06," + b.x + "," + b.y	+ "," + b.z));
+
 		}else {
 			Block local = getBlockAt(b.x, b.y, b.z);
 			if (local == Block.NOTHING) {
 				return;
 			}
 	
+
+			
 			for (Block bu : get6Blocks(b, false).values()) {
 				if (bu instanceof TickListener) {
 					Engine.TickableBlocks.add((TickListener) bu);
 				}
 			}
-	
+			
 			Point3D p = new Point3D(b.x, b.y, b.z);
 			Blocks.remove(p);
-	
+			
 			if (b instanceof TickListener) {
 				Engine.TickableBlocks.remove(b);
 			}
@@ -454,7 +459,7 @@ public class World {
 				game.Objects.removeAll(b.Polygons);
 			}
 			
-			Blocks.remove(b);
+			//Blocks.remove(b);
 			if(b.lightLevel>1)
 				removeLight(b.x, b.y, b.z, b, b.lightLevel, null);
 			for(Polygon3D poly : b.Polygons) {

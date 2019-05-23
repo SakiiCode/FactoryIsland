@@ -2,6 +2,12 @@ package ml.sakii.factoryisland.blocks;
 
 public interface MetadataListener
 {
-	//true ha sajat hashmap.put-ot akarsz
+	/**
+	 * 
+	 * 
+	 * @param key
+	 * @param value
+	 * @return true ha volt hashmap.put
+	 */
 	public boolean onMetadataUpdate(String key, String value);
 }

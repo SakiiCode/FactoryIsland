@@ -116,7 +116,7 @@ public class GameEngine{
 								TickableBlocks.remove(b);
 								
 								
-								for (Block b2 : world.get6Blocks(((Block)b), false).values())
+								/*for (Block b2 : world.get6Blocks(((Block)b), false).values())
 								{
 									if (b2 instanceof TickListener && (client == null || (client != null && client != null)))
 									{
@@ -125,7 +125,7 @@ public class GameEngine{
 											TickableBlocks.add((TickListener) b2);
 										}
 									}
-								}
+								}*/
 							}
 							
 							

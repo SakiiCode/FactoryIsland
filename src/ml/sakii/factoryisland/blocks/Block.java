@@ -143,7 +143,16 @@ public class Block extends Object3D
 				BlockMeta.put(key, value);
 			}
 			
-			
+			for (Block b2 : Engine.world.get6Blocks(this, false).values())
+			{
+				if (b2 instanceof TickListener && (Engine.client == null || (Engine.client != null && Engine.client != null)))
+				{
+					//addToUpdates((TickListener) b2);
+					if(!Engine.TickableBlocks.contains(b2)) {
+						Engine.TickableBlocks.add((TickListener) b2);
+					}
+				}
+			}
 			
 		}
 

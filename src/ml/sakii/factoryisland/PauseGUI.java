@@ -55,8 +55,13 @@ public class PauseGUI extends JPanel implements ActionListener, KeyListener {
 	
 	@Override
 	  protected void paintComponent(Graphics g) {
+	    
 	    super.paintComponent(g);
 	    g.drawImage(Main.PausedBG, 0, 0, this.getWidth(), this.getHeight(), null);
+
+	    /*resumeButton.repaint();
+	    settingsButton.repaint();
+	    exitButton.repaint();*/
 	}
 
 	@Override
