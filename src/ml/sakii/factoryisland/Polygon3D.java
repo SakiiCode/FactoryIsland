@@ -92,7 +92,7 @@ public class Polygon3D extends Object3D{
 					}
 					if(AvgDist<=Config.renderDistance && !isAllBehind()) {
 						clearClip();
-						clip(Main.GAME.ViewFrustum.znear);
+						//clip(Main.GAME.ViewFrustum.znear);
 						clip(Main.GAME.ViewFrustum.sides[0]);
 						clip(Main.GAME.ViewFrustum.sides[1]);
 						clip(Main.GAME.ViewFrustum.sides[3]);

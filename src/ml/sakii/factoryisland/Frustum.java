@@ -70,11 +70,11 @@ public class Frustum {
 		  sides[3].distance = sides[3].normal.DotProduct(ViewFrom);
 		  
 
-		  znear.normal.set(game.ViewVector);
+		  /*znear.normal.set(game.ViewVector);
 		  ToCamera.set(game.ViewVector);
 		  ToCamera.multiply(0.01f);
 		  ToCamera.add(ViewFrom);//= game.PE.ViewFrom.add(game.ViewVector.multiply(0.01f));
-		  znear.distance = znear.normal.DotProduct(ToCamera);
+		  znear.distance = znear.normal.DotProduct(ToCamera);*/
 		  
 
 	}
