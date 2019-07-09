@@ -4,6 +4,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
@@ -42,7 +43,7 @@ public class Main
 
 	public final static byte MAJOR = 0;
 	public final static byte MINOR = 9;
-	public final static byte REVISION = 0;
+	public final static byte REVISION = 2;
 	
 	public static boolean devmode = false, nopause = false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
@@ -95,7 +96,7 @@ public class Main
 	private static AudioInputStream BGAudioStream;
 
 	private static String CurrentCLCard = "";
-
+	public static GraphicsConfiguration graphicsconfig;
 	
 	
 	private static MultiplayerGUI MPGui;
@@ -103,8 +104,10 @@ public class Main
 
 	
 
-	private static int screen;
+	static int screen;
+	public static int Width;
 	//static FileOutputStream logStream;
+	public static int Height;
 	
 	
 	@SuppressWarnings("resource")
@@ -212,7 +215,8 @@ public class Main
 		Frame.setUndecorated(true);
 
 		//Frame.setExtendedState(java.awt.Frame.NORMAL);
-		Rectangle bounds = d.getDefaultConfiguration().getBounds();
+		graphicsconfig = d.getDefaultConfiguration();
+		Rectangle bounds = graphicsconfig.getBounds();
 		if (System.getProperty("os.name").toLowerCase().contains("win"))
 		{
 			Frame.setBounds(bounds);
@@ -233,7 +237,7 @@ public class Main
 		MPGui = new MultiplayerGUI();
 		Base.add(new SingleplayerGUI(), "generate");
 		Base.add(MPGui, "connect");
-		Base.add(new MainMenu(), "mainmenu");
+		Base.add(new MainMenuGUI(), "mainmenu");
 		Base.add(new SettingsGUI(), "settings");
 		pauseGui= new PauseGUI();
 		Base.add(pauseGui, "pause");
@@ -309,7 +313,8 @@ public class Main
 		Frame.setVisible(true);
 		Main.log(Config.username + " @ "+ Frame.getBounds().toString());
 
-
+		Width = Frame.getWidth();
+		Height = Frame.getHeight();
 	}
 
 	public static boolean joinServer(String IP, JLabel statusLabel)
@@ -529,12 +534,13 @@ public class Main
 		{
 			image = ImageIO.read(Main.class.getResourceAsStream(path));
 
-			BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(),
+			/*BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(),
 					BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g = newImage.createGraphics();
 			g.drawImage(image, 0, 0, null);
 			g.dispose();
-			return newImage;
+			return newImage;*/
+			//return toCompatibleImage(image);
 		} catch (Exception e)
 		{
 			image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
@@ -545,7 +551,37 @@ public class Main
 			Main.log("Could not load texture from '" + path + "': " + e.getMessage());
 
 		}
-		return image;
+		return toCompatibleImage(image);
+	}
+	
+	static BufferedImage toCompatibleImage(BufferedImage image)
+	{
+	    // obtain the current system graphical settings
+	    /*GraphicsConfiguration gfxConfig = GraphicsEnvironment.
+	        getLocalGraphicsEnvironment().getDefaultScreenDevice().
+	        getDefaultConfiguration();*/
+		GraphicsConfiguration gfxConfig = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen].getDefaultConfiguration();
+
+	    /*
+	     * if image is already compatible and optimized for current system 
+	     * settings, simply return it
+	     */
+	    if (image.getColorModel().equals(gfxConfig.getColorModel()))
+	        return image;
+
+	    // image is not optimized, so create a new image that is
+	    BufferedImage newImage = gfxConfig.createCompatibleImage(
+	            image.getWidth(), image.getHeight(), image.getTransparency());
+
+	    // get the graphics context of the new image to draw the old image on
+	    Graphics2D g2d = newImage.createGraphics();
+
+	    // actually draw the image and dispose of context no longer needed
+	    g2d.drawImage(image, 0, 0, null);
+	    g2d.dispose();
+
+	    // return the new optimized image
+	    return newImage; 
 	}
 	
 	static BufferedImage deepCopy(BufferedImage bi) {
