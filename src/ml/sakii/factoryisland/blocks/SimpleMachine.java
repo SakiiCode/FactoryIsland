@@ -129,21 +129,23 @@ public class SimpleMachine extends Block
 
 		}
 
-		TargetPolygon.recalcNormal();
-		TargetPolygon.recalcCentroid();
+		/*TargetPolygon.recalcNormal();
+		TargetPolygon.recalcCentroid();*/
+		TargetPolygon.recalc(new Vector());
 		
 		
 	}
 
 	@Override
-	public void updateTexture()
+	public void updateTexture(Vector tmp)
 	{
 		BlockFace target = getTarget();
 		//target = target==BlockFace.NONE?BlockFace.TOP:target;
+		
 		for (BlockFace nearby : target.getNearby())
 		{
 
-			Point2D[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target);
+			Point2D[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, tmp);
 			Point2D begin1 = values[0];
 			Point2D begin = values[1];
 			Point2D end = values[2];

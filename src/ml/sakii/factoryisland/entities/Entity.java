@@ -3,11 +3,13 @@ package ml.sakii.factoryisland.entities;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Object3D;
+import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
@@ -31,6 +33,13 @@ public class Entity{
 	public String name;
 	public long ID;
 	private GameEngine engine;
+	Vector tmpVector = new Vector();
+	
+	//többszálasítás miatt ide kellett áthozni a getBlockUnderPlayer átmeneti értékeit 
+	public Point3D tmpPoint = new Point3D();
+	public Point3D feetPoint = new Point3D();
+	public TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
+
 	
 	Entity(String className, Vector pos, EAngle aim, String name,long ID, GameEngine engine) {
 		this.className=className;

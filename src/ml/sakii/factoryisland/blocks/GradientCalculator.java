@@ -9,17 +9,19 @@ public class GradientCalculator {
 
 
 	
-	static Point2D[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target){
+	static Point2D[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector tmp){
 		
 		float[][] values = calculate(nearby, target);
 		
 		float[] begin1 = values[0];
 		float[] begin = values[1];
 		float[] end = values[2];
-		
-		 Point2D begin1p = Main.GAME.convert3Dto2D(new Vector(x+begin1[0], y+begin1[1], z+begin1[2]), new Point2D.Float());
-		 Point2D beginp = Main.GAME.convert3Dto2D(new Vector(x+begin[0], y+begin[1], z+begin[2]), new Point2D.Float());
-		 Point2D endp= Main.GAME.convert3Dto2D(new Vector(x+end[0], y+end[1], z+end[2]), new Point2D.Float());
+		tmp.set(x+begin1[0], y+begin1[1], z+begin1[2]);
+		 Point2D begin1p = Main.GAME.convert3Dto2D(tmp, new Point2D.Float());
+		 tmp.set(x+begin[0], y+begin[1], z+begin[2]);
+		 Point2D beginp = Main.GAME.convert3Dto2D(tmp, new Point2D.Float());
+		 tmp.set(x+end[0], y+end[1], z+end[2]);
+		 Point2D endp= Main.GAME.convert3Dto2D(tmp, new Point2D.Float());
 		
 		return new Point2D[]{begin1p, beginp, endp};
 		

@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JLabel;
@@ -153,7 +154,7 @@ public class GameEngine{
 								Alien alien = ((Alien) entity);
 								Vector alienPos = alien.getPos();
 								
-								if(alienPos.distance(new Vector())>56) {
+								if(alienPos.getLength()>56) {
 									world.killEntity(alien.ID, true);
 								}else if(!alien.locked){
 									double random = Math.random();
@@ -162,7 +163,7 @@ public class GameEngine{
 										alien.target.set(alienPos);
 									}else if(random>0.4){
 										Random rnd = new Random();
-										alien.target.set(new Vector(rnd.nextInt(20)-10, rnd.nextInt(20)-10, alienPos.z).add(alienPos));
+										alien.target.set(rnd.nextInt(20)-10, rnd.nextInt(20)-10, alienPos.z).add(alienPos);
 									}
 									//Main.log("target:"+(new Vector().set(alien.target).substract(entity.getPos())));
 									//Main.log("--------------------------------");
@@ -225,6 +226,7 @@ public class GameEngine{
         //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain); 
          
         ActionListener physicsPerformer = new ActionListener() {
+			//Block tmpNothing = new Nothing();
 
     		
     		@Override
@@ -243,7 +245,6 @@ public class GameEngine{
     					actualphysicsfps = 1000f / (physics2 - physics1);
     					//measurement = (float) CalcAverageTick(FPS);
     				}
-    				
     				world.getAllEntities().parallelStream().forEach(entity-> /*);
     				for(Entity entity : world.getAllEntities()) */{
     					if(entity instanceof Alien && entity.VerticalVector.equals(Main.GAME.PE.VerticalVector)) {
@@ -279,7 +280,7 @@ public class GameEngine{
     					
     						alien.target.z=alienPos.z;
     						
-    						Vector aim = new Vector().set(alien.target).substract(alienPos);
+    						Vector aim = alien.aim.set(alien.target).substract(alienPos);
     						if(aim.getLength()>0.2f) {
     							aim.normalize();
     							
@@ -305,7 +306,7 @@ public class GameEngine{
     					}
     				
     					if(!(entity instanceof PlayerEntity)) {
-    						Block under = world.getBlockUnderEntity(false, true, entity);
+    						Block under = world.getBlockUnderEntity(false, true, entity,entity.feetPoint, entity.tmpPoint,  entity.playerColumn);
     						if (!entity.flying && under == Block.NOTHING)
     						{
     							entity.fly(true);
@@ -316,7 +317,7 @@ public class GameEngine{
     						if (!entity.flying)
     						{
     					
-    							doGravity(entity, world, physicsFPS);
+    							doGravity(entity, world, physicsFPS,entity.feetPoint, entity.tmpPoint,  entity.playerColumn);
     						
     						
     						}
@@ -341,12 +342,16 @@ public class GameEngine{
         
 	}
 	
-	static void doGravity(Entity entity, World world, int physicsFPS) {
+	static void doGravity(Entity entity, World world, int physicsFPS, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
 		//float FPS=Main.PHYSICS_FPS;
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
-		if (!world.getBlockAtF(entityPos.x, entityPos.y,
-				entityPos.z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z)).solid)
+		//tmpPoint.set(x, y, z)
+		/*int x=(int) Math.floor() ;
+		int y= (int) Math.floor();
+		int feetZ = (int) Math.floor();*/
+		tmpPoint.set(entityPos.x, entityPos.y, entityPos.z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z));
+		if (!world.getBlockAtP(tmpPoint).solid)
 		{
 			entity.GravityVelocity -= World.GravityAcceleration / physicsFPS;
 		}
@@ -355,9 +360,10 @@ public class GameEngine{
 		if (Math.abs(entity.JumpVelocity) + Math.abs(entity.GravityVelocity) != 0f)
 		{
 			float JumpDistance = resultant / physicsFPS * VerticalVector.z;
+			//Block tmpNothing = new Nothing();
 			if (resultant < 0)
 			{// lefelé esik önmagához képest
-				Block under = world.getBlockUnderEntity(false, true, entity);// world.getBlockAtF(entity.ViewFrom.x,
+				Block under = world.getBlockUnderEntity(false, true, entity, feetPoint, tmpPoint, playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
 																			// entity.ViewFrom.y, entity.ViewFrom.z+JumpDistance);
 				if (VerticalVector.z == 1)
 				{
@@ -385,7 +391,7 @@ public class GameEngine{
 				}
 			} else if (resultant > 0)
 			{ // felfelé ugrik  önmagához képest
-				Block above = world.getBlockUnderEntity(false, false, entity);// world.getBlockAtF(entity.ViewFrom.x,
+				Block above = world.getBlockUnderEntity(false, false, entity,feetPoint, tmpPoint,  playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
 																				// entity.ViewFrom.y,
 																				// entity.ViewFrom.z+JumpDistance);
 	
@@ -440,7 +446,7 @@ public class GameEngine{
 		System.gc();
 
 		int hillCount = RandomGen.nextInt(8)+8;
-
+		Point3D tmpPoint=new Point3D();
 		for(int i = 0;i<hillCount;i++){
 			int z = RandomGen.nextInt(3)+3;
 			int x = RandomGen.nextInt(world.CHUNK_WIDTH*world.MAP_RADIUS)-world.CHUNK_WIDTH*world.MAP_RADIUS/2;
@@ -455,7 +461,8 @@ public class GameEngine{
 					for(float l=-radius;l<radius;l++){
 						int offsetX = (int) (x+k);
 						int offsetY = (int) (y+l);
-						if(world.getBlockAt(offsetX, offsetY, j) == Block.NOTHING) {
+						tmpPoint.set(offsetX, offsetY, j);
+						if(world.getBlockAtP(tmpPoint) == Block.NOTHING) {
 							world.addBlockNoReplace(new StoneBlock(offsetX,offsetY,j,this), false);
 						}
 					}
@@ -481,8 +488,8 @@ public class GameEngine{
 					for(float l=-radius;l<radius;l++){
 						int offsetX = (int) (x+k);
 						int offsetY = (int) (y+l);
-						if(world.getBlockAt(offsetX, offsetY, j) == Block.NOTHING) {
-
+						tmpPoint.set(offsetX, offsetY, j);
+						if(world.getBlockAtP(tmpPoint) == Block.NOTHING) {
 							world.addBlockNoReplace(new StoneBlock(offsetX,offsetY,j,this), false);
 						}
 					}

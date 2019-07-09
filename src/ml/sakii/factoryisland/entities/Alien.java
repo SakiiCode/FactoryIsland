@@ -14,6 +14,7 @@ public class Alien extends Entity {
 	float[] fxy, fxy1, fx1y1, fx1y;
 	public Vector target;
 	public boolean locked=false;
+	public Vector aim = new Vector();
 	
 	public Alien(Vector ViewFrom, EAngle aim, String name,long ID, GameEngine engine){
 		super("Alien",ViewFrom, aim, name,ID, engine);
@@ -44,7 +45,6 @@ public class Alien extends Entity {
 		Vertex x1y1z1 = new Vertex(new Vector(fx1y1, z), 0, 0);
 		Vertex xyz1 = new Vertex(new Vector(fxy, z), 0, 0);
 		Vertex xy1z1 = new Vertex(new Vector(fxy1, z), 0, 0);
-		
 		
 		Vertices.add(x1yz0);
 		Vertices.add(x1y1z0);

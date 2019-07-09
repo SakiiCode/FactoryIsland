@@ -7,10 +7,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.Set;
-
 import javax.swing.JLabel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,7 +28,6 @@ import org.w3c.dom.NodeList;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.Nothing;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.entities.Alien;
@@ -58,7 +56,7 @@ public class World {
 	private ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
 	
 	ArrayList<Vector> SpawnableSurface = new ArrayList <>();
-	
+	private int worldTop,worldBottom;
 
 	
 	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
@@ -287,14 +285,15 @@ public class World {
  	public Block getBlockAt(int x, int y, int z) {
 		
 		Point3D p = new Point3D(x, y, z);
-		Block b = Blocks.get(p);
-
-		if (b == null) {
-			return Block.NOTHING;
-		}
-		return b;
+		return getBlockAtP(p);
 
 	}
+ 	
+ 	public Block getBlockAtP(Point3D p) {
+		Block b = Blocks.get(p);
+
+		return (b == null) ? Block.NOTHING : b ;
+ 	}
 
 	public Block getBlockAtF(float x, float y, float z) {
 
@@ -315,8 +314,6 @@ public class World {
 				ReplaceBlock(b);
 			}
 			return true;
-		}else {
-			
 		}
 		return false;
 	}
@@ -350,33 +347,22 @@ public class World {
 	}
 	
 	private void ReplaceBlock(Block b) {
-		/*if(b == Block.NOTHING) {
-			Main.err("Attempted to add nothing block");
-			return false;
-		}
-		Block local = getBlockAt(b.x, b.y, b.z);
-		if (local != Block.NOTHING) {
-			if (overwrite) {
-				destroyBlock(local, true);
-			} else {
-				return false;
-			}
-		}*/
-		ArrayList<Block> sources=new ArrayList<>();
+
+		
+		ArrayList<Block> sources=new ArrayList<>(); // kikapcsolja az osszes fenyforrast es elmenti oket
 		for(Block nearby : get6Blocks(b, false).values()) {
 			for(Polygon3D poly : nearby.Polygons) {
 				Set<Block> sources2 = poly.getSources();
 				
 				for(Block source : new ArrayList<>(sources2)) {
 					sources.add(source);
-					removeLight(source.x, source.y, source.z, source, source.lightLevel, null);
+					removeLight(source.pos, source, source.lightLevel, null);
 				}
 			}
 		}
 		
 		
-		Point3D p = new Point3D(b.x, b.y, b.z);
-		Blocks.put(p, b);
+		Blocks.put(b.pos, b);
 		for (Block entry : get6Blocks(b, false).values()) {
 			if (entry instanceof TickListener) {
 				Engine.TickableBlocks.add((TickListener) entry);
@@ -396,28 +382,23 @@ public class World {
 			game.Objects.addAll(b.Polygons);
 		}
 		
-		/*for(Block nearby : get6Blocks(b, false).values()) {
-			for(Polygon3D poly : nearby.Polygons) {
-				Set<Block> sources = poly.getSources();
-				
-				for(Block source : new ArrayList<>(sources)) {
-					addLight(source.x, source.y, source.z, source, source.lightLevel, null);
-				}
-			}
-		}*/
-		addLight(b.x, b.y, b.z+1, Block.NOTHING, 1, null);
-		addLight(b.x, b.y, b.z-1, Block.NOTHING, 1, null);
-		addLight(b.x, b.y+1, b.z, Block.NOTHING, 1, null);
-		addLight(b.x, b.y-1, b.z, Block.NOTHING, 1, null);
-		addLight(b.x+1, b.y, b.z, Block.NOTHING, 1, null);
-		addLight(b.x-1, b.y, b.z, Block.NOTHING, 1, null);
+
 		
-		for(Block source : sources) {
-			addLight(source.x, source.y, source.z, source, source.lightLevel, null);
+		
+		for(Block source : sources) { //elterjeszti az elmentett a fenyforrasokat
+			addLight(source.pos, source, source.lightLevel, null);
 		}
 		
-		if(b.lightLevel>1) {
-			addLight(b.x, b.y, b.z, b, b.lightLevel, null);
+		if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
+			addLight(b.pos, b, b.lightLevel, null);
+		}
+		
+		if(b.z>worldTop) {
+			worldTop=b.z;
+		}
+		
+		if(b.z<worldBottom) {
+			worldBottom=b.z;
 		}
 		
 		//return true;
@@ -429,12 +410,11 @@ public class World {
 			Engine.client.sendData(("06," + b.x + "," + b.y	+ "," + b.z));
 
 		}else {
-			Block local = getBlockAt(b.x, b.y, b.z);
+			Block local = getBlockAtP(b.pos);
 			if (local == Block.NOTHING) {
 				return;
 			}
 	
-
 			
 			for (Block bu : get6Blocks(b, false).values()) {
 				if (bu instanceof TickListener) {
@@ -442,8 +422,7 @@ public class World {
 				}
 			}
 			
-			Point3D p = new Point3D(b.x, b.y, b.z);
-			Blocks.remove(p);
+			Blocks.remove(b.pos);
 			
 			if (b instanceof TickListener) {
 				Engine.TickableBlocks.remove(b);
@@ -459,14 +438,15 @@ public class World {
 				game.Objects.removeAll(b.Polygons);
 			}
 			
-			//Blocks.remove(b);
-			if(b.lightLevel>1)
-				removeLight(b.x, b.y, b.z, b, b.lightLevel, null);
-			for(Polygon3D poly : b.Polygons) {
+
+			if(b.lightLevel>0)
+				removeLight(b.pos, b, b.lightLevel, null);
+			
+			for(Polygon3D poly : b.Polygons) { // kiuteskor eleg ujraszamolni a kozeli forrasokat
 				//for(Block source : poly.lightSources.keySet()) {
 				for(Block source : poly.getSources()) {
 					if(source!=b)
-						addLight(source.x, source.y, source.z, source, source.lightLevel, null);
+						addLight(source.pos, source, source.lightLevel, null); //valojaban csak az uj blokkokhoz adodik hozza 
 				}
 			}
 		}
@@ -508,9 +488,9 @@ public class World {
 		float targetX, targetY;
 		float nextX = entity.getPos().x + direction.x * coefficient / FPS;
 		float nextY = entity.getPos().y + direction.y * coefficient / FPS;
-
-		Block[] blocks6X = getCollidingBlocks(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, entity);
-		Block[] blocks6Y = getCollidingBlocks(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, entity);
+		Point3D coords = entity.tmpPoint;//new Point3D();
+		Block[] blocks6X = getCollidingBlocks(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, entity, coords);
+		Block[] blocks6Y = getCollidingBlocks(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, entity, coords);
 		Block nextBlockX1 = blocks6X[0];//.get(BlockFace.TOP);
 		Block nextBlockX2 = blocks6X[1];//.get(BlockFace.NONE);
 		Block nextBlockX3 = blocks6X[2];//.get(BlockFace.BOTTOM);
@@ -581,7 +561,7 @@ public class World {
 
 	}
 	
-	 Block[] getCollidingBlocks(float x, float y, float z, Entity entity)
+	 Block[] getCollidingBlocks(float x, float y, float z, Entity entity, Point3D p)
 	{
 		//HashMap<BlockFace, Block> result = new HashMap<>();
 		 Block[] result = new Block[3];
@@ -594,98 +574,86 @@ public class World {
 		/*result.put(BlockFace.TOP, world.getBlockAt(dx, dy, dz1));
 		result.put(BlockFace.NONE, world.getBlockAt(dx, dy, dz2));
 		result.put(BlockFace.BOTTOM, world.getBlockAt(dx, dy, dz3));*/
-		result[0]=getBlockAt(dx, dy, dz1);
-		result[1]=getBlockAt(dx, dy, dz2);
-		result[2]=getBlockAt(dx, dy, dz3);
-
+		p.set(dx, dy, dz1);
+		result[0]=getBlockAtP(p);
+		
+		p.set(dx, dy, dz2);
+		result[1]=getBlockAtP(p);
+		
+		p.set(dx, dy, dz3);
+		result[2]=getBlockAtP(p);
+		
 		return result;
 
 	}
 	
 	public HashMap<BlockFace, Block> get6Blocks(Block center, boolean includeNothing) {
-		HashMap<BlockFace, Block> result = new HashMap<>();
-
-		Block top = getBlockAt(center.x, center.y, center.z + 1);
-		if (top != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.TOP, top);
-		}
-
-		Block west = getBlockAt(center.x - 1, center.y, center.z);
-		if (west != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.WEST, west);
-		}
-
-		Block east = getBlockAt(center.x + 1, center.y, center.z);
-		if (east != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.EAST, east);
-		}
-
-		Block south = getBlockAt(center.x, center.y - 1, center.z);
-		if (south != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.SOUTH, south);
-		}
-
-		Block north = getBlockAt(center.x, center.y + 1, center.z);
-		if (north != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.NORTH, north);
-		}
-
-		Block bottom = getBlockAt(center.x, center.y, center.z - 1);
-		if (bottom != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.BOTTOM, bottom);
-		}
-
-		return result;
+		return get6Blocks(new Point3D().set(center.x, center.y, center.z), includeNothing); //masolni kell point3d-t mert felulirja
 
 	}
 
 	public HashMap<BlockFace, Block> get6Blocks(float xf, float yf, float zf, boolean includeNothing) {
+		return get6Blocks(new Point3D().set(xf, yf, zf), includeNothing);
+		
+	}
+	
+	public HashMap<BlockFace, Block> get6Blocks(Point3D p, boolean includeNothing){
+		int x = p.x;
+		int y = p.y;
+		int z = p.z;
 		HashMap<BlockFace, Block> result = new HashMap<>();
-		int x = (int)Math.floor(xf);
-		int y = (int)Math.floor(yf);
-		int z = (int)Math.floor(zf);
-		Block top = getBlockAt(x, y, z + 1);
+
+		p.set(x, y, z + 1);
+		Block top = getBlockAtP(p);
 		if (top != Block.NOTHING || includeNothing) {
 			result.put(BlockFace.TOP, top);
 		}
 
-		Block bottom = getBlockAt(x, y, z - 1);
+		p.set(x, y, z - 1);
+		Block bottom = getBlockAtP(p);
 		if (bottom != Block.NOTHING || includeNothing) {
 			result.put(BlockFace.BOTTOM, bottom);
 		}
 
-		Block west = getBlockAt(x - 1, y, z);
+		p.set(x - 1, y, z);
+		Block west = getBlockAtP(p);
 		if (west != Block.NOTHING || includeNothing) {
 			result.put(BlockFace.WEST, west);
 		}
 
-		Block east = getBlockAt(x + 1, y, z);
+		p.set(x + 1, y, z);
+		Block east = getBlockAtP(p);
 		if (east != Block.NOTHING || includeNothing) {
 			result.put(BlockFace.EAST, east);
 		}
 
-		Block south = getBlockAt(x, y - 1, z);
+		p.set(x, y - 1, z);
+		Block south = getBlockAtP(p);
 		if (south != Block.NOTHING || includeNothing) {
 			result.put(BlockFace.SOUTH, south);
 		}
 
-		Block north = getBlockAt(x, y + 1, z);
+		p.set(x, y + 1, z);
+		Block north = getBlockAtP(p);
 		if (north != Block.NOTHING || includeNothing) {
 			result.put(BlockFace.NORTH, north);
 		}
 
 		return result;
 
+		
+		
 	}
 	
-	public void addLight(int x, int y, int z, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped)
+	
+	private void modifyLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped, boolean add)
 	{
-		Point3D coord = new Point3D(x, y, z);
+		Point3D p0s = new Point3D().set(pos); //pos at lesz irva ugyanebben a ciklusban, ezert masolni kell ha kulcskent hasznaljuk
 		if(alreadyMapped==null) {
 			alreadyMapped=new HashMap<>();
-			alreadyMapped.put(coord, intensity);
-		}else if(!alreadyMapped.containsKey(coord) || alreadyMapped.get(coord)<intensity) {
-				alreadyMapped.put(coord, intensity);
+			alreadyMapped.put(p0s, intensity);
+		}else if(!alreadyMapped.containsKey(p0s) || alreadyMapped.get(p0s)<intensity) {
+				alreadyMapped.put(p0s, intensity);
 		}else{
 				return;
 		}
@@ -694,34 +662,38 @@ public class World {
 			return;
 		}
 		
-		
-		HashMap<BlockFace, Block> nearby = get6Blocks(x, y, z, false);
+		Point3D coord = new Point3D().set(pos);// get6blocks atirja a parametert ezert le kell masolni
+
+		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
 		for(Entry<BlockFace, Block> entry : nearby.entrySet()) {
 			Block b = entry.getValue();
 			BlockFace face = entry.getKey();
+			
 			
 			
 			for(Entry<Polygon3D, BlockFace> polys :  b.HitboxPolygons.entrySet()) {
 				BlockFace polyface = polys.getValue(); 
 				Polygon3D poly = polys.getKey();
 				if(polyface == face.getOpposite()) {
-					/*if(poly.light<intensity) {
-						poly.light=intensity;
-					}
-					*/
-					//Integer current = poly.lightSources.get(source);
+					
 					Integer current = poly.checkSource(source);
-					if(current==null || current<intensity) {
-						//poly.lightSources.put(source, intensity);
-						poly.addSource(source, intensity);
-						//Vector spawnpoint = new Vector().set(poly.centroid).add(new Vector(0, 0, 1.7f));
-						if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<3 && !SpawnableSurface.contains(poly.spawnpoint)) {
-							SpawnableSurface.add(poly.spawnpoint);
+					
+					
 						
-						}else if(SpawnableSurface.contains(poly.spawnpoint)) {
-							SpawnableSurface.remove(poly.spawnpoint);
+					if(add) {
+						if(current==null || current<intensity) {
+							poly.addSource(source, intensity);
 						}
+					}else {
+						poly.removeSource(source);
 					}
+
+					if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<3 && !SpawnableSurface.contains(poly.spawnpoint)) {
+						SpawnableSurface.add(poly.spawnpoint);
+					}else if(SpawnableSurface.contains(poly.spawnpoint)) {
+						SpawnableSurface.remove(poly.spawnpoint);
+					}
+					
 					
 				}
 				
@@ -731,42 +703,33 @@ public class World {
 			
 		}
 		
+		for(Entry<BlockFace, Block> entry : get6Blocks(coord.set(pos), true).entrySet()) {
+			Block b = entry.getValue();
+			BlockFace face = entry.getKey();
+			if(b == Block.NOTHING) { // b koordinatai 0,0,0 ezert b-t nem lehet hasznalni
+				if(add) {
+					addLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped);
+				}else {
+					removeLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped);
+				}
+			}
+		}
 		
-		Block top = getBlockAt(x, y, z + 1);
-		if (top == Block.NOTHING) {
-			addLight(x, y, z + 1, source, intensity-1, alreadyMapped);
-		}
-
-		Block bottom = getBlockAt(x, y, z - 1);
-		if (bottom == Block.NOTHING) {
-			addLight(x, y, z - 1, source, intensity-1, alreadyMapped);
-		}
-
-		Block west = getBlockAt(x - 1, y, z);
-		if (west == Block.NOTHING) {
-			addLight(x - 1, y, z, source, intensity-1, alreadyMapped);
-		}
-
-		Block east = getBlockAt(x + 1, y, z);
-		if (east == Block.NOTHING) {
-			addLight(x + 1, y, z, source, intensity-1, alreadyMapped);
-		}
-
-		Block south = getBlockAt(x, y - 1, z);
-		if (south == Block.NOTHING) {
-			addLight(x, y - 1, z, source, intensity-1, alreadyMapped);
-		}
-
-		Block north = getBlockAt(x, y + 1, z);
-		if (north == Block.NOTHING) {
-			addLight(x, y + 1, z, source, intensity-1, alreadyMapped);
-		}
 
 		
 	}
 	
 	
-	public void removeLight(int x, int y, int z, Block source, int level, HashMap<Point3D, Integer> alreadyMapped)
+	public void addLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
+		modifyLight(pos, source, intensity, alreadyMapped, true);
+	}
+	
+	public void removeLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
+		modifyLight(pos, source, intensity, alreadyMapped, false);
+	}
+	
+	
+	/*public void removeLight(int x, int y, int z, Block source, int level, HashMap<Point3D, Integer> alreadyMapped)
 	{
 		Point3D coord = new Point3D(x, y, z);
 		if(alreadyMapped==null) {
@@ -794,9 +757,8 @@ public class World {
 				Polygon3D poly = polys.getKey();
 				if(polyface == face.getOpposite()) {
 
-					//poly.lightSources.remove(source);
 					poly.removeSource(source);
-					//Vector spawnpoint = new Vector().set(poly.centroid).add(new Vector(0, 0, 1.7f));
+
 					if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<7 && !SpawnableSurface.contains(poly.spawnpoint)) {
 						SpawnableSurface.add(poly.spawnpoint);
 					
@@ -811,6 +773,7 @@ public class World {
 			
 		}
 		
+
 		
 		Block top = getBlockAt(x, y, z + 1);
 		if (top == Block.NOTHING) {
@@ -843,7 +806,7 @@ public class World {
 		}
 
 		
-	}
+	}*/
 	
 
 	public int getTop(int x, int y) {
@@ -923,90 +886,88 @@ public class World {
 		return blockColumn.toArray(new Block[0]);
 	}
 
-	public Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {
-		TreeSet<Block> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
+	public Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity, Point3D feetPoint, Point3D tmpPoint, TreeSet<Point3D> playerColumn) {
 		//TreeSet<Integer> playerColumn = new TreeSet<>();
+		//ArrayList<Block> playerColumn0 = new ArrayList<>();
+		playerColumn.clear();
 		Vector entityPos = entity.getPos();
 
 		int x=(int) Math.floor(entityPos.x) ;
 		int y= (int) Math.floor(entityPos.y);
-		int feetZ = (int) Math.floor(entityPos.z);
+		feetPoint.set(entityPos.x, entityPos.y, entityPos.z);
+		//Point3D feetPoint=new Point3D(x, y , feetZ);
 		
-		Block nothing = new Nothing();
-		nothing.z=feetZ;
+		//Block nothing = new Nothing();
+		//nothing.z=feetZ;
 
-		for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
-			Point3D pos = entry.getKey();
-			Block b = entry.getValue();
-			if (pos.x == x && pos.y == y && b.solid) {
-				playerColumn.add(b);
-			}else if((pos.x-BLOCK_RANGE < entityPos.x && entityPos.x < pos.x+1+BLOCK_RANGE)
-					&&  pos.y == y && b.solid) {
+		//for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
+		
+		for(int i=x-1;i<=x+1;i++) {
+			for(int j=y-1;j<=y+1;j++) {
+				for(int k=worldBottom;k<=worldTop;k++) {
 					
-				playerColumn.add(b);
-			}else if((pos.y-BLOCK_RANGE < entityPos.y && entityPos.y < pos.y+1+BLOCK_RANGE)
-					&&  pos.x == x && b.solid) {
+					//Point3D pos = new Point3D(i,j,k);
 					
-				playerColumn.add(b);
+					//Block b = Blocks.get(pos);
+					tmpPoint.set(i,j,k);
+					Block b = getBlockAtP(tmpPoint);
+					if(b == Block.NOTHING) {
+						continue;
+					}
+					
+					if (b.x == x && b.y == y && b.solid) {
+						playerColumn.add(b.pos);
+					}else if((b.x-BLOCK_RANGE < entityPos.x && entityPos.x < b.x+1+BLOCK_RANGE)
+							&&  b.y == y && b.solid) {
+							
+						playerColumn.add(b.pos);
+					}else if((b.y-BLOCK_RANGE < entityPos.y && entityPos.y < b.y+1+BLOCK_RANGE)
+							&&  b.x == x && b.solid) {
+							
+						playerColumn.add(b.pos);
+					}
+					
+					
+				}
 			}
-			/*
 			
+
 			
-			
-			
-			
-			
-			(pos.x == x-1 && pos.y-1 == y && b.solid) {
-				playerColumn.add(b);
-			}else if (pos.x == x-1 && pos.y == y && b.solid) {
-				playerColumn.add(b);
-			} else if (pos.x == x-1 && pos.y+1 == y && b.solid) {
-				playerColumn.add(b);
-			}else if (pos.x == x && pos.y-1 == y && b.solid) {
-				playerColumn.add(b);
-			}else if (pos.x == x && pos.y == y && b.solid) {
-				playerColumn.add(b);
-			} else if (pos.x == x && pos.y+1 == y && b.solid) {
-				playerColumn.add(b);
-			}else if (pos.x == x+1 && pos.y-1 == y && b.solid) {
-				playerColumn.add(b);
-			}else if (pos.x == x+1 && pos.y == y && b.solid) {
-				playerColumn.add(b);
-			} else if (pos.x == x+1 && pos.y+1 == y && b.solid) {
-				playerColumn.add(b);
-			}*/
+
 		}
+		
 		
 		if (playerColumn.isEmpty()) {
 			return Block.NOTHING;
 		}
 		
-		Block result;
+		Point3D result;
+		//Integer result;
+		//Comparator<Block> comp = ((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
+		//playerColumn0.sort(comp);
+		//TreeSet<Block> playerColumn = new TreeSet<>(comp);
+		//playerColumn.addAll(playerColumn0);
+		
 		if(under) {
 			if ((entity.VerticalVector.z == 1 && !inverse) || (entity.VerticalVector.z == -1 && inverse)) {
-				result = playerColumn.floor(nothing);
+				result = playerColumn.floor(feetPoint);
 	
 			} else {
-				result = playerColumn.ceiling(nothing);
+				result = playerColumn.ceiling(feetPoint);
 	
 			}
 		}else {
 			if ((entity.VerticalVector.z == 1 && !inverse) || (entity.VerticalVector.z == -1 && inverse)) {
-				result = playerColumn.ceiling(nothing);
+				result = playerColumn.ceiling(feetPoint);
 	
 			} else {
-				result = playerColumn.floor(nothing);
+				result = playerColumn.floor(feetPoint);
 	
 			}			
 		}
 
-		return result == null ? Block.NOTHING : result;//getBlockAt(x,y, result);
+		return result == null ? Block.NOTHING : getBlockAtP(result);
 
-		/*if (result != null) {// && ((game.VerticalVector.z == 1 && result.z>CHUNK_HEIGHT/2) || (game.VerticalVector.z == -1 && result.z<=CHUNK_HEIGHT/2))) {
-			return result;
-		} else {
-			return Block.NOTHING;
-		}*/
 
 	}
 
