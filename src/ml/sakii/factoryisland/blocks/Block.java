@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Object3D;
+import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vertex;
@@ -39,7 +40,9 @@ public class Block extends Object3D
 
 	public boolean transparent;
 
-	public int x, y, z;
+	public final int x, y;
+	public int z;
+	public final Point3D pos;
 
 	GameEngine Engine;
 	private BlockFace selectedFace = BlockFace.NONE;
@@ -49,20 +52,23 @@ public class Block extends Object3D
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.pos = new Point3D(x, y, z);
 		this.Engine = engine;
 		solid = true;
 		transparent = false;
+		
 	}
 
 	public Block(String name, int x, int y, int z, Surface top, Surface bottom, Surface north, Surface south,
 			Surface east, Surface west, float xscale, float yscale, float zscale, GameEngine engine)
 	{
-		this.x = x;
+		/*this.x = x;
 		this.y = y;
 		this.z = z;
 		this.Engine = engine;
 		solid = true;
-		transparent = false;
+		transparent = false;*/
+		this(x, y, z, engine);
 
 		generate(name, x, y, z, top, bottom, north, south, east, west, xscale, yscale, zscale);
 	}
@@ -373,11 +379,6 @@ public class Block extends Object3D
 					new ItemType(name,
 							Main.ModRegistry.contains(name) ? name : "ml.sakii.factoryisland.blocks." + name + "Block",
 							generateIcon(), generateViewmodel()));
-			/*
-			 * Main.ItemTextures.put(name, generateIcon()); Main.ViewmodelTextures.put(name,
-			 * generateViewmodel());
-			 */
-
 		}
 	}
 
