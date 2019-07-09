@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-public class MainMenu extends JPanel implements ActionListener{
+public class MainMenuGUI extends JPanel implements ActionListener{
 	private static final long serialVersionUID = 894581305065092909L;
 
 	private JButton sp;
@@ -31,14 +31,14 @@ public class MainMenu extends JPanel implements ActionListener{
 	
 	ArrayList<JButton> Menu = new ArrayList<>();
 		
-	public MainMenu(){
+	public MainMenuGUI(){
 		
 
 
 		this.addComponentListener( new ComponentAdapter() {
 	        @Override
 	        public void componentShown( ComponentEvent e ) {
-	        	MainMenu.this.requestFocusInWindow();
+	        	MainMenuGUI.this.requestFocusInWindow();
 	        }
 	    });
 		
