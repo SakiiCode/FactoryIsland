@@ -10,6 +10,7 @@ public class ItemType {
 	public BufferedImage ItemTexture;
 	public BufferedImage ViewmodelTexture;
 
+	public static final ItemType NOTHING = new ItemType("Nothing", "ml.sakii.factoryisland.Nothing", new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB), new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB));
 	
 	public ItemType(String name, String className, BufferedImage ItemTexture, BufferedImage ViewmodelTexture){
 		this.name = name;
