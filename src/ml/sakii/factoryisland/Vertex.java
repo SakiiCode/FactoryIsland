@@ -17,10 +17,11 @@ public class Vertex {
 	private final Point2D.Float spec = new Point2D.Float();
 	
 	public Vertex(float x, float y, float z, int u, int v) {
-		this.pos=new Vector(x, y,z);
+		/*this.pos=new Vector(x, y,z);
 		this.u=u;
 		this.v = v;
-		proj = new Point();
+		proj = new Point();*/
+		this(new Vector(x,y,z), u, v);
 		//update();
 	}
 	
@@ -42,9 +43,9 @@ public class Vertex {
 		// (egyszerû skalárszorzat)
 		if(Config.useTextures) {
 			 
-			ViewToPoint.set(pos);
-			ViewToPoint.substract(Main.GAME.PE.getPos());//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
-			double z = ViewToPoint.DotProduct(Main.GAME.ViewVector);
+			double z = ViewToPoint.set(pos).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector);
+			//ViewToPoint;//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
+			 //= ViewToPoint;
 			uvz.iz=1/z;
 			uvz.uz=u/z;
 			uvz.vz=v/z;
@@ -59,6 +60,34 @@ public class Vertex {
 		
 	}
 	
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((pos == null) ? 0 : pos.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vertex other = (Vertex) obj;
+		if (pos == null)
+		{
+			if (other.pos != null)
+				return false;
+		} else if (!pos.equals(other.pos))
+			return false;
+		return true;
+	}
 
 	public static void setInterp(Vector p1, Vector pos, Vector p2, Vertex v1, Vertex v2, Vertex target) {
 		double distanceratio = p1.distance(pos) / p1.distance(p2);
