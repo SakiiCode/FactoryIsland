@@ -253,8 +253,9 @@ public class PlayerMP extends Entity {
 		*/
 		for(Object3D p : Objects) {
 			if(p instanceof Polygon3D) {
-				((Polygon3D)p).recalcNormal();
-				((Polygon3D)p).recalcCentroid();
+				/*((Polygon3D)p).recalcNormal();
+				((Polygon3D)p).recalcCentroid();*/
+				((Polygon3D) p).recalc(tmpVector);
 			}else {
 				((Text3D)p).location.set(ViewFrom);				
 			}
