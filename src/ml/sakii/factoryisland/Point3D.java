@@ -1,16 +1,32 @@
 package ml.sakii.factoryisland;
 
+import ml.sakii.factoryisland.blocks.BlockFace;
+
 public class Point3D {
-	int x, y, z;
+	int x, y;
+	public int z;
 	
 	public Point3D() {
-		
+		this(0, 0, 0);
 	}
 	
 	public Point3D(int x, int y, int z) {
 		this.x=x;
 		this.y=y;
 		this.z=z;
+	}
+	
+	public Point3D set(int x, int y, int z){
+		this.x=x;
+		this.y=y;
+		this.z=z;
+		return this;
+	}
+	public Point3D set(float x, float y, float z){
+		this.x = (int)Math.floor(x);
+		this.y = (int)Math.floor(y);
+		this.z = (int)Math.floor(z);
+		return this;
 	}
 	
 	@Override
@@ -44,6 +60,15 @@ public class Point3D {
 		if (z != other.z)
 			return false;
 		return true;
+	}
+
+	public Point3D set(Point3D pos)
+	{
+		return set(pos.x, pos.y, pos.z);
+	}
+	
+	public Point3D add(BlockFace face) {
+		return set(x+face.direction[0], y+face.direction[1], z+face.direction[2]);
 	}
 
 }
