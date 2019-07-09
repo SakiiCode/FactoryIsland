@@ -54,6 +54,7 @@ public class Polygon3D extends Object3D{
 	Point2D.Double centroid2D = new Point2D.Double();
 	private float[] fractions = new float[]{0.5f,1.0f};
 	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
+	//public static final HashMap<Vertex, Point> Cache = new HashMap<>();
 	
 	
 	public Polygon3D(Vertex[] vertices, Surface s) {
@@ -80,8 +81,12 @@ public class Polygon3D extends Object3D{
 		// Ha bármelyik hamis, eltûnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
 				if(!Main.GAME.locked) {
-					CameraToTriangle.set(centroid).substract(Main.GAME.PE.getPos());
-					faceFilter = CameraToTriangle.DotProduct(normal) >= 0;
+					if(Main.GAME.ViewBlock.Polygons.contains(this)) {
+						faceFilter=true;
+					}else {
+						CameraToTriangle.set(centroid).substract(Main.GAME.PE.getPos());
+						faceFilter = CameraToTriangle.DotProduct(normal) >= 0;
+					}
 				}
 				
 				
@@ -114,26 +119,33 @@ public class Polygon3D extends Object3D{
 							
 							for(int i=0;i<clipSize;i++) {
 								Vertex v=clip[i];
+								
+
 								v.update();
 								polygon.addPoint(v.proj.x, v.proj.y);
+
 								
 							}
 							
-							ymin = clip[0].proj.y;
-							ymax = clip[0].proj.y;
-							for(int i=0;i<clipSize;i++) {
-								Vertex v=clip[i];
-								ymin = Math.min(ymin,v.proj.y);
-								ymax = Math.max(ymax,v.proj.y);
-							}
+							if(Config.useTextures) {
 							
-							ymin=Math.max(ymin, 0);
-							ymax=Math.max(ymax, 0);
-							ymin=Math.min(ymin, Main.GAME.FrameBuffer.getHeight());
-							ymax=Math.min(ymax, Main.GAME.FrameBuffer.getHeight());
+								ymin = clip[0].proj.y;
+								ymax = clip[0].proj.y;
+								for(int i=0;i<clipSize;i++) {
+									Vertex v=clip[i];
+									ymin = Math.min(ymin,v.proj.y);
+									ymax = Math.max(ymax,v.proj.y);
+								}
+								
+								ymin=Math.max(ymin, 0);
+								ymax=Math.max(ymax, 0);
+								ymin=Math.min(ymin, Main.GAME.FrameBuffer.getHeight());
+								ymax=Math.min(ymax, Main.GAME.FrameBuffer.getHeight());
+								
+								if(ymin==ymax) {
+									return false;
+								}
 							
-							if(ymin==ymax) {
-								return false;
 							}
 							return true;
 	
@@ -289,7 +301,7 @@ public class Polygon3D extends Object3D{
 					double Svz = Util.getSlope(xmin, xmax, uvzmin.vz, uvzmax.vz);
 
 					int xmin2=Math.max(xmin, 0);
-					int xmax2=Math.min(xmax, FrameBuffer.getWidth());
+					int xmax2=Math.min(xmax, Config.width);
 					for(int x=xmin2;x<xmax2;x++)
 					{
 					 
