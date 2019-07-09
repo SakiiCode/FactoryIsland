@@ -68,8 +68,7 @@ public class Polygon3D extends Object3D{
 			clip2[i]=new Vertex(Vertex.NULL);
 		}
 		
-		recalcNormal();
-		recalcCentroid();
+		recalc(new Vector());
 		recalcLightedColor();
 	}
 	
@@ -394,15 +393,29 @@ public class Polygon3D extends Object3D{
 	
 
 
-	public void recalcNormal() {
+	public void recalc(Vector tmpVector) {
 		if(Vertices.length>0) {
 			Vector v0 = Vertices[0].pos;
 			Vector v1 = Vertices[1].pos;
 			Vector v2 = Vertices[2].pos;
-			normal.set(new Vector().set(v1).substract(v0).CrossProduct(new Vector().set(v1).substract(v2)));
+			normal.set(v1).substract(v0).CrossProduct(tmpVector.set(v1).substract(v2));
 			//Plane p = new Plane(Vertices[0].pos, Vertices[1].pos, Vertices[2].pos);
 			//normal.set(p.normal);
 		}
+		
+		float dx=0, dy=0, dz=0;
+		
+	    int pointCount = Vertices.length;
+		for(Vertex v : Vertices) {
+
+	    
+	        dx += v.pos.x;
+	        dy += v.pos.y;
+	        dz += v.pos.z;
+	    }
+
+	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
+	    this.spawnpoint.set(centroid).add(Vector.PLAYER);
 	}
 	
 	
@@ -534,7 +547,7 @@ public class Polygon3D extends Object3D{
 			return Main.GAME.PE.getPos().distance(centroid);
 	}
 	
-	public void recalcCentroid() {
+	/*public void recalcCentroid() {
 		float dx=0, dy=0, dz=0;
 		
 	    int pointCount = Vertices.length;
@@ -548,7 +561,7 @@ public class Polygon3D extends Object3D{
 
 	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
 	    this.spawnpoint.set(centroid).add(Vector.PLAYER);
-	}
+	}*/
 
 	
 
