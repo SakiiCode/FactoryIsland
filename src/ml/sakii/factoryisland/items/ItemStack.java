@@ -3,6 +3,9 @@ package ml.sakii.factoryisland.items;
 import ml.sakii.factoryisland.Main;
 
 public class ItemStack {
+	
+	public static final ItemStack EMPTY = new ItemStack(null, 0);
+	
 	@Override
 	public String toString()
 	{
