@@ -22,6 +22,12 @@ public class Star {
 		this.game = game;
 	}
 	
+	public Star(Game game, int size) {
+		pos = new Vector(1,0,0.5f);
+		this.size = size;
+		this.game = game;
+	}
+	
 	public void draw(Graphics g) {
 		
 		if(game.ViewVector.DotProduct(pos) > 0) {
