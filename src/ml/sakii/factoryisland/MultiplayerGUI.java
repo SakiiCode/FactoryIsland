@@ -92,13 +92,12 @@ public class MultiplayerGUI extends JPanel implements ActionListener, KeyListene
     		(new Thread() {
     			@Override
     			public void run() {
-    				if(Main.joinServer(seedField.getText(), statusLabel)) {
-    	    			statusLabel.setText("");
-    	    			submitButton.setEnabled(true);
-    	    			seedField.setEnabled(true);
-    				}else {
+    				if(!Main.joinServer(seedField.getText(), statusLabel)) {
     					MultiplayerGUI.this.requestFocusInWindow();
     				}
+    				statusLabel.setText("");
+	    			submitButton.setEnabled(true);
+	    			seedField.setEnabled(true);
 
     			}
     		}).start();

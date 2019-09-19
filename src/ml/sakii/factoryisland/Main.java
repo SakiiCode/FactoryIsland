@@ -333,6 +333,7 @@ public class Main
 		
 		Main.err(GAME.error);
 		statusLabel.setText("Error:"+GAME.error);
+		JOptionPane.showMessageDialog(Frame, GAME.error);
 		return false;
 		
 	}
@@ -605,6 +606,8 @@ public class Main
 	}
 	
 	public static void err(Object message) {
+		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		String msg = "[" + timeStamp + "] Error: "+message;
 		/*try
 		{
 			logStream.write(("ERROR:"+message+"\r\n").getBytes());
@@ -613,7 +616,7 @@ public class Main
 			e.printStackTrace();
 		}
 		if(devmode) { // nem debug esetén ez már át van irányítva ugyanabba a fájlba*/
-			System.err.println("ERROR:"+message);
+			System.err.println(msg);
 		//}
 	}
 
