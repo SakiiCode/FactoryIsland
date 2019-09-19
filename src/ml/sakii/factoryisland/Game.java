@@ -238,7 +238,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				((LoadListener)b).onLoad();
 			}
 			if(b.lightLevel>1) {
-				Engine.world.addLight(b.pos, b, b.lightLevel, null);
+				Engine.world.addLight(b.pos, b, b.lightLevel, new HashMap<Point3D,Integer>());
 			}
 		}
 		
@@ -558,7 +558,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
-				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock));
+				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains((TickListener)SelectedBlock));
 				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.SelectedStack : ""));
 				if (Engine.client != null)
 				{
@@ -1182,7 +1182,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Main.log("Client started");
 			return null;
 		}
-		Main.log("Unable to start client (" + error + ")");
+		//Main.log("Unable to start client (" + error + ")");
 
 		return error;
 

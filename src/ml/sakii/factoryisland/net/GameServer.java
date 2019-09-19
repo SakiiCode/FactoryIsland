@@ -457,6 +457,7 @@ public class GameServer extends Thread{
 		try{
 			return Integer.parseInt(data); 
 		}catch(Exception e){
+			Main.err("Incompatible int conversion: "+data);
 			return 0;
 		}
 	}

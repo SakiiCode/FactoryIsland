@@ -18,6 +18,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+@SuppressWarnings("hiding")
 public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
 

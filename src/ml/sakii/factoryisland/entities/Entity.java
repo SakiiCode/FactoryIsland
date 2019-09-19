@@ -21,7 +21,7 @@ public class Entity{
 	public ArrayList<Object3D> Objects = new ArrayList<>();
 	public ArrayList<Vertex> Vertices = new ArrayList<>();
 	public boolean showName = false;
-	Vector ViewFrom;
+	public Vector ViewFrom;
 	public EAngle ViewAngle;
 	public final float GravityAcceleration = 9.81f; // m/s^2
 	public float GravityVelocity = 0f; // m/s

@@ -12,7 +12,7 @@ import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
 public class PlayerMP extends Entity {
-	public float[] ViewFrom = new float[3];
+	//public float[] ViewFrom = new float[3];
 	public float yaw, yaw2;
 	float[] fxy, fxy1, fx1y1, fx1y;
 	
@@ -188,14 +188,14 @@ public class PlayerMP extends Entity {
 		yaw2=(float) (-Math.toRadians(yaw) +Math.PI/2);
 
 
-		float x = ViewFrom[0];
-		float y = ViewFrom[1];
+		float x = ViewFrom.x;
+		float y = ViewFrom.y;
 		//float z = ViewFrom[2];
 		fxy = rotateCoordinates(x-1f, y-0.5f, x, y, yaw2);
 		fxy1 = rotateCoordinates(x-1f, y+0.5f, x, y, yaw2);
 		fx1y1 = rotateCoordinates(x, y+0.5f, x, y, yaw2);
 		fx1y = rotateCoordinates(x,y-0.5f, x, y, yaw2);
-		float z = ViewFrom[2];
+		float z = ViewFrom.z;
 		
 		float z0 = z-1.7f;	
 
@@ -270,6 +270,6 @@ public class PlayerMP extends Entity {
 	
 	@Override
 	public String toString() {
-		return ((Text3D)Objects.get(6)).text + "," + ((Text3D)Objects.get(6)).x + "," + ((Text3D)Objects.get(6)).y + "," + Arrays.toString(ViewFrom);
+		return ((Text3D)Objects.get(6)).text + "," + ((Text3D)Objects.get(6)).x + "," + ((Text3D)Objects.get(6)).y + "," + ViewFrom;
 	}
 }

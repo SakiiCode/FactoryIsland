@@ -356,7 +356,7 @@ public class World {
 				
 				for(Block source : new ArrayList<>(sources2)) {
 					sources.add(source);
-					removeLight(source.pos, source, source.lightLevel, null);
+					removeLight(source.pos, source, source.lightLevel, new HashMap<Point3D,Integer>());
 				}
 			}
 		}
@@ -386,11 +386,11 @@ public class World {
 		
 		
 		for(Block source : sources) { //elterjeszti az elmentett a fenyforrasokat
-			addLight(source.pos, source, source.lightLevel, null);
+			addLight(source.pos, source, source.lightLevel, new HashMap<Point3D,Integer>());
 		}
 		
 		if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
-			addLight(b.pos, b, b.lightLevel, null);
+			addLight(b.pos, b, b.lightLevel, new HashMap<Point3D,Integer>());
 		}
 		
 		if(b.z>worldTop) {
@@ -440,13 +440,13 @@ public class World {
 			
 
 			if(b.lightLevel>0)
-				removeLight(b.pos, b, b.lightLevel, null);
+				removeLight(b.pos, b, b.lightLevel, new HashMap<Point3D,Integer>());
 			
 			for(Polygon3D poly : b.Polygons) { // kiuteskor eleg ujraszamolni a kozeli forrasokat
 				//for(Block source : poly.lightSources.keySet()) {
 				for(Block source : poly.getSources()) {
 					if(source!=b)
-						addLight(source.pos, source, source.lightLevel, null); //valojaban csak az uj blokkokhoz adodik hozza 
+						addLight(source.pos, source, source.lightLevel, new HashMap<Point3D,Integer>()); //valojaban csak az uj blokkokhoz adodik hozza 
 				}
 			}
 		}
@@ -862,8 +862,8 @@ public class World {
 			}
 
 		}
-		
-		return Blocks.get(0);
+		Main.err("No spawnblock!");
+		return Block.NOTHING;
 
 	}
 
@@ -1194,7 +1194,6 @@ public class World {
 		}
 	}
 
-	@SuppressWarnings("null")
 	private void filterBlock(Block bl) {
 		HashMap<BlockFace, Block> blocks6 = get6Blocks(bl, true);
 		for (Entry<BlockFace, Block> entry : blocks6.entrySet()) {
@@ -1207,7 +1206,10 @@ public class World {
 					
 			}
 			
-			
+			if(side==null) {
+				Main.err("side=null in filterBlock()");
+				return;
+			}
 			
 			if(bl.fullblock) {
 
@@ -1235,7 +1237,7 @@ public class World {
 					}*/
 				}
 				
-			}else if(side != null) {
+			}else {
 				side.adjecentFilter = true;
 			}
 					

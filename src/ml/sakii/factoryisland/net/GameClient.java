@@ -215,9 +215,9 @@ public class GameClient extends Thread{
 			
 			PlayerMP otherPlayer = game.playerList.get(otherName);
 			if(otherPlayer!=null) {
-				otherPlayer.ViewFrom[0] = Float.parseFloat(part[2]);
-				otherPlayer.ViewFrom[1] = Float.parseFloat(part[3]);
-				otherPlayer.ViewFrom[2] = Float.parseFloat(part[4]);
+				otherPlayer.ViewFrom.x = Float.parseFloat(part[2]);
+				otherPlayer.ViewFrom.y = Float.parseFloat(part[3]);
+				otherPlayer.ViewFrom.z = Float.parseFloat(part[4]);
 				otherPlayer.yaw = Float.parseFloat(part[5]);
 				otherPlayer.update();
 			}
@@ -364,6 +364,7 @@ public class GameClient extends Thread{
 		try{
 			return Integer.parseInt(data); 
 		}catch(Exception e){
+			Main.err("Incompatible int conversion: "+data);
 			return 0;
 		}
 	}
