@@ -55,7 +55,7 @@ public class World {
 	
 	private ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
 	
-	ArrayList<Vector> SpawnableSurface = new ArrayList <>();
+	//ArrayList<Vector> SpawnableSurface = new ArrayList<>();
 	private int worldTop,worldBottom;
 
 	
@@ -356,7 +356,7 @@ public class World {
 				
 				for(Block source : new ArrayList<>(sources2)) {
 					sources.add(source);
-					removeLight(source.pos, source, source.lightLevel, new HashMap<Point3D,Integer>());
+					removeLight(source.pos, source, source.lightLevel);
 				}
 			}
 		}
@@ -386,11 +386,11 @@ public class World {
 		
 		
 		for(Block source : sources) { //elterjeszti az elmentett a fenyforrasokat
-			addLight(source.pos, source, source.lightLevel, new HashMap<Point3D,Integer>());
+			addLight(source.pos, source, source.lightLevel);
 		}
 		
 		if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
-			addLight(b.pos, b, b.lightLevel, new HashMap<Point3D,Integer>());
+			addLight(b.pos, b, b.lightLevel);
 		}
 		
 		if(b.z>worldTop) {
@@ -440,13 +440,13 @@ public class World {
 			
 
 			if(b.lightLevel>0)
-				removeLight(b.pos, b, b.lightLevel, new HashMap<Point3D,Integer>());
+				removeLight(b.pos, b, b.lightLevel);
 			
 			for(Polygon3D poly : b.Polygons) { // kiuteskor eleg ujraszamolni a kozeli forrasokat
 				//for(Block source : poly.lightSources.keySet()) {
 				for(Block source : poly.getSources()) {
 					if(source!=b)
-						addLight(source.pos, source, source.lightLevel, new HashMap<Point3D,Integer>()); //valojaban csak az uj blokkokhoz adodik hozza 
+						addLight(source.pos, source, source.lightLevel); //valojaban csak az uj blokkokhoz adodik hozza 
 				}
 			}
 		}
@@ -564,7 +564,7 @@ public class World {
 	 Block[] getCollidingBlocks(float x, float y, float z, Entity entity, Point3D p)
 	{
 		//HashMap<BlockFace, Block> result = new HashMap<>();
-		 Block[] result = new Block[3];
+		Block[] result = new Block[3];
 		int dx = (int) Math.floor(x);
 		int dy = (int) Math.floor(y);
 		int dz1 = (int) Math.floor(z);
@@ -678,8 +678,6 @@ public class World {
 					
 					Integer current = poly.checkSource(source);
 					
-					
-						
 					if(add) {
 						if(current==null || current<intensity) {
 							poly.addSource(source, intensity);
@@ -687,17 +685,8 @@ public class World {
 					}else {
 						poly.removeSource(source);
 					}
-
-					if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<3 && !SpawnableSurface.contains(poly.spawnpoint)) {
-						SpawnableSurface.add(poly.spawnpoint);
-					}else if(SpawnableSurface.contains(poly.spawnpoint)) {
-						SpawnableSurface.remove(poly.spawnpoint);
-					}
 					
-					
-				}
-				
-						
+				}				
 				
 			}
 			
@@ -706,26 +695,69 @@ public class World {
 		for(Entry<BlockFace, Block> entry : get6Blocks(coord.set(pos), true).entrySet()) {
 			Block b = entry.getValue();
 			BlockFace face = entry.getKey();
-			if(b == Block.NOTHING) { // b koordinatai 0,0,0 ezert b-t nem lehet hasznalni
-				if(add) {
-					addLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped);
-				}else {
-					removeLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped);
-				}
+			if(b == Block.NOTHING || b.transparent) { // b koordinatai 0,0,0 ezert b-t nem lehet hasznalni
+				modifyLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped, add);
 			}
 		}
-		
 
 		
 	}
 	
 	
-	public void addLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
-		modifyLight(pos, source, intensity, alreadyMapped, true);
+	public void addLight(Point3D pos, Block source, int intensity) {
+		modifyLight(pos, source, intensity, new HashMap<Point3D,Integer>(), true);
+		//recalcSpawn(pos, source, intensity, new HashMap<Point3D,Integer>());
 	}
 	
-	public void removeLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
-		modifyLight(pos, source, intensity, alreadyMapped, false);
+	public void removeLight(Point3D pos, Block source, int intensity) {
+		modifyLight(pos, source, intensity, new HashMap<Point3D,Integer>(), false);
+		//recalcSpawn(pos, source, intensity, new HashMap<Point3D,Integer>());
+	}
+	
+	private void recalcSpawn(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
+		
+		
+		Point3D p0s = new Point3D().set(pos); //pos at lesz irva ugyanebben a ciklusban, ezert masolni kell ha kulcskent hasznaljuk
+		if(!alreadyMapped.containsKey(p0s) || alreadyMapped.get(p0s)<intensity) {
+				alreadyMapped.put(p0s, intensity);
+		}else{
+				return;
+		}
+		
+		if(intensity<=0) {
+			return;
+		}
+		
+		Point3D coord = new Point3D().set(pos);// get6blocks atirja a parametert ezert le kell masolni
+
+		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
+		
+		
+		for(Entry<BlockFace, Block> entry : get6Blocks(coord.set(pos), true).entrySet()) {
+			Block b = entry.getValue();
+			BlockFace face = entry.getKey();
+			if(b == Block.NOTHING) { // b koordinatai 0,0,0 ezert b-t nem lehet hasznalni
+				recalcSpawn(coord.set(pos).add(face), source, intensity-1, alreadyMapped);
+				
+			}
+		}
+		
+		
+		for(Entry<BlockFace, Block> entry : nearby.entrySet()) {
+			Block b = entry.getValue();
+		
+			for(Entry<Polygon3D, BlockFace> polys :  b.HitboxPolygons.entrySet()) {
+				BlockFace polyface = polys.getValue(); 
+				Polygon3D poly = polys.getKey();
+				/*if((polyface == BlockFace.TOP || polyface == BlockFace.BOTTOM) && poly.adjecentFilter && poly.getLight()<3) {
+					if(!SpawnableSurface.contains(poly.spawnpoint)) SpawnableSurface.add(poly.spawnpoint);
+				}else {
+					SpawnableSurface.remove(poly.spawnpoint);
+				}*/
+			}
+		}
+		
+		
 	}
 	
 	
@@ -1222,96 +1254,23 @@ public class World {
 					}else {
 						side.adjecentFilter = false;
 					}
-					/*if(bl.transparent) {
-						if(other.transparent) {
-							side.adjecentFilter = false;
-						}else {
-							side.adjecentFilter = false;
-						}
-					}else {
-						if(other.transparent) {
-							side.adjecentFilter = true;
-						}else {
-							side.adjecentFilter = false;
-						}
-					}*/
+					
 				}
 				
 			}else {
 				side.adjecentFilter = true;
 			}
-					
-				
-				/*		
-						
-					if(other.fullblock) {
-						side.adjecentFilter=false;			
-								
-					}else {
-						side.adjecentFilter	
-								
-					}
-						
-						
-						
-					}
-					
-					
-					
-				}
-			}
 			
-			
-			
-			
-			if (bl.transparent) {
-				if (value.fullblock) {
-					for (Polygon3D poly : bl.Polygons) {
-						if (poly.normal.equals(key.directionVector)) {
-							poly.adjecentFilter = false;
-						}
-					}
-				} else {
-					for (Polygon3D poly : bl.Polygons) {
-						if (poly.normal.equals(key.directionVector)) {
-							poly.adjecentFilter = true;
-						}
-					}
-				}
-			} else {
-				if (value.transparent || !value.fullblock) {
-					for (Polygon3D poly : bl.Polygons) {
-						if (poly.normal.equals(key.directionVector)) {
-							poly.adjecentFilter = true;
-						}
-					}
-				} else {
-					for (Polygon3D poly : bl.Polygons) {
-						if (poly.normal.equals(key.directionVector)) {
-							poly.adjecentFilter = false;
-						}
-					}
-				}
+			/*if(side.adjecentFilter && side.getLight()<3 && (key == BlockFace.TOP || key == BlockFace.BOTTOM)) {
+				if(!SpawnableSurface.contains(side.spawnpoint)) SpawnableSurface.add(side.spawnpoint);
+			}else if(!side.adjecentFilter || side.getLight()>=3){
+				SpawnableSurface.remove(side.spawnpoint);
 			}*/
+				
+				
 		}
 
 	}
 
-	/*public void addBlocks(Block[] blockArray, boolean overwrite) {
-		for(Block b : blockArray) {
-			addBlock(b, overwrite);
-		}
-		
-	}*/
-
-	/*public void remapLight()
-	{
-		for(Block b : getWhole(false)) {
-			for(Polygon3D p : b.Polygons) {
-				p.recalcLightedColor();
-			}
-		}
-		
-	}*/
 
 }

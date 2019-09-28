@@ -50,7 +50,7 @@ public class Polygon3D extends Object3D{
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
 	Color4 pixel = new Color4();
-	Vector spawnpoint=new Vector();
+	//Vector spawnpoint=new Vector();
 	Point2D.Double centroid2D = new Point2D.Double();
 	private float[] fractions = new float[]{0.5f,1.0f};
 	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
@@ -427,7 +427,7 @@ public class Polygon3D extends Object3D{
 	    }
 
 	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
-	    this.spawnpoint.set(centroid).add(Vector.PLAYER);
+	    //this.spawnpoint.set(centroid);
 	}
 	
 	
