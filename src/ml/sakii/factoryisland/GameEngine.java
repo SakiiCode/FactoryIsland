@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.Timer;
 
 import ml.sakii.factoryisland.blocks.Block;
+import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.GrassBlock;
 import ml.sakii.factoryisland.blocks.ChestModuleBlock;
 import ml.sakii.factoryisland.blocks.TankModuleBlock;
@@ -135,21 +136,59 @@ public class GameEngine{
 						
 					}
 					
-					if(Math.random() < 0.004 && world.getAlienCount() < 6 && world.SpawnableSurface.size()>0) {
+					if(world.getAlienCount() < 6 /*&& Math.random() < 0.004*/ && world.getWhole(true).size()>0) {
 						int Min = 0;
-						int Max = world.SpawnableSurface.size()-1;
-						int index = Min + (int)(Math.random() * ((Max - Min) + 1));
-						Vector pos = world.SpawnableSurface.get(index);
-						Alien newAlien = new Alien(pos, new EAngle(40,0),"",new Random().nextLong(), GameEngine.this);
-						//world.Entities.add(newAlien);
-						world.addEntity(newAlien);
+						//int Max = world.getWhole(true).size();
+						
+						//Vector[] arr = world.SpawnableSurface.toArray(new Vector[0]);
+						ArrayList<Block> surface = world.getWhole(true);
+						Vector pos = null;
+						Block b;
+						//boolean found = false;
+						//do {
+							int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
+							b = surface.get(index);
+							
+								
+								
+							for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
+								if(Main.GAME.PE.VerticalVector.z == 1 && entry.getValue() == BlockFace.TOP) {
+									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
+										pos=entry.getKey().centroid;
+										//found=true;
+										
+									}
+									break;
+								}else if(Main.GAME.PE.VerticalVector.z == -1 && entry.getValue() == BlockFace.BOTTOM) {
+									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
+										pos=entry.getKey().centroid;
+										//found=true;
+										
+									}
+									break;
+									
+								}
+			
+							}
+								
+								
+								
+								
+								//Math.signum(pos.z-0.5f) == Math.signum(Main.GAME.PE.VerticalVector.z+0.5f);
+							
+									
+						//}while(!found);
+						if(pos!=null) {
+							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",new Random().nextLong(), GameEngine.this);
+							world.addEntity(newAlien);
+						}
 						
 					}
             	
 				
 					if(Tick % (2f/Main.TICKSPEED) == 0) {
 						for(Entity entity : world.getAllEntities()) {
-							if(entity instanceof Alien) {
+							if(entity instanceof Alien && entity.VerticalVector.z == Main.GAME.PE.VerticalVector.z) {
 								
 								Alien alien = ((Alien) entity);
 								Vector alienPos = alien.getPos();
@@ -247,7 +286,7 @@ public class GameEngine{
     				}
     				world.getAllEntities().parallelStream().forEach(entity-> /*);
     				for(Entity entity : world.getAllEntities()) */{
-    					if(entity instanceof Alien && entity.VerticalVector.equals(Main.GAME.PE.VerticalVector)) {
+    					if(entity instanceof Alien && entity.VerticalVector.z == Main.GAME.PE.VerticalVector.z) {
     						Alien alien = (Alien)entity;
     						Vector closest = null;
     						
@@ -318,7 +357,7 @@ public class GameEngine{
     						{
     					
     							doGravity(entity, world, physicsFPS,entity.feetPoint, entity.tmpPoint,  entity.playerColumn);
-    						
+    							entity.update();
     						
     						}
     					}
@@ -369,7 +408,7 @@ public class GameEngine{
 				{
 	
 					if (under != Block.NOTHING && under.z + 1 >= entityPos.z - 1.7f + JumpDistance)
-					{ // beleesne egy blokkba felï¿½lrï¿½l
+					{ // beleesne egy blokkba felülrõl
 						entityPos.z = under.z + 2.7f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
@@ -398,7 +437,7 @@ public class GameEngine{
 				if (VerticalVector.z == 1)
 				{
 					if (above != Block.NOTHING && above.z <= entityPos.z + JumpDistance)
-					{ // belefejelne egy blokkba alulrï¿½l
+					{ // belefejelne egy blokkba alulról
 						entityPos.z = above.z - 0.01f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
