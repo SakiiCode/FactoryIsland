@@ -11,7 +11,6 @@ import java.awt.event.KeyListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-@SuppressWarnings("hiding")
 public class PauseGUI extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
 

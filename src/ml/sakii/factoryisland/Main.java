@@ -222,7 +222,7 @@ public class Main
 			Frame.setBounds(bounds);
 
 			
-		} else // a linux egy bug miatt mindig kiteszi egy bizonyos kï¿½pernyï¿½re
+		} else // a linux egy bug miatt mindig kiteszi egy bizonyos képernyõre
 		{
 			d.setFullScreenWindow(Frame);
 		}

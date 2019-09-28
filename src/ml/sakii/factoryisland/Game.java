@@ -238,7 +238,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				((LoadListener)b).onLoad();
 			}
 			if(b.lightLevel>1) {
-				Engine.world.addLight(b.pos, b, b.lightLevel, new HashMap<Point3D,Integer>());
+				Engine.world.addLight(b.pos, b, b.lightLevel);
 			}
 		}
 		
@@ -546,19 +546,21 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("Eye:" + PEPos);
 				debugInfo.add("yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
 				debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
-				debugInfo.add("Selected Block:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
+				debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 				if(SelectedPolygon != null) {
-					debugInfo.add("SelectedPolygon: "+SelectedPolygon+",light:"+SelectedPolygon.getLight()+",spawn:"+Engine.world.SpawnableSurface.contains(SelectedPolygon.spawnpoint));
-					debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surface:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
+					debugInfo.add("SelPoly: "+SelectedPolygon);
+					debugInfo.add("light:"+SelectedPolygon.getLight());
+					debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
 				}else {
-					debugInfo.add("SelectedPolygon: null");
+					debugInfo.add("SelPoly: null");
+					debugInfo.add("");
 					debugInfo.add("");
 				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
-				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains((TickListener)SelectedBlock));
+				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock) );
 				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.SelectedStack : ""));
 				if (Engine.client != null)
 				{
@@ -572,10 +574,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					}
 				}
 				debugInfo.add("Seed: " + Engine.world.seed);
-				debugInfo.add("PE.GravityVelocity: " + PE.GravityVelocity + ", PE.JumpVelocity: " + PE.JumpVelocity + ", result: "
+				if(SelectedEntity == null) {
+				debugInfo.add("GravityVelocity: " + PE.GravityVelocity + ", JumpVelocity: " + PE.JumpVelocity + ", result: "
 						+ (PE.JumpVelocity - PE.GravityVelocity));
-				//debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
-				debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint,PE.tmpPoint,PE.playerColumn));
+				
+				debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint,PE.tmpPoint,PE.playerColumn)+",VV:"+PE.VerticalVector.z);
+				}else {
+					debugInfo.add("GravityVelocity: " + SelectedEntity.GravityVelocity + ", JumpVelocity: " + SelectedEntity.JumpVelocity + ", result: "
+							+ (SelectedEntity.JumpVelocity - SelectedEntity.GravityVelocity));
+					
+					debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity, SelectedEntity.feetPoint,SelectedEntity.tmpPoint,SelectedEntity.playerColumn)+",VV:"+SelectedEntity.VerticalVector.z);
+				}
+				debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
 				/*debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PEPos.x, PEPos.y,
 						PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));*/
 				int x=(int) Math.floor(PEPos.x) ;
@@ -774,8 +784,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 		}
 		Block invunder = Engine.world.getBlockUnderEntity(true, true, PE, PE.feetPoint, PE.tmpPoint, PE.playerColumn);
-		if (PE.VerticalVector.z == 1 && PEPos.z < 0// Engine.world.CHUNK_HEIGHT / 2
-				&& invunder != Block.NOTHING)
+		if (PE.VerticalVector.z == 1 && PEPos.z < 0	&& invunder != Block.NOTHING)
 		{
 			PE.VerticalVector.z = -1;
 			Block above = Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint, PE.tmpPoint, PE.playerColumn);
@@ -783,8 +792,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				PEPos.z = above.z - 1.7f;
 			}
-		} else if (PE.VerticalVector.z == -1 && PEPos.z >= 0// Engine.world.CHUNK_HEIGHT / 2
-				&& invunder != Block.NOTHING)
+		} else if (PE.VerticalVector.z == -1 && PEPos.z >= 0 && invunder != Block.NOTHING)
 		{
 			PE.VerticalVector.z = 1;
 
