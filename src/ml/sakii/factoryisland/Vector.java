@@ -4,6 +4,8 @@ public class Vector {
 	public float x, y, z;
 	
 	public static final Vector PLAYER = new Vector(0, 0, 1.7f);
+
+	public static final Vector Z = new Vector(0, 0, 1);
 	
 	public Vector(){
 		this.x = 0;

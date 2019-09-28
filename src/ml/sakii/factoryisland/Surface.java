@@ -5,6 +5,9 @@ import java.awt.Paint;
 import java.awt.image.BufferedImage;
 
 public class Surface {
+	
+	public static final Surface EMPTY = new Surface(new Color4(0,0,0,0),null);
+	
 	@Override
 	public String toString() {
 		//return "Surface [Texture=" + Texture + ", c=" + c + ", p=" + p + ", color=" + color + ", paint=" + paint + "]";

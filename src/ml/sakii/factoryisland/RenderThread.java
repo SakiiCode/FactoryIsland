@@ -32,7 +32,7 @@ public class RenderThread extends Thread
 	{
 		//tmpBuffer= Main.graphicsconfig.createCompatibleImage(Main.getWidth(), Main.Frame.getHeight());
 		while(running) {
-
+			try {
 			game.render(game.FrameBuffer.getGraphics());
 			//tmpBuffer.getGraphics().drawImage(game.FrameBuffer, 0, 0,tmpBuffer.getWidth(), tmpBuffer.getHeight(), null);
 			game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
@@ -69,15 +69,12 @@ public class RenderThread extends Thread
 
 			}
 			
-			game.FrameBuffer.flush();
 			
-			/*try
-			{
-				Thread.sleep(500);
-			} catch (InterruptedException e)
-			{
+			game.FrameBuffer.flush();
+			}catch(Exception e) {
 				e.printStackTrace();
-			}*/
+				kill();
+			}
 			
 		}
 		
