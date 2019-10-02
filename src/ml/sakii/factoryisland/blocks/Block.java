@@ -338,8 +338,23 @@ public class Block extends Object3D
 
 		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzn, xnynzn, xkynzn, xkykzn }, top));
 		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzk, xkynzk, xnynzk, xnykzk }, bottom));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzk, xkynzn, xnynzn, xnynzk }, north));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzk, xnykzn, xkykzn, xkykzk }, south));
+		
+		//TODO ezt kikapcsolni egyszinu modban
+		Vertex xkynzk2 = new Vertex(xk, yn, zk, w, h);
+		Vertex xkynzn2 = new Vertex(xk, yn, zn, w, 0);
+		Vertex xnynzn2 = new Vertex(xn, yn, zn, 0, 0);
+		Vertex xnynzk2 = new Vertex(xn, yn, zk, 0, h);
+		
+		Vertex xkykzk2 = new Vertex(xk, yk, zk, w, h);
+		Vertex xkykzn2 = new Vertex(xk, yk, zn, w, 0);
+		Vertex xnykzn2 = new Vertex(xn, yk, zn, 0, 0);
+		Vertex xnykzk2 = new Vertex(xn, yk, zk, 0, h);
+
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzk2, xkynzn2, xnynzn2, xnynzk2 }, north));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzk2, xnykzn2, xkykzn2, xkykzk2 }, south));
+		
+		
+		
 		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzk, xnynzk, xnynzn, xnykzn }, east));
 		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzn, xkynzn, xkynzk, xkykzk }, west));
 
