@@ -551,6 +551,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("SelPoly: "+SelectedPolygon);
 					debugInfo.add("light:"+SelectedPolygon.getLight());
 					debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
+					for(Vertex v : SelectedPolygon.Vertices) {
+						debugInfo.add(v.toString());
+					}
 				}else {
 					debugInfo.add("SelPoly: null");
 					debugInfo.add("");

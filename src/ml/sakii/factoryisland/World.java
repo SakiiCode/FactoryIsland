@@ -714,7 +714,7 @@ public class World {
 		//recalcSpawn(pos, source, intensity, new HashMap<Point3D,Integer>());
 	}
 	
-	private void recalcSpawn(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
+	/*private void recalcSpawn(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
 		
 		
 		Point3D p0s = new Point3D().set(pos); //pos at lesz irva ugyanebben a ciklusban, ezert masolni kell ha kulcskent hasznaljuk
@@ -753,12 +753,12 @@ public class World {
 					if(!SpawnableSurface.contains(poly.spawnpoint)) SpawnableSurface.add(poly.spawnpoint);
 				}else {
 					SpawnableSurface.remove(poly.spawnpoint);
-				}*/
+				}///
 			}
 		}
 		
 		
-	}
+	}*/
 	
 	
 	/*public void removeLight(int x, int y, int z, Block source, int level, HashMap<Point3D, Integer> alreadyMapped)

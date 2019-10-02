@@ -112,7 +112,7 @@ public class Vertex {
 	
 	@Override
 	public String toString() {
-		return "Vertex [pos=" + pos + "]";
+		return "V(" + pos + ","+u+","+v+")";
 	}
 
 }
