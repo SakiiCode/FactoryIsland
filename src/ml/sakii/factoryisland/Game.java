@@ -1,39 +1,3 @@
-/*
- * Changlelog:
- * 
-
- * Atlatszo viz
- * mindenhol Color4 -> memoria sporolas
- * Texturas modban nincs arnyek
- * 2Dto3D optimalizalas
- * stderr, stdout fajlba es konzolra is
- * killEntity NPE fix
- * multiplayer mozgas fix
- * blokk tores javitasa, BreakListener
- * fenyek mukodnek mpben
- * chestek betoltodnek es megy a swapitem mp-ben
- * entity mozgas es ölés mpben fix
- * blokklerakas es kiutes ujrairva
- * nagyon sok entity.getPos() cachelve
- * hotbarIndex=0 és onLoad a Game-ben lett
- * összes entityt egyszerre synceli
- * fa visszanövés fix
- * víz mûködik mpben
- * viz tickeles nem vegtelen
- * watermill megy mpben
- * pause fix
- * lampa mar nem kovet ad vissza spben
- * helyi inventoryt is synceli szerver indításkor
- * TODO vmilyen scanline vagy graphics2D gyorsitas
- * Vector memoriahasznalat optimalizalva (GradientCalculator, GameEngine, updateTexture, recalcNormal, Alien)
- * lighting engine cleanup
- * screenshot mar nem okoz lagot
- * pause utan nem mutat 200 fps-t
- * OpenGL mód megy, de 30-50% FPS csökkenés
- * getBlockUnderEntity memory leak javitva 
- * Point3D memory leak javítva
- */
-
 package ml.sakii.factoryisland;
 
 import java.awt.AWTException;
@@ -80,13 +44,11 @@ import ml.sakii.factoryisland.blocks.InteractListener;
 import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.PlaceListener;
 import ml.sakii.factoryisland.blocks.TextureListener;
-import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemType;
-import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.net.GameClient;
 import ml.sakii.factoryisland.net.GameServer;
@@ -564,7 +526,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
 				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock) );
-				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.SelectedStack : ""));
+				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.getSelectedKind() : ""));
 				if (Engine.client != null)
 				{
 					debugInfo.add("PacketCount: " + Engine.client.packetCount);
@@ -632,35 +594,40 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 				
 				// VIEWMODEL
-				if (Engine.Inv.getHotbarIndex() > -1)
+				if (Engine.Inv.hasSelected())
 				{
-					BufferedImage viewmodel = Main.Items.get(Engine.Inv.SelectedStack.kind.name).ViewmodelTexture;
+					//ItemType type = Main.Items.get(Engine.Inv.getSelectedKind().name);
+					//if(type != null) {
+					BufferedImage viewmodel = Main.Items.get(Engine.Inv.getSelectedKind().name).ViewmodelTexture;
 					int wv = viewmodel.getWidth();
 					int hv = viewmodel.getHeight();
 
 					g.drawImage(viewmodel, Config.width / 3 * 2, Config.height - hv, 2 * wv, 2 * hv, null);
+					/*}else {
+						Main.err("Unknown item type:"+Engine.Inv.getSelectedKind());
+					}*/
 				}
 				
-				drawInventory(g, Engine.Inv, fontSize, viewportscale, true, null);
+				drawInventory(g, Engine.Inv, fontSize, viewportscale, true, null, localInvActive);
 				
 
 			}
 
-			if (remoteInventory != null)
+			if (remoteInventory != null && remoteInventory.getInv().items.size()>0)
 			{
 
 				//ItemStack remoteSelected = remoteInventory.getInv().getSelectedStack();
 				
-				drawInventory(g, remoteInventory.getInv(), fontSize, viewportscale, false, remoteInventory.getBlock());
+				drawInventory(g, remoteInventory.getInv(), fontSize, viewportscale, false, remoteInventory.getBlock(), localInvActive);
 
 			}
 
 		
 		}
 
-	private static void drawInventory(Graphics g, PlayerInventory Inv, int fontSize, float viewportscale, boolean local, Block remoteBlock) {
+	private static void drawInventory(Graphics g, PlayerInventory Inv, int fontSize, float viewportscale, boolean local, Block remoteBlock, boolean localInvActive) {
 		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize+2));
-		ItemStack Selected = Inv.SelectedStack;
+		//ItemStack Selected = Inv.SelectedStack;
 
 
 		int i = -1;
@@ -676,13 +643,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			i++;
 			ItemType item = Main.Items.get(kind.name);
 			BufferedImage icon = item.ItemTexture;
-			g.drawImage(icon, i * w, Config.height - h,w, h, null);
+			g.drawImage(icon, i * w, Config.height - h - (local?0:mainOffset),w, h, null);
 
 			int textX = i * w + offset;
-			int textY = Config.height - h;
+			int textY = Config.height - h  - (local?0:mainOffset);
 
-			if (kind != Inv.SelectedStack.kind)
-			{
+			if (kind != Inv.getSelectedKind() || (local != localInvActive))
+			{ //alap
 				g.setColor(Color.WHITE);
 				g.drawString(amount + "", textX, textY);
 
@@ -690,38 +657,50 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				g.drawString(amount + "", textX - 1, textY - 1);
 
 			} else
-			{
+			{ //kiemelt
 				g.setColor(Color.BLACK);
 				g.drawString(amount + "", textX, textY);
 
 				g.setColor(Color.WHITE);
 				g.drawString(amount + "", textX - 1, textY - 1);
 				
-				Selected.set(kind, amount);
+				//Selected.set(kind, amount);
 			}
 		}
 		
 		// KIJELÖLT FELIRAT
 		if(local) {
-			if (Selected != null)
+			
+			//ez távoli inventorynál is megjelenik, ötletem sincs miért
+			
+			if (Inv.hasSelected()) 
 			{
 				g.setColor(Color.BLACK);
-				g.drawString(Selected.kind.name, 25, Config.height - h-offset*3);
+				g.drawString(Inv.getSelectedKind().name, 25, Config.height - h-offset*3);
 				g.setColor(Color.WHITE);
-				g.drawString(Selected.kind.name, 25 - 1, Config.height - h-offset*3 - 1);
+				g.drawString(Inv.getSelectedKind().name, 25 - 1, Config.height - h-offset*3 - 1);
 			
-				
 			}
+			
 		}else {
 			
 
-			if (Selected != null)
+			/*if (Inv.hasSelected())
 			{
 				g.setColor(Color.BLACK);
-				g.drawString(Selected.kind.name, 25, (int) (Config.height - 100*viewportscale));
+				g.drawString(Inv.getSelectedKind().name, 25, (int) (Config.height - 100*viewportscale));
 				g.setColor(Color.WHITE);
-				g.drawString(Selected.kind.name, 25 - 1,
+				g.drawString(Inv.getSelectedKind().name, 25 - 1,
 						(int) (Config.height - 100*viewportscale - 1));
+			}*/
+			
+			if (Inv.hasSelected()) 
+			{
+				g.setColor(Color.BLACK);
+				g.drawString(Inv.getSelectedKind().name, 25, Config.height - h-offset*3);
+				g.setColor(Color.WHITE);
+				g.drawString(Inv.getSelectedKind().name, 25 - 1, Config.height - h-offset*3 - 1);
+			
 			}
 
 
@@ -882,8 +861,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F)
 		{
-			for(TickListener t : Engine.TickableBlocks) {
-				Block b = (Block)t;
+			for(Point3D t : Engine.TickableBlocks) {
+				Block b = Engine.world.getBlockAtP(t);
 				System.out.println(b);
 			}
 		}
@@ -1067,12 +1046,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 					if (!key[5])
 					{
-						if (Engine.Inv.getHotbarIndex() > -1)
+						if (Engine.Inv.hasSelected())
 						{
-							ItemStack selected =Engine.Inv.SelectedStack;
-							if (selected.kind.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(selected.kind.className))
+							//ItemStack selected =Engine.Inv.SelectedStack;
+							ItemType selected = Engine.Inv.getSelectedKind();
+							if (selected.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(selected.className))
 							{
-								Engine.Inv.add(selected.kind, -1, true);
+								Engine.Inv.add(selected, -1, true);
 							}
 						}
 					} else if (SelectedBlock instanceof InteractListener)
@@ -1095,10 +1075,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			if (localInvActive)
 			{
-				SwapItems(false, Engine.Inv.SelectedStack.kind.name);
+				if(Engine.Inv.hasSelected())
+					SwapItems(false, Engine.Inv.getSelectedKind().name);
 			} else
 			{
-				SwapItems(true, remoteInventory.getInv().SelectedStack.kind.name);
+				SwapItems(true, remoteInventory.getInv().getSelectedKind().name);
 			}
 
 		}
@@ -1314,7 +1295,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private void SwitchInventory(boolean local)
 	{
 		if (!local && remoteInventory != null)
-		{
+		{ // tavolira valtas
 
 			Engine.Inv.setHotbarIndex(-1);
 			//Engine.Inv.SelectedStack = null;
@@ -1327,8 +1308,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			// }
 			localInvActive = false;
-		} else
-		{
+		} else if(local)
+		{ //helyire valtas
+			
+			
 			if (remoteInventory != null)
 			{
 				remoteInventory.getInv().setHotbarIndex(-1);
@@ -1430,7 +1413,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				if (Engine.Inv.items.size() > 0 && remoteInventory != null)
 				{
-					ItemType removedFromLocal = Engine.Inv.SelectedStack.kind;
+					ItemType removedFromLocal = Engine.Inv.getSelectedKind();
 					remoteInventory.getInv().add(removedFromLocal, 1, true);
 					Engine.Inv.add(removedFromLocal, -1, true);
 				}
@@ -1439,7 +1422,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			} else
 			{
-				ItemType removedFromActiveInv = remoteInventory.getInv().SelectedStack.kind;
+				ItemType removedFromActiveInv = remoteInventory.getInv().getSelectedKind();
 				Engine.Inv.add(removedFromActiveInv, 1, true);
 				remoteInventory.getInv().add(removedFromActiveInv, -1, true);
 
