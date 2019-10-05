@@ -4,9 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JLabel;
@@ -16,6 +23,7 @@ import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.GrassBlock;
 import ml.sakii.factoryisland.blocks.ChestModuleBlock;
+import ml.sakii.factoryisland.blocks.Fluid;
 import ml.sakii.factoryisland.blocks.TankModuleBlock;
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.blocks.SandBlock;
@@ -37,7 +45,8 @@ public class GameEngine{
 	
 	
 	public World world;
-	public CopyOnWriteArrayList<TickListener> TickableBlocks = new CopyOnWriteArrayList<>();
+	//public Set<Point3D> TickableBlocks =  Collections.newSetFromMap(new ConcurrentHashMap<Point3D, Boolean>());
+	public CopyOnWriteArrayList<Point3D> TickableBlocks = new CopyOnWriteArrayList<>();
 	public long Tick;
 	//public CopyOnWriteArrayList<Entity> Entities = new CopyOnWriteArrayList<>();
 	Timer ticker;
@@ -111,28 +120,39 @@ public class GameEngine{
 
             	if(server != null || (client==null && server==null)) {
             		
-					ArrayList<TickListener> removed = new ArrayList<>(TickableBlocks);
-					for(TickListener b : removed){
-						if(Tick % ((Block)b).refreshRate == 0){
-							if(!b.tick(Tick)){
-								TickableBlocks.remove(b);
-								
-								
-								/*for (Block b2 : world.get6Blocks(((Block)b), false).values())
-								{
-									if (b2 instanceof TickListener && (client == null || (client != null && client != null)))
-									{
-										//addToUpdates((TickListener) b2);
-										if(!TickableBlocks.contains(b2)) {
-											TickableBlocks.add((TickListener) b2);
-										}
+					//HashSet<Point3D> current = new HashSet<>(TickableBlocks);
+            		ArrayList<Point3D> current = new ArrayList<>(TickableBlocks);
+					TickableBlocks.clear();
+					for(Point3D p : current) {
+        				
+
+						Block bl = world.getBlockAtP(p);
+						if(bl != Block.NOTHING) {
+							
+							if(Tick % bl.refreshRate == 0){
+								if(bl instanceof TickListener) {
+									TickListener b =(TickListener)bl;
+									
+									if(b.tick(Tick)) {
+										
+										
+										//TickableBlocks.remove(p);
+										TickableBlocks.add(p);
 									}
-								}*/
+								
+								}else {
+									Main.err("Attempted to tick non-tickable block:"+bl);
+									//TickableBlocks.remove(p);
+								}
+							}else {
+								TickableBlocks.add(p);
 							}
-							
-							
+						}else {
+							// Air block ticked
+							Main.err("Attempted to tick air block:"+p);
+
+							//TickableBlocks.remove(p);
 						}
-							
 						
 					}
 					
@@ -478,7 +498,23 @@ public class GameEngine{
 		Random RandomGen = new Random(seed);
 		Main.log("Seed:" + seed);
 		
+
+		
+		
 		int sealevel = 0;//world.CHUNK_HEIGHT/2;
+		
+		
+		
+		Main.log("- Adding pond...");
+		statusLabel.setText("- Adding pond...");
+		int top = world.getTop(0, 0);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
+
+		for(int i = -1; i <= 1; i++)
+			for(int j = -1; j <= 1; j++)
+				
+				world.addBlockNoReplace(new WaterBlock(i, j, top, this), false);
+		
+		
 		
 		Main.log("- Creating earth above sea level...");
 		statusLabel.setText("- Creating earth above sea level...");
@@ -536,23 +572,19 @@ public class GameEngine{
 			}
 		}
 		System.gc();
-		Main.log("- Adding pond...");
-		statusLabel.setText("- Adding pond...");
-		int top = world.getTop(0, 0);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
 
-		for(int i = -1; i <= 1; i++)
-			for(int j = -1; j <= 1; j++)
-				world.addBlockReplace(new WaterBlock(i, j, top, this), false);
 		
 		Main.log("- Sprinkling sand and grass...");
 		
 		for(Block b : world.getWhole(false)){
 			if(!b.name.equals("Water") && !b.name.equals("Old")){
 				if(isNearWater(b)){
-					world.addBlockReplace(new GrassBlock(b.x, b.y, b.z,this), false);
+					world.destroyBlock(b, false);
+					world.addBlockNoReplace(new GrassBlock(b.x, b.y, b.z,this), false);
 				}
 				if(world.getBlockAt(b.x, b.y, b.z+1) instanceof WaterBlock){
-					world.addBlockReplace(new SandBlock(b.x, b.y, b.z,this), false);
+					world.destroyBlock(b, false);
+					world.addBlockNoReplace(new SandBlock(b.x, b.y, b.z,this), false);
 				}
 
 			}
@@ -610,10 +642,18 @@ public class GameEngine{
 			int index = RandomGen.nextInt(grasses.size());
 			Block grass = grasses.get(index);
 			//}while(world.getBlockAt(grass.x, grass.y, grass.z+1) != Block.NOTHING);
-			world.addBlockReplace(new SaplingBlock(grass.x, grass.y, grass.z+1, this), false);
+			Block replace = world.getBlockAt(grass.x, grass.y, grass.z+1);
+			if(replace != Block.NOTHING) {
+				world.destroyBlock(replace, false);
+			}
+			world.addBlockNoReplace(new SaplingBlock(grass.x, grass.y, grass.z+1, this), false);
 		}else {
 			Main.err("No grass found!!");
-			world.addBlockReplace(new SaplingBlock(0, 0, 1, this), false);
+			Block replace = world.getBlockAt(0,0,1);
+			if(replace != Block.NOTHING) {
+				world.destroyBlock(replace, false);
+			}
+			world.addBlockNoReplace(new SaplingBlock(0, 0, 1, this), false);
 		}
 		
 		Main.log("- Lunar module landing ...");
@@ -642,7 +682,11 @@ public class GameEngine{
 		}
 		//world.addBlocks(lunarModule, true);
 		for(int i=0;i<24;i++) {
-			world.addBlockReplace(lunarModule[i], true);
+			Block replace = world.getBlockAtP(lunarModule[i].pos);
+			if(replace != Block.NOTHING) {
+				world.destroyBlock(replace, false);
+			}
+			world.addBlockNoReplace(lunarModule[i], true);
 		}
 		
 	}
@@ -691,6 +735,29 @@ public class GameEngine{
 		return createBlock(className, x, y, z, this);
 	}
 	
+	
+	
+	public Fluid createFluid(String name, int x, int y, int z, int height) {
+		Fluid result=null;
+		try {
+			String className = Main.Items.get(name).className;
+			Class<?> fluidClass = Class.forName(className);
+			if(!fluidClass.getName().equals(Fluid.class.getName()) && Fluid.class.isAssignableFrom(fluidClass)) {
+				
+				Constructor<?> ctor = fluidClass.getConstructor(int.class, int.class, int.class,int.class, GameEngine.class);
+				result = (Fluid)(ctor.newInstance(new Object[] { x ,y , z,height, this}));
+				
+			}else {
+				Main.err("Invalid class name when creating fluid:"+className);
+			}
+		}catch(Exception e) {
+			Main.err("Could not create fluid: "+ name+","+x+","+y+","+z+","+height);
+			e.printStackTrace();
+		}
+		return result;
+		
+	}
+	
 	public Block createBlockByClass(String className, int x, int y, int z) {
 		if(Main.ModRegistry.contains(className)) {
 			return createApiBlock(className, x, y, z);
@@ -699,27 +766,28 @@ public class GameEngine{
 	}
 	
 	private static Block createBlock(String className, int x, int y, int z, GameEngine engine) {
+		Block result = Block.NOTHING;
 		try{
 			Class<?> blockClass = Class.forName(className);
+			
 			if(!blockClass.getName().equals(Block.class.getName())){
 				if(Block.class.isAssignableFrom(blockClass)){
 					Constructor<?> ctor = blockClass.getConstructor(int.class, int.class, int.class, GameEngine.class);
-					Block object = (Block)(ctor.newInstance(new Object[] { x ,y , z, engine}));
-					return object;
+					result = (Block)(ctor.newInstance(new Object[] { x ,y , z, engine}));
+					
+				}else {
+					Main.err("Could create block: "+className+" is not an instance of " + Block.class.getName());
 				}
-				Main.err("Could create block: "+className+" is not an instance of " + Block.class.getName());
-				return Block.NOTHING;
+				
+			}else {
+				Main.err("Could create block: Do not use ml.sakii.factoryisland.blocks.Block to place!");
 			}
-			Main.err("Could create block: Do not use ml.sakii.factoryisland.blocks.Block to place!");
-			return Block.NOTHING;
-		
-		
-		
+			
 		}catch(Exception e){
 			Main.err("Could not create block: "+ className);
 			e.printStackTrace();
-			return Block.NOTHING;
 		}
+		return result;
 	}
 	
 	private Block createApiBlock(String name, int x, int y, int z) {

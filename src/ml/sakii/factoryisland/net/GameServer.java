@@ -3,6 +3,7 @@ package ml.sakii.factoryisland.net;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -64,21 +65,22 @@ public class GameServer extends Thread{
 			
 			
 			
-			if(Main.devmode) {
+			if(Main.devmode && !message.substring(0, 2).equals("16")) {
 
 					Main.log("(SERVER) RECEIVED:  "+message);
 			}
 			
-			
 			handleMessage(packet);
+			
 			
 
 		}
+		Engine.world.saveByShutdown();
 		
 		for(PlayerMPData client : clients.values()){
 			sendData("98", client.socket);
 		}
-		Engine.world.saveByShutdown();
+		
 		Listener.kill();
 	}
 	
@@ -244,19 +246,20 @@ public class GameServer extends Thread{
 				for(int i=5;i<part.length;i+=2) {
 					b1.setMetadata(part[i], part[i+1], false);
 				}
-				Engine.world.addBlockReplace(b1, false);
+				boolean success = Engine.world.addBlockNoReplace(b1, false);//TODO itt replace volt
 				
 				//senderID = cInt(part[1]);
-				for(PlayerMPData client : clients.values()){
-					/*if(!client.username.equals(senderName)) {
-						sendData(("05," + b1.x + "," + b1.y + "," + b1.z + "," + part[5]), client.socket);
-						Main.log("Block place forwarded to "+client.username);
-					}*/
-					if(!client.local) {
-						sendData(message, client.socket);
-
+				if(success)
+					for(PlayerMPData client : clients.values()){
+						/*if(!client.username.equals(senderName)) {
+							sendData(("05," + b1.x + "," + b1.y + "," + b1.z + "," + part[5]), client.socket);
+							Main.log("Block place forwarded to "+client.username);
+						}*/
+						if(!client.local) {
+							sendData(message, client.socket);
+	
+						}
 					}
-				}
 				break;
 			case "06": // DELETE BLOCK
 				/*Block b = Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]));
@@ -269,13 +272,17 @@ public class GameServer extends Thread{
 					}
 					//Engine.world.destroyBlock(b);
 				}*/
-				
-				Engine.world.destroyBlock(Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3])), false);
-				for(PlayerMPData client : clients.values()){
-					if(!client.local) {
-						sendData(message, client.socket);
-
+				Block b = Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3]));
+				if(b != Block.NOTHING) {
+					Engine.world.destroyBlock(b, false);
+					for(PlayerMPData client : clients.values()){
+						if(!client.local) {
+							sendData(message, client.socket);
+	
+						}
 					}
+				}else {
+					Main.err("(SERVER) Client tried to destroy air block:" + message);
 				}
 
 				break;
@@ -375,10 +382,12 @@ public class GameServer extends Thread{
 		try {
 			BufferedWriter outToClient = socket.outputStream;
 
-			outToClient.write(data+GameClient.DELIMETER);
+			outToClient.write(data);
+			outToClient.newLine();
 			outToClient.flush();
 			if(Main.devmode) {
 				if(GameClient.ALLCODES.contains(data.split(",")[0])){
+					if(!data.substring(0, 2).equals("16"))
 					Main.log("(SERVER) SENT:      "+data);
 				}else{
 					Main.log("(SERVER) I DUNNO WAT I SENT LOL:  "+data);

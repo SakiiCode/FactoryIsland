@@ -33,7 +33,7 @@ public class GameClient extends Thread{
 	static final Set<String> ALLCODES = new HashSet<>(Arrays.asList(
 			"00", "01", "02", "03","04", "05", "06", "07", "08","10","11", "14","15","16","17","97", "13", "66", "67" ,"98", "loaded", "ping", "pong"));
 	
-	static final String DELIMETER = "\r\n";
+	//static final String DELIMETER = "\r\n";
 	static final long CMDTIME = 20; 
 	
 	private boolean connected = true;
@@ -135,7 +135,7 @@ public class GameClient extends Thread{
 			
 
 			
-			if(Main.devmode) {
+			if(Main.devmode && !message.substring(0, 2).equals("16")) {
 					Main.log("(CLIENT:"+Config.username+") RECEIVED:  "+message);
 			}
 			
@@ -172,7 +172,7 @@ public class GameClient extends Thread{
 			for(int i = 0;i<part.length;i=i+5){
 				Block b = game.Engine.createBlockByName(part[i+1], cInt(part[i+2]), cInt(part[i+3]), cInt(part[i+4]));
 				if(b != Block.NOTHING && b != null){
-					game.Engine.world.addBlockReplace(b, false);
+					game.Engine.world.addBlockNoReplace(b, false);//TODO itt replace volt
 					//toBeDeleted.add(entry);
 					blockcount++;
 				}else{
@@ -238,7 +238,7 @@ public class GameClient extends Thread{
 			for(int i=5;i<part.length;i+=2) {
 				b.setMetadata(part[i], part[i+1], false);
 			}
-			game.Engine.world.addBlockReplace(b,false);
+			game.Engine.world.addBlockNoReplace(b,false);//TODO itt replace volt
 
 			break;
 		case "06": // DELETE BLOCK
@@ -334,8 +334,15 @@ public class GameClient extends Thread{
 			if(data.equals("ping")) {
 				pingTime = System.currentTimeMillis();
 			}
-			outputStream.write(data+DELIMETER);
+			
+			//OutputStreamWriter outToClient = ;
+
+			//outToClient.write(data+"\r\n");
+			outputStream.write(data);
+			outputStream.newLine();
 			outputStream.flush();
+			//outToClient.flush();
+			
 			if(Main.devmode) {
 				if(ALLCODES.contains(data.split(",")[0])){
 					Main.log("(CLIENT:"+Config.username+") SENT:      "+data);
@@ -343,6 +350,9 @@ public class GameClient extends Thread{
 					Main.log("(CLIENT:"+Config.username+") I DUNNO WAT I SENT LOL:  "+data);
 				}
 			}
+			/*for(int i=2;i<5;i++) {
+				Main.err(Thread.currentThread().getStackTrace()[i].toString());
+			}*/
 		} catch (IOException e) {
 			Main.err(e.getMessage());
 			game.disconnect();

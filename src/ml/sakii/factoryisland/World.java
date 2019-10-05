@@ -505,33 +505,25 @@ public class World {
 		return false;
 	}
 	
-	public void addBlockReplace(Block b, boolean resend) {
+	/*public void addBlockReplace(Block b, boolean resend) {
 		Block existing =getBlockAt(b.x, b.y, b.z); 
 		if(existing != Block.NOTHING) {
 			destroyBlock(existing, resend);
 		}
-			if(resend && Engine.client != null) {
-				//Engine.client.sendData("05,"+b.name+","+b.x+","+b.y+","+b.z);
-				StringBuilder sb = new StringBuilder();
-				sb.append("05,"+b.name+","+b.x+","+b.y+","+b.z);
-				for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
-					sb.append(",");
-					sb.append(entry.getKey()+","+entry.getValue());
-				}
-				Engine.client.sendData(sb.toString());
-			}else {
-				ReplaceBlock(b);
+		if(resend && Engine.client != null) {
+			//Engine.client.sendData("05,"+b.name+","+b.x+","+b.y+","+b.z);
+			StringBuilder sb = new StringBuilder();
+			sb.append("05,"+b.name+","+b.x+","+b.y+","+b.z);
+			for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
+				sb.append(",");
+				sb.append(entry.getKey()+","+entry.getValue());
 			}
-			//return false;
-		//}else {
-			/*if(resend && Engine.client != null) {
-				Engine.client.sendData("05,"+b.name+","+b.x+","+b.y+","+b.z);
-			}else {
-				ReplaceBlock(b);
-			}*/
-			//return true;
-		//}
-	}
+			Engine.client.sendData(sb.toString());
+		}else {
+			ReplaceBlock(b);
+		}
+
+	}*/
 	
 	private void ReplaceBlock(Block b) {
 
@@ -550,13 +542,17 @@ public class World {
 		
 		
 		Blocks.put(b.pos, b);
+		
+		//TODO itt fordított sorrend kellhet
+
+		
 		for (Block entry : get6Blocks(b, false).values()) {
 			if (entry instanceof TickListener) {
-				Engine.TickableBlocks.add((TickListener) entry);
+				Engine.TickableBlocks.add(entry.pos);
 			}
 		}
 		if (b instanceof TickListener) {
-			Engine.TickableBlocks.add((TickListener) b);
+			Engine.TickableBlocks.add(b.pos);
 		}
 		
 		if (b instanceof TextureListener) {
@@ -597,23 +593,29 @@ public class World {
 			Engine.client.sendData(("06," + b.x + "," + b.y	+ "," + b.z));
 
 		}else {
-			Block local = getBlockAtP(b.pos);
-			if (local == Block.NOTHING) {
-				return;
+			if (getBlockAtP(b.pos) == Block.NOTHING) {
+				Main.err("Attempted to destroy air block: "+b.pos);
+				//Thread.dumpStack();
+				//throw new NullPointerException("Attempted to destroy air block:"+b.pos);
+				//return;
 			}
 	
+			Blocks.remove(b.pos);
 			
 			for (Block bu : get6Blocks(b, false).values()) {
 				if (bu instanceof TickListener) {
-					Engine.TickableBlocks.add((TickListener) bu);
+					Engine.TickableBlocks.add(bu.pos);
 				}
 			}
 			
-			Blocks.remove(b.pos);
 			
+			
+
 			if (b instanceof TickListener) {
-				Engine.TickableBlocks.remove(b);
+				while(Engine.TickableBlocks.contains(b.pos))
+					Engine.TickableBlocks.remove(b.pos);
 			}
+			
 			
 			if (b instanceof TextureListener) {
 				game.TextureBlocks.remove(b);
@@ -849,7 +851,7 @@ public class World {
 			return;
 		}
 		
-		Point3D coord = new Point3D().set(pos);// get6blocks atirja a parametert ezert le kell masolni
+		Point3D coord = p0s;//new Point3D().set(pos);// get6blocks atirja a parametert ezert le kell masolni
 
 		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
 		for(Entry<BlockFace, Block> entry : nearby.entrySet()) {
