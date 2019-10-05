@@ -1,10 +1,13 @@
 package ml.sakii.factoryisland;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -13,6 +16,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JLabel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -77,12 +89,10 @@ public class World {
 		
 	}
 
+	@SuppressWarnings({ "null", "unchecked" })
 	private void loadWorld(GameEngine engine, JLabel statusLabel) {
-		File file = new File("saves/" + worldName + "/map.xml");
-		/*if (!file.exists()) {
+		/*File file = new File("saves/" + worldName + "/map.xml");
 
-			return;
-		}*/
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
@@ -100,10 +110,10 @@ public class World {
 		//CHUNK_HEIGHT = Integer.parseInt(((Element) root).getAttribute("height"));
 
 		NodeList Blocks = World.getChildNodes();
-
+		
 		for (int i = 0; i < Blocks.getLength(); i++) {
-			
-			statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Location");
+			statusLabel.setText("Loading blocks... " + (int)(i*1f/Blocks.getLength()*100)+"%");
+			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Location");
 			Node Block = Blocks.item(i);
 			Element BE = (Element) Block;
 			Block b = engine.createBlockByName(BE.getAttribute("name"), Integer.parseInt(BE.getAttribute("x")),
@@ -112,7 +122,7 @@ public class World {
 			NodeList nodes = Block.getChildNodes();
 			
 			
-			statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Metadata");
+			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Metadata");
 			b.BlockMeta.clear();
 			NodeList Metadata = nodes.item(0).getChildNodes();
 			for (int j = 0; j < Metadata.getLength(); j++) {
@@ -120,7 +130,7 @@ public class World {
 				b.BlockMeta.put(item.getNodeName(), item.getTextContent());
 			}
 			
-			statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Powers");
+			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Powers");
 
 			b.powers.clear();
 			NodeList Powers = nodes.item(1).getChildNodes();
@@ -129,7 +139,7 @@ public class World {
 				b.powers.put(BlockFace.valueOf(item.getNodeName()), Integer.parseInt(item.getTextContent()));
 			}
 			
-			statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Block Inventory");
+			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Block Inventory");
 
 			if(b instanceof BlockInventoryInterface) {
 				((BlockInventoryInterface) b).getInv().clear();
@@ -141,7 +151,7 @@ public class World {
 				
 			}
 			
-			statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Adding Block");
+			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Adding Block");
 			addBlockNoReplace(b, true);
 			//ReplaceBlock(b, true);
 			//b.onLoad();
@@ -176,19 +186,196 @@ public class World {
 		long seed = Long.parseLong(document.getElementsByTagName("seed").item(0).getTextContent());
 		this.seed = seed;
 
+		*/
 		
-		statusLabel.setText("Loading player inventory...");
-		PlayerInventory loadedInv = loadInv(Config.username, null);
-		if(Config.creative) {
-			tmpInventory = loadedInv;
-			game.creative=true;
-			engine.Inv=PlayerInventory.Creative;
-		}else {
-			game.creative=false;
-			if(!loadedInv.items.isEmpty())
-				for(Entry<ItemType, Integer> stack : loadedInv.items.entrySet()) {
-					engine.Inv.add(stack.getKey(), stack.getValue(), false);
+		
+		//------------------------------------------------------------------------------------------------------
+		
+		
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		XMLEventReader eventReader;
+		File f = new File("saves/" + worldName + "/map.xml");
+		int totalBlocks=0;
+		try(FileInputStream fis = new FileInputStream(f);){
+			
+			byte[] data = new byte[(int) f.length()];
+			fis.read(data);
+			
+			String str = new String(data, "UTF-8");
+			String counted = "<block ";
+			totalBlocks = str.length() - str.replace(counted, "").length();
+			totalBlocks /= counted.length();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		
+        try(FileReader reader =  new FileReader(f))
+		{
+			eventReader = factory.createXMLEventReader(reader);
+			
+	 
+	        boolean bSeed=false,bMetadata=false,bPower=false,bTick=false,bInventory=false;
+	        String curMeta=null,curInv=null,curPower=null;
+	        Block curBlock=null;
+	        while(eventReader.hasNext()) {
+	            XMLEvent event;
+				try
+				{
+					event = eventReader.nextEvent();
+				} catch (XMLStreamException e)
+				{
+					e.printStackTrace();
+					statusLabel.setText("Error parsing map file!");
+					return;
+				}
+	               
+	            switch(event.getEventType()) {
+	               
+	               case XMLStreamConstants.START_ELEMENT:
+	            	   StartElement startElement = event.asStartElement();
+	                   String qName = startElement.getName().getLocalPart();
+	                   
+	                   if (qName.equalsIgnoreCase("seed")) {
+	                	   bSeed=true;
+	                   }else if (qName.equalsIgnoreCase("blocks")) {
+	                	   statusLabel.setText("Loading blocks...");
+	                   }else if (qName.equalsIgnoreCase("block")) {
+	                	   //boolean nem kell mert curBlock van helyette
+	                       Iterator<Attribute> attributes = startElement.getAttributes();
+	                       String name = attributes.next().getValue();
+	                       int x = Integer.parseInt(attributes.next().getValue());
+	                       int y = Integer.parseInt(attributes.next().getValue());
+	                       int z = Integer.parseInt(attributes.next().getValue());
+	                       
+	                       curBlock=Engine.createBlockByName(name, x, y, z);
+	                       
+	                   }else if (qName.equalsIgnoreCase("metadata")) {
+	                	   bMetadata=true;                	   
+	                   }else if (qName.equalsIgnoreCase("power")) {
+	                	   bPower=true;
+	                   }else if (qName.equalsIgnoreCase("inventory")) {
+	                	   bInventory=true;
+	                   }else if (qName.equalsIgnoreCase("tick")) {
+	                	   bTick=true;
+	                   }else if(qName.equalsIgnoreCase("entities")) {
+	                	   statusLabel.setText("Loading entities...");
+	                   }else if (qName.equalsIgnoreCase("entity")) {
+	                	   //boolean nem kell mert sosem lesz leszarmazott tagje
+	                       Iterator<Attribute> attributes = startElement.getAttributes();
+	                       
+	                       String aim = attributes.next().getValue();
+	                       String className = attributes.next().getValue();
+	                       String pos = attributes.next().getValue();
+	                       String name = attributes.next().getValue();
+	                       
+	                       String id = attributes.next().getValue();
+	                       
+	                       Entity e = Entity.createEntity(className,
+	       						Vector.parseVector(pos),
+	       						EAngle.parseEAngle(aim),
+	       						name,
+	       						Long.parseLong(id),
+	       						engine);
+	       				if(e != null) addEntity(e);
+	                       
+	                   }else if(bMetadata) {
+	                	   curMeta=qName;
+	                   }else if(bPower) {
+	                	   curPower=qName;
+	                   }else if(bInventory) {
+	                	   curInv=qName;
+	                   }else if(!qName.equalsIgnoreCase("world")){
+	                	   Main.err("Unknown tag in map file: "+qName);
+	                	   
+	                   }
+	                   
+	                
+	                   break;
+	               case XMLStreamConstants.CHARACTERS:
+	            	   Characters characters = event.asCharacters();
+	            	   
+	            	   if(bMetadata) {
+	            		   if(curBlock!=null && curMeta != null) {
+	            			   curBlock.BlockMeta.put(curMeta,characters.getData());
+	            		   }else {
+	            			   Main.err("No current block/metadata tag while parsing metadata");
+	            			   throw new NullPointerException();
+	            		   }
+	            	   }else if(bTick) {
+	            		   engine.Tick=Long.parseLong(characters.getData());
+	            	   }else if(bSeed) {
+	            		   this.seed=Long.parseLong(characters.getData());
+	            	   }else if(curMeta != null) {
+	            		   curBlock.BlockMeta.put(curMeta, characters.getData());
+	            	   }else if(curPower != null) {
+	            		   curBlock.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(characters.getData()));
+	            	   }else if(curInv != null) {
+	            		   ((BlockInventoryInterface) curBlock).getInv().add(Main.Items.get(curInv), Integer.parseInt(characters.getData()), false);
+	            	   }
+	            	   
+	            	   
+	            	   break;
+	            	   
+	               case XMLStreamConstants.END_ELEMENT:
+	            	   EndElement endElement = event.asEndElement();
+	                   
+	            	   if(endElement.getName().getLocalPart().equalsIgnoreCase("block")) {
+	            		   if(curBlock!=null) {
+	            			   addBlockNoReplace(curBlock,true);
+	            			   curBlock=null;
+	            			   statusLabel.setText("Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
+	            		   }else {
+	            			   Main.err("Closing tag of empty block");
+	            			   throw new NullPointerException();
+	            		   }
+	                   
+	                }else if(endElement.getName().getLocalPart().equalsIgnoreCase("metadata")) {
+	                	curMeta=null;
+	                	bMetadata=false;
+	                }
+	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("power")) {
+	                	curPower=null;
+	                	bPower=false;
+	                }
+	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("inventory")) {
+	                	curInv=null;
+	                	bInventory=false;
+	                }
+	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("seed")) {
+	                	bSeed=false;
+	                }else if(endElement.getName().getLocalPart().equalsIgnoreCase("tick")) {
+	                	bTick=false;
+	                }
+	                break;
+	            	   
+	            }
+	            
+	        }
+	        
+	        
+	        statusLabel.setText("Loading player inventory...");
+			PlayerInventory loadedInv = loadInv(Config.username, null);
+			if(Config.creative) {
+				tmpInventory = loadedInv;
+				game.creative=true;
+				engine.Inv=PlayerInventory.Creative;
+			}else {
+				game.creative=false;
+				if(!loadedInv.items.isEmpty())
+					for(Entry<ItemType, Integer> stack : loadedInv.items.entrySet()) {
+						engine.Inv.add(stack.getKey(), stack.getValue(), false);
+				}
 			}
+		
+		} catch (XMLStreamException | IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			statusLabel.setText("Error loading map file");
+			
+			return;
 		}
 		
 	}
@@ -1112,12 +1299,14 @@ public class World {
 		Element entitiesNode = document.createElement("entities");
 		for(Entity e : entities) {
 			if(!(e instanceof PlayerEntity)) {
-				Element entity = document.createElement(e.className);
-				//entity.setAttribute("className", );
+				Element entity = document.createElement("entity");
+				entity.setAttribute("aim", e.ViewAngle.toString());
+				entity.setAttribute("classname", e.className);
+				entity.setAttribute("id", e.ID+"");
 				entity.setAttribute("name", e.name);
 				entity.setAttribute("pos", e.getPos().toString());
-				entity.setAttribute("id", e.ID+"");
-				entity.setAttribute("aim", e.ViewAngle.toString());
+				
+				
 				entitiesNode.appendChild(entity);
 			}
 		}
