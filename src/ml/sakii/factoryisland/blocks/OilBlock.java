@@ -68,7 +68,7 @@ public class OilBlock extends Block implements TickListener, LoadListener, Metad
 
 			boolean hasEmptyNearby=false,hasPlusOneNearby=false,hasBiggerNearby=false;
 			int biggerheight=0;
-			for(Entry<BlockFace,Block> entry : get6Blocks(this,true).entrySet()){
+			for(Entry<BlockFace,Block> entry : Engine.world.get6Blocks(this,true).entrySet()){
 				BlockFace key = entry.getKey();
 				Block value = entry.getValue();
 
@@ -121,19 +121,19 @@ public class OilBlock extends Block implements TickListener, LoadListener, Metad
 
 
 				if(getHeight() > 1){
-					for(Entry<BlockFace, Block> entry : get6Blocks(this, true).entrySet()){
+					for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(this, true).entrySet()){
 						BlockFace key = entry.getKey();
 						Block value = entry.getValue();
 						if(key != BlockFace.TOP && key != BlockFace.BOTTOM && value == Block.NOTHING){
 
 
-							OldBlock temp = new OldBlock(x + key.direction[0], y + key.direction[1], z + key.direction[2], Engine);
+							//OldBlock temp = new OldBlock(x + key.direction[0], y + key.direction[1], z + key.direction[2], Engine);
 							/*OilBlock oil1 = new OilBlock(x + key.direction[0], y + key.direction[1], z + key.direction[2], getHeight()-1,game, server);
 							if(game==null){
 								oil1.server = server;
 							}*/
 							int biggestyet = 0;
-							for(Entry<BlockFace, Block> oentry : get6Blocks(temp, false).entrySet()){
+							for(Entry<BlockFace, Block> oentry : Engine.world.get6Blocks(x + key.direction[0], y + key.direction[1], z + key.direction[2], false).entrySet()){
 								BlockFace okey = oentry.getKey();
 								Block ovalue = oentry.getValue();
 								if(okey != BlockFace.TOP && okey != BlockFace.BOTTOM){

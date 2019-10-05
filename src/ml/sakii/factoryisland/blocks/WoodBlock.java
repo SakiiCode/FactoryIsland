@@ -78,7 +78,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 	
 	private void spreadPower(int targetPower){
 		if(targetPower>0){
-			for(Entry<BlockFace, Block> entry : get6Blocks(this, false).entrySet()){
+			for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(this.pos, false).entrySet()){
 				Block b = entry.getValue();
 				BlockFace face = entry.getKey();
 				if(b instanceof PowerListener){
@@ -96,7 +96,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 	public void removePower(BlockFace relativeFrom) {
 		int removedpower = powers.remove(relativeFrom);
 		//if(getCharge()>1)
-			for(Entry<BlockFace, Block> entry : get6Blocks(this, false).entrySet()){
+			for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(this.pos, false).entrySet()){
 				Block b = entry.getValue();
 				BlockFace face = entry.getKey();
 				if(b instanceof PowerListener){
@@ -116,7 +116,7 @@ public class WoodBlock extends Block implements PowerListener, TickListener, Bre
 	@Override
 	public boolean breaked(String username) {
 		if(getCharge()>1) {
-			for(Entry<BlockFace, Block> entry : get6Blocks(this, false).entrySet()){
+			for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(this.pos, false).entrySet()){
 				Block b = entry.getValue();
 				BlockFace face = entry.getKey();
 				if(b instanceof PowerListener){

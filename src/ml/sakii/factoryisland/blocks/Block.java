@@ -80,11 +80,11 @@ public class Block extends Object3D
 
 	}
 
-	public void addToUpdates(TickListener e)
+	/*public void addToUpdates(TickListener e)
 	{
 		//if (!Engine.TickableBlocks.contains(e))
-			Engine.TickableBlocks.add(e);
-	}
+			Engine.TickableBlocks.add(e.pos);
+	}*/
 
 	public int getCharge()
 	{
@@ -154,9 +154,9 @@ public class Block extends Object3D
 				if (b2 instanceof TickListener && (Engine.client == null || (Engine.client != null && Engine.client != null)))
 				{
 					//addToUpdates((TickListener) b2);
-					if(!Engine.TickableBlocks.contains(b2)) {
-						Engine.TickableBlocks.add((TickListener) b2);
-					}
+					//if(!Engine.TickableBlocks.contains(b2.pos)) { TODO ez kellhet
+						Engine.TickableBlocks.add(b2.pos);
+					//}
 				}
 			}
 			
@@ -397,7 +397,7 @@ public class Block extends Object3D
 		}
 	}
 
-	HashMap<BlockFace, Block> get6Blocks(Block center, boolean includeNothing)
+	/*HashMap<BlockFace, Block> get6Blocks(Block center, boolean includeNothing)
 	{
 
 		return Engine.world.get6Blocks(center, includeNothing);
@@ -407,7 +407,7 @@ public class Block extends Object3D
 	Block getBlockAt(int x, int y, int z)
 	{
 		return Engine.world.getBlockAt(x, y, z);
-	}
+	}*/
 
 	BlockFace getPreviousTarget()
 	{

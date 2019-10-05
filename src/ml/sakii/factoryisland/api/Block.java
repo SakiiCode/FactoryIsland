@@ -1,7 +1,6 @@
 package ml.sakii.factoryisland.api;
 
 import ml.sakii.factoryisland.Main;
-import ml.sakii.factoryisland.blocks.TickListener;
 
 public class Block{
 
@@ -39,13 +38,13 @@ public class Block{
 		b.setMetadata(key, value, true);
 	}
 	
-	public void update() {
+	/*public void update() {
 		if(b instanceof TickListener) {
 			b.addToUpdates((TickListener)b);
 		}
 	}
 	
-	/*public int getX() {
+	public int getX() {
 		return x;
 	}
 	public int getY() {

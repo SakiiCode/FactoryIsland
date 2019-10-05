@@ -87,7 +87,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 			WaterBlock targetBlock = (WaterBlock)tBlock;
 			if(targetBlock.getHeight() < 4){
 				setMetadata("active", "1", true);
-				for(Entry<BlockFace, Block> e : get6Blocks(this, false).entrySet()){
+				for(Entry<BlockFace, Block> e : Engine.world.get6Blocks(this.pos, false).entrySet()){
 					BlockFace face = e.getKey();
 					Block b = e.getValue();
 					
@@ -103,7 +103,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 
 				setMetadata("active", "0", true);
 				//setMetadata("powered", "0");
-				for(Entry<BlockFace, Block> e : get6Blocks(this, false).entrySet()){
+				for(Entry<BlockFace, Block> e : Engine.world.get6Blocks(this.pos, false).entrySet()){
 					BlockFace face = e.getKey();
 					Block b = e.getValue();
 					
@@ -132,7 +132,7 @@ public class WaterMillBlock extends SimpleMachine implements TickListener{
 			
 		}else{
 			setMetadata("active", "0", true);
-			for(Entry<BlockFace, Block> e : get6Blocks(this, false).entrySet()){
+			for(Entry<BlockFace, Block> e :Engine.world.get6Blocks(this.pos, false).entrySet()){
 				BlockFace face = e.getKey();
 				Block b = e.getValue();
 				

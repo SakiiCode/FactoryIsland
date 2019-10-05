@@ -55,7 +55,7 @@ public class SaplingBlock extends Block implements TickListener{
 					for(int j=-2;j<=2;j++){
 						for(int k=-2;k<=2;k++){
 
-							if(getBlockAt(x+j, y+k, z+2+i) == Block.NOTHING)
+							if(Engine.world.getBlockAt(x+j, y+k, z+2+i) == Block.NOTHING)
 								tree.add(new LeafBlock(x+j, y+k, z+2+i, Engine));
 						}
 						
@@ -65,7 +65,7 @@ public class SaplingBlock extends Block implements TickListener{
 					for(int j=-1;j<=1;j++){
 						for(int k=-1;k<=1;k++){
 
-							if(getBlockAt(x+j, y+k, z+2+i) == Block.NOTHING)
+							if(Engine.world.getBlockAt(x+j, y+k, z+2+i) == Block.NOTHING)
 								tree.add(new LeafBlock(x+j, y+k, z+2+i, Engine));
 						}
 						
@@ -73,8 +73,8 @@ public class SaplingBlock extends Block implements TickListener{
 				
 				}
 			}
-			
-			Engine.world.addBlockReplace(tree.get(0), true);
+			Engine.world.destroyBlock(this, true);
+			Engine.world.addBlockNoReplace(tree.get(0), true);
 			for(int i=1;i<tree.size();i++) {
 				Engine.world.addBlockNoReplace(tree.get(i), true);
 			}

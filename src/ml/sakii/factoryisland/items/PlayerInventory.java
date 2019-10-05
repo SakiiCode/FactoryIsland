@@ -13,7 +13,7 @@ public class PlayerInventory {
 	public final ConcurrentHashMap<ItemType, Integer> items = new ConcurrentHashMap<>();
 	public static final PlayerInventory Creative = new CreativeInventory();
 	//public Entry<ItemType, Integer> SelectedStack = null;
-	public ItemStack SelectedStack = new ItemStack();
+	private final ItemStack SelectedStack = new ItemStack(null,0);
 	private int hotbarIndex = -1;
 	GameEngine engine;
 	boolean activateOnFirst=true;
@@ -101,6 +101,18 @@ public class PlayerInventory {
 		return SelectedStack;
 	}*/
 	
+	public ItemType getSelectedKind() {
+		return SelectedStack.kind;
+	}
+	
+	public int getSelectedAmount() {
+		return SelectedStack.amount;
+	}
+	
+	public boolean hasSelected() {
+		return hotbarIndex>-1;
+	}
+	
 	public int getStack(ItemType kind){
 		/*for(ItemStack is : items){
 			if(is.kind == kind){
@@ -124,7 +136,7 @@ public class PlayerInventory {
 				SelectedStack.set(stack.getKey(), stack.getValue());
 			}
 		}else {
-			SelectedStack = ItemStack.EMPTY;
+			SelectedStack.set(null,0);
 		}
 	}
 	
