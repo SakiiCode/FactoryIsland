@@ -242,20 +242,21 @@ public class GameServer extends Thread{
 				
 			
 			case "05": // PLACE BLOCK
-				Block b1 = Engine.createBlockByName(part[1], cInt(part[2]), cInt(part[3]), cInt(part[4]));
+				/*Block b1 = Engine.createBlockByName(part[1], cInt(part[2]), cInt(part[3]), cInt(part[4]));
 				for(int i=5;i<part.length;i+=2) {
 					b1.setMetadata(part[i], part[i+1], false);
 				}
 				boolean success = Engine.world.addBlockNoReplace(b1, false);//TODO itt replace volt
-				
+				*/
 				//senderID = cInt(part[1]);
-				if(success)
+				//if(success)
 					for(PlayerMPData client : clients.values()){
 						/*if(!client.username.equals(senderName)) {
 							sendData(("05," + b1.x + "," + b1.y + "," + b1.z + "," + part[5]), client.socket);
 							Main.log("Block place forwarded to "+client.username);
 						}*/
-						if(!client.local) {
+						//if(!client.local) {
+						if(!client.username.equals(senderName)) {
 							sendData(message, client.socket);
 	
 						}
@@ -272,18 +273,18 @@ public class GameServer extends Thread{
 					}
 					//Engine.world.destroyBlock(b);
 				}*/
-				Block b = Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3]));
+				/*Block b = Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3]));
 				if(b != Block.NOTHING) {
-					Engine.world.destroyBlock(b, false);
+					Engine.world.destroyBlock(b, false);*/
 					for(PlayerMPData client : clients.values()){
-						if(!client.local) {
+						if(!client.username.equals(senderName)) {
 							sendData(message, client.socket);
 	
 						}
 					}
-				}else {
+				/*}else {
 					Main.err("(SERVER) Client tried to destroy air block:" + message);
-				}
+				}*/
 
 				break;
 			case "07": // EDIT METADATA

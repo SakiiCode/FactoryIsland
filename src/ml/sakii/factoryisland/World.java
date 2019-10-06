@@ -487,7 +487,7 @@ public class World {
 		return getBlockAt((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
 	}
 	
-	public boolean addBlockNoReplace(Block b, boolean resend) {
+	/*public boolean addBlockNoReplace(Block b, boolean resend) {
 		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
 			if(resend && Engine.client != null) {
 				StringBuilder sb = new StringBuilder();
@@ -500,6 +500,26 @@ public class World {
 			}else {
 				ReplaceBlock(b);
 			}
+			return true;
+		}
+		return false;
+	}*/
+	
+	
+	public boolean addBlockNoReplace(Block b, boolean resend) {
+		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
+			if(Engine.client != null && resend) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("05,"+Config.username+","+b.name+","+b.x+","+b.y+","+b.z);
+				for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
+					sb.append(",");
+					sb.append(entry.getKey()+","+entry.getValue());
+				}
+				Engine.client.sendData(sb.toString());
+			}
+			//if(resend) {
+				ReplaceBlock(b);
+			//}
 			return true;
 		}
 		return false;
@@ -589,10 +609,11 @@ public class World {
 
 
 	public void destroyBlock(Block b, boolean resend) {
-		if(resend && Engine.client != null) {
-			Engine.client.sendData(("06," + b.x + "," + b.y	+ "," + b.z));
+		if(Engine.client != null && resend) {
+			Engine.client.sendData(("06,"+Config.username+"," + b.x + "," + b.y	+ "," + b.z));
 
-		}else {
+		}
+		//if(resend) {
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
 				Main.err("Attempted to destroy air block: "+b.pos);
 				//Thread.dumpStack();
@@ -638,7 +659,7 @@ public class World {
 						addLight(source.pos, source, source.lightLevel); //valojaban csak az uj blokkokhoz adodik hozza 
 				}
 			}
-		}
+		//}
 	}
 	
 	public void addEntity(Entity e) {

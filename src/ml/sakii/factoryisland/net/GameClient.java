@@ -172,7 +172,7 @@ public class GameClient extends Thread{
 			for(int i = 0;i<part.length;i=i+5){
 				Block b = game.Engine.createBlockByName(part[i+1], cInt(part[i+2]), cInt(part[i+3]), cInt(part[i+4]));
 				if(b != Block.NOTHING && b != null){
-					game.Engine.world.addBlockNoReplace(b, false);//TODO itt replace volt
+					game.Engine.world.addBlockNoReplace(b, false);
 					//toBeDeleted.add(entry);
 					blockcount++;
 				}else{
@@ -234,15 +234,15 @@ public class GameClient extends Thread{
 		
 		case "05": // PLACE BLOCK
 			
-			Block b = game.Engine.createBlockByName(part[1], cInt(part[2]), cInt(part[3]), cInt(part[4]));
-			for(int i=5;i<part.length;i+=2) {
+			Block b = game.Engine.createBlockByName(part[2], cInt(part[3]), cInt(part[4]), cInt(part[5]));
+			for(int i=6;i<part.length;i+=2) {
 				b.setMetadata(part[i], part[i+1], false);
 			}
-			game.Engine.world.addBlockNoReplace(b,false);//TODO itt replace volt
+			game.Engine.world.addBlockNoReplace(b,false);
 
 			break;
 		case "06": // DELETE BLOCK
-			game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3])), false);
+			game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4])), false);
 			break;
 		case "07": // EDIT METADATA
 			Block bl = game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
