@@ -49,6 +49,8 @@ public class GameClient extends Thread{
 	long pingTime;
 	private boolean terrainLoaded=false;
 	
+	private final Object lock = new Object();
+	
 	
 	
 	public GameClient(Game game){
@@ -79,8 +81,7 @@ public class GameClient extends Thread{
 				try {
 					message = inputStream.readLine().trim();
 				} catch (IOException e) {
-					e.printStackTrace();
-					continue;
+					return e.getMessage();
 				}
 	
 				if(message == null || message.isEmpty())
@@ -88,11 +89,14 @@ public class GameClient extends Thread{
 				
 	
 				
-				if(Main.devmode) {
+				if(Main.devmode && !message.substring(0, 2).equals("16") && !message.substring(0, 2).equals("04")) {
 						Main.log("(CLIENT:"+Config.username+") RECEIVED:  "+message);
 				}
 				
-				handleMessage(message);
+				String error = handleMessage(message);
+				if(error != null) {
+					return error;
+				}
 			}
 			
 			return null;
@@ -140,27 +144,23 @@ public class GameClient extends Thread{
 			}
 			
 
-			
-			handleMessage(message);
+			String error = handleMessage(message);
+			if(error != null) {
+				Main.err(error);
+				JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
+				game.disconnect(false);
+				break;
+			}
 			
 			
 			
 		}
-		Main.log("sending 66");
-
-		sendData(("66," + Config.username));
-		try {
-			inputStream.close();
-			outputStream.close();
-			socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Main.log("connecting closed");
+		
+		
 
 	}
 	
-	private void handleMessage(String message) {
+	private String handleMessage(String message) {
 		String[] part = message.split(",");
 		String otherName = (part.length>1) ? part[1] : "";
 
@@ -278,16 +278,17 @@ public class GameClient extends Thread{
 
 		case "98": // SERVER CLOSED
 			if(game.Engine.server == null) {
-				JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server closed", "Disconnected", JOptionPane.ERROR_MESSAGE);
-				game.disconnect();
+				//JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server closed", "Disconnected", JOptionPane.ERROR_MESSAGE);
+				//game.disconnect();
+				return "Server closed";
 			}
 			
 			break;
 		case "97": // SAME USERNAME
-				JOptionPane.showInternalMessageDialog(Main.Frame.getContentPane(), "Someone with the same username already logged in", "Disconnected", JOptionPane.ERROR_MESSAGE);
-				game.disconnect();
-			
-			break;
+				//JOptionPane.showInternalMessageDialog(Main.Frame.getContentPane(), "Someone with the same username already logged in", "Disconnected", JOptionPane.ERROR_MESSAGE);
+				//game.disconnect();
+				return "Someone with the same username already logged in";
+			//break;
 		case "11": //FORCE MOVE
 			game.PE.move(Float.parseFloat(part[1]), Float.parseFloat(part[2]), Float.parseFloat(part[3]), false);
 			game.PE.ViewAngle.yaw = Float.parseFloat(part[4]);
@@ -318,10 +319,19 @@ public class GameClient extends Thread{
 		case "pong":
 			Main.log("ping time: " + (System.currentTimeMillis()-pingTime) + " ms");
 			break;
+		case "66":
+			synchronized(lock) {
+				lock.notifyAll();
+				
+			}
+			exit();
+			
+			break;
 		default:
 			Main.err("(CLIENT) Unknown message received: "+message);
 			break;
 		}
+		return null;
 		
 	}
 	
@@ -354,10 +364,10 @@ public class GameClient extends Thread{
 				Main.err(Thread.currentThread().getStackTrace()[i].toString());
 			}*/
 		} catch (IOException e) {
-			Main.err(e.getMessage());
-			game.disconnect();
+			Main.err(e.getMessage());//TODO ide jobb hibakezelest
+			game.disconnect(false);
 			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Error: " + e.getMessage(), "Disconnected", JOptionPane.ERROR_MESSAGE);
-			this.kill();
+			//this.kill();
 		}
 		
 		
@@ -365,9 +375,40 @@ public class GameClient extends Thread{
 	}
 	
 	public void kill(){
+		
+		Main.log("sending 66");
+
+		sendData(("66," + Config.username));
+		
+		synchronized (lock) {
+			
+			try
+			{
+				lock.wait();
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+		
 		terrainLoaded=true;
 		connected=false;
-				
+		
+		
+	}
+	
+	private void exit() {
+		try {
+			inputStream.close();
+			outputStream.close();
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Main.log("connecting closed");
 	}
 	
 	private static int cInt(String data){
