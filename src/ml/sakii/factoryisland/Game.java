@@ -884,7 +884,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error,
 							"Could not connect to server", JOptionPane.ERROR_MESSAGE);
 					Main.err(error);
-					disconnect();
+					disconnect(true);
 				}
 			}
 		}
@@ -1182,7 +1182,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	
 
-	public void disconnect()
+	public void disconnect(boolean signalServer)
 	{
 		//running = false;
 		renderThread.kill();
@@ -1190,8 +1190,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Engine.stopPhysics();
 		if (Engine.client != null)
 		{
-			Main.log("disconnecting from multiplayer");
-			Engine.client.kill();
+			if(signalServer) {
+				Main.log("disconnecting from multiplayer");
+				
+				Engine.client.kill();
+			}
 
 			if (Engine.server != null)
 			{

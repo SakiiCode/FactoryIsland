@@ -65,7 +65,7 @@ public class GameServer extends Thread{
 			
 			
 			
-			if(Main.devmode && !message.substring(0, 2).equals("16")) {
+			if(Main.devmode && !message.substring(0, 2).equals("16") && !message.substring(0, 2).equals("04")) {
 
 					Main.log("(SERVER) RECEIVED:  "+message);
 			}
@@ -211,6 +211,7 @@ public class GameServer extends Thread{
 			
 			case "66": // LOGOUT
 				Main.log("(SERVER) Logging out user "+senderName+" ...");
+				sendData("66",socketstream);
 				dropClient(senderName);
 				
 				break;
@@ -379,7 +380,8 @@ public class GameServer extends Thread{
 
 
 	@SuppressWarnings("static-method")
-	public void sendData(String data, Connection socket){
+	public String sendData(String data, Connection socket){
+		String error=null;
 		try {
 			BufferedWriter outToClient = socket.outputStream;
 
@@ -394,11 +396,12 @@ public class GameServer extends Thread{
 					Main.log("(SERVER) I DUNNO WAT I SENT LOL:  "+data);
 				}
 			}
-		} catch (IOException e) {
-			Main.err("(SERVER)" + e.getMessage());
 			
-			//dropClient(socket);
+		} catch (IOException e) {
+			Main.err("(SERVER)" + e.getMessage() + "("+data+")");
+			error=e.getMessage();
 		}
+		return error;
 	}
 	
 	private void dropClient(String name) {
