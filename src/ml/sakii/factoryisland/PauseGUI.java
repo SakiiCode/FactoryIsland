@@ -75,7 +75,7 @@ public class PauseGUI extends JPanel implements ActionListener, KeyListener {
 		}
 		if(e.getActionCommand().equals("exit")){
 			if(Main.GAME != null) {
-				Main.GAME.disconnect(true);
+				Main.GAME.disconnect(null);
 			}else {
 				Main.SwitchWindow("mainmenu");
 			}

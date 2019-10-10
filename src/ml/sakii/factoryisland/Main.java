@@ -269,23 +269,14 @@ public class Main
 
 				if (GAME != null)
 				{
-					GAME.disconnect(true);
+					GAME.disconnect(null);
 				}
-				/*try
-				{
-					logStream.close();
-				} catch (IOException e1)
-				{
-					e1.printStackTrace();
-				}*/
+
 			}
 
 			@Override
 			public void windowDeactivated(WindowEvent e)
 			{
-				//focused = false;
-						
-				//Main.log("focused:"+focused);
 			}
 
 			@Override

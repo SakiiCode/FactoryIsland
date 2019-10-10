@@ -146,9 +146,7 @@ public class GameClient extends Thread{
 
 			String error = handleMessage(message);
 			if(error != null) {
-				Main.err(error);
-				JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
-				game.disconnect(false);
+				game.disconnect(error);
 				break;
 			}
 			
@@ -364,10 +362,7 @@ public class GameClient extends Thread{
 				Main.err(Thread.currentThread().getStackTrace()[i].toString());
 			}*/
 		} catch (IOException e) {
-			Main.err(e.getMessage());//TODO ide jobb hibakezelest
-			game.disconnect(false);
-			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Error: " + e.getMessage(), "Disconnected", JOptionPane.ERROR_MESSAGE);
-			//this.kill();
+			game.disconnect(e.getMessage());
 		}
 		
 		

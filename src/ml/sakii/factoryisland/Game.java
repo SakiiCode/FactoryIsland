@@ -881,10 +881,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				String error = connect("localhost", Engine.server.Listener.acceptThread.port, true);
 				if (error != null)
 				{
-					JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error,
-							"Could not connect to server", JOptionPane.ERROR_MESSAGE);
-					Main.err(error);
-					disconnect(true);
+					disconnect("Server launch failed:"+error);
 				}
 			}
 		}
@@ -1182,36 +1179,48 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	
 
-	public void disconnect(boolean signalServer)
+	public void disconnect(String error)
 	{
 		//running = false;
-		renderThread.kill();
-		Engine.ticker.stop();
-		Engine.stopPhysics();
-		if (Engine.client != null)
-		{
-			if(signalServer) {
-				Main.log("disconnecting from multiplayer");
-				
-				Engine.client.kill();
-			}
-
-			if (Engine.server != null)
-			{
-				Engine.server.kill();
-			}
-
-			playerList.clear();
-
-		} else
-		{
-			Engine.world.saveByShutdown();
+		if(error !=null) {
+			Main.err(error);
+			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
 		}
-		Objects.clear();
-		Main.SwitchWindow("mainmenu");
-		Main.Base.remove(this);
-		Main.GAME = null;
-		System.gc();
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				
+			
+				renderThread.kill();
+				Engine.ticker.stop();
+				Engine.stopPhysics();
+				if (Engine.client != null)
+				{
+						Main.log("disconnecting from multiplayer");
+						
+						Engine.client.kill();
+		
+					if (Engine.server != null)
+					{
+						Engine.server.kill();
+					}
+		
+					playerList.clear();
+		
+				} else
+				{
+					Engine.world.saveByShutdown();
+				}
+				Objects.clear();
+				Main.SwitchWindow("mainmenu");
+				Main.Base.remove(Game.this);
+				Main.GAME = null;
+				System.gc();
+				
+			}
+		};
+		
+		t.start();
 	}
 
 
