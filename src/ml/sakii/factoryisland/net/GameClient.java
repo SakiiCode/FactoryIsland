@@ -12,8 +12,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import javax.swing.JOptionPane;
-
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.Game;

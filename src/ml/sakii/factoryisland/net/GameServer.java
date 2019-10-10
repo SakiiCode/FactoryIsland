@@ -3,7 +3,6 @@ package ml.sakii.factoryisland.net;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;

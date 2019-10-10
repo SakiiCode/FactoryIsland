@@ -4,16 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JLabel;
@@ -147,7 +140,7 @@ public class GameEngine{
 							}else {
 								TickableBlocks.add(p);
 							}
-						}else {
+						}else if(Main.devmode){
 							// Air block ticked
 							Main.err("Attempted to tick air block:"+p);
 
@@ -194,10 +187,8 @@ public class GameEngine{
 								
 								
 								
-								//Math.signum(pos.z-0.5f) == Math.signum(Main.GAME.PE.VerticalVector.z+0.5f);
 							
 									
-						//}while(!found);
 						if(pos!=null) {
 							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",new Random().nextLong(), GameEngine.this);
 							world.addEntity(newAlien);

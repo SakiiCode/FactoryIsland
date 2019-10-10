@@ -250,12 +250,10 @@ public class Main
 			@Override
 			public void windowActivated(WindowEvent e)
 			{
-				//focused = true;
 				if (GAME != null)
 				{
 					GAME.centered = false;
 				}
-				//Main.log("focused:"+focused);
 			}
 
 			@Override
@@ -368,11 +366,9 @@ public class Main
 			GAME.Engine.startPhysics();
 		
 		
-		//focused = true;
 		
 		Main.log("Switching to game window...");
 		
-		//GAME.repaint();
 		
 		Base.add(GAME, "game");
 		SwitchWindow("game");
@@ -398,9 +394,6 @@ public class Main
 
 		}
 		((CardLayout) (Main.Base.getLayout())).show(Base, To);
-			/*if(To.equals("pause")) {
-				pauseGui.repaint();
-			}*/
 		PreviousCLCard = CurrentCLCard;
 		CurrentCLCard = To;
 
@@ -461,8 +454,6 @@ public class Main
 				GameEngine.nullBlock("ml.sakii.factoryisland.blocks." + line + "Block");
 				PlayerInventory.Creative.add(Items.get(line), 1, false);
 			}
-			//PlayerInventory.Creative.hotbarIndex=0;
-			//PlayerInventory.Creative.SelectedStack=PlayerInventory.Creative.items.get(0);
 		} catch (IOException e1)
 		{
 			e1.printStackTrace();
@@ -526,13 +517,6 @@ public class Main
 		{
 			image = ImageIO.read(Main.class.getResourceAsStream(path));
 
-			/*BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(),
-					BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g = newImage.createGraphics();
-			g.drawImage(image, 0, 0, null);
-			g.dispose();
-			return newImage;*/
-			//return toCompatibleImage(image);
 		} catch (Exception e)
 		{
 			image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
@@ -586,29 +570,13 @@ public class Main
 	public static void log(Object message) {
 		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		String msg = "[" + timeStamp + "] INFO: "+message;
-		/*try
-		{
-			logStream.write((msg+"\r\n").getBytes());
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}*/
 		System.out.println(msg);
 	}
 	
 	public static void err(Object message) {
 		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		String msg = "[" + timeStamp + "] Error: "+message;
-		/*try
-		{
-			logStream.write(("ERROR:"+message+"\r\n").getBytes());
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		if(devmode) { // nem debug esetén ez már át van irányítva ugyanabba a fájlba*/
 			System.err.println(msg);
-		//}
 	}
 
 }
