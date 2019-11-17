@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Paint;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -20,17 +21,21 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -62,6 +67,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public PlayerEntity PE;
 	public final HashMap<String, PlayerMP> playerList = new HashMap<>();
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
+	private final ArrayList<Object3D> ObjectsTmp = new ArrayList<>();
 
 	public boolean moved;
 	public BlockInventoryInterface remoteInventory;
@@ -146,6 +152,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));*/
 	//private ItemStack Selected = new ItemStack();
 
+	
+	Area coverageBuffer = new Area();
+	Area bufferArea=new Area();
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 
@@ -376,23 +385,48 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Stars[i].draw(fb);
 			}
 			
+			
 
-			
-			Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o ->
-			{
-				
-				o.draw(FrameBuffer, fb);
-				
-				if(o instanceof Polygon3D) {
-					Polygon3D poly = (Polygon3D)o;
-					if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
+			//if(key[6]) {
+				/*Objects.parallelStream().filter(o -> o.update()).sorted(new Comparator<Object3D>() {
+
+					@Override
+					public int compare(Object3D o1, Object3D o2)
 					{
-						SelectedPolygon = poly;
+						if(o1 instanceof Polygon3D && o2 instanceof Polygon3D) {
+							return Integer.compare(((Polygon3D)o1).polygon.getBounds().y, ((Polygon3D)o2).polygon.getBounds().y);
+						}else if(o1 instanceof Polygon3D) {
+							return -1;
+						}else if(o2 instanceof Polygon3D) {
+							return 1;
+						}else {
+							return 0;
+						}
 					}
-					VisibleCount++;
-				}
-			});
-			
+				*/
+				
+				
+			//}else {
+				Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o->
+				
+				{
+					
+					o.draw(FrameBuffer, fb);
+					
+					if(o instanceof Polygon3D) {
+						Polygon3D poly = (Polygon3D)o;
+						if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
+						{
+							SelectedPolygon = poly;
+						}
+						VisibleCount++;
+					}
+				});
+				
+				
+				
+				
+			//}
 			
 
 			
@@ -522,7 +556,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("");
 				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
-				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
+				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",direct:"+key[6]);
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
 				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock) );
@@ -972,10 +1006,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			key[6] = false;
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_F2)
+		/*if (arg0.getKeyCode() == KeyEvent.VK_F2)
 		{
 			renderThread.screenshot=true;
-		}
+		}*/
 
 	}
 
@@ -1277,7 +1311,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
-
+		bufferArea.reset();
+		bufferArea.add(new Area(new Rectangle(FrameBuffer.getWidth(),FrameBuffer.getHeight())));
 		prevFrame = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
 
 		centerX = w / 2;

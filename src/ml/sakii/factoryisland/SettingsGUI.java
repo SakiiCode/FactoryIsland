@@ -26,7 +26,7 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 	JButton textureButton;
 
 	JButton fogButton;
-	JButton creativeButton;
+	JButton creativeButton, directRenderingButton;
 	JButton resetButton;
 	JSlider sensitivitySlider;//, viewportscaleSlider;
 	JSlider brightnessSlider;
@@ -35,13 +35,15 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 
 	JSlider fovSlider;
 	JTextField NameTextField, widthField, heightField;
-	private int HEIGHT = (int)(Main.Frame.getHeight()*0.055f/4*3);
+	private int HEIGHT = (int)(Main.Frame.getHeight()*0.05f/4*3);
 	private int WIDTH=(int)(Main.Frame.getWidth()*0.35f);
 	private int SPACING=(int)(Main.Frame.getHeight()*0.016f);
 	boolean useTextures=Config.useTextures;
 
 	boolean fogEnabled = Config.fogEnabled;
 	boolean creative = Config.creative;
+	boolean directRendering = Config.directRendering;
+	
 
 	public SettingsGUI(){
 		//background = new BufferedImage(game.getWidth(), game.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -53,23 +55,19 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 	        	SettingsGUI.this.requestFocusInWindow();
 	        	NameTextField.setText(Config.username);
 	        	sensitivitySlider.setValue(Config.sensitivity);
-	        	useTextures=Config.useTextures;
-
-	        	textureButton.setText("Use Textures: " + useTextures);
 	        	renderDistanceSlider.setValue(Config.renderDistance);
-	        	//viewportscaleSlider.setValue(Config.viewportscale);
 	        	fovSlider.setValue(Config.zoom);
-	        	brightnessSlider.setValue(Config.brightness);
-	        	fogEnabled = Config.fogEnabled;
-	        	fogButton.setText("Fog Enabled: " + fogEnabled);
-	        	creative = Config.creative;
-	        	creativeButton.setText("Creative Mode: " + creative);
-	        	/*fastQuality = Config.fastQuality;
-	        	qualityButton.setText("Quality: " + (fastQuality ? "Fast" : "Fancy"));*/
+	        	
 	        	widthField.setText(Config.width+"");
 	        	heightField.setText(Config.height+"");
 	        	
+	        	brightnessSlider.setValue(Config.brightness);
 	        	
+	        	useTextures=Config.useTextures;
+	        	fogEnabled = Config.fogEnabled;
+	        	creative = Config.creative;
+	        	directRendering = Config.directRendering;
+	        	updateButtons();
 	        }
 	    });
 		
@@ -137,26 +135,35 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		heightField.addKeyListener(this);
 		add(heightField);
 		
-		textureButton = new MainMenuButton("Use Textures: "+useTextures ,Main.Frame.getWidth()/2-WIDTH/2, heightField.getY()+HEIGHT+SPACING/3*2, WIDTH, HEIGHT);
+		
+		String[] labels = getButtonLabels();
+		
+		textureButton = new MainMenuButton(labels[0] ,Main.Frame.getWidth()/2-WIDTH/2, heightField.getY()+HEIGHT+SPACING/3*2, WIDTH, HEIGHT);
 		textureButton.setActionCommand("switchtexture");
 		textureButton.addActionListener(this);
 		textureButton.addKeyListener(this);
 		add(textureButton);
 		
-		fogButton = new MainMenuButton("Fog Enabled: "+fogEnabled ,Main.Frame.getWidth()/2-WIDTH/2, textureButton.getY()+HEIGHT+SPACING/3*2, WIDTH, HEIGHT);
+		fogButton = new MainMenuButton(labels[1] ,Main.Frame.getWidth()/2-WIDTH/2, textureButton.getY()+HEIGHT+SPACING/3*2, WIDTH, HEIGHT);
 		fogButton.setActionCommand("switchfog");
 		fogButton.addActionListener(this);
 		fogButton.addKeyListener(this);
 		add(fogButton);
 		
-		creativeButton = new MainMenuButton("Creative Mode: "+creative ,Main.Frame.getWidth()/2-WIDTH/2, fogButton.getY()+HEIGHT+SPACING, WIDTH, HEIGHT);
+		creativeButton = new MainMenuButton(labels[2] ,Main.Frame.getWidth()/2-WIDTH/2, fogButton.getY()+HEIGHT+SPACING, WIDTH, HEIGHT);
 		creativeButton.setActionCommand("switchcreative");
 		creativeButton.addActionListener(this);
 		creativeButton.addKeyListener(this);
 		add(creativeButton);
 		
 		
-		okButton = new MainMenuButton("Save",Main.Frame.getWidth()/2-WIDTH/2, fogButton.getY()+HEIGHT + SPACING*5, WIDTH, HEIGHT);
+		directRenderingButton = new MainMenuButton(labels[3] ,Main.Frame.getWidth()/2-WIDTH/2, creativeButton.getY()+HEIGHT+SPACING, WIDTH, HEIGHT);
+		directRenderingButton.setActionCommand("switchdirectrendering");
+		directRenderingButton.addActionListener(this);
+		directRenderingButton.addKeyListener(this);
+		add(directRenderingButton);
+		
+		okButton = new MainMenuButton("Save",Main.Frame.getWidth()/2-WIDTH/2, directRenderingButton.getY()+HEIGHT + SPACING*5, WIDTH, HEIGHT);
 		okButton.setActionCommand("ok");
 		okButton.addActionListener(this);
 		okButton.addKeyListener(this);
@@ -204,8 +211,8 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		add(l5);
 
 		JLabel l6 = new JLabel("<html><body align='right'>World restart is required for<br>creative setting to take effect</body></html>");
-		l6.setLocation(creativeButton.getX()-180-SPACING, creativeButton.getY());
-		l6.setSize(180, HEIGHT);
+		l6.setLocation(creativeButton.getX()-250-SPACING, creativeButton.getY());
+		l6.setSize(250, HEIGHT);
 		l6.setHorizontalAlignment(SwingConstants.RIGHT);
 		l6.setForeground(Color.WHITE);
 		add(l6);
@@ -247,6 +254,7 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		        Config.height = Integer.parseInt(heightField.getText());
 		        
 		        Config.creative=creative;
+		        Config.directRendering=directRendering;
 		        /*Config.skyEnabled = skyEnabled;
 		        Config.fastQuality = fastQuality;*/
 		        //Config.brightness=brightnessSlider.getValue();
@@ -255,29 +263,62 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 			}else {
 				JOptionPane.showMessageDialog(Main.Frame, "Invalid username", "Error!", JOptionPane.ERROR_MESSAGE);
 			}
-		}
-		if(e.getActionCommand().equals("switchtexture")){
+		}else if(e.getActionCommand().equals("switchtexture")){
 	        useTextures = !useTextures;
-	        textureButton.setText("Use Textures: " + useTextures);
-	        //System.out.print("Using textures: " + useTextures);
-		}
-		if(e.getActionCommand().equals("switchfog")){
+	        updateButtons();
+		}else if(e.getActionCommand().equals("switchfog")){
 	        fogEnabled = !fogEnabled;
-	        fogButton.setText("Fog Enabled: " + fogEnabled);
-		}
-		if(e.getActionCommand().equals("switchcreative")){
+	        updateButtons();
+		}else if(e.getActionCommand().equals("switchcreative")){
 	        creative = !creative;
-	        creativeButton.setText("Creative Mode: " + creative);
+	        updateButtons();
+		}else if(e.getActionCommand().equals("switchdirectrendering")){
+	        directRendering = !directRendering;
+	        updateButtons();
+		}else if(e.getActionCommand().equals("reset")){
+			
+			int dialogResult = JOptionPane.showConfirmDialog (Main.Frame, "Are you sure?","Reset Options",JOptionPane.YES_NO_OPTION);
+			if(dialogResult == JOptionPane.YES_OPTION){
+				Config.reset();
+				Main.SwitchWindow(Main.PreviousCLCard);
+			}
+			
 		}
 		
-		if(e.getActionCommand().equals("reset")){
-	        //fastQuality = !fastQuality;
-	        //qualityButton.setText("Quality: " + (fastQuality ? "Fast" : "Fancy"));
-			Config.reset();
-			Main.SwitchWindow(Main.PreviousCLCard);
-		}
 		
-		
+	}
+	
+	void updateButtons() {
+		if(directRendering) {
+    		widthField.setText(Main.Frame.getWidth()+"");
+    		widthField.setEnabled(false);
+    		heightField.setText(Main.Frame.getHeight()+"");
+    		heightField.setEnabled(false);
+    		useTextures=false;
+    		textureButton.setEnabled(false);
+    	}else {
+    		widthField.setText(Config.width+"");
+    		widthField.setEnabled(true);
+    		heightField.setText(Config.height+"");
+    		heightField.setEnabled(true);
+    		//useTextures=Config.useTextures;
+    		textureButton.setEnabled(true);
+    	}
+		String[] labels = getButtonLabels();
+		textureButton.setText(labels[0]);
+    	fogButton.setText(labels[1]);
+    	creativeButton.setText(labels[2]);
+    	directRenderingButton.setText(labels[3]);
+    	
+	}
+	
+	private String[] getButtonLabels() {
+		return new String[] {
+				"Textured Rendering: " + (useTextures?"ON":"OFF"),
+				"Show Fog: " + (fogEnabled?"ON":"OFF"),
+				"Creative Mode: " + (creative?"ON":"OFF"),
+				"Direct Rendering (experimental) : " + (directRendering?"ON":"OFF")
+		};
 	}
 	
 	@Override

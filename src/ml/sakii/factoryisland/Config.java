@@ -21,6 +21,7 @@ public class Config {
 	public static boolean creative=Prefs.getBoolean("creative", true);
 	public static String selectedMap=Prefs.get("selectedMap", "");
 	public static final int brightness=7;
+	public static boolean directRendering=Prefs.getBoolean("directRendering", false);
 	
 	public static void save(){
 		Prefs.putInt("renderDistance",	renderDistance);
@@ -33,6 +34,7 @@ public class Config {
 		Prefs.putBoolean("useTextures", useTextures);
 		Prefs.putBoolean("fogEnabled", fogEnabled);
 		Prefs.putBoolean("creative", creative);
+		Prefs.putBoolean("directRendering", directRendering);
 		/*Prefs.putBoolean("skyEnabled", skyEnabled);
 		Prefs.putBoolean("fastQuality", fastQuality);*/
 		/*if(username.equals("Guest")) {
