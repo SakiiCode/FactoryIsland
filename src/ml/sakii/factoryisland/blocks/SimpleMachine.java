@@ -34,8 +34,8 @@ public class SimpleMachine extends Block
 		this.active.set(active);
 
 		TargetPolygon = new Polygon3D(new Vertex[]
-		{ new Vertex(new Vector(), 0, 0), new Vertex(new Vector(), 0, 0), new Vertex(new Vector(), 0, 0),
-				new Vertex(new Vector(), 0, 0) }, new Surface(target));
+		{ new Vertex(new Vector()), new Vertex(new Vector()), new Vertex(new Vector()),
+				new Vertex(new Vector()) },new int[][] {{0,0},{0,0},{0,0},{0,0}}, new Surface(target));
 		
 		Polygons.add(TargetPolygon);
 		

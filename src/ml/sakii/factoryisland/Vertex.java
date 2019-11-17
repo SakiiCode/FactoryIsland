@@ -9,39 +9,34 @@ public class Vertex {
 
 
 	public final Vector pos;
-	final UVZ uvz = new UVZ();
-	int u, v;
+	//final UVZ uvz = new UVZ();
+	//int u, v;
 	final Point proj;
 	private final Vector ViewToPoint = new Vector();
-	static final Vertex NULL = new Vertex(0, 0, 0, 0, 0);
+	static final Vertex NULL = new Vertex(0, 0, 0);
 	private final Point2D.Float spec = new Point2D.Float();
 	
-	public Vertex(float x, float y, float z, int u, int v) {
-		/*this.pos=new Vector(x, y,z);
-		this.u=u;
-		this.v = v;
-		proj = new Point();*/
-		this(new Vector(x,y,z), u, v);
-		//update();
+	public Vertex(float x, float y, float z/*, int u, int v*/) {
+		this(new Vector(x,y,z));
 	}
 	
-	public Vertex(Vector vec, int u, int v) {
+	public Vertex(Vector vec/*, int u, int v*/) {
 		this.pos=vec; // a biztonság kedvéért objektumot másolunk
-		this.u=u;
-		this.v = v;
+		/*this.u=u;
+		this.v = v;*/
 		proj = new Point();
 		//update();
 	}
 	
 	public Vertex(Vertex v) {
-		this(v.pos.x, v.pos.y, v.pos.z, v.u, v.v);
+		this(v.pos.x, v.pos.y, v.pos.z/*, v.u, v.v*/);
 	}
 	
 	public void update() {
 		// 1/z , u/z , v/z kiszámítása
 		// z nem a kamera és a pont távolsága, hanem a kamera helyének, és a pontnak a kamera irányára vetített helyének távolsága
 		// (egyszerû skalárszorzat)
-		if(Config.useTextures) {
+		/*if(Config.useTextures) { 
 			 
 			double z = ViewToPoint.set(pos).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector);
 			//ViewToPoint;//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
@@ -49,14 +44,26 @@ public class Vertex {
 			uvz.iz=1/z;
 			uvz.uz=u/z;
 			uvz.vz=v/z;
-		}
+		}*/
 		
 		// 2d koordináták kiszámítása
-		ViewToPoint.set(pos);
-		Main.GAME.convert3Dto2D(ViewToPoint, spec);
+		//ViewToPoint.set(pos);
+		Main.GAME.convert3Dto2D(new Vector().set(pos), spec);
 		proj.x = (int)spec.getX();
 		proj.y = (int)spec.getY();
 		
+		
+	}
+	
+	public UVZ getUVZ(int[] uv) {
+		double z = new Vector().set(pos).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector);
+		//ViewToPoint;//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
+		 //= ViewToPoint;
+		UVZ uvz=new UVZ();
+		uvz.iz=1/z;
+		uvz.uz=uv[0]*1.0/z;
+		uvz.vz=uv[1]*1.0/z;
+		return uvz;
 		
 	}
 	
@@ -89,30 +96,33 @@ public class Vertex {
 		return true;
 	}
 
-	public static void setInterp(Vector p1, Vector pos, Vector p2, Vertex v1, Vertex v2, Vertex target) {
+	public static int[] setInterp(Vector p1, Vector pos, Vector p2, int[]uv1,int[]uv2, Vertex target) {
 		double distanceratio = p1.distance(pos) / p1.distance(p2);
-		int u = (int) Util.interp(0, 1, distanceratio, v1.u, v2.u);
-		int v = (int) Util.interp(0, 1, distanceratio, v1.v, v2.v);
+		int u = (int) Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
+		int v = (int) Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
 		//Vector pos2 = v2.pos.add(v1.pos.multiply(-1)).multiply((float) (1/distanceratio));
-		target.set(pos, u, v);
-		//return new Vertex(pos.cpy(), u, v);
+		target.set(pos/*, u, v*/);
+		/*uvTarget[0]=u;
+		uvTarget[1]=v;*/
+		return new int[] {u,v};
+		//return new Vertex(new Vector().set(pos));
 	}
 	
-	public void set(Vector pos, int u, int v) {
+	public void set(Vector pos/*, int u, int v*/) {
 		this.pos.set(pos);
-		this.u=u;
-		this.v=v;
+		/*this.u=u;
+		this.v=v;*/
 	}
 	
 	public void set(Vertex v) {
 		this.pos.set(v.pos);
-		this.u=v.u;
-		this.v=v.v;
+		/*this.u=v.u;
+		this.v=v.v;*/
 	}
 	
 	@Override
 	public String toString() {
-		return "V(" + pos + ","+u+","+v+")";
+		return "V(" + pos/* + ","+u+","+v*/+")";
 	}
 
 }

@@ -58,15 +58,15 @@ public class Entity{
 		
 		init();
 		
-		Vertex x1yz0 = new Vertex(new Vector(fx1y, z0), 0, 0);
-		Vertex x1y1z0 = new Vertex(new Vector(fx1y1, z0), 0, 0);
-		Vertex xyz0 = new Vertex(new Vector(fxy, z0), 0, 0);
-		Vertex xy1z0 = new Vertex(new Vector(fxy1, z0), 0, 0);
+		Vertex x1yz0 = new Vertex(new Vector(fx1y, z0));
+		Vertex x1y1z0 = new Vertex(new Vector(fx1y1, z0));
+		Vertex xyz0 = new Vertex(new Vector(fxy, z0));
+		Vertex xy1z0 = new Vertex(new Vector(fxy1, z0));
 		
-		Vertex x1yz1 = new Vertex(new Vector(fx1y, z), 0, 0);
-		Vertex x1y1z1 = new Vertex(new Vector(fx1y1, z), 0, 0);
-		Vertex xyz1 = new Vertex(new Vector(fxy, z), 0, 0);
-		Vertex xy1z1 = new Vertex(new Vector(fxy1, z), 0, 0);
+		Vertex x1yz1 = new Vertex(new Vector(fx1y, z));
+		Vertex x1y1z1 = new Vertex(new Vector(fx1y1, z));
+		Vertex xyz1 = new Vertex(new Vector(fxy, z));
+		Vertex xy1z1 = new Vertex(new Vector(fxy1, z));
 		
 		Vertices.add(x1yz0);
 		Vertices.add(x1y1z0);
@@ -82,17 +82,17 @@ public class Entity{
 		
 		
 		//top
-		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, xy1z1, xyz1}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//bottom
-		Objects.add(new Polygon3D(new Vertex[] {x1yz0, xyz0, xy1z0, x1y1z0}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, xy1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//left
-		Objects.add(new Polygon3D(new Vertex[] {xyz1, xy1z1, xy1z0, xyz0}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//right
-		Objects.add(new Polygon3D(new Vertex[] {x1y1z0, x1y1z1, x1yz1, x1yz0}, front));
-		//back
-		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1y1z0, xy1z0}, side));
+		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//front
-		Objects.add(new Polygon3D(new Vertex[] {x1yz1, xyz1, xyz0, x1yz0}, side));
+		Objects.add(new Polygon3D(new Vertex[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front));
+		//back
+		Objects.add(new Polygon3D(new Vertex[] {xyz1, x1yz1, x1yz0, xyz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		
 	}
 	
@@ -167,13 +167,12 @@ public class Entity{
 	}
 	
 	private void init() {
-		float yaw2 = (float) (-ViewAngle.yaw +Math.PI/2);
+		float yaw2 = -ViewAngle.yaw;//(float) (-ViewAngle.yaw +Math.PI/2);
 
 		float x = ViewFrom.x;
 		float y = ViewFrom.y;
 		
 		
-		//TODO erre képletet találni
 		
 		if(VerticalVector.z==1) {
 			z = ViewFrom.z;
@@ -183,12 +182,13 @@ public class Entity{
 			z=ViewFrom.z+1.7f;
 			z0=ViewFrom.z;
 		}
+
 		
 		
-		fxy = rotateCoordinates(x-1f, y-0.5f, x, y, yaw2);
-		fxy1 = rotateCoordinates(x-1f, y+0.5f, x, y, yaw2);
-		fx1y1 = rotateCoordinates(x, y+0.5f, x, y, yaw2);
-		fx1y = rotateCoordinates(x,y-0.5f, x, y, yaw2);
+		fxy = rotateCoordinates(x-0.5f, y-1f, x, y, yaw2);
+		fxy1 = rotateCoordinates(x-0.5f, y, x, y, yaw2);
+		fx1y1 = rotateCoordinates(x+0.5f, y, x, y, yaw2);
+		fx1y = rotateCoordinates(x+0.5f,y-1f, x, y, yaw2);
 		
 	}
 	

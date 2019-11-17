@@ -326,20 +326,22 @@ public class Block extends Object3D
 
 		int w = top.color ? 1 : top.Texture.getWidth() - 1, h = top.color ? 1 : top.Texture.getHeight() - 1;
 
-		Vertex xnykzn = new Vertex(xn, yk, zn, 0, 0);
-		Vertex xnynzn = new Vertex(xn, yn, zn, 0, h);
-		Vertex xkynzn = new Vertex(xk, yn, zn, w, h);
-		Vertex xkykzn = new Vertex(xk, yk, zn, w, 0);
-
-		Vertex xkykzk = new Vertex(xk, yk, zk, 0, 0);
-		Vertex xkynzk = new Vertex(xk, yn, zk, 0, h);
-		Vertex xnynzk = new Vertex(xn, yn, zk, w, h);
-		Vertex xnykzk = new Vertex(xn, yk, zk, w, 0);
-
-		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzn, xnynzn, xkynzn, xkykzn }, top));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzk, xkynzk, xnynzk, xnykzk }, bottom));
+		Vertex xnykzn = new Vertex(xn, yk, zn);
+		Vertex xnynzn = new Vertex(xn, yn, zn);
+		Vertex xnynzk = new Vertex(xn, yn, zk);
+		Vertex xnykzk = new Vertex(xn, yk, zk);
 		
-		//TODO ezt kikapcsolni egyszinu modban
+
+		Vertex xkykzk = new Vertex(xk, yk, zk);
+		Vertex xkynzk = new Vertex(xk, yn, zk);
+		Vertex xkynzn = new Vertex(xk, yn, zn);
+		Vertex xkykzn = new Vertex(xk, yk, zn);
+		
+
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xnynzn, xnykzn, xkykzn }, new int[][] {{0,0},{w,0},{w,h},{0,h}},top));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzk, xnykzk, xnynzk, xkynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom));
+		
+		/*
 		Vertex xkynzk2 = new Vertex(xk, yn, zk, w, h);
 		Vertex xkynzn2 = new Vertex(xk, yn, zn, w, 0);
 		Vertex xnynzn2 = new Vertex(xn, yn, zn, 0, 0);
@@ -348,15 +350,15 @@ public class Block extends Object3D
 		Vertex xkykzk2 = new Vertex(xk, yk, zk, w, h);
 		Vertex xkykzn2 = new Vertex(xk, yk, zn, w, 0);
 		Vertex xnykzn2 = new Vertex(xn, yk, zn, 0, 0);
-		Vertex xnykzk2 = new Vertex(xn, yk, zk, 0, h);
+		Vertex xnykzk2 = new Vertex(xn, yk, zk, 0, h);*/
 
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzk2, xkynzn2, xnynzn2, xnynzk2 }, north));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzk2, xnykzn2, xkykzn2, xkykzk2 }, south));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xnynzn, xkynzn, xkynzk, xnynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, north));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzn, xnykzn, xnykzk, xkykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, south));
 		
+		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzn, xnynzn, xnynzk, xnykzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, east));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xkykzn, xkykzk, xkynzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, west));
+		 
 		
-		
-		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzk, xnynzk, xnynzn, xnykzn }, east));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzn, xkynzn, xkynzk, xkykzk }, west));
 
 		/*
 		 * Polygons.add(new Polygon3D(new float[]{xn,xn,xk,xk}, new

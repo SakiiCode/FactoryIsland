@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.MultipleGradientPaint.CycleMethod;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -55,11 +56,21 @@ public class Polygon3D extends Object3D{
 	private float[] fractions = new float[]{0.5f,1.0f};
 	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
 	//public static final HashMap<Vertex, Point> Cache = new HashMap<>();
+	int[][] UVMap;
+	int[][] clipUV,clipUV2;
+	//UVZ[] uvz;
 	
-	
-	public Polygon3D(Vertex[] vertices, Surface s) {
+	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s) {
 		
 		this.Vertices = vertices;
+		this.UVMap = UVMapOfVertices;
+		/*this.uvz = new UVZ[vertices.length];
+		for(int i=0;i<uvz.length;i++) {
+			uvz[i]=new UVZ(); 
+		}*/
+		clipUV=new int[20][2];
+		clipUV2=new int[20][2];
+
 		
 		this.s = s;
 		for(int i=0;i<clip.length;i++) {
@@ -84,19 +95,20 @@ public class Polygon3D extends Object3D{
 					if(Main.GAME.ViewBlock.Polygons.contains(this)) {
 						faceFilter=true;
 					}else {
-						CameraToTriangle.set(centroid).substract(Main.GAME.PE.getPos());
-						faceFilter = CameraToTriangle.DotProduct(normal) >= 0;
+						CameraToTriangle.set(Vertices[0].pos).substract(Main.GAME.PE.getPos());
+						faceFilter = CameraToTriangle.DotProduct(normal) < 0;
 					}
 				}
 				
 				
 				if(faceFilter) {
-					if(!Main.GAME.locked) {
+					//if(!Main.GAME.locked) {
 						AvgDist = GetDist();
-					}
+					//}
 					if(AvgDist<=Config.renderDistance && !isAllBehind()) {
-						clearClip();
+						//clearClip();
 						//clip(Main.GAME.ViewFrustum.znear);
+						resetClipsTo(Vertices, UVMap, Vertices.length);
 						clip(Main.GAME.ViewFrustum.sides[0]);
 						clip(Main.GAME.ViewFrustum.sides[1]);
 						clip(Main.GAME.ViewFrustum.sides[3]);
@@ -122,6 +134,7 @@ public class Polygon3D extends Object3D{
 								
 
 								v.update();
+								//v.getUVZ(clipUV[i],uvz[i]);
 								polygon.addPoint(v.proj.x, v.proj.y);
 
 								
@@ -208,15 +221,16 @@ public class Polygon3D extends Object3D{
 	@Override
 	void draw(BufferedImage FrameBuffer, Graphics g){
 		boolean lighted=false;
+		Graphics2D g2d=(Graphics2D)g;
 		if(s.color || !Config.useTextures || AvgDist > 25){
 
 			if(!s.paint && !Config.useTextures) {
-				g.setColor(lightedcolor.getColor());
+				g2d.setColor(lightedcolor.getColor());
 				lighted=true;
 			}else {
-				g.setColor(s.c.getColor());
+				g2d.setColor(s.c.getColor());
 			}
-			g.fillPolygon(polygon);
+			g2d.fillPolygon(polygon);
 			
 		}else{
 			// buffer init
@@ -229,9 +243,14 @@ public class Polygon3D extends Object3D{
 			//vertexrõl vertexre körbemegyünk
 			for(int i=0;i<clipSize;i++) {
 				
-				Vertex v1 = clip[i]; 
-				Vertex v2 = i != clipSize-1 ? clip[i+1] : clip[0];
+				int index1= i;
+				int index2= i != clipSize-1 ? i+1 : 0;
 				
+				Vertex v1 = clip[index1]; 
+				Vertex v2 = clip[index2];
+				
+				UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1]);
+				UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2]);
 				
 				final Point p1 = v1.proj;
 				final Point p2 = v2.proj;
@@ -253,15 +272,15 @@ public class Polygon3D extends Object3D{
 				// megkeressük az adott sor bal és jobb szélét, társítunk a két ponthoz UVZ-t is
 				// y-t 1-gyel, x-et m-mel léptetjük
 				for(int y=ymin;y<ymax;y++) {
-
+					
 					if(bufferXmin.get(y) == null || x < bufferXmin.get(y)) {
 						bufferXmin.put(y,(int) x);
-						bufferUVZmin.put(y, UVZ.interp(p1, p2, new Point((int) x, y), v1.uvz, v2.uvz));
+						bufferUVZmin.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
 					}
 					
 					if(bufferXmax.get(y) == null || x > bufferXmax.get(y)) {
 						bufferXmax.put(y,(int) x);
-						bufferUVZmax.put(y, UVZ.interp(p1, p2, new Point((int) x, y), v1.uvz, v2.uvz));
+						bufferUVZmax.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
 					}
 					
 					x+=m;
@@ -279,7 +298,7 @@ public class Polygon3D extends Object3D{
 			//int imgh = ymax-ymin;
 			
 			
-			g.setColor(Color.BLACK);
+			g2d.setColor(Color.BLACK);
 			if(imgw>0) { //ha merõlegesen állunk ne rajzoljon
 				
 				// átmeneti kép, erre rajzoljuk a polygont, és ezt rajzoljuk az ablakra
@@ -308,39 +327,42 @@ public class Polygon3D extends Object3D{
 					 	double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
 					 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
 					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
-					 	double u=uz/iz;
-					 	double v=vz/iz;
-					 	//int rgb=0;
-					 	//try {
-					 		int rgb = pixel.set(FrameBuffer.getRGB(x, y)).blend(s.Texture.getRGB((int)u, (int)v)).getRGB();
-					 		//Color4 rgb = new Color4();					 		
-					 		//Color4 light = new Color4().blend3(rgb);//.blend3(getLightOverlay());
-					 	/*}catch(Exception e) {
-					 		Main.log(e.getMessage() + " on texture");
-					 		Main.log("u= "+u+" ,v="+v);
-					 	}
-					 	try {*/
+
+					 	if(Main.GAME.key[6]) {
+					 		int px=Math.round(255*(float)(0.03/iz));
+					 		int rgb = (255 << 24) | (px << 16) | (px << 8) | px;
 					 		FrameBuffer.setRGB(x, y, rgb);
-					 	/*}catch(Exception e) {
-					 		Main.log(e.getMessage() + " on framebuffer");
-					 		//Main.log(this);
-					 		//Main.log("FrameBuffer.setRGB("+(nx)+", "+(y)+", s.Texture.getRGB("+(int)u+", "+(int)v+"));");
-					 		Main.log("xmin= "+xmin+" ,x= "+x+" ,xmax= "+xmax+" ,ymin= "+ymin+" ,y= "+y+" ,ymax= "+ymax);
-					 		Main.log(FrameBuffer.getWidth()+","+FrameBuffer.getHeight());
-					 		Main.log("------------------------------------------------------------------");
-					 	}*/
-					 		//lighted=true;
+					 	}else {
+						 	double u=uz/iz;
+						 	double v=vz/iz;
+						 	try {
+							 	int px=s.Texture.getRGB((int)u, (int)v);
+							 	int previous = FrameBuffer.getRGB(x, y);
+							 	int previousAlpha =(previous>>24)&0xFF; 
+							 	if(previousAlpha != 255) {
+							 		int rgb = pixel.set(previous).blend(px).getRGB();
+							 		FrameBuffer.setRGB(x, y, rgb);
+							 	}else {
+							 		FrameBuffer.setRGB(x, y, px);
+							 	}
+						 	}catch(Exception e) {
+						 		//e.printStackTrace();
+						 	}
+					 	}
+					 	
+					 		
+					 		
 					}
 					
 				}
-				//g.drawImage(img,imgx,imgy, null);
 			}
 			
 		}
 		
 		if(s.paint){
-			((Graphics2D)g).setPaint(s.p);
-			g.fillPolygon(polygon);
+			
+			g2d.setPaint(s.p);
+			g2d.fillPolygon(polygon);
 			//((Graphics2D)g).setPaint(Color.BLACK);
 		}
 		
@@ -348,19 +370,22 @@ public class Polygon3D extends Object3D{
 			
 			Color4 lightedc=getLightOverlay();
 			//Graphics2D g2 =((Graphics2D)g); 
-			g.setColor(lightedc.getColor());
-			g.fillPolygon(polygon);
+			g2d.setColor(lightedc.getColor());
+			g2d.fillPolygon(polygon);
 			//Graphics2D g2 = (Graphics2D) g;
             //g2.setStroke(new BasicStroke(2));
 			//g.drawPolygon(polygon);
 			
 		}
-		
+		/*if(Main.GAME.key[6]) {
+			Main.GAME.coverageBuffer.subtract(new Area(polygon));
+			g.setClip(Main.GAME.coverageBuffer);
+		}*/
 
 		
 		boolean drawfog = (AvgDist > Config.renderDistance*(0.75f) && Config.fogEnabled);
 		if(drawfog){
-			g.setClip(polygon);
+			g2d.setClip(polygon);
 			float totalFogSize = Config.renderDistance/4f;
 			float foggyDist = Config.renderDistance-AvgDist;
 			int ratio = (int) (255*(foggyDist/totalFogSize));
@@ -371,32 +396,35 @@ public class Polygon3D extends Object3D{
 			}
 
 			Color customColor = new Color(Main.skyColor.getRed(), Main.skyColor.getGreen(), Main.skyColor.getBlue(), 255-ratio);
-			g.setColor(customColor);
+			g2d.setColor(customColor);
 
-			g.fillPolygon(polygon);
+			g2d.fillPolygon(polygon);
 
-			g.setClip(null);
-			g.setColor(new Color(0,0,0,ratio));
+			g2d.setClip(null);
+			g2d.setColor(new Color(0,0,0,ratio));
 		}else{
-			g.setColor(Color.BLACK);
+			g2d.setColor(Color.BLACK);
 		}
 		
-		if(s.c.getAlpha() == 255){
-			g.drawPolygon(polygon);
+		if(s.c.getAlpha() == 255 && !Config.useTextures){
+			g2d.drawPolygon(polygon);
 		}
 		
 		
 
 		
-		if(selected){
-			((Graphics2D)g).setPaint(new RadialGradientPaint(
+		if(selected && !Config.directRendering){
+			g2d.setPaint(new RadialGradientPaint(
 					calculateCentroid(polygon, centroid2D),
 					getRadius(polygon),
 					fractions ,
 					colors ,
 					CycleMethod.NO_CYCLE));
-			g.fillPolygon(polygon);
+			g2d.fillPolygon(polygon);
 
+		}else if(selected){
+			g2d.setColor(Color.white);
+			g2d.drawPolygon(polygon);
 		}
 		
 
@@ -410,7 +438,7 @@ public class Polygon3D extends Object3D{
 			Vector v0 = Vertices[0].pos;
 			Vector v1 = Vertices[1].pos;
 			Vector v2 = Vertices[2].pos;
-			normal.set(v1).substract(v0).CrossProduct(tmpVector.set(v1).substract(v2));
+			normal.set(v2).substract(v0).CrossProduct(tmpVector.set(v1).substract(v0));
 			//Plane p = new Plane(Vertices[0].pos, Vertices[1].pos, Vertices[2].pos);
 			//normal.set(p.normal);
 		}
@@ -474,34 +502,50 @@ public class Polygon3D extends Object3D{
 	    return point;
 	}
 	
-	private void clearClip() {
+	/*private void clearClip() {
 		for(int i=0;i<clip.length;i++) {
-			clip[i].set(i<Vertices.length? Vertices[i] : Vertex.NULL);
+			clip[i].set(i<Vertices.length ? Vertices[i] : Vertex.NULL);
+			clipUV[i] = (i<UVMap.length) ? UVMap[i] : new int[]{0,0};
 		}
+		
 		clipSize=Vertices.length;
+		
+	}*/
+	
+	private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
+		for(int i=0;i<clip.length;i++) {
+			clip[i].set(i<size ? vertexArr[i] : Vertex.NULL);
+			clipUV[i] = i<size ? uvArr[i] : new int[]{0,0};
+		}
+		clipSize=size;
 	}
 	
 	
-	private void copyClip() {
+	/*private void copyClip() {
 		for(int i=0;i<clip.length;i++) {
-			clip[i].set(i<clip2Size? clip2[i] : Vertex.NULL);
+			clip[i].set(i<clip2Size ? clip2[i] : Vertex.NULL);
+			clipUV[i] = i<clip2Size ? clipUV2[i] : new int[]{0,0};
 		}
 		clipSize=clip2Size;
-		/*for(Vertex v : clip) {
-			v.set(Vertices[]);
-		}*/
-	}
+	
+	}*/
 	
 	private void clip(Plane P){
-		if(clipSize==0) {
+		/*if(clipSize==0) {
 			return;
-		}
+		}*/
 		//ArrayList<Vertex> tmp = new ArrayList<>(Arrays.asList(clip)); 
 		clip2Size=0;
 		for(int i=0;i<clipSize;i++){
 
-				Vertex v1 = clip[i];
-				Vertex v2 = (i != clipSize-1) ? clip[i+1] : clip[0];
+				int index1=i;
+				int index2= (i != clipSize-1) ? i+1 : 0;
+				
+				Vertex v1 = clip[index1];
+				Vertex v2 = clip[index2];
+				
+				int[] uv1 = clipUV[index1];
+				int[] uv2 = clipUV[index2];
 				
 				Vector a = v1.pos;
 				Vector b = v2.pos;
@@ -517,6 +561,7 @@ public class Polygon3D extends Object3D{
 					
 					//tmp.add(v1);
 					clip2[clip2Size].set(v1);
+					clipUV2[clip2Size]=uv1;
 					clip2Size++;
 				}else if(da < 0 && db < 0){ // mindkettõ mögötte
 					
@@ -526,27 +571,27 @@ public class Polygon3D extends Object3D{
 					//tmp.add(Vertex.setInterp(a, pos, b, v1, v2));
 					tmp.set(b);
 					tmp.substract(a).multiply(s).add(a);
-					Vertex.setInterp(a, tmp, b, v1, v2, clip2[clip2Size]);
+					clipUV2[clip2Size] = Vertex.setInterp(a, tmp, b, uv1,uv2, clip2[clip2Size]);
 					clip2Size++;
 				}else if(da >0 && db < 0){ // elölrõl vágja félbe
 					
 					//tmp.add(v1);
 					clip2[clip2Size].set(v1);
+					clipUV2[clip2Size]=uv1;
 					clip2Size++;
 					//Vector pos = b.cpy().substract(a).multiply(s).add(a);
 					//Vector pos = new Vector(a.x + s*(b.x-a.x), a.y + s*(b.y-a.y), a.z + s*(b.z-a.z));
 					//tmp.add(Vertex.setInterp(a, pos, b, v1, v2));
 					tmp.set(b);
 					tmp.substract(a).multiply(s).add(a);
-					Vertex.setInterp(a, tmp, b, v1, v2, clip2[clip2Size]);
+					clipUV2[clip2Size] = Vertex.setInterp(a, tmp, b, uv1,uv2, clip2[clip2Size]);
 					clip2Size++;
 					
 				}
 		}
 		
-		//clip.clear();
-		//clip.addAll(tmp);
-		copyClip();
+		//copyClip();
+		resetClipsTo(clip2,clipUV2,clip2Size);
 	}
 	
 
