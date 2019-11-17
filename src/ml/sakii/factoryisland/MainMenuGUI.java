@@ -98,7 +98,7 @@ public class MainMenuGUI extends JPanel implements ActionListener{
 		}
 		
 		String data = "<html><body><center>Controls</center><ul><li>WASD - move</li><li>Ctrl - toggle fly</li><li>Space - jump / fly up</li><li>Shift - fly down</li><li>Escape - pause</li>"+
-		"<li>Q - switch cursor between inventories</li><li>Middle Mouse - swap 1 item between inventories</li><li>F2 - save screenshot</li><li>F6 - open map to LAN multiplayer</li></ul>"
+		"<li>Q - switch cursor between inventories</li><li>Middle Mouse - swap 1 item between inventories</li><li>F6 - open map to LAN multiplayer</li></ul>"
 				+ "&nbsp;&nbsp;"+"Early Access Alpha v"+Main.MAJOR+"."+Main.MINOR+"."+Main.REVISION+"<br>"
 				+ "&nbsp;&nbsp;&nbsp;&nbsp;Created by Sakii <br>"
 				+ "&nbsp;&nbsp;&nbsp;&nbsp;http://sakii.itch.io/factoryisland<hr>";

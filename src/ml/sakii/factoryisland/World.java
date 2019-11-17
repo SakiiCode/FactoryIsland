@@ -1443,19 +1443,28 @@ public class World {
 		for (Entry<BlockFace, Block> entry : blocks6.entrySet()) {
 			BlockFace key = entry.getKey();
 			Block other = entry.getValue();
-			Polygon3D side = null;
-			
-			for (Entry<Polygon3D, BlockFace> entry2 : bl.HitboxPolygons.entrySet()) {
-				if(entry2.getValue() == key) side=entry2.getKey();
-					
-			}
-			
-			if(side==null) {
-				Main.err("side=null in filterBlock()");
+			if(!bl.HitboxPolygons.containsValue(key)) {
+				Main.err("Unknown side in filterBlock()");
 				return;
 			}
 			
-			if(bl.fullblock) {
+			for (Entry<Polygon3D, BlockFace> entry2 : bl.HitboxPolygons.entrySet()) {
+				if(entry2.getValue() == key) {
+					Polygon3D side=entry2.getKey();
+					if(!bl.fullblock || !other.fullblock || (!bl.transparent && other.transparent)) {
+						side.adjecentFilter=true;
+					}else {
+						side.adjecentFilter=false;
+					}
+				}
+					
+			}
+			
+			
+			
+			
+			
+			/*if(bl.fullblock) {
 
 				if(!other.fullblock) {
 					side.adjecentFilter=true;
@@ -1471,7 +1480,7 @@ public class World {
 				
 			}else {
 				side.adjecentFilter = true;
-			}
+			}*/
 			
 			/*if(side.adjecentFilter && side.getLight()<3 && (key == BlockFace.TOP || key == BlockFace.BOTTOM)) {
 				if(!SpawnableSurface.contains(side.spawnpoint)) SpawnableSurface.add(side.spawnpoint);

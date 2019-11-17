@@ -42,8 +42,8 @@ public class Main
 {
 
 	public final static byte MAJOR = 0;
-	public final static byte MINOR = 9;
-	public final static byte REVISION = 2;
+	public final static byte MINOR = 10;
+	public final static byte REVISION = -1;
 	
 	public static boolean devmode = true, nopause = false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
