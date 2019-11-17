@@ -149,7 +149,7 @@ public class GameEngine{
 						
 					}
 					
-					if(world.getAlienCount() < 6 /*&& Math.random() < 0.004*/ && world.getWhole(true).size()>0) {
+					if(world.getAlienCount() < 6 && Math.random() < 0.004 && world.getWhole(true).size()>0) {
 						int Min = 0;
 						//int Max = world.getWhole(true).size();
 						
