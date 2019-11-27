@@ -156,6 +156,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	Area coverageBuffer = new Area();
 	Area bufferArea=new Area();
 	
+	double previousSkyLightF;
+	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 
 		try {
@@ -386,6 +388,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 			
 			
+			if(Math.abs(Engine.skyLightF-previousSkyLightF)>0.05) {
+			
+				previousSkyLightF=Engine.skyLightF;
+				for(Block b : Engine.world.getWhole(true)) {
+					for(Polygon3D p : b.Polygons) {
+						p.recalcLightedColor();
+					}
+				}
+			}
+			
+			
+			
 
 			//if(key[6]) {
 				/*Objects.parallelStream().filter(o -> o.update()).sorted(new Comparator<Object3D>() {
@@ -594,8 +608,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint));
 				debugInfo.add("ViewBlock: "+ViewBlock);
 				debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
-				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps);
-				
+				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Engine.skyLightF+", cached:"+previousSkyLightF+",level:"+(7+(7f*Math.sin(GameEngine.skyLightF*2*Math.PI))));
 					
 				// DEBUG SZÖVEG
 				g.setColor(Color.BLACK);

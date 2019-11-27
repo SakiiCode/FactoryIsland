@@ -200,6 +200,10 @@ public class Polygon3D extends Object3D{
 				light=intensity;
 			}
 		}
+		int skylight = 7+(int)(7f*Math.sin(GameEngine.skyLightF*2*Math.PI)); //TODO static helyett valami jobbat - engine szamolja???
+		/*skylight=Math.max(skylight, 0);
+		skylight = Math.min(15, skylight);*/
+		light = Math.max(light, skylight);
 		return overlay.setAlpha((int)(Math.pow(0.8, light+1)*255));
 	}
 	

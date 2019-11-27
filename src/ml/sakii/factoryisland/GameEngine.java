@@ -40,7 +40,9 @@ public class GameEngine{
 	public World world;
 	//public Set<Point3D> TickableBlocks =  Collections.newSetFromMap(new ConcurrentHashMap<Point3D, Boolean>());
 	public CopyOnWriteArrayList<Point3D> TickableBlocks = new CopyOnWriteArrayList<>();
-	public long Tick;
+	public long Tick, day, hours;
+	public static double skyLightF;
+	
 	//public CopyOnWriteArrayList<Entity> Entities = new CopyOnWriteArrayList<>();
 	Timer ticker;
 	
@@ -109,7 +111,11 @@ public class GameEngine{
             @Override
 			public void actionPerformed(ActionEvent evt) {
                 //...Perform a task...
-        		Tick++;
+        		long ticksPerDay=200;//72000;
+        		
+        		day=Tick/ticksPerDay;
+        		hours=Tick%ticksPerDay;
+        		skyLightF=(hours*1f/ticksPerDay);
 
             	if(server != null || (client==null && server==null)) {
             		
@@ -264,9 +270,9 @@ public class GameEngine{
 							}
 						}
 					}
-				
+					
 				}
-				
+				Tick++;
 				
 				
             }};
