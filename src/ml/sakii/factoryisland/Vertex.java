@@ -4,32 +4,32 @@ import java.awt.geom.Point2D;
 
 
 
-public class Vertex {
+public class Vertex extends Vector{
 
 
 
-	public final Vector pos;
+	//public final Vector pos;
 	//final UVZ uvz = new UVZ();
 	//int u, v;
-	final Point proj;
-	private final Vector ViewToPoint = new Vector();
+	final Point proj=new Point();
+	private final Vector Copy = new Vector();
 	static final Vertex NULL = new Vertex(0, 0, 0);
 	private final Point2D.Float spec = new Point2D.Float();
 	
 	public Vertex(float x, float y, float z/*, int u, int v*/) {
-		this(new Vector(x,y,z));
+		super(x, y, z);
 	}
 	
 	public Vertex(Vector vec/*, int u, int v*/) {
-		this.pos=vec; // a biztonság kedvéért objektumot másolunk
+		this(vec.x, vec.y, vec.z);
+		//this.pos=vec; // a biztonság kedvéért objektumot másolunk
 		/*this.u=u;
 		this.v = v;*/
-		proj = new Point();
 		//update();
 	}
 	
 	public Vertex(Vertex v) {
-		this(v.pos.x, v.pos.y, v.pos.z/*, v.u, v.v*/);
+		this(v.x, v.y, v.z/*, v.u, v.v*/);
 	}
 	
 	public void update() {
@@ -48,7 +48,7 @@ public class Vertex {
 		
 		// 2d koordináták kiszámítása
 		//ViewToPoint.set(pos);
-		Main.GAME.convert3Dto2D(new Vector().set(pos), spec);
+		Main.GAME.convert3Dto2D(Copy.set(this), spec);
 		proj.x = (int)spec.getX();
 		proj.y = (int)spec.getY();
 		
@@ -56,7 +56,7 @@ public class Vertex {
 	}
 	
 	public UVZ getUVZ(int[] uv) {
-		double z = new Vector().set(pos).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector);
+		double z = Copy.set(this).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector); //TODO lehet hogy a copy ide nem jó
 		//ViewToPoint;//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
 		 //= ViewToPoint;
 		UVZ uvz=new UVZ();
@@ -68,7 +68,7 @@ public class Vertex {
 	}
 	
 
-	@Override
+	/*@Override
 	public int hashCode()
 	{
 		final int prime = 31;
@@ -94,35 +94,30 @@ public class Vertex {
 		} else if (!pos.equals(other.pos))
 			return false;
 		return true;
-	}
+	}*/
 
-	public static int[] setInterp(Vector p1, Vector pos, Vector p2, int[]uv1,int[]uv2, Vertex target) {
+	public static int[] getUVInterp(Vector p1, Vector pos, Vector p2, int[]uv1, int[] uv2) {
 		double distanceratio = p1.distance(pos) / p1.distance(p2);
 		int u = (int) Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
 		int v = (int) Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
 		//Vector pos2 = v2.pos.add(v1.pos.multiply(-1)).multiply((float) (1/distanceratio));
-		target.set(pos/*, u, v*/);
-		/*uvTarget[0]=u;
+		/*target.set(pos);
+		uvTarget[0]=u;
 		uvTarget[1]=v;*/
 		return new int[] {u,v};
 		//return new Vertex(new Vector().set(pos));
 	}
 	
-	public void set(Vector pos/*, int u, int v*/) {
+	/*public void set(Vector pos) {
 		this.pos.set(pos);
-		/*this.u=u;
-		this.v=v;*/
-	}
+		
+	}*/
 	
-	public void set(Vertex v) {
-		this.pos.set(v.pos);
-		/*this.u=v.u;
-		this.v=v.v;*/
-	}
+	/*public void set(Vertex v) {
+		this.set(v);
+		
+	}*/
 	
-	@Override
-	public String toString() {
-		return "V(" + pos/* + ","+u+","+v*/+")";
-	}
+	
 
 }

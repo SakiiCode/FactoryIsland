@@ -80,50 +80,50 @@ public class SimpleMachine extends Block
 
 		case TOP:
 
-			TargetPolygon.Vertices[1].pos.set(x + 0.2f, y + 0.2f, z + 1);
-			TargetPolygon.Vertices[0].pos.set(x + 0.2f, y + 0.8f, z + 1);
-			TargetPolygon.Vertices[3].pos.set(x + 0.8f, y + 0.8f, z + 1);
-			TargetPolygon.Vertices[2].pos.set(x + 0.8f, y + 0.2f, z + 1);
+			TargetPolygon.Vertices[1].set(x + 0.2f, y + 0.2f, z + 1);
+			TargetPolygon.Vertices[0].set(x + 0.2f, y + 0.8f, z + 1);
+			TargetPolygon.Vertices[3].set(x + 0.8f, y + 0.8f, z + 1);
+			TargetPolygon.Vertices[2].set(x + 0.8f, y + 0.2f, z + 1);
 
 			break;
 		case BOTTOM:
 
-			TargetPolygon.Vertices[0].pos.set(x + 0.2f, y + 0.2f, z);
-			TargetPolygon.Vertices[1].pos.set(x + 0.2f, y + 0.8f, z);
-			TargetPolygon.Vertices[2].pos.set(x + 0.8f, y + 0.8f, z);
-			TargetPolygon.Vertices[3].pos.set(x + 0.8f, y + 0.2f, z);
+			TargetPolygon.Vertices[0].set(x + 0.2f, y + 0.2f, z);
+			TargetPolygon.Vertices[1].set(x + 0.2f, y + 0.8f, z);
+			TargetPolygon.Vertices[2].set(x + 0.8f, y + 0.8f, z);
+			TargetPolygon.Vertices[3].set(x + 0.8f, y + 0.2f, z);
 
 			break;
 		case NORTH:
 
-			TargetPolygon.Vertices[0].pos.set(x + 0.2f, y + 1, z + 0.2f);
-			TargetPolygon.Vertices[1].pos.set(x + 0.2f, y + 1, z + 0.8f);
-			TargetPolygon.Vertices[2].pos.set(x + 0.8f, y + 1, z + 0.8f);
-			TargetPolygon.Vertices[3].pos.set(x + 0.8f, y + 1, z + 0.2f);
+			TargetPolygon.Vertices[0].set(x + 0.2f, y + 1, z + 0.2f);
+			TargetPolygon.Vertices[1].set(x + 0.2f, y + 1, z + 0.8f);
+			TargetPolygon.Vertices[2].set(x + 0.8f, y + 1, z + 0.8f);
+			TargetPolygon.Vertices[3].set(x + 0.8f, y + 1, z + 0.2f);
 
 			break;
 		case SOUTH:
 
-			TargetPolygon.Vertices[1].pos.set(x + 0.2f, y, z + 0.2f);
-			TargetPolygon.Vertices[0].pos.set(x + 0.2f, y, z + 0.8f);
-			TargetPolygon.Vertices[3].pos.set(x + 0.8f, y, z + 0.8f);
-			TargetPolygon.Vertices[2].pos.set(x + 0.8f, y, z + 0.2f);
+			TargetPolygon.Vertices[1].set(x + 0.2f, y, z + 0.2f);
+			TargetPolygon.Vertices[0].set(x + 0.2f, y, z + 0.8f);
+			TargetPolygon.Vertices[3].set(x + 0.8f, y, z + 0.8f);
+			TargetPolygon.Vertices[2].set(x + 0.8f, y, z + 0.2f);
 
 			break;
 		case EAST:
 
-			TargetPolygon.Vertices[0].pos.set(x + 1, y + 0.2f, z + 0.2f);
-			TargetPolygon.Vertices[1].pos.set(x + 1, y + 0.8f, z + 0.2f);
-			TargetPolygon.Vertices[2].pos.set(x + 1, y + 0.8f, z + 0.8f);
-			TargetPolygon.Vertices[3].pos.set(x + 1, y + 0.2f, z + 0.8f);
+			TargetPolygon.Vertices[0].set(x + 1, y + 0.2f, z + 0.2f);
+			TargetPolygon.Vertices[1].set(x + 1, y + 0.8f, z + 0.2f);
+			TargetPolygon.Vertices[2].set(x + 1, y + 0.8f, z + 0.8f);
+			TargetPolygon.Vertices[3].set(x + 1, y + 0.2f, z + 0.8f);
 
 			break;
 		case WEST:
 
-			TargetPolygon.Vertices[1].pos.set(x, y + 0.2f, z + 0.2f);
-			TargetPolygon.Vertices[0].pos.set(x, y + 0.8f, z + 0.2f);
-			TargetPolygon.Vertices[3].pos.set(x, y + 0.8f, z + 0.8f);
-			TargetPolygon.Vertices[2].pos.set(x, y + 0.2f, z + 0.8f);
+			TargetPolygon.Vertices[1].set(x, y + 0.2f, z + 0.2f);
+			TargetPolygon.Vertices[0].set(x, y + 0.8f, z + 0.2f);
+			TargetPolygon.Vertices[3].set(x, y + 0.8f, z + 0.8f);
+			TargetPolygon.Vertices[2].set(x, y + 0.2f, z + 0.8f);
 
 			break;
 

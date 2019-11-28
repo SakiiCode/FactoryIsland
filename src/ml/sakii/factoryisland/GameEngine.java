@@ -6,7 +6,6 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JLabel;
@@ -40,8 +39,8 @@ public class GameEngine{
 	public World world;
 	//public Set<Point3D> TickableBlocks =  Collections.newSetFromMap(new ConcurrentHashMap<Point3D, Boolean>());
 	public CopyOnWriteArrayList<Point3D> TickableBlocks = new CopyOnWriteArrayList<>();
-	public long Tick, day, hours;
-	public static double skyLightF;
+	public long Tick;//, day, hours;
+	//public static double skyLightF;
 	
 	//public CopyOnWriteArrayList<Entity> Entities = new CopyOnWriteArrayList<>();
 	Timer ticker;
@@ -111,11 +110,7 @@ public class GameEngine{
             @Override
 			public void actionPerformed(ActionEvent evt) {
                 //...Perform a task...
-        		long ticksPerDay=200;//72000;
         		
-        		day=Tick/ticksPerDay;
-        		hours=Tick%ticksPerDay;
-        		skyLightF=(hours*1f/ticksPerDay);
 
             	if(server != null || (client==null && server==null)) {
             		
@@ -362,7 +357,7 @@ public class GameEngine{
     					}
     				
     					if(!(entity instanceof PlayerEntity)) {
-    						Block under = world.getBlockUnderEntity(false, true, entity,entity.feetPoint, entity.tmpPoint,  entity.playerColumn);
+    						Block under = world.getBlockUnderEntity(false, true, entity);
     						if (!entity.flying && under == Block.NOTHING)
     						{
     							entity.fly(true);
@@ -373,7 +368,7 @@ public class GameEngine{
     						if (!entity.flying)
     						{
     					
-    							doGravity(entity, world, physicsFPS,entity.feetPoint, entity.tmpPoint,  entity.playerColumn);
+    							doGravity(entity, world, physicsFPS);
     							entity.update();
     						
     						}
@@ -398,14 +393,14 @@ public class GameEngine{
         
 	}
 	
-	static void doGravity(Entity entity, World world, int physicsFPS, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
-		//float FPS=Main.PHYSICS_FPS;
+	static void doGravity(Entity entity, World world, int physicsFPS) {//, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
+
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
-		//tmpPoint.set(x, y, z)
-		/*int x=(int) Math.floor() ;
-		int y= (int) Math.floor();
-		int feetZ = (int) Math.floor();*/
+		//Point3D feetPoint=entity.feetPoint;
+		Point3D tmpPoint=entity.tmpPoint;
+		//TreeSet<Point3D> playerColumn = entity.playerColumn;
+
 		tmpPoint.set(entityPos.x, entityPos.y, entityPos.z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z));
 		if (!world.getBlockAtP(tmpPoint).solid)
 		{
@@ -419,7 +414,7 @@ public class GameEngine{
 			//Block tmpNothing = new Nothing();
 			if (resultant < 0)
 			{// lefelé esik önmagához képest
-				Block under = world.getBlockUnderEntity(false, true, entity, feetPoint, tmpPoint, playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
+				Block under = world.getBlockUnderEntity(false, true, entity);//, feetPoint, tmpPoint, playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
 																			// entity.ViewFrom.y, entity.ViewFrom.z+JumpDistance);
 				if (VerticalVector.z == 1)
 				{
@@ -447,7 +442,7 @@ public class GameEngine{
 				}
 			} else if (resultant > 0)
 			{ // felfelé ugrik  önmagához képest
-				Block above = world.getBlockUnderEntity(false, false, entity,feetPoint, tmpPoint,  playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
+				Block above = world.getBlockUnderEntity(false, false, entity);//,feetPoint, tmpPoint,  playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
 																				// entity.ViewFrom.y,
 																				// entity.ViewFrom.z+JumpDistance);
 	

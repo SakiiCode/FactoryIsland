@@ -198,14 +198,14 @@ public class Entity{
 		
 		
 		
-		Vertices.get(0).pos.set(fx1y, z0);
-		Vertices.get(1).pos.set(fx1y1, z0);
-		Vertices.get(2).pos.set(fxy, z0);
-		Vertices.get(3).pos.set(fxy1, z0);
-		Vertices.get(4).pos.set(fx1y, z);
-		Vertices.get(5).pos.set(fx1y1, z);
-		Vertices.get(6).pos.set(fxy, z);
-		Vertices.get(7).pos.set(fxy1, z);
+		Vertices.get(0).set(fx1y, z0);
+		Vertices.get(1).set(fx1y1, z0);
+		Vertices.get(2).set(fxy, z0);
+		Vertices.get(3).set(fxy1, z0);
+		Vertices.get(4).set(fx1y, z);
+		Vertices.get(5).set(fx1y1, z);
+		Vertices.get(6).set(fxy, z);
+		Vertices.get(7).set(fxy1, z);
 		
 		for(Object3D p : Objects) {
 			if(p instanceof Polygon3D) {

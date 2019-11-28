@@ -1128,22 +1128,19 @@ public class World {
 		return blockColumn.toArray(new Block[0]);
 	}
 
-	public Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity, Point3D feetPoint, Point3D tmpPoint, TreeSet<Point3D> playerColumn) {
-		//TreeSet<Integer> playerColumn = new TreeSet<>();
-		//ArrayList<Block> playerColumn0 = new ArrayList<>();
+	public Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {//, Point3D feetPoint, Point3D tmpPoint, TreeSet<Point3D> playerColumn) {
+		
+		Point3D feetPoint=entity.feetPoint;
+		Point3D tmpPoint=entity.tmpPoint;
+		TreeSet<Point3D> playerColumn = entity.playerColumn;
+		
 		playerColumn.clear();
 		Vector entityPos = entity.getPos();
 
 		int x=(int) Math.floor(entityPos.x) ;
 		int y= (int) Math.floor(entityPos.y);
 		feetPoint.set(entityPos.x, entityPos.y, entityPos.z);
-		//Point3D feetPoint=new Point3D(x, y , feetZ);
-		
-		//Block nothing = new Nothing();
-		//nothing.z=feetZ;
-
-		//for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
-		
+				
 		for(int i=x-1;i<=x+1;i++) {
 			for(int j=y-1;j<=y+1;j++) {
 				for(int k=worldBottom;k<=worldTop;k++) {
