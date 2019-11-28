@@ -200,12 +200,27 @@ public class Polygon3D extends Object3D{
 				light=intensity;
 			}
 		}
-		int skylight = 7+(int)(7f*Math.sin(GameEngine.skyLightF*2*Math.PI)); //TODO static helyett valami jobbat - engine szamolja???
-		/*skylight=Math.max(skylight, 0);
-		skylight = Math.min(15, skylight);*/
+		int skylight = Main.GAME == null ? 0: getLightLevel(getTimePercent(Main.GAME.Engine.Tick));
+		/*skylight = Math.min(15, skylight);*/
 		light = Math.max(light, skylight);
 		return overlay.setAlpha((int)(Math.pow(0.8, light+1)*255));
 	}
+	
+	public static int getLightLevel (double percent) {
+		int skylight = (int)(14f*Math.sin(percent*2*Math.PI)); 
+		skylight=Math.max(skylight, 0);
+		return skylight;
+	}
+	
+	public static double getTimePercent(long Tick) {
+		long ticksPerDay=72000;
+		
+		//long day=Tick/ticksPerDay;
+		long hours=Tick%ticksPerDay;
+		double skyLightF=(hours*1f/ticksPerDay);
+		return skyLightF;
+	}
+	
 	
 	public Color4 getLightedColor() {
 		return lightedcolor;

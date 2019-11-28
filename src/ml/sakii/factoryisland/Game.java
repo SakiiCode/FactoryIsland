@@ -28,15 +28,11 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -67,7 +63,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public PlayerEntity PE;
 	public final HashMap<String, PlayerMP> playerList = new HashMap<>();
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
-	private final ArrayList<Object3D> ObjectsTmp = new ArrayList<>();
+	//private final ArrayList<Object3D> ObjectsTmp = new ArrayList<>();
 
 	public boolean moved;
 	public BlockInventoryInterface remoteInventory;
@@ -156,7 +152,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	Area coverageBuffer = new Area();
 	Area bufferArea=new Area();
 	
-	double previousSkyLightF;
+	int previousSkyLight;
+	static long truetime=0l;
+	static long falsetime=0l; 
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 
@@ -382,21 +380,30 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			fb.fillRect(0, 0, Config.width, Config.height);
 
 			fb.setColor(Color.WHITE);
+			
+			//Stars[Stars.length-1].pos.set((float)Math.cos(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI), 0f, (float)Math.sin(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI));
+			
 			for (int i = 0; i < Stars.length; i++)
 			{
 				Stars[i].draw(fb);
 			}
 			
 			
-			if(Math.abs(Engine.skyLightF-previousSkyLightF)>0.05) {
-			
-				previousSkyLightF=Engine.skyLightF;
-				for(Block b : Engine.world.getWhole(true)) {
-					for(Polygon3D p : b.Polygons) {
-						p.recalcLightedColor();
+			/*if(Polygon3D.getLightLevel(Polygon3D.getTimePercent(Engine.Tick)) != previousSkyLight) {
+				previousSkyLight=Polygon3D.getLightLevel(Polygon3D.getTimePercent(Engine.Tick));
+				new Thread() {
+					@Override
+					public void run() {
+						
+						for(Block b : Engine.world.getWhole(true)) {
+							for(Polygon3D p : b.Polygons) {
+								p.recalcLightedColor();
+							}
+						}
 					}
-				}
-			}
+				}.start();
+				
+			}*/
 			
 			
 			
@@ -570,7 +577,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("");
 				}
 				debugInfo.add("SelectedEntity: "+SelectedEntity);
-				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",direct:"+key[6]);
+				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",testing:"+key[6]);
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
 				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock) );
@@ -591,12 +598,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("GravityVelocity: " + PE.GravityVelocity + ", JumpVelocity: " + PE.JumpVelocity + ", result: "
 						+ (PE.JumpVelocity - PE.GravityVelocity));
 				
-				debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint,PE.tmpPoint,PE.playerColumn)+",VV:"+PE.VerticalVector.z);
+				debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE)+",VV:"+PE.VerticalVector.z);
 				}else {
 					debugInfo.add("GravityVelocity: " + SelectedEntity.GravityVelocity + ", JumpVelocity: " + SelectedEntity.JumpVelocity + ", result: "
 							+ (SelectedEntity.JumpVelocity - SelectedEntity.GravityVelocity));
 					
-					debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity, SelectedEntity.feetPoint,SelectedEntity.tmpPoint,SelectedEntity.playerColumn)+",VV:"+SelectedEntity.VerticalVector.z);
+					debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity)+",VV:"+SelectedEntity.VerticalVector.z);
 				}
 				debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
 				/*debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PEPos.x, PEPos.y,
@@ -606,9 +613,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				int feetZ = (int) Math.floor(PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z));
 				PE.tmpPoint.set(x, y, feetZ);
 				debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint));
-				debugInfo.add("ViewBlock: "+ViewBlock);
+				debugInfo.add("ViewBlock: "+ViewBlock+"truetime:"+truetime+"falsetime"+falsetime);
 				debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
-				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Engine.skyLightF+", cached:"+previousSkyLightF+",level:"+(7+(7f*Math.sin(GameEngine.skyLightF*2*Math.PI))));
+				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight+",level:"+Polygon3D.getLightLevel(Polygon3D.getTimePercent(Engine.Tick)));
 					
 				// DEBUG SZÖVEG
 				g.setColor(Color.BLACK);
@@ -812,11 +819,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			}
 		}
-		Block invunder = Engine.world.getBlockUnderEntity(true, true, PE, PE.feetPoint, PE.tmpPoint, PE.playerColumn);
+		Block invunder = Engine.world.getBlockUnderEntity(true, true, PE);
 		if (PE.VerticalVector.z == 1 && PEPos.z < 0	&& invunder != Block.NOTHING)
 		{
 			PE.VerticalVector.z = -1;
-			Block above = Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint, PE.tmpPoint, PE.playerColumn);
+			Block above = Engine.world.getBlockUnderEntity(false, true, PE);
 			if (PEPos.z >= above.z - 1.7f)
 			{
 				PEPos.z = above.z - 1.7f;
@@ -825,7 +832,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			PE.VerticalVector.z = 1;
 
-			Block under = Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint, PE.tmpPoint, PE.playerColumn);
+			Block under = Engine.world.getBlockUnderEntity(false, true, PE);
 			if (PEPos.z <= under.z + 2.7f)
 			{
 				PEPos.z = under.z + 2.7f;
@@ -835,7 +842,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if(key[7]) {
 			PE.fly(true);
 		}else {
-			if (Engine.world.getBlockUnderEntity(false, true, PE, PE.feetPoint, PE.tmpPoint, PE.playerColumn) == Block.NOTHING)
+			if (Engine.world.getBlockUnderEntity(false, true, PE) == Block.NOTHING)
 			{
 				PE.fly(true);
 			} else
@@ -850,7 +857,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(key[4]) {
 				PE.jump();
 			}
-			GameEngine.doGravity(PE, Engine.world, (int) FPS, PE.feetPoint, PE.tmpPoint, PE.playerColumn);
+			GameEngine.doGravity(PE, Engine.world, (int) FPS);
 		}
 		
 
@@ -1132,9 +1139,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 	
-	public Point2D.Float convert3Dto2D(Vector v, Point2D.Float point)
+	public Point2D.Float convert3Dto2D(Vector tmp, Point2D.Float point)
 	{
-		setP(v, point);
+		setP(tmp, point);
 		float x2d = dx + Config.zoom * point.x;
 		float y2d = dy + Config.zoom * point.y;
 
@@ -1143,11 +1150,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 	
-	 private void setP(Vector v, Point2D.Float point)
+	 private void setP(Vector tmp, Point2D.Float point)
 	{
-		 Vector PEPos = PE.getPos();
-		float t = v.substract(PEPos).DotProduct(ViewVector);
-		v.multiply(1 / t).add(PEPos);
+		Vector PEPos = PE.getPos();
+		float t = tmp.substract(PEPos).DotProduct(ViewVector);
+		tmp.multiply(1 / t).add(PEPos);
 
 		// Vector ViewToPoint = v.cpy().substract(PE.getPos());
 		// ViewToPoint.set(v);
@@ -1156,7 +1163,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		// float t = ViewVector.DotProduct(ViewToPoint);
 
 		// ViewToPoint.multiply(1/t).add(PE.getPos());
-		point.setLocation(RightViewVector.DotProduct(v), BottomViewVector.DotProduct(v));
+		point.setLocation(RightViewVector.DotProduct(tmp), BottomViewVector.DotProduct(tmp));
 		//return point;
 	}
 
