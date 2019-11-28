@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.MultipleGradientPaint.CycleMethod;
-import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -41,7 +40,7 @@ public class Polygon3D extends Object3D{
 	HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.height);
 	
 	private Plane tmpnear=new Plane();
-	private Vector ViewToPoint=new Vector();
+	private Vector /*ViewToPoint=new Vector(),*/RadiusVector=new Vector();
 	private Vector CameraToTriangle = new Vector();
 	private Vector tmp=new Vector();
 	int ymax, ymin;
@@ -59,6 +58,8 @@ public class Polygon3D extends Object3D{
 	int[][] UVMap;
 	int[][] clipUV,clipUV2;
 	//UVZ[] uvz;
+	
+	float physicalRadius;
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s) {
 		
@@ -82,6 +83,8 @@ public class Polygon3D extends Object3D{
 		
 		recalc(new Vector());
 		recalcLightedColor();
+		
+		physicalRadius=new Vector().set(centroid).substract(Vertices[1]).getLength(); //feltetelezve h csak teglalap van
 	}
 	
 
@@ -95,7 +98,7 @@ public class Polygon3D extends Object3D{
 					if(Main.GAME.ViewBlock.Polygons.contains(this)) {
 						faceFilter=true;
 					}else {
-						CameraToTriangle.set(Vertices[0].pos).substract(Main.GAME.PE.getPos());
+						CameraToTriangle.set(Vertices[0]).substract(Main.GAME.PE.getPos());
 						faceFilter = CameraToTriangle.DotProduct(normal) < 0;
 					}
 				}
@@ -105,7 +108,7 @@ public class Polygon3D extends Object3D{
 					//if(!Main.GAME.locked) {
 						AvgDist = GetDist();
 					//}
-					if(AvgDist<=Config.renderDistance && !isAllBehind()) {
+					if(AvgDist<=Config.renderDistance && !isAllBehind(RadiusVector)) {
 						//clearClip();
 						//clip(Main.GAME.ViewFrustum.znear);
 						resetClipsTo(Vertices, UVMap, Vertices.length);
@@ -454,11 +457,11 @@ public class Polygon3D extends Object3D{
 
 	public void recalc(Vector tmpVector) {
 		if(Vertices.length>0) {
-			Vector v0 = Vertices[0].pos;
-			Vector v1 = Vertices[1].pos;
-			Vector v2 = Vertices[2].pos;
+			Vector v0 = Vertices[0];
+			Vector v1 = Vertices[1];
+			Vector v2 = Vertices[2];
 			normal.set(v2).substract(v0).CrossProduct(tmpVector.set(v1).substract(v0));
-			//Plane p = new Plane(Vertices[0].pos, Vertices[1].pos, Vertices[2].pos);
+			//Plane p = new Plane(Vertices[0], Vertices[1], Vertices[2]);
 			//normal.set(p.normal);
 		}
 		
@@ -468,9 +471,9 @@ public class Polygon3D extends Object3D{
 		for(Vertex v : Vertices) {
 
 	    
-	        dx += v.pos.x;
-	        dy += v.pos.y;
-	        dz += v.pos.z;
+	        dx += v.x;
+	        dy += v.y;
+	        dz += v.z;
 	    }
 
 	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
@@ -478,18 +481,21 @@ public class Polygon3D extends Object3D{
 	}
 	
 	
-	private boolean isAllBehind() {
+	
+	
+	private boolean isAllBehind(Vector tmp2) { //7.1% -> 4.9%
+		boolean result=true;
 
-		for(Vertex v : Vertices) {
-			ViewToPoint.set(v.pos);
-			ViewToPoint.substract(Main.GAME.PE.getPos());
-			if(Main.GAME.ViewVector.DotProduct(ViewToPoint)<0){
-				continue;
-			}
-			return false;
-		}
+			tmp2.set(Main.GAME.ViewVector).multiply(physicalRadius); //radius vector
 		
-		return true;
+			if(tmp2.add(centroid).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector)<0) {
+				result= true;
+			}else {
+				result=false;
+			}
+		
+		return result;
+		//centroid+radius*ViewVector-ViewFrom . ViewVector <0 akkor mogotte
 			
 	}
 	
@@ -532,9 +538,12 @@ public class Polygon3D extends Object3D{
 	}*/
 	
 	private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
-		for(int i=0;i<clip.length;i++) {
-			clip[i].set(i<size ? vertexArr[i] : Vertex.NULL);
-			clipUV[i] = i<size ? uvArr[i] : new int[]{0,0};
+		for(int i=0;i<size;i++) {
+			clip[i].set(vertexArr[i]);
+			if(Config.useTextures) {
+				clipUV[i][0] = uvArr[i][0];
+				clipUV[i][1] = uvArr[i][1];
+			}
 		}
 		clipSize=size;
 	}
@@ -566,8 +575,8 @@ public class Polygon3D extends Object3D{
 				int[] uv1 = clipUV[index1];
 				int[] uv2 = clipUV[index2];
 				
-				Vector a = v1.pos;
-				Vector b = v2.pos;
+				Vector a = v1;
+				Vector b = v2;
 				
 				
 				
@@ -580,7 +589,8 @@ public class Polygon3D extends Object3D{
 					
 					//tmp.add(v1);
 					clip2[clip2Size].set(v1);
-					clipUV2[clip2Size]=uv1;
+					if(Config.useTextures)
+						clipUV2[clip2Size]=uv1;
 					clip2Size++;
 				}else if(da < 0 && db < 0){ // mindkettõ mögötte
 					
@@ -590,20 +600,22 @@ public class Polygon3D extends Object3D{
 					//tmp.add(Vertex.setInterp(a, pos, b, v1, v2));
 					tmp.set(b);
 					tmp.substract(a).multiply(s).add(a);
-					clipUV2[clip2Size] = Vertex.setInterp(a, tmp, b, uv1,uv2, clip2[clip2Size]);
+					clip2[clip2Size].set(tmp);
+					if(Config.useTextures)
+						clipUV2[clip2Size] = Vertex.getUVInterp(a, tmp, b, uv1,uv2);
 					clip2Size++;
 				}else if(da >0 && db < 0){ // elölrõl vágja félbe
 					
-					//tmp.add(v1);
 					clip2[clip2Size].set(v1);
-					clipUV2[clip2Size]=uv1;
+					if(Config.useTextures)
+						clipUV2[clip2Size]=uv1;
 					clip2Size++;
-					//Vector pos = b.cpy().substract(a).multiply(s).add(a);
-					//Vector pos = new Vector(a.x + s*(b.x-a.x), a.y + s*(b.y-a.y), a.z + s*(b.z-a.z));
-					//tmp.add(Vertex.setInterp(a, pos, b, v1, v2));
+					
 					tmp.set(b);
 					tmp.substract(a).multiply(s).add(a);
-					clipUV2[clip2Size] = Vertex.setInterp(a, tmp, b, uv1,uv2, clip2[clip2Size]);
+					clip2[clip2Size].set(tmp);
+					if(Config.useTextures)
+						clipUV2[clip2Size] = Vertex.getUVInterp(a, tmp, b, uv1,uv2);
 					clip2Size++;
 					
 				}
@@ -630,9 +642,9 @@ public class Polygon3D extends Object3D{
 		for(Vertex v : Vertices) {
 
 	    
-	        dx += v.pos.x;
-	        dy += v.pos.y;
-	        dz += v.pos.z;
+	        dx += v.x;
+	        dy += v.y;
+	        dz += v.z;
 	    }
 
 	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
