@@ -29,6 +29,7 @@ public class TCPListener extends Thread {
 						}
 					}
 				}catch(Exception e) {
+					e.printStackTrace();
 					break;
 				}
 			

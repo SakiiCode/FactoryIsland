@@ -64,8 +64,10 @@ public class GameEngine{
 	long physics1, physics2;
 	float actualphysicsfps;
 	long lastupdate;
+	
+	String error="OK";
 
-	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) {
+	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) throws Exception {
 		init();
 		
 		switch(loadmethod) {
@@ -75,7 +77,9 @@ public class GameEngine{
 			long startTime = System.currentTimeMillis();
 			
 			world = new World(location, this, game, false, statusLabel);
-			
+			if(!world.success.equals("OK")) {
+				throw new Exception(world.success);
+			}
 			generateTerrain(seed, statusLabel);	
 			
 
@@ -86,12 +90,18 @@ public class GameEngine{
 			break;
 		case MULTIPLAYER:
 			world = new World(location, this, game, false, statusLabel);
+			if(!world.success.equals("OK")) {
+				throw new Exception(world.success);
+			}
 			break;
 		case EXISTING:
 			Main.log("Loading world "+location+"...");
 			statusLabel.setText("Loading world "+location+"...");
 			world = new World(location, this, game, true, statusLabel);
-
+			if(!world.success.equals("OK")) {
+				error = (world.success);
+				return;
+			}
 			String str ="Map loading done: " + world.getSize() + " block loaded."; 
 			Main.log(str);
 			statusLabel.setText(str);

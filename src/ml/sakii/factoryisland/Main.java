@@ -264,7 +264,7 @@ public class Main
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-
+				//TODO windowson alt-f4-nel nem menti a palyat
 				if (GAME != null)
 				{
 					GAME.disconnect(null);
@@ -321,7 +321,7 @@ public class Main
 		}
 		
 		Main.err(GAME.error);
-		statusLabel.setText("Error:"+GAME.error);
+		statusLabel.setText("<html>Error: "+GAME.error+"</html>");
 		JOptionPane.showMessageDialog(Frame, GAME.error);
 		return false;
 		
@@ -339,7 +339,7 @@ public class Main
 				GAME.Engine.afterGen();
 			}else {
 				Main.err(GAME.error);
-				statusLabel.setText("<html>Error:"+GAME.error+"</html>");
+				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
 				GAME=null;
 				return false;
 			}
@@ -348,7 +348,7 @@ public class Main
 			GAME = new Game(mapName, 0, LoadMethod.EXISTING, statusLabel);
 			if(GAME.error != null) {
 				Main.err(GAME.error);
-				statusLabel.setText("<html>Error:"+GAME.error+"</html>");
+				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
 				GAME=null;
 				return false;
 			}

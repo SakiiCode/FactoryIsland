@@ -368,7 +368,7 @@ public class Polygon3D extends Object3D{
 							 		FrameBuffer.setRGB(x, y, px);
 							 	}
 						 	}catch(Exception e) {
-						 		//e.printStackTrace();
+						 		e.printStackTrace();
 						 	}
 					 	}
 					 	

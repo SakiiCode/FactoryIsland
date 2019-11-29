@@ -160,8 +160,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		try {
 			Engine = new GameEngine(location, this, seed, loadmethod, statusLabel);
-			
-
+			if(!Engine.error.equals("OK")) {
+				System.gc();
+				
+				error=Engine.error;
+				return;
+			}
 		}catch(Exception e) {
 			System.gc();
 			e.printStackTrace();
