@@ -61,6 +61,8 @@ public class Polygon3D extends Object3D{
 	
 	float physicalRadius;
 	
+	private static final long TICKS_PER_DAY = Main.devmode? 1000 : 72000;
+	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s) {
 		
 		this.Vertices = vertices;
@@ -204,23 +206,35 @@ public class Polygon3D extends Object3D{
 			}
 		}
 		int skylight = Main.GAME == null ? 0: getLightLevel(getTimePercent(Main.GAME.Engine.Tick));
-		/*skylight = Math.min(15, skylight);*/
 		light = Math.max(light, skylight);
 		return overlay.setAlpha((int)(Math.pow(0.8, light+1)*255));
 	}
 	
-	public static int getLightLevel (double percent) {
-		int skylight = (int)(14f*Math.sin(percent*2*Math.PI)); 
-		skylight=Math.max(skylight, 0);
+	private int getLightLevel (double percent) {
+		
+		double radians = percent*2*Math.PI;
+		if(centroid.z<=0) {
+			radians += Math.PI;
+		}
+			
+		int skylight = (int)(14f*Math.sin(radians)); 
+		//skylight=Math.max(skylight, 0);
 		return skylight;
 	}
 	
+	public static int testLightLevel(double percent) {
+		double radians = percent*2*Math.PI;
+		int skylight = (int)(14f*Math.sin(radians)); 
+		//skylight=Math.max(skylight, 0);
+		return skylight;
+
+	}
+	
 	public static double getTimePercent(long Tick) {
-		long ticksPerDay=72000;
 		
 		//long day=Tick/ticksPerDay;
-		long hours=Tick%ticksPerDay;
-		double skyLightF=(hours*1f/ticksPerDay);
+		long hours=Tick%TICKS_PER_DAY;
+		double skyLightF=(hours*1f/TICKS_PER_DAY);
 		return skyLightF;
 	}
 	

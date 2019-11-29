@@ -385,29 +385,29 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			fb.setColor(Color.WHITE);
 			
-			//Stars[Stars.length-1].pos.set((float)Math.cos(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI), 0f, (float)Math.sin(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI));
+			Stars[Stars.length-1].pos.set((float)Math.cos(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI), 0f, (float)Math.sin(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI));
 			
 			for (int i = 0; i < Stars.length; i++)
 			{
 				Stars[i].draw(fb);
 			}
 			
-			
-			/*if(Polygon3D.getLightLevel(Polygon3D.getTimePercent(Engine.Tick)) != previousSkyLight) {
-				previousSkyLight=Polygon3D.getLightLevel(Polygon3D.getTimePercent(Engine.Tick));
+			int skyLight = Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick));
+			if(skyLight != previousSkyLight) {
+				previousSkyLight=skyLight;
 				new Thread() {
 					@Override
 					public void run() {
 						
-						for(Block b : Engine.world.getWhole(true)) {
-							for(Polygon3D p : b.Polygons) {
-								p.recalcLightedColor();
+						for(Object3D o : Objects) {
+							if(o instanceof Polygon3D) {
+								((Polygon3D)o).recalcLightedColor();
 							}
 						}
 					}
 				}.start();
 				
-			}*/
+			}
 			
 			
 			
