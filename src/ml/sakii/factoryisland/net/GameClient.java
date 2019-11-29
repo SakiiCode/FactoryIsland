@@ -407,7 +407,7 @@ public class GameClient extends Thread{
 	private static int cInt(String data){
 		try{
 			return Integer.parseInt(data); 
-		}catch(Exception e){
+		}catch(@SuppressWarnings("unused") Exception e){
 			Main.err("Incompatible int conversion: "+data);
 			return 0;
 		}

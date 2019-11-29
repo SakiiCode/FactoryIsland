@@ -412,47 +412,25 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			
 
-			//if(key[6]) {
-				/*Objects.parallelStream().filter(o -> o.update()).sorted(new Comparator<Object3D>() {
-
-					@Override
-					public int compare(Object3D o1, Object3D o2)
-					{
-						if(o1 instanceof Polygon3D && o2 instanceof Polygon3D) {
-							return Integer.compare(((Polygon3D)o1).polygon.getBounds().y, ((Polygon3D)o2).polygon.getBounds().y);
-						}else if(o1 instanceof Polygon3D) {
-							return -1;
-						}else if(o2 instanceof Polygon3D) {
-							return 1;
-						}else {
-							return 0;
-						}
-					}
-				*/
-				
-				
-			//}else {
-				Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o->
-				
-				{
-					
-					o.draw(FrameBuffer, fb);
-					
-					if(o instanceof Polygon3D) {
-						Polygon3D poly = (Polygon3D)o;
-						if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
-						{
-							SelectedPolygon = poly;
-						}
-						VisibleCount++;
-					}
-				});
-				
-				
-				
-				
-			//}
+			Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o->
 			
+			{
+				
+				o.draw(FrameBuffer, fb);
+				
+				if(o instanceof Polygon3D) {
+					Polygon3D poly = (Polygon3D)o;
+					if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
+					{
+						SelectedPolygon = poly;
+					}
+					VisibleCount++;
+				}
+			});
+			
+				
+				
+	
 
 			
 			
@@ -555,7 +533,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			g.drawLine(cX - crosshairSize, cY, cX + crosshairSize, cY);
 			
 			
-			int fontSize = (int) (Math.cbrt(Config.height)*2);
+			int fontSize = (int) (Math.cbrt(Config.height)*2)-2;
 			g.setFont(new Font("SANS", Font.BOLD, fontSize));
 			g.setColor(Color.GRAY);
 			float viewportscale=(float) Math.sqrt(Config.width*Config.height*1f/Main.Width/Main.Height);
@@ -584,7 +562,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",testing:"+key[6]);
 				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
-				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock) );
+				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) );
 				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.getSelectedKind() : ""));
 				if (Engine.client != null)
 				{
@@ -599,10 +577,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				}
 				debugInfo.add("Seed: " + Engine.world.seed);
 				if(SelectedEntity == null) {
-				debugInfo.add("GravityVelocity: " + PE.GravityVelocity + ", JumpVelocity: " + PE.JumpVelocity + ", result: "
-						+ (PE.JumpVelocity - PE.GravityVelocity));
-				
-				debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE)+",VV:"+PE.VerticalVector.z);
+					debugInfo.add("GravityVelocity: " + PE.GravityVelocity + ", JumpVelocity: " + PE.JumpVelocity + ", result: "
+							+ (PE.JumpVelocity - PE.GravityVelocity));
+					
+					debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE)+",VV:"+PE.VerticalVector.z);
 				}else {
 					debugInfo.add("GravityVelocity: " + SelectedEntity.GravityVelocity + ", JumpVelocity: " + SelectedEntity.JumpVelocity + ", result: "
 							+ (SelectedEntity.JumpVelocity - SelectedEntity.GravityVelocity));
@@ -619,8 +597,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint));
 				debugInfo.add("ViewBlock: "+ViewBlock+"truetime:"+truetime+"falsetime"+falsetime);
 				debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
-				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight+",level:"+Polygon3D.getLightLevel(Polygon3D.getTimePercent(Engine.Tick)));
-					
+				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
+				debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
 				// DEBUG SZÖVEG
 				g.setColor(Color.BLACK);
 				g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
@@ -632,7 +610,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					while (iter.hasNext())
 					{
 						g.drawString(iter.next(), 20, 40 + i + j);
-						i += g.getFont().getSize()*(1.2f+(Config.height-320f)/704f);
+						i += g.getFont().getSize()*(1.15f+(Config.height-320f)/704f);
 					}
 					g.setColor(Color.WHITE);
 				}

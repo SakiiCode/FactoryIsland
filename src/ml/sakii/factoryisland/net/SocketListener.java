@@ -23,7 +23,11 @@ public class SocketListener extends Thread {
 
 	public SocketListener(TCPListener Listener) {
 		try {
-			this.socket = create(1420);
+			try {
+	            this.socket = new ServerSocket(1420);
+	        } catch (@SuppressWarnings("unused") IOException ex) {
+	        	this.socket = new ServerSocket(0);
+	        }
 			this.port = socket.getLocalPort();
 			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server opened to LAN at port " + socket.getLocalPort(), "Info", JOptionPane.INFORMATION_MESSAGE);
 		} catch (IOException e) {
@@ -37,16 +41,6 @@ public class SocketListener extends Thread {
 		}
 		this.Listener = Listener;
 		//this.Connections = connections;
-	}
-	
-	@SuppressWarnings("static-method")
-	private ServerSocket create(int def) throws IOException {
-	        try {
-	            return new ServerSocket(def);
-	        } catch (IOException ex) {
-	        	return new ServerSocket(0);
-	        }
-
 	}
 	
 	@Override

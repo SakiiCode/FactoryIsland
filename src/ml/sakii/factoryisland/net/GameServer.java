@@ -378,7 +378,6 @@ public class GameServer extends Thread{
 	}
 
 
-	@SuppressWarnings("static-method")
 	public String sendData(String data, Connection socket){
 		String error=null;
 		try {
@@ -468,7 +467,7 @@ public class GameServer extends Thread{
 	private static int cInt(String data){
 		try{
 			return Integer.parseInt(data); 
-		}catch(Exception e){
+		}catch(@SuppressWarnings("unused") Exception e){
 			Main.err("Incompatible int conversion: "+data);
 			return 0;
 		}

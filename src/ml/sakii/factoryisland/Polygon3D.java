@@ -94,7 +94,7 @@ public class Polygon3D extends Object3D{
 	@Override
 	boolean update(){
 			
-		// Ha bármelyik hamis, eltûnik. Csak akkor jelenik meg, ha az összes igaz.
+		// Ha bÃ¡rmelyik hamis, eltûnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
 				if(!Main.GAME.locked) {
 					if(Main.GAME.ViewBlock.Polygons.contains(this)) {
@@ -255,7 +255,7 @@ public class Polygon3D extends Object3D{
 
 
 	@Override
-	void draw(BufferedImage FrameBuffer, Graphics g){
+	public void draw(BufferedImage FrameBuffer, Graphics g){
 		boolean lighted=false;
 		Graphics2D g2d=(Graphics2D)g;
 		if(s.color || !Config.useTextures || AvgDist > 25){
@@ -276,7 +276,7 @@ public class Polygon3D extends Object3D{
 			bufferUVZmax.clear();
 			
 
-			//vertexrõl vertexre körbemegyünk
+			//vertexrÅ‘l vertexre kÃ¶rbemegyÃ¼nk
 			for(int i=0;i<clipSize;i++) {
 				
 				int index1= i;
@@ -291,22 +291,22 @@ public class Polygon3D extends Object3D{
 				final Point p1 = v1.proj;
 				final Point p2 = v2.proj;
 				
-				//p1 és p2 meredeksége
+				//p1 Ã©s p2 meredeksÃ©ge
 				final double m=(p2.y==p1.y) ? 0.0 : (p2.x-p1.x)*1.0/(p2.y-p1.y);
 				
-				// mindenképpen y pozitív irányban szeretnénk végigmenni a polygon oldalán, de lehet, hogy p2 van feljebb.
+				// mindenkÃ©ppen y pozitÃ­v irÃ¡nyban szeretnÃ©nk vÃ©gigmenni a polygon oldalÃ¡n, de lehet, hogy p2 van feljebb.
 				final int xmin = (p1.y<p2.y) ? p1.x : p2.x;
-				final int ymin= (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
+				final int ymin= (p1.y<p2.y) ? p1.y : p2.y; // y hatÃ¡rÃ©rtÃ©kei adott szakaszon
 				final int ymax = (p1.y<p2.y) ? p2.y : p1.y;
 
 				
 				
 
 
-				double x  = xmin; //aktuális x érték
+				double x  = xmin; //aktuÃ¡lis x Ã©rtÃ©k
 				
-				// megkeressük az adott sor bal és jobb szélét, társítunk a két ponthoz UVZ-t is
-				// y-t 1-gyel, x-et m-mel léptetjük
+				// megkeressÃ¼k az adott sor bal Ã©s jobb szÃ©lÃ©t, tÃ¡rsÃ­tunk a kÃ©t ponthoz UVZ-t is
+				// y-t 1-gyel, x-et m-mel lÃ©ptetjÃ¼k
 				for(int y=ymin;y<ymax;y++) {
 					
 					if(bufferXmin.get(y) == null || x < bufferXmin.get(y)) {
@@ -335,15 +335,15 @@ public class Polygon3D extends Object3D{
 			
 			
 			g2d.setColor(Color.BLACK);
-			if(imgw>0) { //ha merõlegesen állunk ne rajzoljon
+			if(imgw>0) { //ha merÅ‘legesen Ã¡llunk ne rajzoljon
 				
-				// átmeneti kép, erre rajzoljuk a polygont, és ezt rajzoljuk az ablakra
+				// Ã¡tmeneti kÃ©p, erre rajzoljuk a polygont, Ã©s ezt rajzoljuk az ablakra
 
 				
-				//a polygon minden során végigmegyünk
+				//a polygon minden sorÃ¡n vÃ©gigmegyÃ¼nk
 				for(int y=ymin;y<ymax;y++)
 				{
-					//a polygon adott sorának két szélének adatai
+					//a polygon adott sorÃ¡nak kÃ©t szÃ©lÃ©nek adatai
 					int xmin=bufferXmin.get(y);
 					int xmax=bufferXmax.get(y);
 					UVZ uvzmin = bufferUVZmin.get(y);
@@ -540,18 +540,16 @@ public class Polygon3D extends Object3D{
 	    point.setLocation(x, y);
 	    return point;
 	}
-	
-	/*private void clearClip() {
-		for(int i=0;i<clip.length;i++) {
-			clip[i].set(i<Vertices.length ? Vertices[i] : Vertex.NULL);
-			clipUV[i] = (i<UVMap.length) ? UVMap[i] : new int[]{0,0};
-		}
-		
-		clipSize=Vertices.length;
-		
-	}*/
-	
+
 	private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
+		for(int i=0;i<clip.length;i++) {
+			clip[i].set(i<size ? vertexArr[i] : Vertex.NULL);
+			clipUV[i] = i<size ? uvArr[i] : new int[]{0,0};
+		}
+		clipSize=size;
+	}
+	
+	/*private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
 		for(int i=0;i<size;i++) {
 			clip[i].set(vertexArr[i]);
 			if(Config.useTextures) {
@@ -560,22 +558,15 @@ public class Polygon3D extends Object3D{
 			}
 		}
 		clipSize=size;
-	}
-	
-	
-	/*private void copyClip() {
-		for(int i=0;i<clip.length;i++) {
-			clip[i].set(i<clip2Size ? clip2[i] : Vertex.NULL);
-			clipUV[i] = i<clip2Size ? clipUV2[i] : new int[]{0,0};
-		}
-		clipSize=clip2Size;
-	
 	}*/
 	
+	
+	
+	
+	
+		
 	private void clip(Plane P){
-		/*if(clipSize==0) {
-			return;
-		}*/
+		
 		//ArrayList<Vertex> tmp = new ArrayList<>(Arrays.asList(clip)); 
 		clip2Size=0;
 		for(int i=0;i<clipSize;i++){
@@ -599,35 +590,32 @@ public class Polygon3D extends Object3D{
 				
 				float s= da/(da-db);
 
-				if(da > 0 && db > 0){ // mindkettõ elõtte
+				
+				
+				if(da > 0 && db > 0){ // mindkettÅ‘ elÅ‘tte
 					
-					//tmp.add(v1);
 					clip2[clip2Size].set(v1);
 					if(Config.useTextures)
 						clipUV2[clip2Size]=uv1;
 					clip2Size++;
-				}else if(da < 0 && db < 0){ // mindkettõ mögötte
+					
+				}else if(da < 0 && db < 0){ // mindkettÅ‘ mÃ¶gÃ¶tte
 					
 				}else if(da < 0 && db > 0){
-					//Vector pos = b.cpy().substract(a).multiply(s).add(a);//a.cpy().add(a.to(b).multiply(s));
-					//Vector pos = new Vector(a.x + s*(b.x-a.x), a.y + s*(b.y-a.y), a.z + s*(b.z-a.z));
-					//tmp.add(Vertex.setInterp(a, pos, b, v1, v2));
-					tmp.set(b);
-					tmp.substract(a).multiply(s).add(a);
-					clip2[clip2Size].set(tmp);
+					
+					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
 					if(Config.useTextures)
 						clipUV2[clip2Size] = Vertex.getUVInterp(a, tmp, b, uv1,uv2);
 					clip2Size++;
-				}else if(da >0 && db < 0){ // elölrõl vágja félbe
+					
+				}else if(da >0 && db < 0){ // elÃ¶lrÅ‘l vÃ¡gja fÃ©lbe
 					
 					clip2[clip2Size].set(v1);
 					if(Config.useTextures)
 						clipUV2[clip2Size]=uv1;
 					clip2Size++;
 					
-					tmp.set(b);
-					tmp.substract(a).multiply(s).add(a);
-					clip2[clip2Size].set(tmp);
+					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
 					if(Config.useTextures)
 						clipUV2[clip2Size] = Vertex.getUVInterp(a, tmp, b, uv1,uv2);
 					clip2Size++;
@@ -635,7 +623,6 @@ public class Polygon3D extends Object3D{
 				}
 		}
 		
-		//copyClip();
 		resetClipsTo(clip2,clipUV2,clip2Size);
 	}
 	

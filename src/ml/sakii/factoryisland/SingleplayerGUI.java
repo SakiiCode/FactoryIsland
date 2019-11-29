@@ -295,7 +295,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
     		}else{
     			try{
     				Main.seed = Long.parseLong(seedField.getText());
-    			}catch(Exception ex){
+    			}catch(@SuppressWarnings("unused") Exception ex){
     				Main.seed = seedField.getText().hashCode();	
     			}
     		}

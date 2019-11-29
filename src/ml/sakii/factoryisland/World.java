@@ -25,6 +25,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -54,9 +55,11 @@ public class World {
 	final int CHUNK_WIDTH = 10;
 	//int CHUNK_HEIGHT = 40;
 	int MAP_RADIUS = 5;
+	final int MAP_VERSION=1;
 	//int index = -1; // -1=REMOTE MAP
 	public String worldName=""; //""=REMOTE MAP
 	long seed;
+	int loadedVersion=MAP_VERSION;
 	static final float BLOCK_RANGE = 0.2f;
 	static final float GravityAcceleration=9.81f;
 	
@@ -69,7 +72,7 @@ public class World {
 	
 	//ArrayList<Vector> SpawnableSurface = new ArrayList<>();
 	private int worldTop,worldBottom;
-
+	String success="OK";
 	
 	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
 		Engine = engine;
@@ -79,7 +82,7 @@ public class World {
 		
 		
 		if(existing) {
-			loadWorld(engine, statusLabel);
+			success = loadWorld(engine, statusLabel);
 		}else if(Config.creative){
 			tmpInventory = new PlayerInventory(engine);
 			game.creative=true;
@@ -90,7 +93,7 @@ public class World {
 	}
 
 	@SuppressWarnings({ "null", "unchecked" })
-	private void loadWorld(GameEngine engine, JLabel statusLabel) {
+	private String loadWorld(GameEngine engine, JLabel statusLabel) {
 		/*File file = new File("saves/" + worldName + "/map.xml");
 
 
@@ -208,6 +211,7 @@ public class World {
 		} catch (IOException e)
 		{
 			e.printStackTrace();
+			return e.getMessage();
 		}
 		
 		
@@ -216,7 +220,7 @@ public class World {
 			eventReader = factory.createXMLEventReader(reader);
 			
 	 
-	        boolean bSeed=false,bMetadata=false,bPower=false,bTick=false,bInventory=false;
+	        boolean bSeed=false,bMetadata=false,bPower=false,bTick=false,bInventory=false,bVersion=false;
 	        String curMeta=null,curInv=null,curPower=null;
 	        Block curBlock=null;
 	        while(eventReader.hasNext()) {
@@ -227,8 +231,8 @@ public class World {
 				} catch (XMLStreamException e)
 				{
 					e.printStackTrace();
-					statusLabel.setText("Error parsing map file!");
-					return;
+					//statusLabel.setText("Error parsing map file!");
+					return e.getMessage();
 				}
 	               
 	            switch(event.getEventType()) {
@@ -239,6 +243,8 @@ public class World {
 	                   
 	                   if (qName.equalsIgnoreCase("seed")) {
 	                	   bSeed=true;
+	                   }else if (qName.equalsIgnoreCase("version")) {
+	                	   bVersion=true;
 	                   }else if (qName.equalsIgnoreCase("blocks")) {
 	                	   statusLabel.setText("Loading blocks...");
 	                   }else if (qName.equalsIgnoreCase("block")) {
@@ -300,13 +306,19 @@ public class World {
 	            		   if(curBlock!=null && curMeta != null) {
 	            			   curBlock.BlockMeta.put(curMeta,characters.getData());
 	            		   }else {
-	            			   Main.err("No current block/metadata tag while parsing metadata");
-	            			   throw new NullPointerException();
+	            			   //Main.err("No current block/metadata tag while parsing metadata");
+	            			   return "No current block/metadata tag while parsing metadata";
 	            		   }
 	            	   }else if(bTick) {
 	            		   engine.Tick=Long.parseLong(characters.getData());
 	            	   }else if(bSeed) {
 	            		   this.seed=Long.parseLong(characters.getData());
+	            	   }else if(bVersion) {
+	            		   this.loadedVersion=Integer.parseInt(characters.getData());
+	            		   if(this.loadedVersion!=MAP_VERSION) {
+	            			   //Main.err("Incompatible map file");
+	            			   return "Incompatible map file";
+	            		   }
 	            	   }else if(curMeta != null) {
 	            		   curBlock.BlockMeta.put(curMeta, characters.getData());
 	            	   }else if(curPower != null) {
@@ -327,8 +339,8 @@ public class World {
 	            			   curBlock=null;
 	            			   statusLabel.setText("Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
 	            		   }else {
-	            			   Main.err("Closing tag of empty block");
-	            			   throw new NullPointerException();
+	            			   //Main.err("Closing tag of empty block");
+	            			   return "Closing tag of empty block";
 	            		   }
 	                   
 	                }else if(endElement.getName().getLocalPart().equalsIgnoreCase("metadata")) {
@@ -347,6 +359,8 @@ public class World {
 	                	bSeed=false;
 	                }else if(endElement.getName().getLocalPart().equalsIgnoreCase("tick")) {
 	                	bTick=false;
+	                }else if(endElement.getName().getLocalPart().equalsIgnoreCase("version")) {
+	                	bVersion=false;
 	                }
 	                break;
 	            	   
@@ -369,14 +383,15 @@ public class World {
 				}
 			}
 		
-		} catch (XMLStreamException | IOException e)
+		} catch (Exception e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			statusLabel.setText("Error loading map file");
+			//statusLabel.setText("Error:"+e.getMessage());
 			
-			return;
+			return e.getMessage();
 		}
+        
+        return "OK";
 		
 	}
 	
@@ -639,7 +654,7 @@ public class World {
 			
 			
 			if (b instanceof TextureListener) {
-				game.TextureBlocks.remove(b);
+				game.TextureBlocks.remove((TextureListener)b);
 			}
 	
 			filterAdjecentBlocks(b);
@@ -1212,7 +1227,7 @@ public class World {
 
 	public void saveByShutdown() {
 
-		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
+		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
 		
 		if(Engine.server == null) { // singleplayer, game-bõl szedi az adatokat
@@ -1234,7 +1249,7 @@ public class World {
 		}
 	}
 
-	public static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities) {
+	public static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {
 		File saves = new File("saves");
 		File mods = new File("mods");
 		File wname = new File("saves/" + worldName);
@@ -1266,6 +1281,10 @@ public class World {
 		Element seedE = document.createElement("seed");
 		seedE.setTextContent(seed+"");
 		root.appendChild(seedE);
+		
+		Element versionE = document.createElement("version");
+		versionE.setTextContent(loadedVersion+"");
+		root.appendChild(versionE);
 		
 		//root.setAttribute("height", "" + height);
 
@@ -1343,6 +1362,8 @@ public class World {
 		Transformer transformer;
 		try {
 			transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			DOMSource source = new DOMSource(document);
 			StreamResult result = new StreamResult(file);
 			transformer.transform(source, result);

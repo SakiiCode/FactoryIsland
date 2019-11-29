@@ -443,4 +443,8 @@ public class Block extends Object3D
 
 	}
 
+	@Override
+	public void draw(BufferedImage FrameBuffer, Graphics g) {
+	}
+
 }

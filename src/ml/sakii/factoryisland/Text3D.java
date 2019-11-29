@@ -43,7 +43,7 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	void draw(BufferedImage fb, Graphics g)
+	public void draw(BufferedImage fb, Graphics g)
 	{
 
 		g.setFont(new Font("Helvetica", Font.BOLD, (int) (20 * Main.GAME.ratio)));
