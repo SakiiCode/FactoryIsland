@@ -116,7 +116,7 @@ public class Main
 		/*try
 		{
 			logStream=new FileOutputStream("log.txt", true);
-			if(!devmode) { // ha nincs debug, a f·jlba Ìrja a kivÈteleket
+			if(!devmode) { // ha nincs debug, a f√°jlba √≠rja a kiv√©teleket
 				PrintStream out = new PrintStream(logStream);
 				System.setErr(out);
 			}
@@ -222,7 +222,7 @@ public class Main
 			Frame.setBounds(bounds);
 
 			
-		} else // a linux egy bug miatt mindig kiteszi egy bizonyos kÈpernyıre TODO ellenorizni
+		} else // a linux egy bug miatt mindig kiteszi egy bizonyos k√©perny√µre TODO ellenorizni
 		{
 			d.setFullScreenWindow(Frame);
 		}

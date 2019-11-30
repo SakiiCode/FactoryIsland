@@ -104,7 +104,7 @@ public class GameServer extends Thread{
 				Vector pos=null;
 				float yaw;
 
-				if(!senderName.equals(Config.username)) { // ha nem helyi, akkor elk¸ldi a p·ly·t
+				if(!senderName.equals(Config.username)) { // ha nem helyi, akkor elk√ºldi a p√°ly√°t
 				
 					ArrayList<Block> Blocks =Engine.world.getWhole(false); 
 					int size = Blocks.size();
@@ -137,7 +137,7 @@ public class GameServer extends Thread{
 
 					PlayerInventory inv=null;
 					
-					//Ès a poziciÛj·t
+					//√©s a pozici√≥j√°t
 					File playerFile = new File("saves/"+Engine.world.worldName+"/"+senderName+".xml");
 					
 					
@@ -147,7 +147,7 @@ public class GameServer extends Thread{
 						yaw=dir.x;
 						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+dir.x+","+dir.y, socketstream);
 						
-						//Ès az inventoryt
+						//√©s az inventoryt
 						
 						inv = Engine.world.loadInv(senderName, null);
 						for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
@@ -167,14 +167,14 @@ public class GameServer extends Thread{
 						clients.put(senderName,new PlayerMPData(senderName, pos, -135, 0, new PlayerInventory(Engine), socketstream, false));
 					}
 					
-					//Ès az entityket
+					//√©s az entityket
 					for(Entity e : Engine.world.getAllEntities()) {
 						//15,className,x,y,z,yaw,pitch,name,ID
 						if(!(e instanceof PlayerEntity))
 							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.ID, socketstream);
 					}
 					
-					//Ès a blockok inventoryj·t
+					//√©s a blockok inventoryj√°t
 					for(Block b : Engine.world.getWhole(false)) {
 						if(b instanceof BlockInventoryInterface) {
 							for(Entry<ItemType,Integer> entry : ((BlockInventoryInterface) b).getInv().items.entrySet()) {
@@ -184,7 +184,7 @@ public class GameServer extends Thread{
 					}
 
 					
-				}else {	// most nyitottuk meg, kell a pozÌciÛ, de az inventory nem kˆzˆs a klienssel
+				}else {	// most nyitottuk meg, kell a poz√≠ci√≥, de az inventory nem k√∂z√∂s a klienssel
 					pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
 					yaw= Float.parseFloat(part[5]);
 					clients.put(senderName,new PlayerMPData(senderName,pos ,yaw, Float.parseFloat(part[6]), new PlayerInventory(Engine), socketstream, true));
@@ -347,7 +347,7 @@ public class GameServer extends Thread{
 				break;
 			case "16": // MOVE ENTITY
 				Entity e = Engine.world.getEntity(Long.parseLong(part[1]));
-				if(e!=null) { // lehet h rossz sorrendben jˆnnek a parancsok Ès m·r meghalt
+				if(e!=null) { // lehet h rossz sorrendben j√∂nnek a parancsok √©s m√°r meghalt
 					e.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
 					for(PlayerMPData client : clients.values()){
 						if(!client.local) {

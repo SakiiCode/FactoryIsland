@@ -385,7 +385,7 @@ public class GameEngine{
     					}
     				
     				
-    				}); // minden entity kód vége
+    				}); // minden entity kÃ³d vÃ©ge
             	
     			}
 
@@ -423,14 +423,14 @@ public class GameEngine{
 			float JumpDistance = resultant / physicsFPS * VerticalVector.z;
 			//Block tmpNothing = new Nothing();
 			if (resultant < 0)
-			{// lefelé esik önmagához képest
+			{// lefelÃ© esik Ã¶nmagÃ¡hoz kÃ©pest
 				Block under = world.getBlockUnderEntity(false, true, entity);//, feetPoint, tmpPoint, playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
 																			// entity.ViewFrom.y, entity.ViewFrom.z+JumpDistance);
 				if (VerticalVector.z == 1)
 				{
 	
 					if (under != Block.NOTHING && under.z + 1 >= entityPos.z - 1.7f + JumpDistance)
-					{ // beleesne egy blokkba felülrõl
+					{ // beleesne egy blokkba felÃ¼lrÃµl
 						entityPos.z = under.z + 2.7f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
@@ -441,7 +441,7 @@ public class GameEngine{
 				} else
 				{
 					if (under != Block.NOTHING && under.z <= entityPos.z + 1.7f + JumpDistance)
-					{ // beleesne egy blokkba alulról
+					{ // beleesne egy blokkba alulrÃ³l
 						entityPos.z = under.z - 1.7f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
@@ -451,7 +451,7 @@ public class GameEngine{
 					}
 				}
 			} else if (resultant > 0)
-			{ // felfelé ugrik  önmagához képest
+			{ // felfelÃ© ugrik  Ã¶nmagÃ¡hoz kÃ©pest
 				Block above = world.getBlockUnderEntity(false, false, entity);//,feetPoint, tmpPoint,  playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
 																				// entity.ViewFrom.y,
 																				// entity.ViewFrom.z+JumpDistance);
@@ -459,7 +459,7 @@ public class GameEngine{
 				if (VerticalVector.z == 1)
 				{
 					if (above != Block.NOTHING && above.z <= entityPos.z + JumpDistance)
-					{ // belefejelne egy blokkba alulról
+					{ // belefejelne egy blokkba alulrÃ³l
 						entityPos.z = above.z - 0.01f;
 						entity.JumpVelocity = 0;
 						entity.GravityVelocity = 0;
@@ -470,7 +470,7 @@ public class GameEngine{
 				} else
 				{
 					if (above != Block.NOTHING && above.z + 1 >= entityPos.z + JumpDistance)
-					{ // belefejelne egy blokkba felülrõl
+					{ // belefejelne egy blokkba felÃ¼lrÃµl
 							entityPos.z = above.z + 1.01f;
 							entity.JumpVelocity = 0;
 							entity.GravityVelocity = 0;

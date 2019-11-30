@@ -14,7 +14,7 @@ public class UVZ {
 		
 	}
 	
-	/*// a három változót távolság alapján interpoláljuk
+	/*// a hÃ¡rom vÃ¡ltozÃ³t tÃ¡volsÃ¡g alapjÃ¡n interpolÃ¡ljuk
 	public static UVZ interp(Point p1, Point p2, Point pos, UVZ uvz1, UVZ uvz2) {
 		UVZ result = new UVZ();
 		double distanceratio = p1.distance(pos.x, pos.y) / p1.distance(p2.x, p2.y);

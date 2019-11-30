@@ -165,7 +165,7 @@ public class World {
 		
 		statusLabel.setText("Loading entities...");
 		Node entitiesGroup = document.getElementsByTagName("entities").item(0);
-		if(entitiesGroup != null) { // kompatibilit·s
+		if(entitiesGroup != null) { // kompatibilit√°s
 			NodeList entities = entitiesGroup.getChildNodes();
 			for (int i = 0; i < entities.getLength(); i++) {
 				Main.log("loading entity "+i);
@@ -578,7 +578,7 @@ public class World {
 		
 		Blocks.put(b.pos, b);
 		
-		//TODO itt fordÌtott sorrend kellhet
+		//TODO itt ford√≠tott sorrend kellhet
 
 		
 		for (Block entry : get6Blocks(b, false).values()) {
@@ -1230,13 +1230,13 @@ public class World {
 		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
 		
-		if(Engine.server == null) { // singleplayer, game-bıl szedi az adatokat
+		if(Engine.server == null) { // singleplayer, game-b√µl szedi az adatokat
 			//HashMap<PlayerMPData, Inventory> map = new HashMap<>();
 			//map.put(new PlayerMPData(0, null, new float[] {game.PE.ViewFrom.x, game.PE.ViewFrom.y, game.PE.ViewFrom.z}, game.ViewAngle.yaw, Config.username), Engine.Inv);
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
 			
 			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? tmpInventory : Engine.Inv);
-		}else { //multiplayer, engine.server-bıl szedi az adatokat
+		}else { //multiplayer, engine.server-b√µl szedi az adatokat
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
 			//saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
 			

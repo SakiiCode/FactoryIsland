@@ -38,7 +38,7 @@ public class Entity{
 	private GameEngine engine;
 	Vector tmpVector = new Vector();
 	
-	//többszálasítás miatt ide kellett áthozni a getBlockUnderPlayer átmeneti értékeit 
+	//tÃ¶bbszÃ¡lasÃ­tÃ¡s miatt ide kellett Ã¡thozni a getBlockUnderPlayer Ã¡tmeneti Ã©rtÃ©keit 
 	public Point3D tmpPoint = new Point3D();
 	public Point3D feetPoint = new Point3D();
 	public TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
@@ -141,7 +141,7 @@ public class Entity{
 	}
 
 	public void move(float x, float y, float z, boolean resend) {
-		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND
+		if(resend && engine.client != null) { // PlayerEntity-NÃ‰L MINDIG FALSE A RESEND
 			//if(!(this instanceof PlayerEntity)) {// && engine.client != null && engine.server != null) {
 				engine.client.sendData("16,"+ID+","+x+","+y+","+z); 
 			//}

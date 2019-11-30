@@ -4,7 +4,7 @@ public interface BreakListener {
 	
 
 	/**
-	 * @param felhasználónév csak multiplayerben számít
+	 * @param felhasznÃ¡lÃ³nÃ©v csak multiplayerben szÃ¡mÃ­t
     * @return <code>boolean</code> return to inventory
 	*/
 	boolean breaked(String username);

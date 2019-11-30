@@ -599,7 +599,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
 				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
 				debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
-				// DEBUG SZÖVEG
+				// DEBUG SZÃ–VEG
 				g.setColor(Color.BLACK);
 				g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
 				for (int j = 1; j > -1; j--)
@@ -704,10 +704,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 		}
 		
-		// KIJELÖLT FELIRAT
+		// KIJELÃ–LT FELIRAT
 		if(local) {
 			
-			//ez távoli inventorynál is megjelenik, ötletem sincs miért
+			//ez tÃ¡voli inventorynÃ¡l is megjelenik, Ã¶tletem sincs miÃ©rt
 			
 			if (Inv.hasSelected()) 
 			{
@@ -1190,7 +1190,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			remoteInventory.getInv().setHotbarIndex(-1);
 			//remoteInventory.getInv().SelectedStack = null;
-		} else //kilépés
+		} else //kilÃ©pÃ©s
 		{
 			SwitchInventory(true);
 		}

@@ -68,7 +68,7 @@ public class Color4 {
 		
 
 	
-	public Color4 blend(Color4 c0) { //efölé c0
+	public Color4 blend(Color4 c0) { //efÃ¶lÃ© c0
 		float a0=c0.getAlpha()/255f;
 		float r0=c0.getRed()/255f;
 		float g0=c0.getGreen()/255f;

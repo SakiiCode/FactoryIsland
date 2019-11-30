@@ -32,7 +32,7 @@ public class PlayerInventory {
 			int stack = getStack(kind);
 			
 			int originalSize = items.size();
-			//if(stack == 0){ // hozz·ad 1-et
+			//if(stack == 0){ // hozz√°ad 1-et
 				/*stack = new ItemStack(kind, amount);
 				items.add(stack);*/
 			//	items.put(kind, amount);
@@ -42,7 +42,7 @@ public class PlayerInventory {
 			//}
 			
 			
-			if(originalSize==0 && items.size()==1){ //¸res volt, nem lett ¸res
+			if(originalSize==0 && items.size()==1){ //√ºres volt, nem lett √ºres
 				if(activateOnFirst && Main.GAME != null) {
 					if(Main.GAME.remoteInventory != null && Main.GAME.remoteInventory.getInv().items.size()==0) {
 						setHotbarIndex(0);
@@ -71,7 +71,7 @@ public class PlayerInventory {
 				
 				items.remove(kind);
 				
-				if(items.size()==0){ //nem volt ¸res, ¸res lett
+				if(items.size()==0){ //nem volt √ºres, √ºres lett
 					setHotbarIndex(-1);
 					if(Main.GAME.remoteInventory != null) {
 						Main.GAME.SwapInv();
@@ -129,7 +129,7 @@ public class PlayerInventory {
 	
 	public void setHotbarIndex(int hotbarIndex) {
 		this.hotbarIndex=hotbarIndex;
-		if(hotbarIndex>-1) { //BlockInventoryn·l ez kell 
+		if(hotbarIndex>-1) { //BlockInventoryn√°l ez kell 
 			@SuppressWarnings("unchecked")
 			Entry<ItemType,Integer> stack =  (Entry<ItemType,Integer>)(items.entrySet().toArray()[hotbarIndex]);
 			if(stack != null) {

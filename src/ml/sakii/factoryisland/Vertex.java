@@ -22,7 +22,7 @@ public class Vertex extends Vector{
 	
 	public Vertex(Vector vec/*, int u, int v*/) {
 		this(vec.x, vec.y, vec.z);
-		//this.pos=vec; // a biztons·g kedvÈÈrt objektumot m·solunk
+		//this.pos=vec; // a biztons√°g kedv√©√©rt objektumot m√°solunk
 		/*this.u=u;
 		this.v = v;*/
 		//update();
@@ -33,9 +33,9 @@ public class Vertex extends Vector{
 	}
 	
 	public void update() {
-		// 1/z , u/z , v/z kisz·mÌt·sa
-		// z nem a kamera Ès a pont t·vols·ga, hanem a kamera helyÈnek, Ès a pontnak a kamera ir·ny·ra vetÌtett helyÈnek t·vols·ga
-		// (egyszer˚ skal·rszorzat)
+		// 1/z , u/z , v/z kisz√°m√≠t√°sa
+		// z nem a kamera √©s a pont t√°vols√°ga, hanem a kamera hely√©nek, √©s a pontnak a kamera ir√°ny√°ra vet√≠tett hely√©nek t√°vols√°ga
+		// (egyszer√ª skal√°rszorzat)
 		/*if(Config.useTextures) { 
 			 
 			double z = ViewToPoint.set(pos).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector);
@@ -46,7 +46,7 @@ public class Vertex extends Vector{
 			uvz.vz=v/z;
 		}*/
 		
-		// 2d koordin·t·k kisz·mÌt·sa
+		// 2d koordin√°t√°k kisz√°m√≠t√°sa
 		//ViewToPoint.set(pos);
 		Main.GAME.convert3Dto2D(Copy.set(this), spec);
 		proj.x = (int)spec.getX();
@@ -56,7 +56,7 @@ public class Vertex extends Vector{
 	}
 	
 	public UVZ getUVZ(int[] uv) {
-		double z = Copy.set(this).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector); //TODO lehet hogy a copy ide nem jÛ
+		double z = Copy.set(this).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector); //TODO lehet hogy a copy ide nem j√≥
 		//ViewToPoint;//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
 		 //= ViewToPoint;
 		UVZ uvz=new UVZ();
