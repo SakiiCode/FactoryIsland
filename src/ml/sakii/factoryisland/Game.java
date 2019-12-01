@@ -140,6 +140,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	
 	RenderThread renderThread;
+	boolean showHUD=true;
 
 	private Paint crosshairColor=new Color(1.0f, 1.0f, 1.0f, 0.2f);
 	private Vector tmp = new Vector();
@@ -524,138 +525,141 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				g.fillRect(0, 0, Main.Width, Main.Height);
 			}
 
-			((Graphics2D) g).setPaint(crosshairColor);
-
-			int cX = (int)centerX;
-			int cY = (int)centerY;
-			int crosshairSize = Config.height/50;
-			g.drawLine(cX, cY - crosshairSize, cX, cY + crosshairSize);
-			g.drawLine(cX - crosshairSize, cY, cX + crosshairSize, cY);
-			
-			
-			int fontSize = (int) (Math.cbrt(Config.height)*2)-2;
-			g.setFont(new Font("SANS", Font.BOLD, fontSize));
-			g.setColor(Color.GRAY);
-			float viewportscale=(float) Math.sqrt(Config.width*Config.height*1f/Main.Width/Main.Height);
-
-			if (F3)
-			{
-
-				debugInfo.clear();
-				debugInfo.add("Eye:" + PEPos);
-				debugInfo.add("yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
-				debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
-				debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
-				if(SelectedPolygon != null) {
-					debugInfo.add("SelPoly: "+SelectedPolygon);
-					debugInfo.add("light:"+SelectedPolygon.getLight());
-					debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
-					for(Vertex v : SelectedPolygon.Vertices) {
-						debugInfo.add(v.toString());
-					}
-				}else {
-					debugInfo.add("SelPoly: null");
-					debugInfo.add("");
-					debugInfo.add("");
-				}
-				debugInfo.add("SelectedEntity: "+SelectedEntity);
-				debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",testing:"+key[6]);
-				debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
-				debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
-				debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) );
-				debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.getSelectedKind() : ""));
-				if (Engine.client != null)
+			if(showHUD) {
+				((Graphics2D) g).setPaint(crosshairColor);
+	
+				int cX = (int)centerX;
+				int cY = (int)centerY;
+				int crosshairSize = Config.height/50;
+				g.drawLine(cX, cY - crosshairSize, cX, cY + crosshairSize);
+				g.drawLine(cX - crosshairSize, cY, cX + crosshairSize, cY);
+				
+				
+				int fontSize = (int) (Math.cbrt(Config.height)*2)-2;
+				g.setFont(new Font("SANS", Font.BOLD, fontSize));
+				g.setColor(Color.GRAY);
+				float viewportscale=(float) Math.sqrt(Config.width*Config.height*1f/Main.Width/Main.Height);
+	
+				if (F3)
 				{
-					debugInfo.add("PacketCount: " + Engine.client.packetCount);
-					debugInfo.add("BlockCount: " + Engine.client.blockcount);
-					Iterator<PlayerMP> iter = playerList.values().iterator();
-					for (int i = 0; i < playerList.values().size() * 25; i += 25)
+	
+					debugInfo.clear();
+					debugInfo.add("Eye:" + PEPos);
+					debugInfo.add("yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
+					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
+					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
+					if(SelectedPolygon != null) {
+						debugInfo.add("SelPoly: "+SelectedPolygon);
+						debugInfo.add("light:"+SelectedPolygon.getLight());
+						debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
+						for(Vertex v : SelectedPolygon.Vertices) {
+							debugInfo.add(v.toString());
+						}
+					}else {
+						debugInfo.add("SelPoly: null");
+						debugInfo.add("");
+						debugInfo.add("");
+					}
+					debugInfo.add("SelectedEntity: "+SelectedEntity);
+					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",testing:"+key[6]);
+					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
+					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
+					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) );
+					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.getSelectedKind() : ""));
+					if (Engine.client != null)
 					{
-						PlayerMP player = iter.next();
-						debugInfo.add("Player"+i+": "+player);
+						debugInfo.add("PacketCount: " + Engine.client.packetCount);
+						debugInfo.add("BlockCount: " + Engine.client.blockcount);
+						Iterator<PlayerMP> iter = playerList.values().iterator();
+						for (int i = 0; i < playerList.values().size() * 25; i += 25)
+						{
+							PlayerMP player = iter.next();
+							debugInfo.add("Player"+i+": "+player);
+						}
 					}
-				}
-				debugInfo.add("Seed: " + Engine.world.seed);
-				if(SelectedEntity == null) {
-					debugInfo.add("GravityVelocity: " + PE.GravityVelocity + ", JumpVelocity: " + PE.JumpVelocity + ", result: "
-							+ (PE.JumpVelocity - PE.GravityVelocity));
-					
-					debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE)+",VV:"+PE.VerticalVector.z);
-				}else {
-					debugInfo.add("GravityVelocity: " + SelectedEntity.GravityVelocity + ", JumpVelocity: " + SelectedEntity.JumpVelocity + ", result: "
-							+ (SelectedEntity.JumpVelocity - SelectedEntity.GravityVelocity));
-					
-					debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity)+",VV:"+SelectedEntity.VerticalVector.z);
-				}
-				debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
-				/*debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PEPos.x, PEPos.y,
-						PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));*/
-				int x=(int) Math.floor(PEPos.x) ;
-				int y= (int) Math.floor(PEPos.y);
-				int feetZ = (int) Math.floor(PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z));
-				PE.tmpPoint.set(x, y, feetZ);
-				debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint));
-				debugInfo.add("ViewBlock: "+ViewBlock+"truetime:"+truetime+"falsetime"+falsetime);
-				debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
-				debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
-				debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
-				// DEBUG SZÖVEG
-				g.setColor(Color.BLACK);
-				g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
-				for (int j = 1; j > -1; j--)
-				{
-
-					Iterator<String> iter = debugInfo.iterator();
-					int i = 0;
-					while (iter.hasNext())
+					debugInfo.add("Seed: " + Engine.world.seed);
+					if(SelectedEntity == null) {
+						debugInfo.add("GravityVelocity: " + PE.GravityVelocity + ", JumpVelocity: " + PE.JumpVelocity + ", result: "
+								+ (PE.JumpVelocity - PE.GravityVelocity));
+						
+						debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, PE)+",VV:"+PE.VerticalVector.z);
+					}else {
+						debugInfo.add("GravityVelocity: " + SelectedEntity.GravityVelocity + ", JumpVelocity: " + SelectedEntity.JumpVelocity + ", result: "
+								+ (SelectedEntity.JumpVelocity - SelectedEntity.GravityVelocity));
+						
+						debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity)+",VV:"+SelectedEntity.VerticalVector.z);
+					}
+					debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
+					/*debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PEPos.x, PEPos.y,
+							PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));*/
+					int x=(int) Math.floor(PEPos.x) ;
+					int y= (int) Math.floor(PEPos.y);
+					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z));
+					PE.tmpPoint.set(x, y, feetZ);
+					debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint));
+					debugInfo.add("ViewBlock: "+ViewBlock+"truetime:"+truetime+"falsetime"+falsetime);
+					debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
+					debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
+					debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
+					// DEBUG SZÖVEG
+					g.setColor(Color.BLACK);
+					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
+					for (int j = 1; j > -1; j--)
 					{
-						g.drawString(iter.next(), 20, 40 + i + j);
-						i += g.getFont().getSize()*(1.15f+(Config.height-320f)/704f);
+	
+						Iterator<String> iter = debugInfo.iterator();
+						int i = 0;
+						while (iter.hasNext())
+						{
+							g.drawString(iter.next(), 20, 40 + i + j);
+							i += g.getFont().getSize()*(1.15f+(Config.height-320f)/704f);
+						}
+						g.setColor(Color.WHITE);
 					}
-					g.setColor(Color.WHITE);
-				}
-			} else
-			{
-				g.drawString("FPS: " + (int) measurement, 20, 20);
-
-			}
-			
-			//int w=0, h=0, offset=0;
-
-			//INVENTORY SOR
-			if (Engine.Inv.items.size() > 0)
-			{
-				
-				//ItemStack localSelected = Engine.Inv.getSelectedStack();
-				
-				
-				// VIEWMODEL
-				if (Engine.Inv.hasSelected())
+				} else
 				{
-					//ItemType type = Main.Items.get(Engine.Inv.getSelectedKind().name);
-					//if(type != null) {
-					BufferedImage viewmodel = Main.Items.get(Engine.Inv.getSelectedKind().name).ViewmodelTexture;
-					int wv = viewmodel.getWidth();
-					int hv = viewmodel.getHeight();
-
-					g.drawImage(viewmodel, Config.width / 3 * 2, Config.height - hv, 2 * wv, 2 * hv, null);
-					/*}else {
-						Main.err("Unknown item type:"+Engine.Inv.getSelectedKind());
-					}*/
+					g.drawString("FPS: " + (int) measurement, 20, 20);
+	
 				}
 				
-				drawInventory(g, Engine.Inv, fontSize, viewportscale, true, null, localInvActive);
-				
-
-			}
-
-			if (remoteInventory != null && remoteInventory.getInv().items.size()>0)
-			{
-
-				//ItemStack remoteSelected = remoteInventory.getInv().getSelectedStack();
-				
-				drawInventory(g, remoteInventory.getInv(), fontSize, viewportscale, false, remoteInventory.getBlock(), localInvActive);
-
+				//int w=0, h=0, offset=0;
+	
+				//INVENTORY SOR
+				if (Engine.Inv.items.size() > 0)
+				{
+					
+					//ItemStack localSelected = Engine.Inv.getSelectedStack();
+					
+					
+					// VIEWMODEL
+					if (Engine.Inv.hasSelected())
+					{
+						//ItemType type = Main.Items.get(Engine.Inv.getSelectedKind().name);
+						//if(type != null) {
+						BufferedImage viewmodel = Main.Items.get(Engine.Inv.getSelectedKind().name).ViewmodelTexture;
+						int wv = viewmodel.getWidth();
+						int hv = viewmodel.getHeight();
+	
+						g.drawImage(viewmodel, Config.width / 3 * 2, Config.height - hv, 2 * wv, 2 * hv, null);
+						/*}else {
+							Main.err("Unknown item type:"+Engine.Inv.getSelectedKind());
+						}*/
+					}
+					
+					drawInventory(g, Engine.Inv, fontSize, viewportscale, true, null, localInvActive);
+					
+	
+				}
+	
+				if (remoteInventory != null && remoteInventory.getInv().items.size()>0)
+				{
+	
+					//ItemStack remoteSelected = remoteInventory.getInv().getSelectedStack();
+					
+					drawInventory(g, remoteInventory.getInv(), fontSize, viewportscale, false, remoteInventory.getBlock(), localInvActive);
+	
+				}
+			
 			}
 
 		
@@ -974,6 +978,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			Main.nopause=!Main.nopause;
 		}
+		
 
 	}
 
@@ -1012,6 +1017,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			renderThread.screenshot=true;
 		}*/
+		
+		if (arg0.getKeyCode() == KeyEvent.VK_F1)
+		{
+			showHUD = !showHUD;
+		}
 
 	}
 
