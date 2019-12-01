@@ -301,30 +301,34 @@ public class World {
 	                   break;
 	               case XMLStreamConstants.CHARACTERS:
 	            	   Characters characters = event.asCharacters();
+	            	   String data = characters.getData().trim();
+	            	   if(data.isEmpty()) {
+	            		   break;
+	            	   }
 	            	   
 	            	   if(bMetadata) {
 	            		   if(curBlock!=null && curMeta != null) {
-	            			   curBlock.BlockMeta.put(curMeta,characters.getData());
+	            			   curBlock.BlockMeta.put(curMeta,data);
 	            		   }else {
 	            			   //Main.err("No current block/metadata tag while parsing metadata");
 	            			   return "No current block/metadata tag while parsing metadata";
 	            		   }
 	            	   }else if(bTick) {
-	            		   engine.Tick=Long.parseLong(characters.getData());
+	            		   engine.Tick=Long.parseLong(data);
 	            	   }else if(bSeed) {
-	            		   this.seed=Long.parseLong(characters.getData());
+	            		   this.seed=Long.parseLong(data);
 	            	   }else if(bVersion) {
-	            		   this.loadedVersion=Integer.parseInt(characters.getData());
+	            		   this.loadedVersion=Integer.parseInt(data);
 	            		   if(this.loadedVersion!=MAP_VERSION) {
 	            			   //Main.err("Incompatible map file");
 	            			   return "Incompatible map file";
 	            		   }
 	            	   }else if(curMeta != null) {
-	            		   curBlock.BlockMeta.put(curMeta, characters.getData());
+	            		   curBlock.BlockMeta.put(curMeta, data);
 	            	   }else if(curPower != null) {
-	            		   curBlock.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(characters.getData()));
+	            		   curBlock.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
 	            	   }else if(curInv != null) {
-	            		   ((BlockInventoryInterface) curBlock).getInv().add(Main.Items.get(curInv), Integer.parseInt(characters.getData()), false);
+	            		   ((BlockInventoryInterface) curBlock).getInv().add(Main.Items.get(curInv), Integer.parseInt(data), false);
 	            	   }
 	            	   
 	            	   
