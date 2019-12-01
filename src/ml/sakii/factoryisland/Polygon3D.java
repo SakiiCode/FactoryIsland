@@ -61,7 +61,7 @@ public class Polygon3D extends Object3D{
 	
 	float physicalRadius;
 	
-	private static final long TICKS_PER_DAY = Main.devmode? 1000 : 72000;
+	private static final long TICKS_PER_DAY = 72000;
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s) {
 		

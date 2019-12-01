@@ -70,7 +70,7 @@ public class Main
 			alienFront, alienSide;
 	public final static float TICKSPEED = 0.05f; // 1 tick every 0.05s
 	public final static int ENTITYSYNCRATE = 3; //every 3 ticks (=0.15s)
-	public final static int PHYSICS_FPS = 10;
+	public final static int PHYSICS_FPS = 30;
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
 	public static Surface[] waters, oils;
