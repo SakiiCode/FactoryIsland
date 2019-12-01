@@ -32,6 +32,8 @@ public class GameServer extends Thread{
 
 	public TCPListener Listener;
 	public int port;
+	
+	
 	public GameServer(GameEngine engine){
 		Engine = engine;
 		this.setName("GameServer");
@@ -99,6 +101,8 @@ public class GameServer extends Thread{
 					sendData("97", socketstream); // KICK FOR SAME USERNAME
 					break;
 				}
+				
+				sendData("00,"+Connection.PROTOCOL_VERSION, socketstream);
 				
 				
 				Vector pos=null;

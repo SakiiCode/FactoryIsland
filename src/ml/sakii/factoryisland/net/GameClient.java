@@ -162,6 +162,12 @@ public class GameClient extends Thread{
 
 		switch(part[0]){
 		
+		case "00": // PROTOCOL VERSION CHECK
+			if(!part[1].equals(""+Connection.PROTOCOL_VERSION)) {
+				return "Incompatible server version: "+part[1] + "(current:"+Connection.PROTOCOL_VERSION+")";
+			}
+			break;
+		
 		case "01": // DOWNLOAD BLOCKS
 			
 			

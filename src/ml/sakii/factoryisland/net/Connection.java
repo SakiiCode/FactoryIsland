@@ -7,6 +7,8 @@ import java.io.IOException;
 public class Connection {
 	BufferedWriter outputStream;
 	BufferedReader inputStream;
+	static final int PROTOCOL_VERSION = 1;
+
 	//private Socket socket;
 	//public LinkedList<String> lines = new LinkedList<>();
 	//public String message="";

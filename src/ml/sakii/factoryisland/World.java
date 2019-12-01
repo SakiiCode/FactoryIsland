@@ -55,7 +55,7 @@ public class World {
 	final int CHUNK_WIDTH = 10;
 	//int CHUNK_HEIGHT = 40;
 	int MAP_RADIUS = 5;
-	final int MAP_VERSION=1;
+	static final int MAP_VERSION=1;
 	//int index = -1; // -1=REMOTE MAP
 	public String worldName=""; //""=REMOTE MAP
 	long seed;
