@@ -27,11 +27,11 @@ import ml.sakii.factoryisland.blocks.WorldGenListener;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
+import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.net.GameClient;
 import ml.sakii.factoryisland.net.GameServer;
-import ml.sakii.factoryisland.net.PlayerMPData;
 
 public class GameEngine{
 	
@@ -229,9 +229,33 @@ public class GameEngine{
 									//Main.log("target:"+(new Vector().set(alien.target).substract(entity.getPos())));
 									//Main.log("--------------------------------");
 								}
+								
+								
+								if(server != null) { //MP
+									for(PlayerMP data : server.clients.values()) {
+										if(data.getPos().distance(alien.getPos())<0.2) {
+											data.hurt(3);
+										}									}
+								}else if(client ==null){ //SP
+									//System.out.println("singleplayer:"+Main.GAME.PE.getPos().distance(alien.getPos()));
+									if(Main.GAME.PE.getPos().distance(alien.getPos())<1) {
+										if(!Main.GAME.PE.hurt(3)) {
+											new Thread() {
+												@Override
+												public void run() {
+													Main.GAME.notifyDeath();
+												}
+											}.start();
+										}
+									}
+								}
+								
 							}
 						}
 					}
+					
+
+					
             	}
 				if(Tick % Main.ENTITYSYNCRATE == 0) {
 					if(Main.GAME != null && client != null){
@@ -261,7 +285,7 @@ public class GameEngine{
 					}
 					
 					if(server != null) {
-						for(Entry<String,PlayerMPData> entry : server.clients.entrySet()) {
+						for(Entry<String,PlayerMP> entry : server.clients.entrySet()) {
 							String name = entry.getKey();
 							if(!name.equals(Config.username)) {
 								StringBuilder data = new StringBuilder();
@@ -321,11 +345,11 @@ public class GameEngine{
     						}else {
     							float dst=Float.MAX_VALUE;
     							
-    							for(PlayerMPData player : server.clients.values()) {
-    								float distance = player.position.distance(alienPos);
+    							for(PlayerMP player : server.clients.values()) {
+    								float distance = player.getPos().distance(alienPos);
     								if(distance<10 && distance < dst) {
     									dst=distance;
-    									closest=player.position;
+    									closest=player.getPos();
     								}
     							}
     						}
@@ -707,7 +731,7 @@ public class GameEngine{
 				((WorldGenListener)b).generateWorld();
 			}
 		}
-		world.saveByShutdown();
+		world.saveByShutdown(true);
 	}
 	
 	private boolean isNearWater(Block b){

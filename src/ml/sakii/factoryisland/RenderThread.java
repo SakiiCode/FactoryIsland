@@ -48,7 +48,6 @@ public class RenderThread extends Thread
 		}
 		
 		
-		game.pause();
 		graphics.dispose();
 		strategy.dispose();
 		

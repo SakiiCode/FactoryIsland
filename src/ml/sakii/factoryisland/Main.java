@@ -241,6 +241,7 @@ public class Main
 		Base.add(new SettingsGUI(), "settings");
 		pauseGui= new PauseGUI();
 		Base.add(pauseGui, "pause");
+		Base.add(new DeadGUI(),"died");
 
 		Frame.add(Base);
 		
@@ -267,7 +268,7 @@ public class Main
 				//TODO windowson alt-f4-nel nem menti a palyat
 				if (GAME != null)
 				{
-					GAME.disconnect(null);
+					GAME.disconnect(null, false);
 				}
 
 			}

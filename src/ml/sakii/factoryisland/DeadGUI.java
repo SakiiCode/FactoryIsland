@@ -11,38 +11,28 @@ import java.awt.event.KeyListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-public class PauseGUI extends JPanel implements ActionListener, KeyListener {
+public class DeadGUI extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
 
-	private JButton resumeButton, exitButton, settingsButton;
+	private JButton exitButton;
 	private int WIDTH=(int)(Main.Frame.getWidth()*0.3f);
 	private int HEIGHT=(int)(Main.Frame.getHeight()*0.055f);
 	private int SPACING=(int)(Main.Frame.getHeight()*0.016f)+HEIGHT;	
 	
-	public PauseGUI(){
+	public DeadGUI(){
 		
 		setLayout(null);
 		addKeyListener(this);
 		this.addComponentListener( new ComponentAdapter() {
 	        @Override
 	        public void componentShown( ComponentEvent e ) {
-	        	PauseGUI.this.requestFocusInWindow();
+	        	DeadGUI.this.requestFocusInWindow();
 	        }
 	    });
 		
-		resumeButton = new MainMenuButton("Resume Game",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4-HEIGHT/2), WIDTH, HEIGHT);
-		resumeButton.setActionCommand("resume");
-		resumeButton.setVisible(true);
-		resumeButton.addActionListener(this);
-		add(resumeButton);
+
 		
-		settingsButton = new MainMenuButton("Settings",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4+SPACING-HEIGHT/2), WIDTH, HEIGHT);
-		settingsButton.setActionCommand("settings");
-		settingsButton.setVisible(true);
-		settingsButton.addActionListener(this);
-		add(settingsButton);
-		
-		exitButton = new MainMenuButton("Save & Exit to Main Menu",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4+SPACING*2-HEIGHT/2), WIDTH, HEIGHT);
+		exitButton = new MainMenuButton("Restart",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4+SPACING*2-HEIGHT/2), WIDTH, HEIGHT);
 		exitButton.setActionCommand("exit");
 		exitButton.setVisible(true);
 		exitButton.addActionListener(this);
@@ -63,16 +53,10 @@ public class PauseGUI extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand().equals("resume")){
-			Main.GAME.resume();
-		}
-		if(e.getActionCommand().equals("settings")){
-			Main.SwitchWindow("settings");
 
-		}
 		if(e.getActionCommand().equals("exit")){
 			if(Main.GAME != null) {
-				Main.GAME.disconnect(null,false);
+				Main.GAME.disconnect(null, true);
 			}else {
 				Main.SwitchWindow("mainmenu");
 			}
@@ -86,9 +70,9 @@ public class PauseGUI extends JPanel implements ActionListener, KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+		/*if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
 			Main.GAME.resume();
-		}
+		}*/
 	}
 
 	@Override

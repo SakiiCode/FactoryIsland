@@ -46,9 +46,9 @@ import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerEntity;
+import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.items.ItemType;
-import ml.sakii.factoryisland.net.PlayerMPData;
 
 public class World {
 
@@ -1229,7 +1229,7 @@ public class World {
 
 	}
 
-	public void saveByShutdown() {
+	public void saveByShutdown(boolean savePos) {
 
 		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
@@ -1237,17 +1237,33 @@ public class World {
 		if(Engine.server == null) { // singleplayer, game-bõl szedi az adatokat
 			//HashMap<PlayerMPData, Inventory> map = new HashMap<>();
 			//map.put(new PlayerMPData(0, null, new float[] {game.PE.ViewFrom.x, game.PE.ViewFrom.y, game.PE.ViewFrom.z}, game.ViewAngle.yaw, Config.username), Engine.Inv);
-			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
-			
-			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? tmpInventory : Engine.Inv);
+			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT);
+			Vector pos;
+			if(savePos) {
+				pos=game.PE.getPos();
+			}else {
+				pos=new Vector().set(getSpawnBlock().pos).add(new Vector(0,0,2.7f));
+			}
+			savePlayer(worldName, Config.username, pos, game.PE.ViewAngle, game.creative ? tmpInventory : Engine.Inv);
 		}else { //multiplayer, engine.server-bõl szedi az adatokat
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
 			//saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
 			
 			//HashMap<PlayerMPData, Inventory> map = new HashMap<>();
-			for(PlayerMPData data : Engine.server.clients.values()) {
+			
+			
+			
+			for(PlayerMP data : Engine.server.clients.values()) {
 				//map.put(key, value)
-				savePlayer(worldName, data.username, data.position, data.aim, data.inventory);
+				
+				Vector pos;
+				if(savePos) {
+					pos=data.getPos();
+				}else {
+					pos=new Vector().set(getSpawnBlock().pos).add(new Vector(0,0,2.7f));
+				}
+				
+				savePlayer(worldName, data.name, pos, data.ViewAngle, data.inventory);
 			}
 			
 		}

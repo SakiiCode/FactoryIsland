@@ -323,7 +323,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				}
 			}else if(!Main.Frame.isActive() && !Main.nopause){
 				Main.log("game not in focus");
-				renderThread.kill();
+				pause();
+
 				return;
 			}
 
@@ -544,24 +545,28 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 	
 					debugInfo.clear();
-					debugInfo.add("Eye:" + PEPos);
-					debugInfo.add("yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
+					debugInfo.add("Eye:" + PEPos+", yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
+					debugInfo.add("Health: " + PE.getHealth());
 					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 					if(SelectedPolygon != null) {
-						debugInfo.add("SelPoly: "+SelectedPolygon);
-						debugInfo.add("light:"+SelectedPolygon.getLight());
-						debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
+						debugInfo.add("SelPoly: "+SelectedPolygon+"light:"+SelectedPolygon.getLight());
+						/*debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
 						for(Vertex v : SelectedPolygon.Vertices) {
 							debugInfo.add(v.toString());
-						}
+						}*/
 					}else {
 						debugInfo.add("SelPoly: null");
-						debugInfo.add("");
-						debugInfo.add("");
+						/*debugInfo.add("");
+						debugInfo.add("");*/
 					}
-					debugInfo.add("SelectedEntity: "+SelectedEntity);
-					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size() + ",testing:"+key[6]);
+					if(SelectedEntity!=null) {
+						debugInfo.add("SelectedEntity: "+SelectedEntity + ", health:" + SelectedEntity.getHealth());
+					}else {
+						debugInfo.add("SelectedEntity: null");
+					}
+					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
+					debugInfo.add("truetime:"+truetime+"falsetime"+falsetime+ ",testing:"+key[6]);
 					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
 					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) );
@@ -596,9 +601,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					int y= (int) Math.floor(PEPos.y);
 					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z));
 					PE.tmpPoint.set(x, y, feetZ);
-					debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint));
-					debugInfo.add("ViewBlock: "+ViewBlock+"truetime:"+truetime+"falsetime"+falsetime);
-					debugInfo.add("flying: " + PE.flying + ", Ctrl: " + key[7]);
+					//debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint) + ", flying: " + PE.flying + ", Ctrl: " + key[7]);
+					//debugInfo.add("ViewBlock: "+ViewBlock);
 					debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
 					debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
 					// DEBUG SZÖVEG
@@ -921,7 +925,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				String error = connect("localhost", Engine.server.Listener.acceptThread.port, true);
 				if (error != null)
 				{
-					disconnect("Server launch failed:"+error);
+					disconnect("Server launch failed:"+error,false);
 				}
 			}
 		}
@@ -929,7 +933,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
 		{
 			//initPause();
-			renderThread.kill();
+			pause();
+			//notifyDeath();
 		}
 
 		/*if (arg0.getKeyCode() == KeyEvent.VK_E)
@@ -1077,7 +1082,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 					}
 				}else if(SelectedEntity != null) {
-					Engine.world.killEntity(SelectedEntity.ID, true);
+					if(SelectedEntity.hurt(1)) {
+						Engine.world.killEntity(SelectedEntity.ID, true);
+					}
 					
 				}
 				
@@ -1225,7 +1232,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	
 
-	public void disconnect(String error)
+	public void disconnect(String error,boolean byDeath)
 	{
 		//running = false;
 		if(error !=null) {
@@ -1238,6 +1245,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 			
 				renderThread.kill();
+				//game.pause();
+
 				Engine.ticker.stop();
 				Engine.stopPhysics();
 				if (Engine.client != null)
@@ -1255,7 +1264,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		
 				} else
 				{
-					Engine.world.saveByShutdown();
+					Engine.world.saveByShutdown(!byDeath);
 				}
 				Objects.clear();
 				Main.SwitchWindow("mainmenu");
@@ -1273,7 +1282,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	void pause()
 	{
 		//running = false;
-		
+		renderThread.kill();
 		if (Engine.server == null) {
 			Engine.ticker.stop();
 			Engine.stopPhysics();
@@ -1293,6 +1302,28 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 
 		Main.SwitchWindow("pause");
+	}
+	
+	void notifyDeath() {
+		renderThread.kill();
+		if (Engine.server == null) {
+			Engine.ticker.stop();
+			Engine.stopPhysics();
+		}
+		Main.PausedBG = Main.deepCopy(op.filter(Main.deepCopy(FrameBuffer), null));
+
+		centered = false;
+		setCursor(Cursor.getDefaultCursor());
+		removeKeyListener(this);
+		removeMouseListener(this);
+		removeMouseWheelListener(this);
+		for (int i = 0; i < key.length; i++)
+		{
+			if(i!=7)
+				key[i] = false;
+		}
+
+		Main.SwitchWindow("died");
 	}
 
 	void resume()
