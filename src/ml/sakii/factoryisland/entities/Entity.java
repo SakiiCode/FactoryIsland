@@ -47,7 +47,8 @@ public class Entity{
 	public float yaw, yaw2, z0,z;
 	float[] fxy, fxy1, fx1y1, fx1y;
 	
-	Entity(String className, Vector pos, EAngle aim, String name,long ID, GameEngine engine, Surface front, Surface side) {
+	Entity(String className, Vector pos, EAngle aim, String name,int maxHealth,long ID, GameEngine engine, Surface front, Surface side) {
+		
 		this.className=className;
 		ViewFrom=pos;
 		ViewAngle=aim;
@@ -55,6 +56,9 @@ public class Entity{
 		this.ID = ID;
 		this.engine = engine;
 		this.VerticalVector.z= ViewFrom.z >= 0 ? 1 : -1;
+		
+		this.maxHealth=maxHealth;
+		this.health=maxHealth;
 		
 		init();
 		
@@ -81,9 +85,9 @@ public class Entity{
 		
 		
 		
-		//top
+		//top TODO nem j�?
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
-		//bottom
+		//bottom TODO nem j�?
 		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, xy1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//left
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
@@ -218,6 +222,17 @@ public class Entity{
 
 		
 	}
+	
+	// true ha tulelte
+	public boolean hurt(int points) { //TODO itt MP küldés
+		health = Math.min(Math.max(health-points,0), maxHealth);
+		return health!=0;
+	}
+	
+	public int getHealth() {
+		return health;
+	}
+
 
 	@Override
 	public String toString()

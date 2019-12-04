@@ -13,7 +13,7 @@ public class Alien extends Entity {
 	public Vector aim = new Vector();
 	
 	public Alien(Vector ViewFrom, EAngle aim, String name,long ID, GameEngine engine){
-		super("Alien",ViewFrom, aim, name,ID, engine, Main.alienFront, Main.alienSide);
+		super("Alien",ViewFrom, aim, name,10,ID, engine, Main.alienFront, Main.alienSide);
 		this.target=new Vector().set(ViewFrom);
 	}
 

@@ -144,7 +144,7 @@ public class GameClient extends Thread{
 
 			String error = handleMessage(message);
 			if(error != null) {
-				game.disconnect(error);
+				game.disconnect(error,false);
 				break;
 			}
 			
@@ -366,7 +366,7 @@ public class GameClient extends Thread{
 				Main.err(Thread.currentThread().getStackTrace()[i].toString());
 			}*/
 		} catch (IOException e) {
-			game.disconnect(e.getMessage());
+			game.disconnect(e.getMessage(),false);
 		}
 		
 		

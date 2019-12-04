@@ -1,5 +1,6 @@
 package ml.sakii.factoryisland;
 
+
 public class Vector {
 	public float x, y, z;
 	
@@ -185,6 +186,13 @@ public class Vector {
 		
 		return new Vector(Float.parseFloat(arr[0]), Float.parseFloat(arr[1]), Float.parseFloat(arr[2]));
 		
+	}
+
+	public Vector set(Point3D V) {
+		this.x=V.x;
+		this.y=V.y;
+		this.z=V.z;
+		return this;
 	}
 	
 	
