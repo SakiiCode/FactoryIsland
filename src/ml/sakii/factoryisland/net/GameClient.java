@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import ml.sakii.factoryisland.Config;
@@ -144,7 +143,7 @@ public class GameClient extends Thread{
 
 			String error = handleMessage(message);
 			if(error != null) {
-				game.disconnect(error,false);
+				game.disconnect(error);
 				break;
 			}
 			
@@ -159,7 +158,7 @@ public class GameClient extends Thread{
 	private String handleMessage(String message) {
 		String[] part = message.split(",");
 		String otherName = (part.length>1) ? part[1] : "";
-
+		long ID;
 		switch(part[0]){
 		
 		case "00": // PROTOCOL VERSION CHECK
@@ -200,10 +199,11 @@ public class GameClient extends Thread{
 			
 			
 			break;
-		case "03": // ADD A PLAYER
+		case "03": // ADD A PLAYER 03,x,y,z,yaw,ID
 			
 				Vector ViewFrom = new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-				PlayerMP newPlayer = new PlayerMP(ViewFrom, new EAngle(Float.parseFloat(part[5]), 0), part[1],new Random().nextLong(), game.Engine);
+				ID = Long.parseLong(part[5]);
+				PlayerMP newPlayer = new PlayerMP(ViewFrom, new EAngle(Float.parseFloat(part[5]), 0), part[1],ID, game.Engine);
 				game.playerList.put(part[1], newPlayer);
 				game.Objects.addAll(newPlayer.Objects);
 				//game.Objects.add(newPlayer.title);
@@ -297,13 +297,15 @@ public class GameClient extends Thread{
 			game.PE.ViewAngle.pitch = Float.parseFloat(part[5]);
 			game.moved=true;
 			break;
-		case "15": // SPAWN ENTITY 15,className,x,y,z,yaw,pitch,name,ID
+		case "15": // SPAWN ENTITY 15,className,x,y,z,yaw,pitch,name,health,ID
 			String className = part[1];
 			Vector pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
 			EAngle aim=new EAngle(Float.parseFloat(part[5]), Float.parseFloat(part[6]));
 			String name=part[7];
-			long ID=Long.parseLong(part[8]);
-			Entity e = Entity.createEntity(className, pos, aim, name, ID, game.Engine); 
+			int health = Integer.parseInt(part[8]);
+			ID=Long.parseLong(part[9]);
+			
+			Entity e = Entity.createEntity(className, pos, aim, name,health, ID, game.Engine); 
 			game.Engine.world.addEntity(e);
 			break;
 		case "16": // MOVE ENTITY
@@ -318,6 +320,8 @@ public class GameClient extends Thread{
 		case "17": // KILL ENTITIY
 			game.Engine.world.killEntity(Long.parseLong(part[1]), false);
 			break;
+		case "18":
+			game.Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
 		case "pong":
 			Main.log("ping time: " + (System.currentTimeMillis()-pingTime) + " ms");
 			break;
@@ -366,7 +370,7 @@ public class GameClient extends Thread{
 				Main.err(Thread.currentThread().getStackTrace()[i].toString());
 			}*/
 		} catch (IOException e) {
-			game.disconnect(e.getMessage(),false);
+			game.disconnect(e.getMessage());
 		}
 		
 		

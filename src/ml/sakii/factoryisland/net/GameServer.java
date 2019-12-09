@@ -78,7 +78,7 @@ public class GameServer extends Thread{
 			
 
 		}
-		Engine.world.saveByShutdown(true);
+		Engine.world.saveByShutdown();
 		
 		for(PlayerMP client : clients.values()){
 			sendData("98", client.socket);
@@ -109,6 +109,9 @@ public class GameServer extends Thread{
 				
 				Vector pos=null;
 				float yaw;
+				
+				long ID = new Random().nextLong(); //egyelőre nem kell tudnia a saját ID-ját
+
 
 				if(!senderName.equals(Config.username)) { // ha nem helyi, akkor elküldi a pályát
 				
@@ -148,10 +151,14 @@ public class GameServer extends Thread{
 					
 					
 					if(playerFile.exists()) {
-						 pos = Engine.world.loadVector(senderName, "x", "y", "z");
-						Vector dir = Engine.world.loadVector(senderName, "yaw", "pitch", "yaw");
+						pos = new Vector().set(Engine.world.loadVector(senderName, new String[] {"x", "y", "z"}));
+						float[] other = Engine.world.loadVector(senderName, new String[] { "yaw", "pitch", "health"});
+						
+						Vector dir= new Vector().set(other[0], other[1], 0);
 						yaw=dir.x;
-						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+dir.x+","+dir.y, socketstream);
+						
+						int health = (int) other[2];
+						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+dir.x+","+dir.y+","+health, socketstream);
 						
 						//és az inventoryt
 						
@@ -162,17 +169,17 @@ public class GameServer extends Thread{
 						
 						
 						//clients.put(senderName,new PlayerMP(senderName, pos, dir.x, dir.y, inv, socketstream, false));
-						clients.put(senderName, new PlayerMP(senderName, pos, dir.x, dir.y, inv, socketstream, new Random().nextLong(), Engine));
+						clients.put(senderName, new PlayerMP(senderName, pos, dir.x, dir.y,health, inv, socketstream, new Random().nextLong(), Engine));
 					}else {
 						Block SpawnBlock = Engine.world.getSpawnBlock();
 						 pos = new Vector(SpawnBlock.x, SpawnBlock.y, SpawnBlock.z+2.7f);
 						 yaw=-135;
-						sendData("11,"+pos.x+","+pos.y+","+pos.z+",-135,0", socketstream);
+						sendData("11,"+pos.x+","+pos.y+","+pos.z+",-135,0,20", socketstream);
 						
 						
 						
 						//clients.put(senderName,new PlayerMP(senderName, pos, -135, 0, new PlayerInventory(Engine), socketstream, false));
-						clients.put(senderName, new PlayerMP(senderName, pos, -135, 0, new PlayerInventory(Engine), socketstream, new Random().nextLong(), Engine));
+						clients.put(senderName, new PlayerMP(senderName, pos, -135, 0,20, new PlayerInventory(Engine), socketstream, new Random().nextLong(), Engine));
 					}
 					
 					//és az entityket
@@ -192,10 +199,12 @@ public class GameServer extends Thread{
 					}
 
 					
-				}else {	// most nyitottuk meg, kell a pozíció, de az inventory nem közös a klienssel
+				}else {	// most nyitottuk meg, kell a pozíció, de az inventory nem közös a klienssel TODO tesztelni
 					pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
 					yaw= Float.parseFloat(part[5]);
-					clients.put(senderName,new PlayerMP(senderName,pos ,yaw, Float.parseFloat(part[6]), new PlayerInventory(Engine), socketstream, new Random().nextLong(),Engine));
+					float pitch =  Float.parseFloat(part[6]);
+					int health=(int) Float.parseFloat(part[7]);
+					clients.put(senderName,new PlayerMP(senderName,pos ,yaw,pitch,health, new PlayerInventory(Engine), socketstream, ID,Engine));
 					if(!Config.creative) {
 						clients.get(senderName).inventory.items.putAll(Engine.Inv.items);
 					}
@@ -205,8 +214,8 @@ public class GameServer extends Thread{
 				
 				for(PlayerMP player : clients.values()){
 					if(player.socket != socketstream){
-						sendData(("03," + senderName + "," + pos.x + "," + pos.y + "," + pos.z + "," + yaw), player.socket);
-						sendData(("03," + player.name + "," + player.getPos().x + "," + player.getPos().y + "," + player.getPos().z + "," + player.yaw), socketstream);
+						sendData(("03," + senderName + "," + pos.x + "," + pos.y + "," + pos.z + "," + yaw+ "," + ID), player.socket);
+						sendData(("03," + player.name + "," + player.getPos().x + "," + player.getPos().y + "," + player.getPos().z + "," + player.yaw + "," + player.ID), socketstream);
 					}
 					
 				}
@@ -375,6 +384,15 @@ public class GameServer extends Thread{
 					}
 				}
 				break;
+			case "18": // HURT ENTITIY
+				Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
+				for(PlayerMP client : clients.values()){
+					if(!client.name.equals(Config.username)) {
+						sendData(message, client.socket);
+
+					}
+				}
+				break;
 			case "ping":
 				sendData("pong", socketstream);
 				break;
@@ -424,7 +442,7 @@ public class GameServer extends Thread{
 					sendData(("67," + playerData.name), client.socket);
 			}
 			
-			World.savePlayer(Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory);
+			World.savePlayer(Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory, playerData.getHealth());
 			clients.remove(playerData.name);
 			Listener.Connections.remove(playerData.socket);
 			Main.log(playerData.name+"Logged out ("+clients+")");
