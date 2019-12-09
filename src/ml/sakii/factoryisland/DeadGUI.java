@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 public class DeadGUI extends JPanel implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
 
-	private JButton exitButton;
+	private JButton respawnButton, exitButton;
 	private int WIDTH=(int)(Main.Frame.getWidth()*0.3f);
 	private int HEIGHT=(int)(Main.Frame.getHeight()*0.055f);
 	private int SPACING=(int)(Main.Frame.getHeight()*0.016f)+HEIGHT;	
@@ -31,8 +31,14 @@ public class DeadGUI extends JPanel implements ActionListener, KeyListener {
 	    });
 		
 
+		respawnButton = new MainMenuButton("Respawn",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4-HEIGHT/2), WIDTH, HEIGHT);
+		respawnButton.setActionCommand("respawn");
+		respawnButton.setVisible(true);
+		respawnButton.addActionListener(this);
+		add(respawnButton);
 		
-		exitButton = new MainMenuButton("Restart",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4+SPACING*2-HEIGHT/2), WIDTH, HEIGHT);
+		
+		exitButton = new MainMenuButton("Save & Exit to Main Menu",Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4+SPACING-HEIGHT/2), WIDTH, HEIGHT);
 		exitButton.setActionCommand("exit");
 		exitButton.setVisible(true);
 		exitButton.addActionListener(this);
@@ -54,12 +60,12 @@ public class DeadGUI extends JPanel implements ActionListener, KeyListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-		if(e.getActionCommand().equals("exit")){
-			if(Main.GAME != null) {
-				Main.GAME.disconnect(null, true);
-			}else {
-				Main.SwitchWindow("mainmenu");
-			}
+		if(e.getActionCommand().equals("respawn")){
+			Main.GAME.resume();
+			Main.GAME.respawn();
+		}
+		if(e.getActionCommand().equals("exit")) {
+			Main.GAME.disconnect(null);
 		}
 	}
 	
