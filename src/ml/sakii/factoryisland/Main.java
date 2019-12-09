@@ -268,7 +268,7 @@ public class Main
 				//TODO windowson alt-f4-nel nem menti a palyat
 				if (GAME != null)
 				{
-					GAME.disconnect(null, false);
+					GAME.disconnect(null);
 				}
 
 			}
@@ -372,8 +372,12 @@ public class Main
 		
 		
 		Base.add(GAME, "game");
-		SwitchWindow("game");
-		GAME.renderThread.start();
+		if(GAME.PE.getHealth()==0) {
+			SwitchWindow("died");
+		}else {
+			SwitchWindow("game");
+			GAME.renderThread.start();
+		}
 	}
 	
 	public static void SwitchWindow(String To)

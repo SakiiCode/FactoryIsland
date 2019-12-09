@@ -20,7 +20,7 @@ public class Entity{
 	
 	
 	int health;
-	int maxHealth;
+	public final int maxHealth;
 	public ArrayList<Object3D> Objects = new ArrayList<>();
 	public ArrayList<Vertex> Vertices = new ArrayList<>();
 	public boolean showName = false;
@@ -47,7 +47,7 @@ public class Entity{
 	public float yaw, yaw2, z0,z;
 	float[] fxy, fxy1, fx1y1, fx1y;
 	
-	Entity(String className, Vector pos, EAngle aim, String name,int maxHealth,long ID, GameEngine engine, Surface front, Surface side) {
+	Entity(String className, Vector pos, EAngle aim, String name,int health, int maxHealth,long ID, GameEngine engine, Surface front, Surface side) {
 		
 		this.className=className;
 		ViewFrom=pos;
@@ -58,7 +58,7 @@ public class Entity{
 		this.VerticalVector.z= ViewFrom.z >= 0 ? 1 : -1;
 		
 		this.maxHealth=maxHealth;
-		this.health=maxHealth;
+		this.health=health;
 		
 		init();
 		
@@ -118,14 +118,14 @@ public class Entity{
 
 	}
 
-	public static Entity createEntity(String className, Vector pos, EAngle aim, String name, long ID, GameEngine engine) {
+	public static Entity createEntity(String className, Vector pos, EAngle aim, String name,int health, long ID, GameEngine engine) {
 		
 		try{
 			Class<?> entityClass = Class.forName("ml.sakii.factoryisland.entities."+className);
 			if(!entityClass.getName().equals(Entity.class.getName())){
 				if(Entity.class.isAssignableFrom(entityClass)){
-					Constructor<?> ctor = entityClass.getConstructor(Vector.class, EAngle.class, String.class, long.class, GameEngine.class);
-					Entity object = (Entity)(ctor.newInstance(new Object[] { pos, aim, name, ID, engine }));
+					Constructor<?> ctor = entityClass.getConstructor(Vector.class, EAngle.class, String.class, int.class, long.class, GameEngine.class);
+					Entity object = (Entity)(ctor.newInstance(new Object[] { pos, aim, name,health, ID, engine }));
 					return object;
 				}
 				Main.err("Could create entity: "+className+" is not an instance of " + Entity.class.getName());
@@ -224,15 +224,23 @@ public class Entity{
 	}
 	
 	// true ha tulelte
-	public boolean hurt(int points) { //TODO itt MP küldés
-		health = Math.min(Math.max(health-points,0), maxHealth);
-		return health!=0;
+	public boolean hurt(int points, boolean resend) {
+		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND TODO itt is?
+			engine.client.sendData("18,"+ID+","+points);
+			return true;
+		}else {
+			health = Math.min(Math.max(health-points,0), maxHealth);
+			return health!=0;
+		}
 	}
 	
 	public int getHealth() {
 		return health;
 	}
 
+	public void setHealth(int health) {
+		this.health=health;
+	}
 
 	@Override
 	public String toString()

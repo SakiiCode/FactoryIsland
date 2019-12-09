@@ -12,8 +12,8 @@ public class Alien extends Entity {
 	public boolean locked=false;
 	public Vector aim = new Vector();
 	
-	public Alien(Vector ViewFrom, EAngle aim, String name,long ID, GameEngine engine){
-		super("Alien",ViewFrom, aim, name,10,ID, engine, Main.alienFront, Main.alienSide);
+	public Alien(Vector ViewFrom, EAngle aim, String name,int health,long ID, GameEngine engine){
+		super("Alien",ViewFrom, aim, name,health,10,ID, engine, Main.alienFront, Main.alienSide);
 		this.target=new Vector().set(ViewFrom);
 	}
 

@@ -201,7 +201,7 @@ public class GameEngine{
 							
 									
 						if(pos!=null) {
-							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",new Random().nextLong(), GameEngine.this);
+							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
 							world.addEntity(newAlien);
 						}
 						
@@ -234,12 +234,12 @@ public class GameEngine{
 								if(server != null) { //MP
 									for(PlayerMP data : server.clients.values()) {
 										if(data.getPos().distance(alien.getPos())<0.2) {
-											data.hurt(3);
+											data.hurt(3,true);
 										}									}
 								}else if(client ==null){ //SP
 									//System.out.println("singleplayer:"+Main.GAME.PE.getPos().distance(alien.getPos()));
 									if(Main.GAME.PE.getPos().distance(alien.getPos())<1) {
-										if(!Main.GAME.PE.hurt(3)) {
+										if(!Main.GAME.PE.hurt(3,true)) {
 											new Thread() {
 												@Override
 												public void run() {
@@ -731,7 +731,7 @@ public class GameEngine{
 				((WorldGenListener)b).generateWorld();
 			}
 		}
-		world.saveByShutdown(true);
+		world.saveByShutdown();
 	}
 	
 	private boolean isNearWater(Block b){

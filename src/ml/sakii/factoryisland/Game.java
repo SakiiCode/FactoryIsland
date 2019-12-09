@@ -179,11 +179,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			return;
 		
 		}
-		PE = new PlayerEntity(Engine);
-		
-		init();
-		previousPos = new Vector().set(PE.getPos());
-		previousAim = new EAngle(PE.ViewAngle.yaw, PE.ViewAngle.pitch);
+
+
 		switch(loadmethod) {
 		case MULTIPLAYER:
 
@@ -199,15 +196,22 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			File playerFile = new File("saves/" + location + "/" + Config.username + ".xml");
 			if (playerFile.exists())
 			{
-					PE.move(Engine.world.loadVector(Config.username, "x", "y", "z"), false);
-					PE.ViewAngle.set(Engine.world.loadVector(Config.username, "yaw", "pitch", "yaw"));
+					//PE.move(Engine.world.loadVector(Config.username, "x", "y", "z"), false);
+					//PE.ViewAngle.set(Engine.world.loadVector(Config.username, "yaw", "pitch", "yaw"));
+					PE=Engine.world.parsePE(Config.username, Engine);
 					break;
 			}
 
 			//$FALL-THROUGH$
 		case GENERATE:
+			PE=new PlayerEntity(Engine);
 			teleportToSpawn();
 		}
+		
+		init();
+		
+		previousPos = new Vector().set(PE.getPos());
+		previousAim = new EAngle(PE.ViewAngle.yaw, PE.ViewAngle.pitch);
 		
 		for(Block b : Engine.world.getWhole(false)) {
 			if(b instanceof LoadListener) {
@@ -925,7 +929,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				String error = connect("localhost", Engine.server.Listener.acceptThread.port, true);
 				if (error != null)
 				{
-					disconnect("Server launch failed:"+error,false);
+					disconnect("Server launch failed:"+error);
 				}
 			}
 		}
@@ -1082,7 +1086,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 					}
 				}else if(SelectedEntity != null) {
-					if(SelectedEntity.hurt(1)) {
+					if(!SelectedEntity.hurt(1, true)) {
 						Engine.world.killEntity(SelectedEntity.ID, true);
 					}
 					
@@ -1232,7 +1236,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	
 
-	public void disconnect(String error,boolean byDeath)
+	public void disconnect(String error)
 	{
 		//running = false;
 		if(error !=null) {
@@ -1264,7 +1268,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		
 				} else
 				{
-					Engine.world.saveByShutdown(!byDeath);
+					Engine.world.saveByShutdown();
 				}
 				Objects.clear();
 				Main.SwitchWindow("mainmenu");
@@ -1281,15 +1285,17 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	void pause()
 	{
-		//running = false;
+		pauseTo("pause");
+	}
+	
+	private void pauseTo(String UiName) {
 		renderThread.kill();
 		if (Engine.server == null) {
 			Engine.ticker.stop();
 			Engine.stopPhysics();
 		}
-		Main.PausedBG = Main.deepCopy(op.filter(Main.deepCopy(FrameBuffer), null));
+		Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
 
-		//Main.focused = false;
 		centered = false;
 		setCursor(Cursor.getDefaultCursor());
 		removeKeyListener(this);
@@ -1301,29 +1307,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				key[i] = false;
 		}
 
-		Main.SwitchWindow("pause");
+		Main.SwitchWindow(UiName);
 	}
 	
 	void notifyDeath() {
-		renderThread.kill();
-		if (Engine.server == null) {
-			Engine.ticker.stop();
-			Engine.stopPhysics();
-		}
-		Main.PausedBG = Main.deepCopy(op.filter(Main.deepCopy(FrameBuffer), null));
+		pauseTo("died");
+		
 
-		centered = false;
-		setCursor(Cursor.getDefaultCursor());
-		removeKeyListener(this);
-		removeMouseListener(this);
-		removeMouseWheelListener(this);
-		for (int i = 0; i < key.length; i++)
-		{
-			if(i!=7)
-				key[i] = false;
-		}
-
-		Main.SwitchWindow("died");
+	}
+	
+	void respawn() {
+		PE.getPos().set(Engine.world.getSpawnBlock().pos).add(new Vector(0,0,2.7f));
+		PE.setHealth(PE.maxHealth);
 	}
 
 	void resume()

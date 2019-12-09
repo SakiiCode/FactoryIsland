@@ -14,15 +14,16 @@ public class PlayerMP extends Entity {
 	public PlayerInventory inventory;
 	
 	public PlayerMP(Vector ViewFrom, EAngle aim, String name,long ID, GameEngine engine){
-		super("PlayerMP",ViewFrom, aim, name, Integer.MAX_VALUE,ID,engine, Main.playerFront, Main.playerSide);
+		super("PlayerMP",ViewFrom, aim, name, Integer.MAX_VALUE,Integer.MAX_VALUE,ID,engine, Main.playerFront, Main.playerSide);
 		showName=true;
 		Objects.add(new Text3D(name, ViewFrom.x, ViewFrom.y, ViewFrom.z));
 	}
 	
-	public PlayerMP(String username, Vector pos, float yaw, float pitch, PlayerInventory inventory, Connection socket, long ID, GameEngine engine){
-		super("PlayerMP", pos, new EAngle(yaw, pitch),username,20,ID,engine,Main.playerFront, Main.playerSide);
+	public PlayerMP(String username, Vector pos, float yaw, float pitch,int health, PlayerInventory inventory, Connection socket, long ID, GameEngine engine){
+		super("PlayerMP", pos, new EAngle(yaw, pitch),username,health,20,ID,engine,Main.playerFront, Main.playerSide);
 		this.inventory=inventory;
 		this.socket=socket;
+		
 	}
 
 	

@@ -270,18 +270,23 @@ public class World {
 	                   }else if (qName.equalsIgnoreCase("entity")) {
 	                	   //boolean nem kell mert sosem lesz leszarmazott tagje
 	                       Iterator<Attribute> attributes = startElement.getAttributes();
-	                       
+	                       //ez fura sorrendben van beolvasva
 	                       String aim = attributes.next().getValue();
 	                       String className = attributes.next().getValue();
 	                       String pos = attributes.next().getValue();
-	                       String name = attributes.next().getValue();
 	                       
+	                       
+	                       String name = attributes.next().getValue();
+	                       String health=attributes.next().getValue();
 	                       String id = attributes.next().getValue();
+	                       
+	                       
 	                       
 	                       Entity e = Entity.createEntity(className,
 	       						Vector.parseVector(pos),
 	       						EAngle.parseEAngle(aim),
 	       						name,
+	       						Integer.parseInt(health),
 	       						Long.parseLong(id),
 	       						engine);
 	       				if(e != null) addEntity(e);
@@ -386,6 +391,8 @@ public class World {
 						engine.Inv.add(stack.getKey(), stack.getValue(), false);
 				}
 			}
+			
+			
 		
 		} catch (Exception e)
 		{
@@ -439,8 +446,18 @@ public class World {
 		
 	}
 
-	public Vector loadVector(String username, String param1, String param2, String param3) {
-		Vector output=new Vector(0,0,0);
+	public PlayerEntity parsePE(String username, GameEngine engine) {
+		PlayerEntity result = new PlayerEntity(engine);
+		result.getPos().set(loadVector(username, new String[] {"x","y","z"}));
+		float[] other = loadVector(username, new String[] {"yaw", "pitch", "health"});
+		result.ViewAngle.set(other[0],other[1]);
+		result.setHealth((int) other[2]);
+		return result;
+	}
+	
+	public float[] loadVector(String username, String params[]) {
+		//Vector output=new Vector(0,0,0);
+		float[] output = new float[params.length];
 		File file = new File("saves/" + worldName + "/"+username+".xml");
 		if (!file.exists()) {
 			return null;
@@ -471,9 +488,12 @@ public class World {
 		}*/
 		NamedNodeMap nnm = players.getAttributes();
 		
-		output.x = Float.parseFloat(nnm.getNamedItem(param1).getNodeValue());
-		output.y = Float.parseFloat(nnm.getNamedItem(param2).getNodeValue());
-		output.z = Float.parseFloat(nnm.getNamedItem(param3).getNodeValue());
+		for(int i=0;i<params.length;i++) {
+			if(nnm.getNamedItem(params[i]) != null) {
+				output[i] = Float.parseFloat(nnm.getNamedItem(params[i]).getNodeValue());
+			}
+		}
+		
 		
 		
 		return output;
@@ -1229,7 +1249,7 @@ public class World {
 
 	}
 
-	public void saveByShutdown(boolean savePos) {
+	public void saveByShutdown() {
 
 		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
@@ -1238,13 +1258,8 @@ public class World {
 			//HashMap<PlayerMPData, Inventory> map = new HashMap<>();
 			//map.put(new PlayerMPData(0, null, new float[] {game.PE.ViewFrom.x, game.PE.ViewFrom.y, game.PE.ViewFrom.z}, game.ViewAngle.yaw, Config.username), Engine.Inv);
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT);
-			Vector pos;
-			if(savePos) {
-				pos=game.PE.getPos();
-			}else {
-				pos=new Vector().set(getSpawnBlock().pos).add(new Vector(0,0,2.7f));
-			}
-			savePlayer(worldName, Config.username, pos, game.PE.ViewAngle, game.creative ? tmpInventory : Engine.Inv);
+
+			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? tmpInventory : Engine.Inv, game.PE.getHealth());
 		}else { //multiplayer, engine.server-bõl szedi az adatokat
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
 			//saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
@@ -1256,14 +1271,9 @@ public class World {
 			for(PlayerMP data : Engine.server.clients.values()) {
 				//map.put(key, value)
 				
-				Vector pos;
-				if(savePos) {
-					pos=data.getPos();
-				}else {
-					pos=new Vector().set(getSpawnBlock().pos).add(new Vector(0,0,2.7f));
-				}
+
 				
-				savePlayer(worldName, data.name, pos, data.ViewAngle, data.inventory);
+				savePlayer(worldName, data.name, data.getPos(), data.ViewAngle, data.inventory, data.getHealth());
 			}
 			
 		}
@@ -1364,7 +1374,7 @@ public class World {
 				entity.setAttribute("id", e.ID+"");
 				entity.setAttribute("name", e.name);
 				entity.setAttribute("pos", e.getPos().toString());
-				
+				entity.setAttribute("health", e.getHealth()+"");
 				
 				entitiesNode.appendChild(entity);
 			}
@@ -1394,7 +1404,7 @@ public class World {
 
 	}
 	
-	public static void savePlayer(String worldName, String username, Vector position, EAngle direction, PlayerInventory inventory) {
+	public static void savePlayer(String worldName, String username, Vector position, EAngle direction, PlayerInventory inventory, int health) {
 		File saves = new File("saves");
 		File mods = new File("mods");
 		File wname = new File("saves/" + worldName);
@@ -1434,6 +1444,7 @@ public class World {
 		root.setAttribute("z", ""+position.z);
 		root.setAttribute("yaw", ""+direction.yaw);
 		root.setAttribute("pitch", ""+direction.pitch);
+		root.setAttribute("health", health+"");
 		//players.appendChild(localPlayer);
 
 		//root.appendChild(players);
