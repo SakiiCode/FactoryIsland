@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.EAngle;
@@ -49,7 +50,6 @@ public class GameClient extends Thread{
 	private final Object lock = new Object();
 	
 	
-	
 	public GameClient(Game game){
 		this.game = game;
 		this.setName("GameClient");
@@ -66,7 +66,7 @@ public class GameClient extends Thread{
 			
 			sendData("ping");
 			if(sendPos) {
-				sendData(("00,"+Config.username +","+ game.PE.getPos() +","+ Math.toRadians(game.PE.ViewAngle.yaw)+","+ Math.toRadians(game.PE.ViewAngle.pitch)));
+				sendData(("00,"+Config.username +","+ game.PE.getPos() +","+ Math.toRadians(game.PE.ViewAngle.yaw)+","+ Math.toRadians(game.PE.ViewAngle.pitch) + "," + game.PE.getHealth()));
 			}else {
 				sendData("00,"+Config.username);	
 			}
@@ -165,6 +165,8 @@ public class GameClient extends Thread{
 			if(!part[1].equals(""+Connection.PROTOCOL_VERSION)) {
 				return "Incompatible server version: "+part[1] + "(current:"+Connection.PROTOCOL_VERSION+")";
 			}
+			game.PE.ID = Long.parseLong(part[2]);
+			
 			break;
 		
 		case "01": // DOWNLOAD BLOCKS
@@ -202,7 +204,7 @@ public class GameClient extends Thread{
 		case "03": // ADD A PLAYER 03,x,y,z,yaw,ID
 			
 				Vector ViewFrom = new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-				ID = Long.parseLong(part[5]);
+				ID = Long.parseLong(part[6]);
 				PlayerMP newPlayer = new PlayerMP(ViewFrom, new EAngle(Float.parseFloat(part[5]), 0), part[1],ID, game.Engine);
 				game.playerList.put(part[1], newPlayer);
 				game.Objects.addAll(newPlayer.Objects);
@@ -236,21 +238,13 @@ public class GameClient extends Thread{
 		
 		case "05": // PLACE BLOCK
 			
-			Block b = game.Engine.createBlockByName(part[2], cInt(part[3]), cInt(part[4]), cInt(part[5]));
-			for(int i=6;i<part.length;i+=2) {
-				b.setMetadata(part[i], part[i+1], false);
-			}
-			game.Engine.world.addBlockNoReplace(b,false);
-
+			receiveBlockPlace(part);
 			break;
 		case "06": // DELETE BLOCK
-			game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4])), false);
+			receiveBlockDestroy(part);
 			break;
 		case "07": // EDIT METADATA
-			Block bl = game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
-			if(bl != Block.NOTHING) {
-				bl.setMetadata(part[4], part[5], false);
-			}
+			receiveMetadataEdit(part);
 
 			break;
 		case "10": // ADD TO INVENTORY
@@ -298,27 +292,13 @@ public class GameClient extends Thread{
 			game.moved=true;
 			break;
 		case "15": // SPAWN ENTITY 15,className,x,y,z,yaw,pitch,name,health,ID
-			String className = part[1];
-			Vector pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-			EAngle aim=new EAngle(Float.parseFloat(part[5]), Float.parseFloat(part[6]));
-			String name=part[7];
-			int health = Integer.parseInt(part[8]);
-			ID=Long.parseLong(part[9]);
-			
-			Entity e = Entity.createEntity(className, pos, aim, name,health, ID, game.Engine); 
-			game.Engine.world.addEntity(e);
+			receiveEntityCreate(part);
 			break;
 		case "16": // MOVE ENTITY
-			for(int i=1;i<part.length;i+=4) {
-				Entity en = game.Engine.world.getEntity(Long.parseLong(part[i]));
-				if(en!=null) {
-					en.move(Float.parseFloat(part[i+1]), Float.parseFloat(part[i+2]), Float.parseFloat(part[i+3]), false);
-					en.update();
-				}
-			}
+			receiveEntityMove(part);
 			break;
 		case "17": // KILL ENTITIY
-			game.Engine.world.killEntity(Long.parseLong(part[1]), false);
+			receiveEntityKill(part);
 			break;
 		case "18":
 			game.Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
@@ -341,7 +321,120 @@ public class GameClient extends Thread{
 		
 	}
 	
-	public void sendData(String data){
+	
+	public void sendBlockPlace(String username, Block b) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("05,"+username+","+b.name+","+b.x+","+b.y+","+b.z);
+		for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
+			sb.append(",");
+			sb.append(entry.getKey()+","+entry.getValue());
+		}
+		sendData(sb.toString());
+		
+		
+	}
+	
+	void receiveBlockPlace(String[] part) {
+		Block b = game.Engine.createBlockByName(part[2], cInt(part[3]), cInt(part[4]), cInt(part[5]));
+		for(int i=6;i<part.length;i+=2) {
+			b.setMetadata(part[i], part[i+1], false);
+		}
+		game.Engine.world.addBlockNoReplace(b,false);
+
+	}
+	
+	public void sendBlockDestroy(String username, Block b) {
+		sendData(("06,"+username+"," + b.x + "," + b.y	+ "," + b.z));
+
+	}
+	
+	public void receiveBlockDestroy(String[] part) {
+		game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4])), false);
+
+	}
+	
+	public void sendMetadataEdit(Block b, String key, String value) {
+		sendData(("07," + b.x + "," + b.y + "," + b.z + ","
+				+ key + "," + value));
+	}
+	
+	void receiveMetadataEdit(String[] part) {
+		Block bl = game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
+		if(bl != Block.NOTHING) {
+			bl.setMetadata(part[4], part[5], false);
+		}
+	}
+	
+	public void sendEntityCreate(Entity e) {
+		sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle.yaw+","+e.ViewAngle.pitch+","+e.name+","+e.ID);
+	}
+	
+	void receiveEntityCreate(String[] part) {
+		String className = part[1];
+		Vector pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
+		EAngle aim=new EAngle(Float.parseFloat(part[5]), Float.parseFloat(part[6]));
+		String name=part[7];
+		int health = Integer.parseInt(part[8]);
+		long ID=Long.parseLong(part[9]);
+		
+		Entity e = Entity.createEntity(className, pos, aim, name,health, ID, game.Engine); 
+		game.Engine.world.addEntity(e);
+	}
+	
+	public void sendEntityMove(Entity e) {
+		sendData("16,"+e.ID+","+e.getPos().x+","+e.getPos().y+","+e.getPos().z); 
+	}
+	
+	void receiveEntityMove(String[] part) {
+		for(int i=1;i<part.length;i+=4) {
+			Entity en = game.Engine.world.getEntity(Long.parseLong(part[i]));
+			if(en!=null) {
+				en.move(Float.parseFloat(part[i+1]), Float.parseFloat(part[i+2]), Float.parseFloat(part[i+3]), false);
+				en.update();
+			}
+		}
+	}
+	
+	public void sendEntityHurt(long ID, int points) {
+		sendData("18,"+ID+","+points);
+
+	}
+	
+	void receiveEntityHurt(String[] part) {
+		
+	}
+	
+	public void sendEntityKill(long ID) {
+		sendData("17,"+ID);
+	}
+	
+	void receiveEntityKill(String[] part) {
+		game.Engine.world.killEntity(Long.parseLong(part[1]), false);
+	}
+	
+	
+	public void sendInvSwap(String username, Block b, String itemName, boolean addToLocal) {
+		 // 14,Sakii,1,2,3,Stone,true (add to local)
+		sendData(
+				"14," + username + "," + b.x + "," + b.y
+						+ "," + b.z + "," + itemName + "," + addToLocal);
+	}
+	
+	public void sendInvBlockAdd(String username, Block b, String name, int amount) {
+		sendData("13,"+username+","+b.x+","+b.y+","+b.z+","+name+","+amount);
+
+	}
+	
+	public void sendInvPlayerAdd(String username, String name, int amount) {
+		sendData("10,"+username+","+name+","+amount);
+	}
+	
+	public void sendPlayerPos() {
+		sendEntityMove(game.PE);
+		//sendData("04," + username + "," + x + "," + y + "," + z + "," + yaw +"," + pitch);
+	}
+	
+	private void sendData(String data){
 		if(data.isEmpty()) {
 			Main.log("empty message from client");
 			return;

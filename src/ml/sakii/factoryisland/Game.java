@@ -183,6 +183,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		switch(loadmethod) {
 		case MULTIPLAYER:
+			PE=new PlayerEntity(Engine);
 
 			String[] addr = location.split(":");
 			int port = 1420;
@@ -1519,10 +1520,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		} else
 		{
-			// 14,Sakii,1,2,3,Stone,true (add to local)
-			Engine.client.sendData(
-					"14," + Config.username + "," + remoteInventory.getBlock().x + "," + remoteInventory.getBlock().y
-							+ "," + remoteInventory.getBlock().z + "," + itemName + "," + addToLocal);
+			Engine.client.sendInvSwap(Config.username, remoteInventory.getBlock(), itemName,addToLocal);
+
 		}
 	}
 

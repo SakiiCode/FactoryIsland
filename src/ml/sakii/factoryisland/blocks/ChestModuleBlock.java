@@ -51,7 +51,8 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 			if(Engine.client==null) {
 				Engine.Inv.add(is.getKey(), is.getValue(), true);
 			}else {
-				Engine.client.sendData("10,"+username+","+is.getKey().name+","+is.getValue());
+				//Engine.client.sendData("10,"+username+","+is.getKey().name+","+is.getValue());
+				Engine.client.sendInvPlayerAdd(username, is.getKey().name, is.getValue());
 			}
 		}
 		return true;

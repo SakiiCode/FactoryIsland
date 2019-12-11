@@ -147,7 +147,7 @@ public class Entity{
 	public void move(float x, float y, float z, boolean resend) {
 		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND
 			//if(!(this instanceof PlayerEntity)) {// && engine.client != null && engine.server != null) {
-				engine.client.sendData("16,"+ID+","+x+","+y+","+z); 
+				engine.client.sendEntityMove(this);
 			//}
 			
 		}else {
@@ -226,7 +226,7 @@ public class Entity{
 	// true ha tulelte
 	public boolean hurt(int points, boolean resend) {
 		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND TODO itt is?
-			engine.client.sendData("18,"+ID+","+points);
+			engine.client.sendEntityHurt(this.ID, points);
 			return true;
 		}else {
 			health = Math.min(Math.max(health-points,0), maxHealth);

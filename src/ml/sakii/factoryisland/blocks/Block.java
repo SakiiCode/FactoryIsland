@@ -134,8 +134,7 @@ public class Block extends Object3D
 	public final void setMetadata(String key, String value, boolean resend)
 	{
 		if(resend && Engine.client != null) {
-			Engine.client.sendData(("07," + this.x + "," + this.y + "," + this.z + ","
-					+ key + "," + value));
+			Engine.client.sendMetadataEdit(this, key, value);
 		
 		}else {
 			boolean alreadyput = false;

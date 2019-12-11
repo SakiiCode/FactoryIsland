@@ -548,13 +548,7 @@ public class World {
 	public boolean addBlockNoReplace(Block b, boolean resend) {
 		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
 			if(Engine.client != null && resend) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("05,"+Config.username+","+b.name+","+b.x+","+b.y+","+b.z);
-				for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
-					sb.append(",");
-					sb.append(entry.getKey()+","+entry.getValue());
-				}
-				Engine.client.sendData(sb.toString());
+				Engine.client.sendBlockPlace(Config.username,b);
 			}
 			//if(resend) {
 				ReplaceBlock(b);
@@ -649,8 +643,7 @@ public class World {
 
 	public void destroyBlock(Block b, boolean resend) {
 		if(Engine.client != null && resend) {
-			Engine.client.sendData(("06,"+Config.username+"," + b.x + "," + b.y	+ "," + b.z));
-
+			Engine.client.sendBlockDestroy(Config.username,b);
 		}
 		//if(resend) {
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
@@ -705,7 +698,8 @@ public class World {
 		Entities.put(e.ID, e);
 		
 		if(Engine.server != null && Engine.client != null) {
-			Engine.client.sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle.yaw+","+e.ViewAngle.pitch+","+e.name+","+e.ID);
+			Engine.client.sendEntityCreate(e);
+			
 			
 		}
 		if(game != null) {
@@ -718,7 +712,7 @@ public class World {
 	public void killEntity(long ID, boolean resend) {
 		
 		if(resend && Engine.client != null) { 
-			Engine.client.sendData("17,"+ID);
+			Engine.client.sendEntityKill(ID);
 			
 		}else {
 			Entity e = Entities.get(ID);

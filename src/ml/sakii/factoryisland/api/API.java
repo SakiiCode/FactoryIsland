@@ -2,7 +2,6 @@ package ml.sakii.factoryisland.api;
 
 import java.util.ArrayList;
 
-import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.Main;
 
 public class API {
@@ -19,11 +18,11 @@ public class API {
 	public static void deleteBlock(int x, int y, int z) {
 		ml.sakii.factoryisland.blocks.Block b = Main.GAME.Engine.world.getBlockAt(x, y, z);
 		if(b!=ml.sakii.factoryisland.blocks.Block.NOTHING) {
-			if (Main.GAME.Engine.client == null) {
+			//if (Main.GAME.Engine.client == null) {
 				Main.GAME.Engine.world.destroyBlock(b, true);
-			} else {
-				Main.GAME.Engine.client.sendData(("06," + Config.username + "," + x + "," + y + "," + z));
-			}
+			//} else {
+			//	Main.GAME.Engine.client.sendData(("06," + Config.username + "," + x + "," + y + "," + z));
+			//}
 		}
 	}
 	

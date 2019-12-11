@@ -18,8 +18,9 @@ public class BlockInventory extends PlayerInventory {
 	
 	@Override
 	void doMultiplayer(String name, int amount) {
-			engine.client.sendData("13,"+Config.username+","+b.x+","+b.y+","+b.z+","+name+","+amount);
-			Main.log("BlockInv sent data from client to server");
+		//engine.client.sendData("13,"+Config.username+","+b.x+","+b.y+","+b.z+","+name+","+amount);
+		engine.client.sendInvBlockAdd(Config.username, b, name, amount);
+		Main.log("BlockInv sent data from client to server");
 	}
 
 		

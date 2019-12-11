@@ -48,6 +48,11 @@ public class EAngle {
 		pitch = angles.y;
 	}
 	
+	public void set(EAngle angle) {
+		yaw=angle.yaw;
+		pitch=angle.pitch;
+	}
+	
 	public void set(float yaw, float pitch) {
 		this.yaw=yaw;
 		this.pitch=pitch;

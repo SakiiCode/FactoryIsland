@@ -104,13 +104,14 @@ public class GameServer extends Thread{
 					break;
 				}
 				
-				sendData("00,"+Connection.PROTOCOL_VERSION, socketstream);
+				long ID = new Random().nextLong();
+				sendData("00,"+Connection.PROTOCOL_VERSION+","+ID, socketstream);
 				
 				
 				Vector pos=null;
 				float yaw;
 				
-				long ID = new Random().nextLong(); //egyelőre nem kell tudnia a saját ID-ját
+				
 
 
 				if(!senderName.equals(Config.username)) { // ha nem helyi, akkor elküldi a pályát
@@ -186,7 +187,7 @@ public class GameServer extends Thread{
 					for(Entity e : Engine.world.getAllEntities()) {
 						//15,className,x,y,z,yaw,pitch,name,ID
 						if(!(e instanceof PlayerEntity))
-							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.ID, socketstream);
+							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.getHealth()+","+e.ID, socketstream);
 					}
 					
 					//és a blockok inventoryját
@@ -422,7 +423,7 @@ public class GameServer extends Thread{
 			}
 			
 		} catch (IOException e) {
-			Main.err("(SERVER)" + e.getMessage() + "("+data+")");
+			Main.err("(SERVER) " + e.getMessage() + "("+data+")");
 			error=e.getMessage();
 		}
 		return error;

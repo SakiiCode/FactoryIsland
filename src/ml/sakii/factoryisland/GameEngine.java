@@ -55,9 +55,10 @@ public class GameEngine{
 	public GameClient client;
 	public GameServer server;
 	
-	float[] previousPos = new float[5];
-	float[] currentPos = new float[5];
-
+	//float[] previousPos = new float[5];
+	//float[] currentPos = new float[5];
+	Vector previousPos=new Vector();
+	EAngle previousAim=new EAngle();
 
 	int aliens=0;
 
@@ -260,27 +261,26 @@ public class GameEngine{
 				if(Tick % Main.ENTITYSYNCRATE == 0) {
 					if(Main.GAME != null && client != null){
 						Vector PEPos = Main.GAME.PE.getPos();
-						currentPos[0]=r(PEPos.x,2);
+						
+						/*currentPos[0]=r(PEPos.x,2);
 						currentPos[1]=r(PEPos.y,2);
 						currentPos[2]=r(PEPos.z,2);
 						currentPos[3]=r(Main.GAME.PE.ViewAngle.yaw,3);
 						currentPos[4]=r(Main.GAME.PE.ViewAngle.pitch,3);
-						for(int i=0;i<5;i++) {
-							if(previousPos[i] != currentPos[i]) {
-								client.sendData("04," + Config.username + "," + 
-										r(PEPos.x,2) + "," + 
-										r(PEPos.y, 2) + "," + 
-										r(PEPos.z,2) + "," + 
-										r(Main.GAME.PE.ViewAngle.yaw,3) +"," +  
-										r(Main.GAME.PE.ViewAngle.pitch,3) );
-								previousPos[0]=currentPos[0];
+						for(int i=0;i<5;i++) {*/
+							if(PEPos.distance(previousPos)>0.1f || !previousAim.equals(Main.GAME.PE.ViewAngle)) {
+								//client.sendPlayerMove(Config.username, r(PEPos.x,2), r(PEPos.y, 2), r(PEPos.z,2), r(Main.GAME.PE.ViewAngle.yaw,3), r(Main.GAME.PE.ViewAngle.pitch,3));
+								client.sendPlayerPos();
+								/*previousPos[0]=currentPos[0];
 								previousPos[1]=currentPos[1];
 								previousPos[2]=currentPos[2];
 								previousPos[3]=currentPos[3];
-								previousPos[4]=currentPos[4];
-								break;
+								previousPos[4]=currentPos[4];*/
+								previousPos.set(PEPos);
+								previousAim.set(Main.GAME.PE.ViewAngle);
+								//break;
 							}
-						}
+						//}
 						
 					}
 					

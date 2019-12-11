@@ -28,7 +28,10 @@ public class PlayerInventory {
 	
 	
 	public ItemType add(ItemType kind, int amount, boolean resend){
-		if(!resend || engine.client == null) {
+		if(resend && engine.client != null) {
+			doMultiplayer(kind.name,amount);
+
+		}else {
 			int stack = getStack(kind);
 			
 			int originalSize = items.size();
@@ -83,8 +86,6 @@ public class PlayerInventory {
 			}
 			
 			
-		}else if(resend) {
-			doMultiplayer(kind.name,amount);
 		}
 		return kind;
 
@@ -174,8 +175,9 @@ public class PlayerInventory {
 	
 	void doMultiplayer(String name, int amount) {
 		//if(engine != null && engine.client != null) {// && engine.server == null) {
-			engine.client.sendData("10,"+Config.username+","+name+","+amount);
-			Main.log("PlayerInv sent data from client to server");
+			//engine.client.sendData("10,"+Config.username+","+name+","+amount);
+		engine.client.sendInvPlayerAdd(Config.username, name, amount);	
+		Main.log("PlayerInv sent data from client to server");
 
 		//}
 	}
