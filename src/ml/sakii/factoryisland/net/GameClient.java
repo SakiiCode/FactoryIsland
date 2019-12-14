@@ -167,6 +167,7 @@ public class GameClient extends Thread{
 			game.PE.ID = Long.parseLong(part[2]);
 			game.Engine.world.Entities.put(game.PE.ID, game.PE);
 			//game.Engine.world.addEntity(game.PE, false);
+			game.Engine.Tick=Long.parseLong(part[3]);
 			break;
 		
 		case "01": // DOWNLOAD BLOCKS

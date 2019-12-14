@@ -108,7 +108,7 @@ public class GameServer extends Thread{
 				}
 				
 				long ID = new Random().nextLong();
-				sendData("00,"+Connection.PROTOCOL_VERSION+","+ID, conn);
+				sendData("00,"+Connection.PROTOCOL_VERSION+","+ID+","+Engine.Tick, conn);
 				
 				
 				//Vector pos=null;
