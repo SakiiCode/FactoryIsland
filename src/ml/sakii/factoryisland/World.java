@@ -65,27 +65,22 @@ public class World {
 	private GameEngine Engine;
 	private ConcurrentHashMap<Point3D, Block> Blocks = new ConcurrentHashMap<>(10000);
 	private Game game;
-	private PlayerInventory tmpInventory;
-	
+	String success="OK";
 	public ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
 	
 	//ArrayList<Vector> SpawnableSurface = new ArrayList<>();
 	private int worldTop,worldBottom;
-	String success="OK";
 	
 	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
 		Engine = engine;
 		this.game = game;
 		this.worldName = worldName;
 		
+
 		
 		
 		if(existing) {
 			success = loadWorld(engine, statusLabel);
-		}else if(Config.creative){
-			tmpInventory = new PlayerInventory(engine);
-			game.creative=true;
-			engine.Inv=PlayerInventory.Creative;
 		}
 		
 		

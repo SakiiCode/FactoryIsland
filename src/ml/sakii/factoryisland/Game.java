@@ -147,6 +147,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	Point3D feetPoint = new Point3D();
 	TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));*/
 	//private ItemStack Selected = new ItemStack();
+	PlayerInventory tmpInventory;
+
 
 	
 	Area coverageBuffer = new Area();
@@ -179,10 +181,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		
 		}
 
+		PE=new PlayerMP(Config.username, Engine);
 
 		switch(loadmethod) {
 		case MULTIPLAYER:
-			PE=new PlayerMP(Engine);
+
+			Engine.world.addEntity(PE, false);
 
 			String[] addr = location.split(":");
 			int port = 1420;
@@ -224,11 +228,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 		}
 		
-		if(Engine.Inv.items.size()>0) {
-			Engine.Inv.setHotbarIndex(0);
+		if(PE.inventory.items.size()>0) {
+			PE.inventory.setHotbarIndex(0);
 		}
 		
-		Engine.world.addEntity(PE, false);
 		
 		//SwitchInventory(true);
 
@@ -576,7 +579,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
 					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) );
-					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+Engine.Inv.getHotbarIndex()+", selected:"+((Engine.Inv.getHotbarIndex()>-1 ) ? Engine.Inv.getSelectedKind() : ""));
+					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+PE.inventory.getHotbarIndex()+", selected:"+((PE.inventory.getHotbarIndex()>-1 ) ? PE.inventory.getSelectedKind() : ""));
 					if (Engine.client != null)
 					{
 						debugInfo.add("PacketCount: " + Engine.client.packetCount);
@@ -635,28 +638,28 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				//int w=0, h=0, offset=0;
 	
 				//INVENTORY SOR
-				if (Engine.Inv.items.size() > 0)
+				if (PE.inventory.items.size() > 0)
 				{
 					
-					//ItemStack localSelected = Engine.Inv.getSelectedStack();
+					//ItemStack localSelected = PE.inventory.getSelectedStack();
 					
 					
 					// VIEWMODEL
-					if (Engine.Inv.hasSelected())
+					if (PE.inventory.hasSelected())
 					{
-						//ItemType type = Main.Items.get(Engine.Inv.getSelectedKind().name);
+						//ItemType type = Main.Items.get(PE.inventory.getSelectedKind().name);
 						//if(type != null) {
-						BufferedImage viewmodel = Main.Items.get(Engine.Inv.getSelectedKind().name).ViewmodelTexture;
+						BufferedImage viewmodel = Main.Items.get(PE.inventory.getSelectedKind().name).ViewmodelTexture;
 						int wv = viewmodel.getWidth();
 						int hv = viewmodel.getHeight();
 	
 						g.drawImage(viewmodel, Config.width / 3 * 2, Config.height - hv, 2 * wv, 2 * hv, null);
 						/*}else {
-							Main.err("Unknown item type:"+Engine.Inv.getSelectedKind());
+							Main.err("Unknown item type:"+PE.inventory.getSelectedKind());
 						}*/
 					}
 					
-					drawInventory(g, Engine.Inv, fontSize, viewportscale, true, null, localInvActive);
+					drawInventory(g, PE.inventory, fontSize, viewportscale, true, null, localInvActive);
 					
 	
 				}
@@ -971,8 +974,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					"Give", JOptionPane.QUESTION_MESSAGE);
 			if (itemName != null && Main.Items.get(itemName) != null)
 			{
-				Engine.Inv.add(Main.Items.get(itemName), 1, true);
-				//if(Engine.Inv.items.size()==1) {
+				PE.inventory.add(Main.Items.get(itemName), 1, true);
+				//if(PE.inventory.items.size()==1) {
 					//SwitchInventory(true);
 				//}
 			} else
@@ -1100,13 +1103,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 					if (!key[5])
 					{
-						if (Engine.Inv.hasSelected())
+						if (PE.inventory.hasSelected())
 						{
-							//ItemStack selected =Engine.Inv.SelectedStack;
-							ItemType selected = Engine.Inv.getSelectedKind();
+							//ItemStack selected =PE.inventory.SelectedStack;
+							ItemType selected = PE.inventory.getSelectedKind();
 							if (selected.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(selected.className))
 							{
-								Engine.Inv.add(selected, -1, true);
+								PE.inventory.add(selected, -1, true);
 							}
 						}
 					} else if (SelectedBlock instanceof InteractListener)
@@ -1115,7 +1118,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						if (SelectedBlock instanceof BlockInventoryInterface)
 						{
 							PlayerInventory otherInv = ((BlockInventoryInterface) SelectedBlock).getInv();
-							if (Engine.Inv.items.size() == 0 && otherInv.items.size() > 0)
+							if (PE.inventory.items.size() == 0 && otherInv.items.size() > 0)
 							{
 								SwitchInventory(false);
 							}
@@ -1129,8 +1132,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			if (localInvActive)
 			{
-				if(Engine.Inv.hasSelected())
-					SwapItems(false, Engine.Inv.getSelectedKind().name);
+				if(PE.inventory.hasSelected())
+					SwapItems(false, PE.inventory.getSelectedKind().name);
 			} else
 			{
 				SwapItems(true, remoteInventory.getInv().getSelectedKind().name);
@@ -1183,7 +1186,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{ // UP/AWAY
 			if (localInvActive)
 			{
-				Engine.Inv.wheelUp();
+				PE.inventory.wheelUp();
 			} else
 			{
 				remoteInventory.getInv().wheelUp();
@@ -1195,7 +1198,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{ // DOWN/TOWARDS
 			if (localInvActive)
 			{
-				Engine.Inv.wheelDown();
+				PE.inventory.wheelDown();
 			} else
 			{
 				remoteInventory.getInv().wheelDown();
@@ -1392,8 +1395,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (!local && remoteInventory != null)
 		{ // tavolira valtas
 
-			Engine.Inv.setHotbarIndex(-1);
-			//Engine.Inv.SelectedStack = null;
+			PE.inventory.setHotbarIndex(-1);
+			//PE.inventory.SelectedStack = null;
 
 			if (remoteInventory.getInv().items.size() > 0)
 			{
@@ -1413,10 +1416,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				//remoteInventory.getInv().SelectedStack = null;
 			}
 
-			if (Engine.Inv.items.size() > 0)
+			if (PE.inventory.items.size() > 0)
 			{
-				Engine.Inv.setHotbarIndex(0);
-				//Engine.Inv.SelectedStack = Engine.Inv.items.get(0);
+				PE.inventory.setHotbarIndex(0);
+				//PE.inventory.SelectedStack = PE.inventory.items.get(0);
 			}
 
 			localInvActive = true;
@@ -1427,7 +1430,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (localInvActive && remoteInventory != null && remoteInventory.getInv().items.size() > 0)
 		{
 			SwitchInventory(false);
-		} else if (!localInvActive && Engine.Inv.items.size() > 0)
+		} else if (!localInvActive && PE.inventory.items.size() > 0)
 		{
 			SwitchInventory(true);
 		}
@@ -1506,19 +1509,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			if (!addToLocal)
 			{
-				if (Engine.Inv.items.size() > 0 && remoteInventory != null)
+				if (PE.inventory.items.size() > 0 && remoteInventory != null)
 				{
-					ItemType removedFromLocal = Engine.Inv.getSelectedKind();
+					ItemType removedFromLocal = PE.inventory.getSelectedKind();
 					remoteInventory.getInv().add(removedFromLocal, 1, true);
-					Engine.Inv.add(removedFromLocal, -1, true);
+					PE.inventory.add(removedFromLocal, -1, true);
 				}
-				//if (Engine.client == null && Engine.Inv.items.size() == 0)
+				//if (Engine.client == null && PE.inventory.items.size() == 0)
 				//	SwitchInventory(false);
 
 			} else
 			{
 				ItemType removedFromActiveInv = remoteInventory.getInv().getSelectedKind();
-				Engine.Inv.add(removedFromActiveInv, 1, true);
+				PE.inventory.add(removedFromActiveInv, 1, true);
 				remoteInventory.getInv().add(removedFromActiveInv, -1, true);
 
 				// if(Engine.client == null &&
