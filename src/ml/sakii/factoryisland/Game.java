@@ -1310,21 +1310,31 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Main.SwitchWindow(UiName);
 	}
 	
-	void notifyDeath() {
-		pauseTo("died");
-		
+	public void notifyDeath() {
+		new Thread() {
+			@Override
+			public void run() {
+				if(renderThread.isAlive()) {
+					pauseTo("died");
+				}
+			}
+		}.start();
 
 	}
 	
 	void respawn() {
 		PE.getPos().set(Engine.world.getSpawnBlock().pos).add(new Vector(0,0,2.7f));
 		PE.setHealth(PE.maxHealth);
+		Engine.world.addEntity(PE, true);
 	}
 
 	void resume()
 	{
 		//Main.focused = true;
-		
+		if(PE.getHealth()==0) {
+			Main.SwitchWindow("died");
+			return;
+		}
 		setCursor(invisibleCursor);
 		if (!Engine.ticker.isRunning()) {
 			Engine.ticker.start();
