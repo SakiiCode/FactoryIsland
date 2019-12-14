@@ -20,6 +20,7 @@ public class SocketListener extends Thread {
 	//private CopyOnWriteArrayList<Connection> Connections;
 	private TCPListener Listener;
 	public int port;
+	public String success="OK";
 
 	public SocketListener(TCPListener Listener) {
 		try {
@@ -29,14 +30,15 @@ public class SocketListener extends Thread {
 	        	this.socket = new ServerSocket(0);
 	        }
 			this.port = socket.getLocalPort();
-			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server opened to LAN at port " + socket.getLocalPort(), "Info", JOptionPane.INFORMATION_MESSAGE);
 		} catch (IOException e) {
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Could not start server: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			success = e.getMessage();
 		}
 		try {
 			this.socket.setReceiveBufferSize(8196);
 		} catch (SocketException e) {
+			success=e.getMessage();
 			e.printStackTrace();
 		}
 		this.Listener = Listener;

@@ -928,12 +928,21 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				Engine.server = new GameServer(Engine);
 				Engine.server.start();
-				Main.log("Server started");
-
-				String error = connect("localhost", Engine.server.Listener.acceptThread.port, true);
-				if (error != null)
-				{
-					disconnect("Server launch failed:"+error);
+				if(Engine.server.Listener.acceptThread.success.equals("OK")) {
+					
+					Main.log("Server started");
+	
+					String error = connect("localhost", Engine.server.Listener.acceptThread.port, true);
+					if (error != null)
+					{
+						disconnect("Server launch failed:"+error);
+					}else {
+						JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server opened to LAN at port " + Engine.server.Listener.acceptThread.port, "Press SPACE to continue", JOptionPane.INFORMATION_MESSAGE);
+					}
+				}else {
+					
+						disconnect("Server launch failed:"+Engine.server.Listener.acceptThread.success);
+					
 				}
 			}
 		}
@@ -1293,10 +1302,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	private void pauseTo(String UiName) {
 		renderThread.kill();
-		if (Engine.server == null) {
+		if (Engine.server == null && Engine.client ==  null) { // ezek multiplayerben nem allhatnak le
 			Engine.ticker.stop();
 			Engine.stopPhysics();
 		}
+		
 		Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
 
 		centered = false;
@@ -1339,11 +1349,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			return;
 		}
 		setCursor(invisibleCursor);
-		if (!Engine.ticker.isRunning()) {
+		if(!Engine.ticker.isRunning()) {
 			Engine.ticker.start();
-			if(Engine.server != null || Engine.client==null) {
-				Engine.startPhysics();
-			}
+		}
+		if(!Engine.physics.isRunning()) {
+			Engine.startPhysics();
 		}
 		firstframe = true;
 		//running = true;
