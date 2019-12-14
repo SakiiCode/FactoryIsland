@@ -289,7 +289,7 @@ public class World {
 	       						Integer.parseInt(health),
 	       						Long.parseLong(id),
 	       						engine);
-	       				if(e != null) addEntity(e);
+	       				if(e != null) addEntity(e, false);
 	                       
 	                   }else if(bMetadata) {
 	                	   curMeta=qName;
@@ -694,17 +694,19 @@ public class World {
 		//}
 	}
 	
-	public void addEntity(Entity e) {
-		Entities.put(e.ID, e);
-		
-		if(Engine.server != null && Engine.client != null) {
+	public void addEntity(Entity e, boolean resend) {
+		if(resend && Engine.client != null) { 
 			Engine.client.sendEntityCreate(e);
+		}else {
+			Entities.put(e.ID, e);
 			
 			
+			if(game != null) {
+				if(e != game.PE)
+				game.Objects.addAll(e.Objects);
+			}
 		}
-		if(game != null) {
-			game.Objects.addAll(e.Objects);
-		}
+		
 	
 	}
 	

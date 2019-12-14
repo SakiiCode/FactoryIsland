@@ -227,7 +227,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.Inv.setHotbarIndex(0);
 		}
 		
-		Engine.world.addEntity(PE);
+		Engine.world.addEntity(PE, false);
 		
 		//SwitchInventory(true);
 
