@@ -26,7 +26,6 @@ import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.blocks.WorldGenListener;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
-import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.items.ItemType;
@@ -203,7 +202,7 @@ public class GameEngine{
 									
 						if(pos!=null) {
 							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
-							world.addEntity(newAlien);
+							world.addEntity(newAlien, true);
 						}
 						
 					}
@@ -217,7 +216,8 @@ public class GameEngine{
 								Vector alienPos = alien.getPos();
 								
 								if(alienPos.getLength()>56) {
-									world.killEntity(alien.ID, true);
+									//world.killEntity(alien.ID, true);
+									world.hurtEntity(alien.ID, alien.getHealth(), true);
 								}else if(!alien.locked){
 									double random = Math.random();
 									//float dst = entity.getPos().distance(alien.target); 
@@ -230,34 +230,46 @@ public class GameEngine{
 									//Main.log("target:"+(new Vector().set(alien.target).substract(entity.getPos())));
 									//Main.log("--------------------------------");
 								}
-								
-								
-								if(server != null) { //MP
+
+
+								/*if(server != null) { //MP
 									for(PlayerMP data : server.clients.values()) {
 										if(data.getPos().distance(alien.getPos())<0.2) {
-											data.hurt(3,true);
-										}									}
+											world.hurtEntity(data.ID, 3, true);
+											//data.hurt(3,true);
+										}
+									}
 								}else if(client ==null){ //SP
 									//System.out.println("singleplayer:"+Main.GAME.PE.getPos().distance(alien.getPos()));
 									if(Main.GAME.PE.getPos().distance(alien.getPos())<1) {
 										if(!Main.GAME.PE.hurt(3,true)) {
-											new Thread() {
-												@Override
-												public void run() {
+
 													Main.GAME.notifyDeath();
-												}
-											}.start();
+
+										}
+									}
+								}*/
+
+								for(Entity data : world.getAllEntities()) {
+									if(data instanceof PlayerMP) {
+										if(data.getPos().distance(alien.getPos())<0.2) {
+											world.hurtEntity(data.ID, 3, true);
+											//data.hurt(3,true);
 										}
 									}
 								}
-								
+
+
 							}
 						}
 					}
-					
 
-					
-            	}
+
+
+            	} //vege a szerveroldali dolgoknak
+
+
+
 				if(Tick % Main.ENTITYSYNCRATE == 0) {
 					if(Main.GAME != null && client != null){
 						Vector PEPos = Main.GAME.PE.getPos();
@@ -268,7 +280,7 @@ public class GameEngine{
 						currentPos[3]=r(Main.GAME.PE.ViewAngle.yaw,3);
 						currentPos[4]=r(Main.GAME.PE.ViewAngle.pitch,3);
 						for(int i=0;i<5;i++) {*/
-							if(PEPos.distance(previousPos)>0.1f || !previousAim.equals(Main.GAME.PE.ViewAngle)) {
+							if(PEPos.distance(previousPos)>0.1f || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>20) {
 								//client.sendPlayerMove(Config.username, r(PEPos.x,2), r(PEPos.y, 2), r(PEPos.z,2), r(Main.GAME.PE.ViewAngle.yaw,3), r(Main.GAME.PE.ViewAngle.pitch,3));
 								client.sendPlayerPos();
 								/*previousPos[0]=currentPos[0];
@@ -288,32 +300,33 @@ public class GameEngine{
 						for(Entry<String,PlayerMP> entry : server.clients.entrySet()) {
 							String name = entry.getKey();
 							if(!name.equals(Config.username)) {
-								StringBuilder data = new StringBuilder();
+								/*StringBuilder data = new StringBuilder();
 								data.append("16");
 								for(Entity e : world.getAllEntities()) {
 									data.append(",");
 									data.append(e);
-								
+
+								}*/
+								for(Entity e : world.getAllEntities()) { // TODO batch send
+									server.sendData(GameClient.constructEntityMove(e.ID, e.getPos().x, e.getPos().y, e.getPos().z, e.ViewAngle.yaw, e.ViewAngle.pitch), entry.getValue().socket);
 								}
-								server.sendData(data.toString(), entry.getValue().socket);
 							}
 						}
 					}
-					
+
 				}
 				Tick++;
-				
-				
-            }};
-            
-        ticker = new Timer((int)(1000*Main.TICKSPEED) , tickPerformer);
-        
-        //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain); 
-         
-        ActionListener physicsPerformer = new ActionListener() {
-			//Block tmpNothing = new Nothing();
 
-    		
+
+            }};
+
+        ticker = new Timer((int)(1000*Main.TICKSPEED) , tickPerformer);
+
+        //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain);
+
+        ActionListener physicsPerformer = new ActionListener() {
+
+
     		@Override
     		public void actionPerformed(ActionEvent e)
 
@@ -372,7 +385,7 @@ public class GameEngine{
     							//long time=System.currentTimeMillis();
     							
     							//if(client == null || ((client != null && server != null)&& time-lastupdate>Main.TICKSPEED*1000*Main.ENTITYSYNCRATE) ) {
-    								if(!world.walk(aim, 2, alien, physicsFPS, false)){
+    								if(!world.walk(aim, 2, alien, physicsFPS, false)){ // false mert a sync mashol van
     									alien.jump();
     								}
     							/*	lastupdate=time;
@@ -389,8 +402,8 @@ public class GameEngine{
     						}
     						
     					}
-    				
-    					if(!(entity instanceof PlayerEntity)) {
+
+    					if(!(entity instanceof PlayerMP)) {
     						Block under = world.getBlockUnderEntity(false, true, entity);
     						if (!entity.flying && under == Block.NOTHING)
     						{
@@ -426,9 +439,9 @@ public class GameEngine{
 
         
 	}
-	
-	static void doGravity(Entity entity, World world, int physicsFPS) {//, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
 
+	static void doGravity(Entity entity, World world, int physicsFPS) {//, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
+		//TODO lehet h tudnak alienek a levegoben setalni
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
 		//Point3D feetPoint=entity.feetPoint;
