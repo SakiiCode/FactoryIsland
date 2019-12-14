@@ -297,8 +297,9 @@ public class GameClient extends Thread{
 		case "16": // MOVE ENTITY
 			receiveEntityMove(part);
 			break;
-		case "17": // KILL ENTITIY
+		/*case "17": // KILL ENTITIY
 			receiveEntityKill(part);
+			break;*/
 			break;
 		case "18":
 			game.Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);

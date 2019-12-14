@@ -1087,9 +1087,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 					}
 				}else if(SelectedEntity != null) {
-					if(!SelectedEntity.hurt(1, true)) {
-						Engine.world.killEntity(SelectedEntity.ID, true);
-					}
+					Engine.world.hurtEntity(SelectedEntity.ID, 1, true);
+					//SelectedEntity.hurt(1, true);
 					
 				}
 				

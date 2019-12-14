@@ -708,22 +708,40 @@ public class World {
 	
 	}
 	
-	
-	public void killEntity(long ID, boolean resend) {
-		
-		if(resend && Engine.client != null) { 
-			Engine.client.sendEntityKill(ID);
-			
-		}else {
-			Entity e = Entities.get(ID);
-			if(game != null && e != null) {
-					game.Objects.removeAll(e.Objects);
-			}
-			
-			 Entities.remove(ID);
+	// true ha tulelte
+	public boolean hurtEntity(long ID, int points, boolean resend) {
+		if(resend && Engine.client != null) {
+			Engine.client.sendEntityHurt(ID, points);
+			return true;
 		}
 		
+		Entity e = Entities.get(ID);
+		
+		if(e == null) {
+			Main.err("Entity already null: " + ID);
+			return true;
+		}
+		e.setHealth(Math.min(Math.max(e.getHealth()-points,0), e.maxHealth));
+		
+		
+		if(e.getHealth() > 0) {
+			return true;
+		}
+
+
+		if(game != null) {
+			if(e == game.PE) {
+				game.notifyDeath();
+			}
+			game.Objects.removeAll(e.Objects);
+		}
+		
+		Entities.remove(ID);
+		
+		return false;
+	
 	}
+	
 
 	boolean walk(Vector direction, float coefficient, Entity entity, float FPS, boolean resend)
 	{

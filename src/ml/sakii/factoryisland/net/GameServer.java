@@ -376,15 +376,15 @@ public class GameServer extends Thread{
 				}
 
 				break;
-			case "17": // KILL ENTITIY
-				Engine.world.killEntity(Long.parseLong(part[1]), false);
+			/*case "17": // KILL ENTITIY
+				//Engine.world.killEntity(Long.parseLong(part[1]), false);
 				for(PlayerMP client : clients.values()){
-					if(!client.name.equals(Config.username)) {
+					//if(!client.name.equals(Config.username)) {
 						sendData(message, client.socket);
 
-					}
+					//}
 				}
-				break;
+				break;*/
 			case "18": // HURT ENTITIY
 				Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
 				for(PlayerMP client : clients.values()){
