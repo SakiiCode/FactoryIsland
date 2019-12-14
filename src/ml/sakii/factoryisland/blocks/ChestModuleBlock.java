@@ -60,7 +60,7 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 
 	@Override
 	public void generateWorld() {
-		inv.add(Main.Items.get("Stone"), 1, false);
+		//inv.add(Main.Items.get("Stone"), 1, false);
 
 	}
 	

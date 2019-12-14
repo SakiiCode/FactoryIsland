@@ -47,7 +47,6 @@ import ml.sakii.factoryisland.blocks.PlaceListener;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Entity;
-import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
@@ -60,8 +59,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	 static final long serialVersionUID = 2515747642091598425L;
 
 	public GameEngine Engine;
-	public PlayerEntity PE;
-	public final HashMap<String, PlayerMP> playerList = new HashMap<>();
+	public PlayerMP PE;
+	//public final HashMap<String, PlayerMP> playerList = new HashMap<>();
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
 	//private final ArrayList<Object3D> ObjectsTmp = new ArrayList<>();
 
@@ -183,7 +182,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		switch(loadmethod) {
 		case MULTIPLAYER:
-			PE=new PlayerEntity(Engine);
+			PE=new PlayerMP(Engine);
 
 			String[] addr = location.split(":");
 			int port = 1420;
@@ -205,9 +204,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			//$FALL-THROUGH$
 		case GENERATE:
-			PE=new PlayerEntity(Engine);
+			PE=new PlayerMP(Engine);
 			teleportToSpawn();
 		}
+		
+		PE.name=Config.username;
 		
 		init();
 		
@@ -551,7 +552,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 					debugInfo.clear();
 					debugInfo.add("Eye:" + PEPos+", yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
-					debugInfo.add("Health: " + PE.getHealth());
+					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 					if(SelectedPolygon != null) {
@@ -580,12 +581,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 						debugInfo.add("PacketCount: " + Engine.client.packetCount);
 						debugInfo.add("BlockCount: " + Engine.client.blockcount);
-						Iterator<PlayerMP> iter = playerList.values().iterator();
+						/*Iterator<PlayerMP> iter = playerList.values().iterator();
 						for (int i = 0; i < playerList.values().size() * 25; i += 25)
 						{
 							PlayerMP player = iter.next();
 							debugInfo.add("Player"+i+": "+player);
-						}
+						}*/
 					}
 					debugInfo.add("Seed: " + Engine.world.seed);
 					if(SelectedEntity == null) {
@@ -769,8 +770,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		if (key[0]) // W
 		{
-			Engine.world.walk(FrontViewVector, speed, PE, FPS, false);
-
+			Engine.world.walk(FrontViewVector, speed, PE, FPS, false); // false hogy ne legyen keses, a sync idozitve van
 		}
 
 		if (key[1]) // S
@@ -1264,7 +1264,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						Engine.server.kill();
 					}
 		
-					playerList.clear();
+					//playerList.clear();
 		
 				} else
 				{

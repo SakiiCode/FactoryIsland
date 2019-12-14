@@ -45,7 +45,6 @@ import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
-import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.items.ItemType;
@@ -68,7 +67,7 @@ public class World {
 	private Game game;
 	private PlayerInventory tmpInventory;
 	
-	private ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
+	public ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
 	
 	//ArrayList<Vector> SpawnableSurface = new ArrayList<>();
 	private int worldTop,worldBottom;

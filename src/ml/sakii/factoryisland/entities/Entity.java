@@ -44,8 +44,8 @@ public class Entity{
 	public TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
 
 	
-	public float yaw, yaw2, z0,z;
-	float[] fxy, fxy1, fx1y1, fx1y;
+	private float z0,z;
+	private float[] fxy, fxy1, fx1y1, fx1y;
 	
 	Entity(String className, Vector pos, EAngle aim, String name,int health, int maxHealth,long ID, GameEngine engine, Surface front, Surface side) {
 		
@@ -85,9 +85,9 @@ public class Entity{
 		
 		
 		
-		//top TODO nem j�?
+		//top TODO nem jó
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
-		//bottom TODO nem j�?
+		//bottom TODO nem jó
 		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, xy1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//left
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
@@ -147,7 +147,7 @@ public class Entity{
 	public void move(float x, float y, float z, boolean resend) {
 		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND
 			//if(!(this instanceof PlayerEntity)) {// && engine.client != null && engine.server != null) {
-				engine.client.sendEntityMove(this);
+				engine.client.sendEntityMove(ID, x, y, z, ViewAngle.yaw, ViewAngle.pitch);
 			//}
 			
 		}else {
@@ -223,16 +223,7 @@ public class Entity{
 		
 	}
 	
-	// true ha tulelte
-	public boolean hurt(int points, boolean resend) {
-		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND TODO itt is?
-			engine.client.sendEntityHurt(this.ID, points);
-			return true;
-		}else {
-			health = Math.min(Math.max(health-points,0), maxHealth);
-			return health!=0;
-		}
-	}
+
 	
 	public int getHealth() {
 		return health;
