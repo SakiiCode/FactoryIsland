@@ -232,7 +232,7 @@ public class Main
 
 		
 
-		Frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		//Frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		Frame.setTitle("FactoryIsland " + MAJOR + "." + MINOR + "." + REVISION);
 
 		LoadResources();
@@ -263,16 +263,17 @@ public class Main
 			@Override
 			public void windowClosed(WindowEvent e)
 			{
+				
 			}
 
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
-				//TODO windowson alt-f4-nel nem menti a palyat
 				if (GAME != null)
 				{
 					GAME.disconnect(null);
 				}
+				Frame.dispose();
 
 			}
 
