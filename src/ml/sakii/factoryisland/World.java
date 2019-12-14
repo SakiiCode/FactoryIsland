@@ -446,8 +446,8 @@ public class World {
 		
 	}
 
-	public PlayerEntity parsePE(String username, GameEngine engine) {
-		PlayerEntity result = new PlayerEntity(engine);
+	public PlayerMP parsePE(String username, GameEngine engine) {
+		PlayerMP result = new PlayerMP(engine);
 		result.getPos().set(loadVector(username, new String[] {"x","y","z"}));
 		float[] other = loadVector(username, new String[] {"yaw", "pitch", "health"});
 		result.ViewAngle.set(other[0],other[1]);
@@ -1379,7 +1379,7 @@ public class World {
 		
 		Element entitiesNode = document.createElement("entities");
 		for(Entity e : entities) {
-			if(!(e instanceof PlayerEntity)) {
+			if(!(e instanceof PlayerMP)) {
 				Element entity = document.createElement("entity");
 				entity.setAttribute("aim", e.ViewAngle.toString());
 				entity.setAttribute("classname", e.className);
