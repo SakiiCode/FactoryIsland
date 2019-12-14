@@ -16,14 +16,13 @@ import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.entities.Entity;
-import ml.sakii.factoryisland.entities.PlayerEntity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
 public class GameServer extends Thread{
 
-	public HashMap<String,PlayerMP> clients = new HashMap<>(); 
+	public HashMap<String,PlayerMP> clients = new HashMap<>(); //ugyanaz mint az Entities csak kizarolag PlayerMP-kre
 	//public ArrayList<PlayerMP> clients = new ArrayList<>();
 	
 	private boolean serverRunning = true;
@@ -73,8 +72,12 @@ public class GameServer extends Thread{
 					Main.log("(SERVER) RECEIVED:  "+message);
 			}
 			
-			handleMessage(packet);
-			
+			try {
+				handleMessage(packet);
+			}catch(Exception e) {
+				Main.err("(SERVER) Error parsing message: "+ message);
+				e.printStackTrace();
+			}
 			
 
 		}
@@ -92,7 +95,7 @@ public class GameServer extends Thread{
 
 	private void handleMessage(Packet packet) {
 		String message=packet.message;
-		Connection socketstream = packet.connection;
+		Connection conn = packet.connection;
 		String[] part = message.split(",");
 		String senderName = (part.length>1) ? part[1] : "";
 		switch(part[0]){
@@ -100,18 +103,19 @@ public class GameServer extends Thread{
 				
 
 				if(clients.containsKey(senderName)) {
-					sendData("97", socketstream); // KICK FOR SAME USERNAME
+					sendData("97", conn); // KICK FOR SAME USERNAME
 					break;
 				}
 				
 				long ID = new Random().nextLong();
-				sendData("00,"+Connection.PROTOCOL_VERSION+","+ID, socketstream);
+				sendData("00,"+Connection.PROTOCOL_VERSION+","+ID, conn);
 				
 				
-				Vector pos=null;
-				float yaw;
+				//Vector pos=null;
+				//float yaw;
 				
 				
+				PlayerMP playerE;
 
 
 				if(!senderName.equals(Config.username)) { // ha nem helyi, akkor elküldi a pályát
@@ -135,8 +139,8 @@ public class GameServer extends Thread{
 								break;
 							}
 						}
-						sendData(message2, socketstream);
-						sendData(message3, socketstream);
+						sendData(message2, conn);
+						sendData(message3, conn);
 						
 					}
 					
@@ -145,95 +149,136 @@ public class GameServer extends Thread{
 					
 					
 
-					PlayerInventory inv=null;
-					
-					//és a pozicióját
+					//PlayerInventory inv=null;
+										
 					File playerFile = new File("saves/"+Engine.world.worldName+"/"+senderName+".xml");
 					
-					
 					if(playerFile.exists()) {
-						pos = new Vector().set(Engine.world.loadVector(senderName, new String[] {"x", "y", "z"}));
+						Vector pos = new Vector().set(Engine.world.loadVector(senderName, new String[] {"x", "y", "z"}));
 						float[] other = Engine.world.loadVector(senderName, new String[] { "yaw", "pitch", "health"});
 						
-						Vector dir= new Vector().set(other[0], other[1], 0);
-						yaw=dir.x;
+						//Vector dir= new Vector().set(other[0], other[1], other[2]);
+						//yaw=dir.x;
 						
-						int health = (int) other[2];
-						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+dir.x+","+dir.y+","+health, socketstream);
+						//int health = (int) other[2];
 						
-						//és az inventoryt
 						
-						inv = Engine.world.loadInv(senderName, null);
+						
+						
+						PlayerInventory inv = Engine.world.loadInv(senderName, null);
+						
+						
+						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], inv, conn, ID, Engine);
+						
+						
+						//force move
+						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+other[0]+","+other[1]+","+other[2], conn);
+						
 						for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
-							sendData("10,server,"+is.getKey().name+","+is.getValue(), socketstream);
+							// add to player inv
+							sendData("10,server,"+is.getKey().name+","+is.getValue(), conn);
 						}
 						
 						
-						//clients.put(senderName,new PlayerMP(senderName, pos, dir.x, dir.y, inv, socketstream, false));
-						clients.put(senderName, new PlayerMP(senderName, pos, dir.x, dir.y,health, inv, socketstream, new Random().nextLong(), Engine));
+	
+						
+						
 					}else {
 						Block SpawnBlock = Engine.world.getSpawnBlock();
-						 pos = new Vector(SpawnBlock.x, SpawnBlock.y, SpawnBlock.z+2.7f);
-						 yaw=-135;
-						sendData("11,"+pos.x+","+pos.y+","+pos.z+",-135,0,20", socketstream);
+						Vector pos = new Vector(SpawnBlock.x, SpawnBlock.y, SpawnBlock.z+2.7f);
+						
+						sendData("11,"+pos.x+","+pos.y+","+pos.z+",-135,0,20", conn);
 						
 						
 						
 						//clients.put(senderName,new PlayerMP(senderName, pos, -135, 0, new PlayerInventory(Engine), socketstream, false));
-						clients.put(senderName, new PlayerMP(senderName, pos, -135, 0,20, new PlayerInventory(Engine), socketstream, new Random().nextLong(), Engine));
+						playerE = new PlayerMP(senderName, pos, -135, 0,20, new PlayerInventory(Engine), conn, ID, Engine);
+						
 					}
+					
+					//clients.put(senderName, playerE);
 					
 					//és az entityket
 					for(Entity e : Engine.world.getAllEntities()) {
 						//15,className,x,y,z,yaw,pitch,name,ID
-						if(!(e instanceof PlayerEntity))
-							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.getHealth()+","+e.ID, socketstream);
+						if(!(e instanceof PlayerMP))
+							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.getHealth()+","+e.ID, conn);
 					}
 					
 					//és a blockok inventoryját
 					for(Block b : Engine.world.getWhole(false)) {
 						if(b instanceof BlockInventoryInterface) {
 							for(Entry<ItemType,Integer> entry : ((BlockInventoryInterface) b).getInv().items.entrySet()) {
-								sendData("13,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), socketstream);
+								sendData("13,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), conn);
 							}
 						}
 					}
 
 					
 				}else {	// most nyitottuk meg, kell a pozíció, de az inventory nem közös a klienssel TODO tesztelni
-					pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-					yaw= Float.parseFloat(part[5]);
+					/*Vector pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
+					float yaw= Float.parseFloat(part[5]);
 					float pitch =  Float.parseFloat(part[6]);
 					int health=(int) Float.parseFloat(part[7]);
-					clients.put(senderName,new PlayerMP(senderName,pos ,yaw,pitch,health, new PlayerInventory(Engine), socketstream, ID,Engine));
+					
+					playerE = new PlayerMP(senderName,pos ,yaw,pitch,health, new PlayerInventory(Engine), conn, ID,Engine);
+					//clients.put(senderName,playerE);
+
 					if(!Config.creative) {
 						clients.get(senderName).inventory.items.putAll(Engine.Inv.items);
-					}
+					}*/
+					playerE=Main.GAME.PE;
+					playerE.socket=conn;
 				}
-				
-				sendData("loaded",socketstream);
-				
-				for(PlayerMP player : clients.values()){
-					if(player.socket != socketstream){
-						sendData(("03," + senderName + "," + pos.x + "," + pos.y + "," + pos.z + "," + yaw+ "," + ID), player.socket);
-						sendData(("03," + player.name + "," + player.getPos().x + "," + player.getPos().y + "," + player.getPos().z + "," + player.yaw + "," + player.ID), socketstream);
-					}
+
+
+				//es a tobbi jatekost
+				for(PlayerMP client : clients.values()){
+					//if(client != playerE){
+						
+
+						//Vector pos = playerE.getPos();
+						
+						sendData(GameClient.constructEntityCreate(playerE), client.socket);
+						//sendData(("15,PlayerMP," + pos.x + "," + pos.y + "," + pos.z + "," + playerE.ViewAngle.yaw+","+playerE.ViewAngle.pitch
+						//		+","  + senderName+","+playerE.getHealth()+"," + playerE.ID), player.socket);
+						
+						
+						
+						sendData(GameClient.constructEntityCreate(client), conn);
+						
+						//Vector playerPos = player.getPos();
+						//sendData(("15,PlayerMP," + playerPos.x + "," + playerPos.y + "," + playerPos.z + "," + 
+						//		 + player.ViewAngle.yaw+","+player.ViewAngle.pitch
+						//			+","  + senderName+","+player.getHealth()+"," + player.ID), socketstream);
+						
+						
+						//sendData(("03," + senderName + "," + pos.x + "," + pos.y + "," + pos.z + "," + yaw+ "," + ID), player.socket);
+						//sendData(("03," + player.name + "," + player.getPos().x + "," + player.getPos().y + "," + player.getPos().z + "," + player.ViewAngle.yaw + "," + player.ID), socketstream);
+					//}
 					
 				}
 				
 				
+				//Engine.world.addEntity(playerE, false);
+
+				clients.put(senderName,playerE);
+
+				
+				sendData("loaded",conn);
+
 
 
 				break;
 			
 			case "66": // LOGOUT
 				Main.log("(SERVER) Logging out user "+senderName+" ...");
-				sendData("66",socketstream);
+				sendData("66",conn);
 				dropClient(senderName);
 				
 				break;
 			
-			case "04": // MOVE
+			case "04": // MOVE (unused)
 				try {
 					
 					PlayerMP player = clients.get(senderName);
@@ -246,7 +291,7 @@ public class GameServer extends Thread{
 					float newYaw = Float.parseFloat(part[5]);
 					float newPitch = Float.parseFloat(part[6]);
 					player.getPos().set(newPos);
-					player.yaw=(newYaw);
+					player.ViewAngle.yaw=(newYaw);
 					for(PlayerMP client : clients.values()){
 						if(!client.name.equals(senderName))
 							sendData(("04," + senderName + "," + newPos.x + "," + newPos.y + "," + newPos.z + "," + newYaw + "," + newPitch), client.socket);
@@ -342,7 +387,7 @@ public class GameServer extends Thread{
 				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal?-1:1, false);
 				//for(PlayerMPData client : clients.values()){
 					//if(client.username.equals(senderName)) {
-						sendData(message, socketstream);
+						sendData(message, conn);
 
 						//Main.log("item swap forwarded to "+client.username);
 					//}
@@ -364,15 +409,19 @@ public class GameServer extends Thread{
 				}
 				break;
 			case "16": // MOVE ENTITY
-				Entity e = Engine.world.getEntity(Long.parseLong(part[1]));
-				if(e!=null) { // lehet h rossz sorrendben jönnek a parancsok és már meghalt
-					e.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
+				long parsedID = Long.parseLong(part[1]);
+				Entity e = Engine.world.getEntity(parsedID);
+				if(e!=null) { 
+					//e.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
 					for(PlayerMP client : clients.values()){
-						if(!client.name.equals(Config.username)) {
+						if(client.ID != Long.parseLong(part[1])) {
 							sendData(message, client.socket);
 	
 						}
 					}
+				}else {
+					Main.err("(SERVER) Entity already null ("+parsedID+"): "+message);
+					Main.err("(SERVER) Current entities:"+Engine.world.Entities.toString());
 				}
 
 				break;
@@ -386,16 +435,16 @@ public class GameServer extends Thread{
 				}
 				break;*/
 			case "18": // HURT ENTITIY
-				Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
+				//Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
 				for(PlayerMP client : clients.values()){
-					if(!client.name.equals(Config.username)) {
+					//if(!client.name.equals(Config.username)) {
 						sendData(message, client.socket);
 
-					}
+					//}
 				}
 				break;
 			case "ping":
-				sendData("pong", socketstream);
+				sendData("pong", conn);
 				break;
 			default:
 				Main.err("(SERVER) Unknown message received: "+message);
@@ -429,6 +478,8 @@ public class GameServer extends Thread{
 		return error;
 	}
 	
+	
+
 	private void dropClient(String name) {
 		PlayerMP playerData=clients.get(name);
 		/*for(PlayerMPData client2 : clients.values()){
@@ -448,7 +499,7 @@ public class GameServer extends Thread{
 			Listener.Connections.remove(playerData.socket);
 			Main.log(playerData.name+"Logged out ("+clients+")");
 		}else {
-			Main.err("Client "+ name+" couldn't have been removed ("+clients+")");
+			Main.err("Client "+ name+" couldn't be removed ("+clients+")");
 		}
 			
 		
