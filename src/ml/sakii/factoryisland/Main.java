@@ -21,8 +21,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -32,7 +35,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.items.ItemType;
@@ -133,27 +135,28 @@ public class Main
 			@Override
 			public void run()
 			{*/
-        		if(args.length>2 && args[2].equals("-name")) {
-        			setupWindow(args[3]);
-        		}else {
-        			setupWindow(null);
-        		}
-				
-				if(args.length>0 && args[0].equals("-map")) {
-					SwitchWindow("generate");
-					SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
-					sp.worldsList.setSelectedValue(args[1], true);
-					sp.join(false);
+        
+        List<String> params = Arrays.asList(args);
+        String name=null,map=null;
+        for(int i=0;i<params.size();i++) {
+        	if(params.get(i).equals("-name")) {
+        		name=params.get(i+1);
+        	}
+        	if(params.get(i).equals("-map")) {
+        		map=params.get(i+1);
+        	}
+        }
+        
+        setupWindow(name);
+   
+        if(map !=null) {
+			SwitchWindow("generate");
+			SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
+			sp.worldsList.setSelectedValue(map, true);
+			sp.join(false);
+			
+		}
 					
-					//launchWorld(args[1], false, ((SingleplayerGUI)Base.getComponents()[0]).statusLabel);
-					
-				}
-				
-
-				
-			/*}
-		});*/
-		
 
 		
 	}
