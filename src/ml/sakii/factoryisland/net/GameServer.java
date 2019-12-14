@@ -402,10 +402,10 @@ public class GameServer extends Thread{
 				Entity e = Entity.createEntity(className, pos2, aim, name, ID); 
 				Engine.world.addEntity(e);*/
 				for(PlayerMP client : clients.values()){
-					if(!client.name.equals(Config.username)) {
+					//if(!client.name.equals(part[7])) { // respawnnal ne kuldje vissza
 						sendData(message, client.socket);
 
-					}
+					//}
 				}
 				break;
 			case "16": // MOVE ENTITY

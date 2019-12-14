@@ -363,18 +363,21 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveEntityCreate(String[] part) {
+		
 		String className = part[1];
 		Vector pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
 		EAngle aim=new EAngle(Float.parseFloat(part[5]), Float.parseFloat(part[6]));
 		String name=part[7];
 		int health = Integer.parseInt(part[8]);
 		long ID=Long.parseLong(part[9]);
-		
-		Entity e = Entity.createEntity(className, pos, aim, name,health, ID, game.Engine); 
-		game.Engine.world.addEntity(e, false);
-		/*if(e instanceof PlayerMP && e.ID != game.PE.ID) {
-			game.playerList.put(name, (PlayerMP)e);
-		}*/
+		if(name.equals(game.PE.name)) { // respawnnal ne uj entityt hozzon letre
+			game.Engine.world.addEntity(game.PE, false);
+			Main.log("(CLIENT:"+Config.username+") Ignored entity create on respawn ("+game.PE.name+"->"+name+")");
+		}else {
+			Entity e = Entity.createEntity(className, pos, aim, name,health, ID, game.Engine); 
+			game.Engine.world.addEntity(e, false);
+		}
+
 	}
 	
 	public static String constructEntityMove(long ID, float x, float y, float z, float yaw, float pitch) {

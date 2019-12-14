@@ -61,8 +61,8 @@ public class DeadGUI extends JPanel implements ActionListener, KeyListener {
 	public void actionPerformed(ActionEvent e) {
 
 		if(e.getActionCommand().equals("respawn")){
-			Main.GAME.resume();
 			Main.GAME.respawn();
+			Main.GAME.resume();
 		}
 		if(e.getActionCommand().equals("exit")) {
 			Main.GAME.disconnect(null);
