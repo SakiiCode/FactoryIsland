@@ -271,28 +271,15 @@ public class GameEngine{
 
 
 				if(Tick % Main.ENTITYSYNCRATE == 0) {
+					
 					if(Main.GAME != null && client != null){
-						Vector PEPos = Main.GAME.PE.getPos();
-						
-						/*currentPos[0]=r(PEPos.x,2);
-						currentPos[1]=r(PEPos.y,2);
-						currentPos[2]=r(PEPos.z,2);
-						currentPos[3]=r(Main.GAME.PE.ViewAngle.yaw,3);
-						currentPos[4]=r(Main.GAME.PE.ViewAngle.pitch,3);
-						for(int i=0;i<5;i++) {*/
-							if(PEPos.distance(previousPos)>0.1f || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>20) {
-								//client.sendPlayerMove(Config.username, r(PEPos.x,2), r(PEPos.y, 2), r(PEPos.z,2), r(Main.GAME.PE.ViewAngle.yaw,3), r(Main.GAME.PE.ViewAngle.pitch,3));
+
+							if( Main.GAME.PE.getPos().distance(previousPos)>0.2f || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>20) {
 								client.sendPlayerPos();
-								/*previousPos[0]=currentPos[0];
-								previousPos[1]=currentPos[1];
-								previousPos[2]=currentPos[2];
-								previousPos[3]=currentPos[3];
-								previousPos[4]=currentPos[4];*/
-								previousPos.set(PEPos);
+
+								previousPos.set( Main.GAME.PE.getPos());
 								previousAim.set(Main.GAME.PE.ViewAngle);
-								//break;
 							}
-						//}
 						
 					}
 					
@@ -308,7 +295,9 @@ public class GameEngine{
 
 								}*/
 								for(Entity e : world.getAllEntities()) { // TODO batch send
-									server.sendData(GameClient.constructEntityMove(e.ID, e.getPos().x, e.getPos().y, e.getPos().z, e.ViewAngle.yaw, e.ViewAngle.pitch), entry.getValue().socket);
+									if(!(e instanceof PlayerMP)) {
+										server.sendData(GameClient.constructEntityMove(e.ID, e.getPos().x, e.getPos().y, e.getPos().z, e.ViewAngle.yaw, e.ViewAngle.pitch), entry.getValue().socket);
+									}
 								}
 							}
 						}
