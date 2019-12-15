@@ -182,11 +182,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 
 		PE=new PlayerMP(Config.username, Engine);
+		Engine.world.addEntity(PE, false);
 
 		switch(loadmethod) {
 		case MULTIPLAYER:
 
-			Engine.world.addEntity(PE, false);
 
 			String[] addr = location.split(":");
 			int port = 1420;
@@ -195,24 +195,32 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				port = Integer.parseInt(addr[1]);
 			}
 			error = connect(addr[0], port, false);
+			
 			break;
 		case EXISTING:
 			File playerFile = new File("saves/" + location + "/" + Config.username + ".xml");
 			if (playerFile.exists())
 			{
-					//PE.move(Engine.world.loadVector(Config.username, "x", "y", "z"), false);
-					//PE.ViewAngle.set(Engine.world.loadVector(Config.username, "yaw", "pitch", "yaw"));
-					PE=Engine.world.parsePE(Config.username, Engine);
-					break;
+				Engine.world.parsePE(Config.username, PE);
+				
+				statusLabel.setText("Loading player inventory...");
+				
+				if(Config.creative) {
+					tmpInventory = Engine.world.loadInv(PE.name, Engine);
+					creative=true;
+					PE.inventory=PlayerInventory.Creative;
+				}else {
+					creative=false;
+					PE.inventory=Engine.world.loadInv(PE.name, Engine);
+				}
+				break;
 			}
 
 			//$FALL-THROUGH$
 		case GENERATE:
-			PE=new PlayerMP(Engine);
 			teleportToSpawn();
 		}
 		
-		PE.name=Config.username;
 		
 		init();
 		
