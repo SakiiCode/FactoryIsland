@@ -3,7 +3,6 @@ package ml.sakii.factoryisland.items;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
@@ -18,10 +17,12 @@ public class PlayerInventory {
 	GameEngine engine;
 	boolean activateOnFirst=true;
 	String SelectedName="";
+	String playerName;
 	
 	
-	public PlayerInventory(GameEngine engine) {
+	public PlayerInventory(String playerName, GameEngine engine) {
 		this.engine=engine;
+		this.playerName = playerName;
 	}
 	
 
@@ -29,7 +30,7 @@ public class PlayerInventory {
 	
 	public ItemType add(ItemType kind, int amount, boolean resend){
 		if(resend && engine.client != null) {
-			doMultiplayer(kind.name,amount);
+			doMultiplayer(kind, amount);
 
 		}else {
 			int stack = getStack(kind);
@@ -173,12 +174,8 @@ public class PlayerInventory {
 		}
 	}
 	
-	void doMultiplayer(String name, int amount) {
-		//if(engine != null && engine.client != null) {// && engine.server == null) {
-			//engine.client.sendData("10,"+Config.username+","+name+","+amount);
-		engine.client.sendInvPlayerAdd(Config.username, name, amount);	
+	void doMultiplayer(ItemType kind, int amount) {
+		engine.client.sendInvPlayerAdd(playerName, kind, amount);	
 		Main.log("PlayerInv sent data from client to server");
-
-		//}
 	}
 }

@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.entities.Entity;
+import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.BlockInventory;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
@@ -46,13 +48,12 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 
 	@Override
 	public boolean breaked(String username) {
-		//Engine.Inv.addOne(Main.Items.get("ChestModule"));
 		for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
-			if(Engine.client==null) {
-				Engine.Inv.add(is.getKey(), is.getValue(), true);
-			}else {
-				//Engine.client.sendData("10,"+username+","+is.getKey().name+","+is.getValue());
-				Engine.client.sendInvPlayerAdd(username, is.getKey().name, is.getValue());
+			for(Entity e : Engine.world.getAllEntities()) {
+				if(e.name.equals(username) && e instanceof PlayerMP) {
+					((PlayerMP)e).inventory.add(is.getKey(), is.getValue(), true);
+					
+				}
 			}
 		}
 		return true;
@@ -60,7 +61,7 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 
 	@Override
 	public void generateWorld() {
-		//inv.add(Main.Items.get("Stone"), 1, false);
+		inv.add(Main.Items.get("Stone"), 1, false);
 
 	}
 	

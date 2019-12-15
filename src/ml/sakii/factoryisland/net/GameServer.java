@@ -165,18 +165,16 @@ public class GameServer extends Thread{
 						
 						
 						
-						PlayerInventory inv = Engine.world.loadInv(senderName, null);
 						
 						
-						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], inv, conn, ID, Engine);
-						
-						
+						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], Engine.world.loadInv(senderName, Engine), conn, ID, Engine);
+
 						//force move
 						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+other[0]+","+other[1]+","+other[2], conn);
 						
-						for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
+						for(Entry<ItemType, Integer> is : playerE.inventory.items.entrySet()) {
 							// add to player inv
-							sendData("10,server,"+is.getKey().name+","+is.getValue(), conn);
+							sendData("10,"+senderName+","+is.getKey().name+","+is.getValue(), conn);
 						}
 						
 						
@@ -192,7 +190,8 @@ public class GameServer extends Thread{
 						
 						
 						//clients.put(senderName,new PlayerMP(senderName, pos, -135, 0, new PlayerInventory(Engine), socketstream, false));
-						playerE = new PlayerMP(senderName, pos, -135, 0,20, new PlayerInventory(Engine), conn, ID, Engine);
+						playerE = new PlayerMP(senderName, pos, -135, 0,20,  new PlayerInventory(senderName, Engine), conn, ID, Engine);
+						
 						
 					}
 					
@@ -364,8 +363,9 @@ public class GameServer extends Thread{
 				}
 				break;
 			case "10": // ADD TO INVENTORY
-				clients.get(part[1]).inventory.add(Main.Items.get(part[2]), cInt(part[3]), false);
-				sendData(message,clients.get(senderName).socket);
+				for(PlayerMP client : clients.values()){
+					sendData(message, client.socket);
+				}
 				break;
 			case "13": // ADD TO BLOCK INVENTORY
 				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
@@ -382,16 +382,16 @@ public class GameServer extends Thread{
 				//sendData(message,socketstream);
 				break;
 			case "14": // SWAP BLOCKS
-				boolean addToLocal = Boolean.parseBoolean(part[6]);
-				clients.get(part[1]).inventory.add(Main.Items.get(part[5]), addToLocal?1:-1, false);
-				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal?-1:1, false);
-				//for(PlayerMPData client : clients.values()){
+				//boolean addToLocal = Boolean.parseBoolean(part[6]);
+				//clients.get(part[1]).inventory.add(Main.Items.get(part[5]), addToLocal?1:-1, false);
+				//((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal?-1:1, false);
+				for(PlayerMP client : clients.values()){
 					//if(client.username.equals(senderName)) {
-						sendData(message, conn);
+						sendData(message, client.socket);
 
-						//Main.log("item swap forwarded to "+client.username);
+						Main.log("item swap forwarded to "+senderName);
 					//}
-				//}
+				}
 				break;
 			case "15": // SPAWN ENTITY
 				/*String className = part[1];

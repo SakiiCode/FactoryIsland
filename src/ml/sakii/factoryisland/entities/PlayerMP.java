@@ -16,7 +16,7 @@ public class PlayerMP extends Entity {
 	
 	public PlayerMP(Vector ViewFrom, EAngle aim, String name, int health, long ID, GameEngine engine){ // createEntity hozza letre
 		//super("PlayerMP",ViewFrom, aim, name, health, 20,ID,engine, Main.playerFront, Main.playerSide);
-		this(name,ViewFrom, aim.yaw, aim.pitch, health, new PlayerInventory(engine), null, ID, engine);
+		this(name,ViewFrom, aim.yaw, aim.pitch, health, new PlayerInventory(name, engine), null, ID, engine);
 	}
 	
 	public PlayerMP(String username, Vector pos, float yaw, float pitch,int health, PlayerInventory inventory, Connection socket, long ID, GameEngine engine){
@@ -27,9 +27,9 @@ public class PlayerMP extends Entity {
 		Objects.add(new Text3D(name, ViewFrom.x, ViewFrom.y, ViewFrom.z));
 	}
 	
-	public PlayerMP(GameEngine engine) { // atmeneti, parse elotti inicializalashoz TODO valszeg megkerulheto
+	public PlayerMP(String username, GameEngine engine) { // atmeneti, parse elotti inicializalashoz TODO valszeg megkerulheto
 		//super("PlayerMP",new Vector(19.5f, 19.5f, 15.0f), new EAngle(-135, 0), "",20,20, new Random().nextLong(), engine, Surface.EMPTY, Surface.EMPTY);
-		this("",new Vector(19.5f, 19.5f, 15.0f), -135,0,20, new PlayerInventory(engine),null,0, engine);
+		this(username,new Vector(19.5f, 19.5f, 15.0f), -135,0,20, new PlayerInventory(username,engine),null,0, engine);
 	}
 
 	

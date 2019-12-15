@@ -46,7 +46,7 @@ public class API {
 	}
 	
 	public static void addOne(String name) {
-		Main.GAME.Engine.Inv.add(Main.Items.get(name), 1, true);
+		Main.GAME.PE.inventory.add(Main.Items.get(name), 1, true);
 	}
 	
 	/*public static void log(String message) {

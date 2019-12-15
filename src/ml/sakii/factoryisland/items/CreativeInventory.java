@@ -1,16 +1,15 @@
 package ml.sakii.factoryisland.items;
 
-
 public class CreativeInventory extends PlayerInventory
 {
 
 	public CreativeInventory()
 	{
-		super(null);
+		super("",null);
 	}
 	
 	@Override
-	void doMultiplayer(String name, int amount) {
+	void doMultiplayer(ItemType kind, int amount) {
 		
 	}
 
@@ -19,6 +18,6 @@ public class CreativeInventory extends PlayerInventory
 		if(items.containsKey(kind)) {
 			return kind;
 		}
-			return super.add(kind, amount, resend);
+		return super.add(kind, amount, resend);
 	}
 }

@@ -434,12 +434,17 @@ public class GameClient extends Thread{
 	
 	void receiveInvSwap(String[] part) {
 		boolean addToLocal = Boolean.parseBoolean(part[6]);
-		game.Engine.Inv.add(Main.Items.get(part[5]), addToLocal ? 1 : -1, false);
+		for(Entity e : game.Engine.world.getAllEntities()) {
+			if(e.name.equals(part[1]) && e instanceof PlayerMP) {
+				((PlayerMP)e).inventory.add(Main.Items.get(part[5]), addToLocal ? 1 : -1, false);
+				break;
+			}
+		}
 		((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal ? -1 : 1, false);
 	}
 	
 	public void sendInvBlockAdd(String username, Block b, String name, int amount) {
-		sendData("13,"+username+","+b.x+","+b.y+","+b.z+","+name+","+amount);
+		sendData("13,"+username+","+b.x+","+b.y+","+b.z+","+name+","+amount); //TODO nem stimmel
 
 	}
 	
@@ -447,12 +452,17 @@ public class GameClient extends Thread{
 		((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]))).getInv().add(Main.Items.get(part[4]), cInt(part[5]), false);
 	}
 	
-	public void sendInvPlayerAdd(String username, String name, int amount) {
-		sendData("10,"+username+","+name+","+amount);
+	public void sendInvPlayerAdd(String username, ItemType kind, int amount) {
+		sendData("10,"+username+","+kind.name+","+amount);
 	}
 	
 	void receiveInvPlayerAdd(String[] part) {
-		game.Engine.Inv.add(Main.Items.get(part[2]), cInt(part[3]), false);
+		for(Entity e : game.Engine.world.getAllEntities()) {
+			if(e.name.equals(part[1]) && e instanceof PlayerMP) {
+				((PlayerMP)e).inventory.add(Main.Items.get(part[2]), cInt(part[3]), false);
+				break;
+			}
+		}
 	}
 	
 	public void sendPlayerPos() {

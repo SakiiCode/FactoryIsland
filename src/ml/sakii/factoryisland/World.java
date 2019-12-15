@@ -403,7 +403,7 @@ public class World {
 	public PlayerInventory loadInv(String username, GameEngine engine) {
 		
 
-		PlayerInventory output = new PlayerInventory(engine);
+		PlayerInventory output = new PlayerInventory(username, engine);
 
 		File file = new File("saves/" + worldName + "/"+username+".xml");
 		if (!file.exists()) {
@@ -1267,7 +1267,7 @@ public class World {
 			//map.put(new PlayerMPData(0, null, new float[] {game.PE.ViewFrom.x, game.PE.ViewFrom.y, game.PE.ViewFrom.z}, game.ViewAngle.yaw, Config.username), Engine.Inv);
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT);
 
-			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? tmpInventory : Engine.Inv, game.PE.getHealth());
+			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? game.tmpInventory : game.PE.inventory, game.PE.getHealth());
 		}else { //multiplayer, engine.server-bõl szedi az adatokat
 			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
 			//saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
