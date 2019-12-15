@@ -390,19 +390,19 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveEntityMove(String[] part) {
-		//for(int i=1;i<part.length;i+=4) {
-		if(part.length==7) {
-			Entity en = game.Engine.world.getEntity(Long.parseLong(part[1]));
+		for(int i=1;i<part.length;i+=6) {
+			long parsedID = Long.parseLong(part[i]);
+			Entity en = game.Engine.world.getEntity(parsedID);
 			if(en!=null) {
-				en.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
-				en.ViewAngle.yaw = Float.parseFloat(part[5]); //TODO arrayindexoutofboundsexception
-				en.ViewAngle.pitch = Float.parseFloat(part[6]);
+				en.move(Float.parseFloat(part[i+1]), Float.parseFloat(part[i+2]), Float.parseFloat(part[i+3]), false);
+				en.ViewAngle.yaw = Float.parseFloat(part[i+4]);
+				en.ViewAngle.pitch = Float.parseFloat(part[i+5]);
 				en.update();
+			}else {
+				Main.err("(CLIENT:"+Config.username+") Entity already null ("+parsedID+"): "+part);
+				//Main.err("(CLIENT:"+Config.username+") Current entities:"+game.Engine.world.Entities.toString());
 			}
-		}else {
-			Main.err("EntityMove shorter:"+Arrays.toString(part));
 		}
-		//}
 	}
 	
 	public void sendEntityHurt(long ID, int points) {
