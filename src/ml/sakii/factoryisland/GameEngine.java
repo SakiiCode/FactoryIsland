@@ -27,7 +27,6 @@ import ml.sakii.factoryisland.blocks.WorldGenListener;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
-import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.net.GameClient;
 import ml.sakii.factoryisland.net.GameServer;
@@ -48,7 +47,6 @@ public class GameEngine{
 	
 	Timer physics;
 	int physicsFPS=30;
-	public PlayerInventory Inv = new PlayerInventory(this);
 	
 	
 	public GameClient client;
@@ -64,11 +62,13 @@ public class GameEngine{
 	long physics1, physics2;
 	float actualphysicsfps;
 	long lastupdate;
+
+	
 	
 	String error="OK";
 
 	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) throws Exception {
-		init();
+		initTimers();
 		
 		switch(loadmethod) {
 		case GENERATE:
@@ -114,17 +114,15 @@ public class GameEngine{
 
 
 	
-	private void init() {
+	private void initTimers() {
 		
 		ActionListener tickPerformer = new ActionListener() {
             @Override
 			public void actionPerformed(ActionEvent evt) {
-                //...Perform a task...
         		
 
-            	if(server != null || (client==null && server==null)) {
+            	if(server != null || client==null) {
             		
-					//HashSet<Point3D> current = new HashSet<>(TickableBlocks);
             		ArrayList<Point3D> current = new ArrayList<>(TickableBlocks);
 					TickableBlocks.clear();
 					for(Point3D p : current) {
@@ -210,57 +208,34 @@ public class GameEngine{
 				
 					if(Tick % (2f/Main.TICKSPEED) == 0) {
 						for(Entity entity : world.getAllEntities()) {
-							if(entity instanceof Alien && entity.VerticalVector.z == Main.GAME.PE.VerticalVector.z) {
+							if(entity instanceof Alien) {
 								
 								Alien alien = ((Alien) entity);
 								Vector alienPos = alien.getPos();
 								
 								if(alienPos.getLength()>56) {
-									//world.killEntity(alien.ID, true);
 									world.hurtEntity(alien.ID, alien.getHealth(), true);
 								}else if(!alien.locked){
 									double random = Math.random();
-									//float dst = entity.getPos().distance(alien.target); 
 									if(random < 0.4) {
 										alien.target.set(alienPos);
 									}else if(random>0.4){
 										Random rnd = new Random();
 										alien.target.set(rnd.nextInt(20)-10, rnd.nextInt(20)-10, alienPos.z).add(alienPos);
 									}
-									//Main.log("target:"+(new Vector().set(alien.target).substract(entity.getPos())));
-									//Main.log("--------------------------------");
+
 								}
-
-
-								/*if(server != null) { //MP
-									for(PlayerMP data : server.clients.values()) {
-										if(data.getPos().distance(alien.getPos())<0.2) {
-											world.hurtEntity(data.ID, 3, true);
-											//data.hurt(3,true);
-										}
-									}
-								}else if(client ==null){ //SP
-									//System.out.println("singleplayer:"+Main.GAME.PE.getPos().distance(alien.getPos()));
-									if(Main.GAME.PE.getPos().distance(alien.getPos())<1) {
-										if(!Main.GAME.PE.hurt(3,true)) {
-
-													Main.GAME.notifyDeath();
-
-										}
-									}
-								}*/
-
 								for(Entity data : world.getAllEntities()) {
 									if(data instanceof PlayerMP) {
+										
 										if(data.getPos().distance(alien.getPos())<0.2) {
 											world.hurtEntity(data.ID, 3, true);
-											//data.hurt(3,true);
 										}
 									}
 								}
-
-
 							}
+							
+							
 						}
 					}
 
@@ -277,29 +252,38 @@ public class GameEngine{
 							if( Main.GAME.PE.getPos().distance(previousPos)>0.2f || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>20) {
 								client.sendPlayerPos();
 
-								previousPos.set( Main.GAME.PE.getPos());
+								previousPos.set(Main.GAME.PE.getPos());
 								previousAim.set(Main.GAME.PE.ViewAngle);
 							}
 						
 					}
 					
 					if(server != null) {
-						for(Entry<String,PlayerMP> entry : server.clients.entrySet()) {
-							String name = entry.getKey();
-							if(!name.equals(Config.username)) {
-								/*StringBuilder data = new StringBuilder();
-								data.append("16");
-								for(Entity e : world.getAllEntities()) {
-									data.append(",");
-									data.append(e);
-
-								}*/
-								for(Entity e : world.getAllEntities()) { // TODO batch send
-									if(!(e instanceof PlayerMP)) {
-										server.sendData(GameClient.constructEntityMove(e.ID, e.getPos().x, e.getPos().y, e.getPos().z, e.ViewAngle.yaw, e.ViewAngle.pitch), entry.getValue().socket);
-									}
-								}
+						StringBuilder data = new StringBuilder();
+						data.append("16");
+						int counter = 0;
+						for(Entity e : world.getAllEntities()) {
+							if(!(e instanceof PlayerMP)) {
+								data.append(",");
+								data.append(e);
+								
 							}
+							counter++;
+						}
+						if(counter>0) {
+							/*for(Entry<String,PlayerMP> entry : server.clients.entrySet()) {
+								String name = entry.getKey();
+								if(!name.equals(Config.username)) {
+									
+									server.sendData(data.toString(), entry.getValue().socket);
+	//								for(Entity e : world.getAllEntities()) { // TODO batch send
+	//									if(!(e instanceof PlayerMP)) {
+	//										server.sendData(GameClient.constructEntityMove(e.ID, e.getPos().x, e.getPos().y, e.getPos().z, e.ViewAngle.yaw, e.ViewAngle.pitch), entry.getValue().socket);
+	//									}
+	//								}
+								}
+							}*/
+							client.sendData(data.toString());
 						}
 					}
 
@@ -317,7 +301,7 @@ public class GameEngine{
 
 
     		@Override
-    		public void actionPerformed(ActionEvent e)
+    		public void actionPerformed(ActionEvent event)
 
     		{
     			physics1 = physics2;
@@ -334,35 +318,36 @@ public class GameEngine{
     				}
     				world.getAllEntities().parallelStream().forEach(entity-> /*);
     				for(Entity entity : world.getAllEntities()) */{
-    					if(entity instanceof Alien && entity.VerticalVector.z == Main.GAME.PE.VerticalVector.z) {
+    					if(entity instanceof Alien) {
     						Alien alien = (Alien)entity;
     						Vector closest = null;
     						
-    						Vector PEPos = Main.GAME.PE.getPos();
+    						
     						Vector alienPos = alien.getPos();
     						
-    						if(server==null) {
-    							if(PEPos.distance(alienPos)<10)
-    								closest = PEPos;
-    						}else {
-    							float dst=Float.MAX_VALUE;
-    							
-    							for(PlayerMP player : server.clients.values()) {
-    								float distance = player.getPos().distance(alienPos);
-    								if(distance<10 && distance < dst) {
-    									dst=distance;
-    									closest=player.getPos();
-    								}
-    							}
-    						}
+
+    						
+    						float dst=Float.MAX_VALUE;
+							
+							for(Entity e : world.Entities.values()) {
+								if(e instanceof PlayerMP) {
+									PlayerMP player = (PlayerMP)e;
+									//min kiválasztás
+									float distance = player.getPos().distance(alienPos);
+									if(distance<10 && distance < dst) {
+										dst=distance;
+										closest=player.getPos();
+									}
+								}
+								
+							}
+    						
     						
     						if(closest!=null) {
     							alien.target.set(closest);
     							alien.locked=true;
-    							//Main.log("closest:"+new Vector().set(closest).substract(alien.ViewFrom));
     						}else {
     							alien.locked=false;
-    							//	Main.log("random:"+new Vector().set(alien.target).substract(alien.ViewFrom));
     						}
     					
     						alien.target.z=alienPos.z;
@@ -422,9 +407,7 @@ public class GameEngine{
     	
         
         physics = new Timer(1000/physicsFPS, physicsPerformer);
-        
-       // startPhysics();
-		//physics = new java.util.Timer();
+
 
         
 	}
