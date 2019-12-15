@@ -60,9 +60,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	public GameEngine Engine;
 	public PlayerMP PE;
-	//public final HashMap<String, PlayerMP> playerList = new HashMap<>();
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
-	//private final ArrayList<Object3D> ObjectsTmp = new ArrayList<>();
 
 	public boolean moved;
 	public BlockInventoryInterface remoteInventory;
@@ -98,7 +96,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	BufferedImage FrameBuffer;
 	BufferedImage prevFrame;
-	//BufferedImage	Buffer2;
 
 	 final Cursor invisibleCursor = Toolkit.getDefaultToolkit()
 			.createCustomCursor(new BufferedImage(1, 1, Transparency.TRANSLUCENT), new Point(0, 0), "InvisibleCursor");
@@ -143,17 +140,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	private Paint crosshairColor=new Color(1.0f, 1.0f, 1.0f, 0.2f);
 	private Vector tmp = new Vector();
-	/*Point3D tmpPoint = new Point3D();
-	Point3D feetPoint = new Point3D();
-	TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));*/
-	//private ItemStack Selected = new ItemStack();
 	PlayerInventory tmpInventory;
 
 
-	
-	Area coverageBuffer = new Area();
-	Area bufferArea=new Area();
-	
 	int previousSkyLight;
 	static long truetime=0l;
 	static long falsetime=0l; 
@@ -161,7 +150,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 
 		try {
+
 			Engine = new GameEngine(location, this, seed, loadmethod, statusLabel);
+
+			
+
 			if(!Engine.error.equals("OK")) {
 				System.gc();
 				
@@ -568,14 +561,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+","+SelectedBlock.BlockMeta);
 					if(SelectedPolygon != null) {
 						debugInfo.add("SelPoly: "+SelectedPolygon+"light:"+SelectedPolygon.getLight());
-						/*debugInfo.add("lighted:"+SelectedPolygon.getLightedColor()+",surf:"+SelectedPolygon.s.c+",overlay:"+SelectedPolygon.getLightOverlay());
-						for(Vertex v : SelectedPolygon.Vertices) {
-							debugInfo.add(v.toString());
-						}*/
 					}else {
 						debugInfo.add("SelPoly: null");
-						/*debugInfo.add("");
-						debugInfo.add("");*/
 					}
 					if(SelectedEntity!=null) {
 						debugInfo.add("SelectedEntity: "+SelectedEntity + ", health:" + SelectedEntity.getHealth());
@@ -592,12 +579,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 						debugInfo.add("PacketCount: " + Engine.client.packetCount);
 						debugInfo.add("BlockCount: " + Engine.client.blockcount);
-						/*Iterator<PlayerMP> iter = playerList.values().iterator();
-						for (int i = 0; i < playerList.values().size() * 25; i += 25)
-						{
-							PlayerMP player = iter.next();
-							debugInfo.add("Player"+i+": "+player);
-						}*/
 					}
 					debugInfo.add("Seed: " + Engine.world.seed);
 					if(SelectedEntity == null) {
@@ -612,14 +593,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity)+",VV:"+SelectedEntity.VerticalVector.z);
 					}
 					debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
-					/*debugInfo.add("feetBlock2:" + Engine.world.getBlockAtF(PEPos.x, PEPos.y,
-							PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z)));*/
 					int x=(int) Math.floor(PEPos.x) ;
 					int y= (int) Math.floor(PEPos.y);
 					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z));
 					PE.tmpPoint.set(x, y, feetZ);
-					//debugInfo.add("feetBlock2:"+Engine.world.getBlockAtP(PE.tmpPoint) + ", flying: " + PE.flying + ", Ctrl: " + key[7]);
-					//debugInfo.add("ViewBlock: "+ViewBlock);
 					debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
 					debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
 					// DEBUG SZÖVEG
@@ -648,23 +625,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				//INVENTORY SOR
 				if (PE.inventory.items.size() > 0)
 				{
-					
-					//ItemStack localSelected = PE.inventory.getSelectedStack();
-					
+										
 					
 					// VIEWMODEL
 					if (PE.inventory.hasSelected())
 					{
-						//ItemType type = Main.Items.get(PE.inventory.getSelectedKind().name);
-						//if(type != null) {
+
 						BufferedImage viewmodel = Main.Items.get(PE.inventory.getSelectedKind().name).ViewmodelTexture;
 						int wv = viewmodel.getWidth();
 						int hv = viewmodel.getHeight();
 	
 						g.drawImage(viewmodel, Config.width / 3 * 2, Config.height - hv, 2 * wv, 2 * hv, null);
-						/*}else {
-							Main.err("Unknown item type:"+PE.inventory.getSelectedKind());
-						}*/
+
 					}
 					
 					drawInventory(g, PE.inventory, fontSize, viewportscale, true, null, localInvActive);
@@ -674,9 +646,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 				if (remoteInventory != null && remoteInventory.getInv().items.size()>0)
 				{
-	
-					//ItemStack remoteSelected = remoteInventory.getInv().getSelectedStack();
-					
+						
 					drawInventory(g, remoteInventory.getInv(), fontSize, viewportscale, false, remoteInventory.getBlock(), localInvActive);
 	
 				}
@@ -688,7 +658,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	private static void drawInventory(Graphics g, PlayerInventory Inv, int fontSize, float viewportscale, boolean local, Block remoteBlock, boolean localInvActive) {
 		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize+2));
-		//ItemStack Selected = Inv.SelectedStack;
 
 
 		int i = -1;
@@ -746,15 +715,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}else {
 			
 
-			/*if (Inv.hasSelected())
-			{
-				g.setColor(Color.BLACK);
-				g.drawString(Inv.getSelectedKind().name, 25, (int) (Config.height - 100*viewportscale));
-				g.setColor(Color.WHITE);
-				g.drawString(Inv.getSelectedKind().name, 25 - 1,
-						(int) (Config.height - 100*viewportscale - 1));
-			}*/
-			
 			if (Inv.hasSelected()) 
 			{
 				g.setColor(Color.BLACK);
@@ -911,13 +871,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(Main.devmode) {
 				locked = !locked;
 			}
-			/*if (locked)
-			{
-				Engine.timer.stop();
-			} else
-			{
-				Engine.timer.start();
-			}*/
+
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F)
 		{
@@ -957,15 +911,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
 		{
-			//initPause();
 			pause();
-			//notifyDeath();
 		}
-
-		/*if (arg0.getKeyCode() == KeyEvent.VK_E)
-		{
-			PE.GravityVelocity = -200;
-		}*/
 
 		if (arg0.getKeyCode() == KeyEvent.VK_T)
 		{
@@ -985,21 +932,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 		}
 
-		/*if (arg0.getKeyCode() == KeyEvent.VK_G)
-		{
-			String itemName = JOptionPane.showInputDialog(Main.Frame.getContentPane(), "Item name: (case-sensitive)",
-					"Give", JOptionPane.QUESTION_MESSAGE);
-			if (itemName != null && Main.Items.get(itemName) != null)
-			{
-				PE.inventory.add(Main.Items.get(itemName), 1, true);
-				//if(PE.inventory.items.size()==1) {
-					//SwitchInventory(true);
-				//}
-			} else
-			{
-				Main.err("Give: no such item");
-			}
-		}*/
+
 		if (arg0.getKeyCode() == KeyEvent.VK_Q)
 		{
 			SwapInv();
@@ -1070,45 +1003,24 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				if (SelectedBlock != Block.NOTHING)
 				{
-					/*if (SelectedBlock instanceof BlockInventoryInterface
-							&& remoteInventory == (((BlockInventoryInterface) SelectedBlock)))
-					{
-						SwitchInventory(true);
-					}*/
 					boolean returnAsItem=true;
-					/*if (Engine.client == null)
-					{*/
-						if (SelectedBlock instanceof BreakListener)
-						{
-							returnAsItem = ((BreakListener) SelectedBlock).breaked(Config.username);
-						}
-						ItemType item = Main.Items.get(SelectedBlock.name);
-					Engine.world.destroyBlock(SelectedBlock, true);
-					/*} else
-					{
-						Engine.client.sendData(("06," + Config.username + "," + SelectedBlock.x + "," + SelectedBlock.y
-								+ "," + SelectedBlock.z));
-					}*/
-					/*if (SelectedBlock.returnOnBreak
-							&& ((SelectedBlock instanceof WaterBlock && (((WaterBlock) SelectedBlock).getHeight() == 4))
 					
-									|| !(SelectedBlock instanceof WaterBlock)))*/
+					if (SelectedBlock instanceof BreakListener)
+					{
+						returnAsItem = ((BreakListener) SelectedBlock).breaked(Config.username);
+					}
+					ItemType item = Main.Items.get(SelectedBlock.name);
+					Engine.world.destroyBlock(SelectedBlock, true);
+					
 					if(returnAsItem)
 					{
 						
-						/*if (Engine.Inv.items.size() == 0) 
-						{
-							Engine.Inv.add(item, 1, true);
-							SwitchInventory(false);
-						} else
-						{*/
-							Engine.Inv.add( item, 1, true);
-						//}
+						PE.inventory.add( item, 1, true);
 
 					}
 				}else if(SelectedEntity != null) {
 					Engine.world.hurtEntity(SelectedEntity.ID, 1, true);
-					//SelectedEntity.hurt(1, true);
+
 					
 				}
 				
@@ -1122,7 +1034,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 						if (PE.inventory.hasSelected())
 						{
-							//ItemStack selected =PE.inventory.SelectedStack;
 							ItemType selected = PE.inventory.getSelectedKind();
 							if (selected.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(selected.className))
 							{
@@ -1179,15 +1090,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		float t = tmp.substract(PEPos).DotProduct(ViewVector);
 		tmp.multiply(1 / t).add(PEPos);
 
-		// Vector ViewToPoint = v.cpy().substract(PE.getPos());
-		// ViewToPoint.set(v);
-		// ViewToPoint.substract(PE.getPos());
-
-		// float t = ViewVector.DotProduct(ViewToPoint);
-
-		// ViewToPoint.multiply(1/t).add(PE.getPos());
 		point.setLocation(RightViewVector.DotProduct(tmp), BottomViewVector.DotProduct(tmp));
-		//return point;
 	}
 
 	@Override
@@ -1230,7 +1133,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (remoteInventory != null)
 		{
 			remoteInventory.getInv().setHotbarIndex(-1);
-			//remoteInventory.getInv().SelectedStack = null;
 		} else //kilépés
 		{
 			SwitchInventory(true);
@@ -1246,9 +1148,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			Engine.client.start();
 			Main.log("Client started");
-			return null;
 		}
-		//Main.log("Unable to start client (" + error + ")");
 
 		return error;
 
@@ -1258,7 +1158,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	public void disconnect(String error)
 	{
-		//running = false;
 		if(error !=null) {
 			Main.err(error);
 			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
@@ -1269,7 +1168,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 			
 				renderThread.kill();
-				//game.pause();
 
 				Engine.ticker.stop();
 				Engine.stopPhysics();
@@ -1288,7 +1186,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						Engine.server.kill();
 					}
 		
-					//playerList.clear();
 		
 				} else
 				{
@@ -1319,7 +1216,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.stopPhysics();
 		}
 		
-		Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
+		//Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
 
 		centered = false;
 		setCursor(Cursor.getDefaultCursor());
@@ -1355,7 +1252,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	void resume()
 	{
-		//Main.focused = true;
 		if(PE.getHealth()==0) {
 			Main.SwitchWindow("died");
 			return;
@@ -1368,7 +1264,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.startPhysics();
 		}
 		firstframe = true;
-		//running = true;
 		renderThread = new RenderThread(this);
 		renderThread.start();
 		
@@ -1418,12 +1313,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{ // tavolira valtas
 
 			PE.inventory.setHotbarIndex(-1);
-			//PE.inventory.SelectedStack = null;
 
 			if (remoteInventory.getInv().items.size() > 0)
 			{
 				remoteInventory.getInv().setHotbarIndex(0);
-				//remoteInventory.getInv().SelectedStack = remoteInventory.getInv().items.get(0);
 			}
 
 			// }
@@ -1435,13 +1328,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if (remoteInventory != null)
 			{
 				remoteInventory.getInv().setHotbarIndex(-1);
-				//remoteInventory.getInv().SelectedStack = null;
 			}
 
 			if (PE.inventory.items.size() > 0)
 			{
 				PE.inventory.setHotbarIndex(0);
-				//PE.inventory.SelectedStack = PE.inventory.items.get(0);
 			}
 
 			localInvActive = true;
@@ -1503,25 +1394,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			((PlaceListener) placeable).placed(SelectedFace);
 		}
 		return success;
-		/*if (success)
-		{*/
-			/*if (Engine.client != null)
-			{
-				for (Entry<String, ItemType> entry : Main.Items.entrySet())
-				{
-					String BlockName = entry.getKey();
-					String ClassName = entry.getValue().className;
-					if (ClassName.equals(className))
-					{
-						Engine.client.sendData(
-								("05," + Config.username + "," + nextX + "," + nextY + "," + nextZ + "," + BlockName));
-					}
-				}
-			}*/
-			
-
-		/*}
-		return false;*/
+		
 
 	}
 
@@ -1537,8 +1410,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					remoteInventory.getInv().add(removedFromLocal, 1, true);
 					PE.inventory.add(removedFromLocal, -1, true);
 				}
-				//if (Engine.client == null && PE.inventory.items.size() == 0)
-				//	SwitchInventory(false);
+
 
 			} else
 			{
@@ -1546,9 +1418,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				PE.inventory.add(removedFromActiveInv, 1, true);
 				remoteInventory.getInv().add(removedFromActiveInv, -1, true);
 
-				// if(Engine.client == null &&
-				//if (remoteInventory.getInv().items.size() == 0)
-				//	SwitchInventory(true);
 
 			}
 

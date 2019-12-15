@@ -15,7 +15,6 @@ public class PlayerMP extends Entity {
 	public PlayerInventory inventory;
 	
 	public PlayerMP(Vector ViewFrom, EAngle aim, String name, int health, long ID, GameEngine engine){ // createEntity hozza letre
-		//super("PlayerMP",ViewFrom, aim, name, health, 20,ID,engine, Main.playerFront, Main.playerSide);
 		this(name,ViewFrom, aim.yaw, aim.pitch, health, new PlayerInventory(name, engine), null, ID, engine);
 	}
 	
@@ -28,7 +27,6 @@ public class PlayerMP extends Entity {
 	}
 	
 	public PlayerMP(String username, GameEngine engine) { // atmeneti, parse elotti inicializalashoz TODO valszeg megkerulheto
-		//super("PlayerMP",new Vector(19.5f, 19.5f, 15.0f), new EAngle(-135, 0), "",20,20, new Random().nextLong(), engine, Surface.EMPTY, Surface.EMPTY);
 		this(username,new Vector(19.5f, 19.5f, 15.0f), -135,0,20, new PlayerInventory(username,engine),null,0, engine);
 	}
 

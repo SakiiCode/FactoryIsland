@@ -52,10 +52,8 @@ import ml.sakii.factoryisland.items.ItemType;
 public class World {
 
 	final int CHUNK_WIDTH = 10;
-	//int CHUNK_HEIGHT = 40;
 	int MAP_RADIUS = 5;
 	static final int MAP_VERSION=1;
-	//int index = -1; // -1=REMOTE MAP
 	public String worldName=""; //""=REMOTE MAP
 	long seed;
 	int loadedVersion=MAP_VERSION;
@@ -68,7 +66,6 @@ public class World {
 	String success="OK";
 	public ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
 	
-	//ArrayList<Vector> SpawnableSurface = new ArrayList<>();
 	private int worldTop,worldBottom;
 	
 	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
@@ -88,106 +85,6 @@ public class World {
 
 	@SuppressWarnings({ "null", "unchecked" })
 	private String loadWorld(GameEngine engine, JLabel statusLabel) {
-		/*File file = new File("saves/" + worldName + "/map.xml");
-
-
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-		Document document;
-		try {
-			db = dbf.newDocumentBuilder();
-			document = db.parse(file);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
-
-		Node World = document.getElementsByTagName("blocks").item(0);
-		//Node root = document.getElementsByTagName("world").item(0);
-		//CHUNK_HEIGHT = Integer.parseInt(((Element) root).getAttribute("height"));
-
-		NodeList Blocks = World.getChildNodes();
-		
-		for (int i = 0; i < Blocks.getLength(); i++) {
-			statusLabel.setText("Loading blocks... " + (int)(i*1f/Blocks.getLength()*100)+"%");
-			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Location");
-			Node Block = Blocks.item(i);
-			Element BE = (Element) Block;
-			Block b = engine.createBlockByName(BE.getAttribute("name"), Integer.parseInt(BE.getAttribute("x")),
-					Integer.parseInt(BE.getAttribute("y")), Integer.parseInt(BE.getAttribute("z")));
-
-			NodeList nodes = Block.getChildNodes();
-			
-			
-			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Metadata");
-			b.BlockMeta.clear();
-			NodeList Metadata = nodes.item(0).getChildNodes();
-			for (int j = 0; j < Metadata.getLength(); j++) {
-				Node item = Metadata.item(j);
-				b.BlockMeta.put(item.getNodeName(), item.getTextContent());
-			}
-			
-			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Powers");
-
-			b.powers.clear();
-			NodeList Powers = nodes.item(1).getChildNodes();
-			for (int j = 0; j < Powers.getLength(); j++) {
-				Node item = Powers.item(j);
-				b.powers.put(BlockFace.valueOf(item.getNodeName()), Integer.parseInt(item.getTextContent()));
-			}
-			
-			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Block Inventory");
-
-			if(b instanceof BlockInventoryInterface) {
-				((BlockInventoryInterface) b).getInv().clear();
-				NodeList Stacks = nodes.item(2).getChildNodes();
-				for (int j = 0; j < Stacks.getLength(); j++) {
-					Node item = Stacks.item(j);
-					((BlockInventoryInterface) b).getInv().add(Main.Items.get(item.getNodeName()), Integer.parseInt(item.getTextContent()), false);
-				}
-				
-			}
-			
-			//statusLabel.setText("Loading blocks... "+i+"/"+Blocks.getLength()+" - Adding Block");
-			addBlockNoReplace(b, true);
-			//ReplaceBlock(b, true);
-			//b.onLoad();
-
-		}
-
-		
-		
-		statusLabel.setText("Loading entities...");
-		Node entitiesGroup = document.getElementsByTagName("entities").item(0);
-		if(entitiesGroup != null) { // kompatibilitás
-			NodeList entities = entitiesGroup.getChildNodes();
-			for (int i = 0; i < entities.getLength(); i++) {
-				Main.log("loading entity "+i);
-				Node entity = entities.item(i);
-				Element entityElement = (Element)entity;
-				Entity e = Entity.createEntity(entity.getNodeName(),
-						Vector.parseVector(entityElement.getAttribute("pos")),
-						EAngle.parseEAngle(entityElement.getAttribute("aim")),
-						entityElement.getAttribute("name"),
-						Long.parseLong(entityElement.getAttribute("id")),
-						engine);
-				if(e != null) addEntity(e);
-			
-			}
-		}
-		
-		statusLabel.setText("Loading misc data...");
-		int tick = Integer.parseInt(document.getElementsByTagName("tick").item(0).getTextContent());
-		engine.Tick = tick;
-		
-		long seed = Long.parseLong(document.getElementsByTagName("seed").item(0).getTextContent());
-		this.seed = seed;
-
-		*/
-		
-		
-		//------------------------------------------------------------------------------------------------------
-		
 		
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader;
@@ -225,8 +122,7 @@ public class World {
 				} catch (XMLStreamException e)
 				{
 					e.printStackTrace();
-					//statusLabel.setText("Error parsing map file!");
-					return e.getMessage();
+					return "Error parsing map file: "+e.getMessage();
 				}
 	               
 	            switch(event.getEventType()) {
@@ -309,7 +205,6 @@ public class World {
 	            		   if(curBlock!=null && curMeta != null) {
 	            			   curBlock.BlockMeta.put(curMeta,data);
 	            		   }else {
-	            			   //Main.err("No current block/metadata tag while parsing metadata");
 	            			   return "No current block/metadata tag while parsing metadata";
 	            		   }
 	            	   }else if(bTick) {
@@ -319,7 +214,6 @@ public class World {
 	            	   }else if(bVersion) {
 	            		   this.loadedVersion=Integer.parseInt(data);
 	            		   if(this.loadedVersion!=MAP_VERSION) {
-	            			   //Main.err("Incompatible map file");
 	            			   return "Incompatible map file";
 	            		   }
 	            	   }else if(curMeta != null) {
@@ -342,7 +236,6 @@ public class World {
 	            			   curBlock=null;
 	            			   statusLabel.setText("Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
 	            		   }else {
-	            			   //Main.err("Closing tag of empty block");
 	            			   return "Closing tag of empty block";
 	            		   }
 	                   
@@ -372,26 +265,12 @@ public class World {
 	        }
 	        
 	        
-	        statusLabel.setText("Loading player inventory...");
-			PlayerInventory loadedInv = loadInv(Config.username, null);
-			if(Config.creative) {
-				tmpInventory = loadedInv;
-				game.creative=true;
-				engine.Inv=PlayerInventory.Creative;
-			}else {
-				game.creative=false;
-				if(!loadedInv.items.isEmpty())
-					for(Entry<ItemType, Integer> stack : loadedInv.items.entrySet()) {
-						engine.Inv.add(stack.getKey(), stack.getValue(), false);
-				}
-			}
-			
+	        
 			
 		
 		} catch (Exception e)
 		{
 			e.printStackTrace();
-			//statusLabel.setText("Error:"+e.getMessage());
 			
 			return e.getMessage();
 		}
@@ -422,7 +301,6 @@ public class World {
 		}
 		
 		Node players = document.getElementsByTagName(username).item(0);
-		//Node localPlayer = players.getFirstChild();
 		if(players == null) {
 			Main.err("No data of "+username+" in player file!");
 			return output;
@@ -451,7 +329,6 @@ public class World {
 	}
 	
 	public float[] loadVector(String username, String params[]) {
-		//Vector output=new Vector(0,0,0);
 		float[] output = new float[params.length];
 		File file = new File("saves/" + worldName + "/"+username+".xml");
 		if (!file.exists()) {
@@ -470,17 +347,11 @@ public class World {
 		}
 		
 		Node players = document.getElementsByTagName(username).item(0);
-		//Node localPlayer = players.getFirstChild();
 		if(players == null) {
 			Main.err("No data of "+username+" in player file!");
 			return output;
 		}
-		/*NodeList stacks = players.getChildNodes();
-		for (int i = 0; i < stacks.getLength(); i++) {
-			Node stack = stacks.item(i);
-			output.addMore(Main.Items.get(stack.getNodeName()),
-					Integer.parseInt(stack.getTextContent()));
-		}*/
+
 		NamedNodeMap nnm = players.getAttributes();
 		
 		for(int i=0;i<params.length;i++) {

@@ -27,13 +27,9 @@ import ml.sakii.factoryisland.items.ItemType;
 
 public class GameClient extends Thread{
 
-	/*public static final Set<String> CODES = new HashSet<>(Arrays.asList(
-			"00", "02", "05", "06", "07", "66", "67" ,"98", "01", "08", "03","10","11","12", "loaded", "ping", "pong"));*/
-	
 	static final Set<String> ALLCODES = new HashSet<>(Arrays.asList(
 			"00", "01", "02", "03","04", "05", "06", "07", "08","10","11", "14","15","16","17","97", "13", "66", "67" ,"98","18", "loaded", "ping", "pong"));
 	
-	//static final String DELIMETER = "\r\n";
 	static final long CMDTIME = 20; 
 	
 	private boolean connected = true;
@@ -169,7 +165,6 @@ public class GameClient extends Thread{
 			game.Engine.world.Entities.remove(game.PE.ID);
 			game.PE.ID = Long.parseLong(part[2]);
 			game.Engine.world.Entities.put(game.PE.ID, game.PE);
-			//game.Engine.world.addEntity(game.PE, false);
 			game.Engine.Tick=Long.parseLong(part[3]);
 			break;
 		
@@ -180,7 +175,6 @@ public class GameClient extends Thread{
 				Block b = game.Engine.createBlockByName(part[i+1], cInt(part[i+2]), cInt(part[i+3]), cInt(part[i+4]));
 				if(b != Block.NOTHING && b != null){
 					game.Engine.world.addBlockNoReplace(b, false);
-					//toBeDeleted.add(entry);
 					blockcount++;
 				}else{
 					Main.log("Could not parse received values as a block: " + part[i+1]+","+cInt(part[i+2])+","+cInt(part[i+3])+","+cInt(part[i+4]));
@@ -205,34 +199,10 @@ public class GameClient extends Thread{
 			
 			
 			break;
-		/*case "03": // ADD A PLAYER 03,x,y,z,yaw,ID (unused)
-			
-				Vector ViewFrom = new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-				ID = Long.parseLong(part[6]);
-				PlayerMP newPlayer = new PlayerMP(ViewFrom, new EAngle(Float.parseFloat(part[5]), 0), part[1],20,ID, game.Engine);
-				game.playerList.put(part[1], newPlayer);
-				game.Objects.addAll(newPlayer.Objects);
-				//game.Objects.add(newPlayer.title);
-				//game.Entities.add(newPlayer);
-				//game.Texts.add(new Text3D(part[1], ViewFrom[0], ViewFrom[1], ViewFrom[2]));
-				Main.log("(CLIENT:" + Config.username + ") Player "+part[1]+" added at "+ViewFrom);
-			
-			break;
-		
-		case "04": // MOVE A PLAYER (unused)
-			
-			PlayerMP otherPlayer = game.playerList.get(otherName);
-			if(otherPlayer!=null) {
-				otherPlayer.ViewFrom.x = Float.parseFloat(part[2]);
-				otherPlayer.ViewFrom.y = Float.parseFloat(part[3]);
-				otherPlayer.ViewFrom.z = Float.parseFloat(part[4]);
-				otherPlayer.ViewAngle.yaw = Float.parseFloat(part[5]);
-				otherPlayer.update();
-			}
-			
-			break;
-		*/
+
 		case "67": // DELETE PLAYER
+			
+			
 			for(Entity e : game.Engine.world.getAllEntities()) {
 				if(e.name.equals(otherName)) {
 					if(game.Engine.server != null) {
@@ -243,9 +213,7 @@ public class GameClient extends Thread{
 					game.Objects.removeAll(e.Objects);
 				}
 			}
-			//game.Objects.removeAll(game.playerList.get(otherName).Objects);
-			//game.Entities.remove(game.playerList.get(otherName));
-			//game.playerList.remove(otherName);
+
 			
 			break;
 		
@@ -269,17 +237,11 @@ public class GameClient extends Thread{
 			break;
 		case "98": // SERVER CLOSED
 			if(game.Engine.server == null) {
-				//JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server closed", "Disconnected", JOptionPane.ERROR_MESSAGE);
-				//game.disconnect();
 				return "Server closed";
 			}
-			
 			break;
 		case "97": // SAME USERNAME
-			//JOptionPane.showInternalMessageDialog(Main.Frame.getContentPane(), "Someone with the same username already logged in", "Disconnected", JOptionPane.ERROR_MESSAGE);
-			//game.disconnect();
 			return "Someone with the same username already logged in";
-			//break;
 		case "11": //FORCE MOVE ON CONNECT
 			game.PE.move(Float.parseFloat(part[1]), Float.parseFloat(part[2]), Float.parseFloat(part[3]), false);
 			game.PE.ViewAngle.yaw = Float.parseFloat(part[4]);
@@ -293,9 +255,6 @@ public class GameClient extends Thread{
 		case "16": // MOVE ENTITY
 			receiveEntityMove(part);
 			break;
-		/*case "17": // KILL ENTITIY
-			receiveEntityKill(part);
-			break;*/
 		case "18": // HURT ENTITY
 			receiveEntityHurt(part);
 			break;
@@ -407,7 +366,6 @@ public class GameClient extends Thread{
 				en.update();
 			}else {
 				Main.err("(CLIENT:"+Config.username+") Entity already null ("+parsedID+"): "+part);
-				//Main.err("(CLIENT:"+Config.username+") Current entities:"+game.Engine.world.Entities.toString());
 			}
 		}
 	}
@@ -421,18 +379,7 @@ public class GameClient extends Thread{
 		game.Engine.world.hurtEntity(Long.parseLong(part[1]),Integer.parseInt(part[2]),false);
 	}
 	
-	/*public void sendEntityKill(long ID) {
-		sendData("17,"+ID);
-	}
-	
-	void receiveEntityKill(String[] part) {
-		long ID = Long.parseLong(part[1]);
-		game.Engine.world.killEntity(ID, false);
-		if(ID == game.PE.ID) {
-			game.notifyDeath();
-		}
-	}*/
-	
+
 	
 	public void sendInvSwap(String username, Block b, String itemName, boolean addToLocal) {
 		 // 14,Sakii,1,2,3,Stone,true (add to local)
@@ -476,7 +423,6 @@ public class GameClient extends Thread{
 		Vector pos = game.PE.getPos();
 		EAngle aim = game.PE.ViewAngle;
 		sendEntityMove(game.PE.ID, pos.x, pos.y, pos.z, aim.yaw, aim.pitch);
-		//sendData("04," + username + "," + x + "," + y + "," + z + "," + yaw +"," + pitch);
 	}
 	
 	public void sendData(String data){
@@ -488,14 +434,10 @@ public class GameClient extends Thread{
 			if(data.equals("ping")) {
 				pingTime = System.currentTimeMillis();
 			}
-			
-			//OutputStreamWriter outToClient = ;
 
-			//outToClient.write(data+"\r\n");
 			outputStream.write(data);
 			outputStream.newLine();
 			outputStream.flush();
-			//outToClient.flush();
 			
 			if(Main.devmode) {
 				String code = data.split(",")[0];
@@ -507,9 +449,7 @@ public class GameClient extends Thread{
 					Main.log("(CLIENT:"+Config.username+") I DUNNO WAT I SENT LOL:  "+data);
 				}
 			}
-			/*for(int i=2;i<5;i++) {
-				Main.err(Thread.currentThread().getStackTrace()[i].toString());
-			}*/
+
 		} catch (IOException e) {
 			game.disconnect(e.getMessage());
 		}

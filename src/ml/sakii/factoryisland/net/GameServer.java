@@ -12,7 +12,6 @@ import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Vector;
-import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.entities.Entity;
@@ -23,7 +22,6 @@ import ml.sakii.factoryisland.items.PlayerInventory;
 public class GameServer extends Thread{
 
 	public HashMap<String,PlayerMP> clients = new HashMap<>(); //ugyanaz mint az Entities csak kizarolag PlayerMP-kre
-	//public ArrayList<PlayerMP> clients = new ArrayList<>();
 	
 	private boolean serverRunning = true;
 	
@@ -32,7 +30,6 @@ public class GameServer extends Thread{
 	public long tickCount = 0;
 
 	public TCPListener Listener;
-	public int port;
 	
 	
 	public GameServer(GameEngine engine){
@@ -109,11 +106,7 @@ public class GameServer extends Thread{
 				
 				long ID = new Random().nextLong();
 				sendData("00,"+Connection.PROTOCOL_VERSION+","+ID+","+Engine.Tick, conn);
-				
-				
-				//Vector pos=null;
-				//float yaw;
-				
+
 				
 				PlayerMP playerE;
 
@@ -149,22 +142,12 @@ public class GameServer extends Thread{
 					
 					
 
-					//PlayerInventory inv=null;
 										
 					File playerFile = new File("saves/"+Engine.world.worldName+"/"+senderName+".xml");
 					
 					if(playerFile.exists()) {
 						Vector pos = new Vector().set(Engine.world.loadVector(senderName, new String[] {"x", "y", "z"}));
 						float[] other = Engine.world.loadVector(senderName, new String[] { "yaw", "pitch", "health"});
-						
-						//Vector dir= new Vector().set(other[0], other[1], other[2]);
-						//yaw=dir.x;
-						
-						//int health = (int) other[2];
-						
-						
-						
-						
 						
 						
 						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], Engine.world.loadInv(senderName, Engine), conn, ID, Engine);
@@ -187,15 +170,12 @@ public class GameServer extends Thread{
 						
 						sendData("11,"+pos.x+","+pos.y+","+pos.z+",-135,0,20", conn);
 						
-						
-						
-						//clients.put(senderName,new PlayerMP(senderName, pos, -135, 0, new PlayerInventory(Engine), socketstream, false));
+
 						playerE = new PlayerMP(senderName, pos, -135, 0,20,  new PlayerInventory(senderName, Engine), conn, ID, Engine);
 						
 						
 					}
 					
-					//clients.put(senderName, playerE);
 					
 					//és az entityket
 					for(Entity e : Engine.world.getAllEntities()) {
@@ -214,18 +194,7 @@ public class GameServer extends Thread{
 					}
 
 					
-				}else {	// most nyitottuk meg, kell a pozíció, de az inventory nem közös a klienssel TODO tesztelni
-					/*Vector pos=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-					float yaw= Float.parseFloat(part[5]);
-					float pitch =  Float.parseFloat(part[6]);
-					int health=(int) Float.parseFloat(part[7]);
-					
-					playerE = new PlayerMP(senderName,pos ,yaw,pitch,health, new PlayerInventory(Engine), conn, ID,Engine);
-					//clients.put(senderName,playerE);
-
-					if(!Config.creative) {
-						clients.get(senderName).inventory.items.putAll(Engine.Inv.items);
-					}*/
+				}else {	
 					playerE=Main.GAME.PE;
 					playerE.socket=conn;
 				}
@@ -233,33 +202,16 @@ public class GameServer extends Thread{
 
 				//es a tobbi jatekost
 				for(PlayerMP client : clients.values()){
-					//if(client != playerE){
-						
 
-						//Vector pos = playerE.getPos();
-						
 						sendData(GameClient.constructEntityCreate(playerE), client.socket);
-						//sendData(("15,PlayerMP," + pos.x + "," + pos.y + "," + pos.z + "," + playerE.ViewAngle.yaw+","+playerE.ViewAngle.pitch
-						//		+","  + senderName+","+playerE.getHealth()+"," + playerE.ID), player.socket);
-						
-						
-						
+
 						sendData(GameClient.constructEntityCreate(client), conn);
 						
-						//Vector playerPos = player.getPos();
-						//sendData(("15,PlayerMP," + playerPos.x + "," + playerPos.y + "," + playerPos.z + "," + 
-						//		 + player.ViewAngle.yaw+","+player.ViewAngle.pitch
-						//			+","  + senderName+","+player.getHealth()+"," + player.ID), socketstream);
-						
-						
-						//sendData(("03," + senderName + "," + pos.x + "," + pos.y + "," + pos.z + "," + yaw+ "," + ID), player.socket);
-						//sendData(("03," + player.name + "," + player.getPos().x + "," + player.getPos().y + "," + player.getPos().z + "," + player.ViewAngle.yaw + "," + player.ID), socketstream);
-					//}
+
 					
 				}
 				
 				
-				//Engine.world.addEntity(playerE, false);
 
 				clients.put(senderName,playerE);
 
@@ -304,20 +256,8 @@ public class GameServer extends Thread{
 				
 			
 			case "05": // PLACE BLOCK
-				/*Block b1 = Engine.createBlockByName(part[1], cInt(part[2]), cInt(part[3]), cInt(part[4]));
-				for(int i=5;i<part.length;i+=2) {
-					b1.setMetadata(part[i], part[i+1], false);
-				}
-				boolean success = Engine.world.addBlockNoReplace(b1, false);//TODO itt replace volt
-				*/
-				//senderID = cInt(part[1]);
-				//if(success)
+
 					for(PlayerMP client : clients.values()){
-						/*if(!client.username.equals(senderName)) {
-							sendData(("05," + b1.x + "," + b1.y + "," + b1.z + "," + part[5]), client.socket);
-							Main.log("Block place forwarded to "+client.username);
-						}*/
-						//if(!client.local) {
 						if(!client.name.equals(senderName)) {
 							sendData(message, client.socket);
 	
@@ -325,28 +265,13 @@ public class GameServer extends Thread{
 					}
 				break;
 			case "06": // DELETE BLOCK
-				/*Block b = Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]));
-				if(b!=Block.NOTHING){
-					if(b instanceof BreakListener){
-						((BreakListener)b).breaked(senderName);//.breakedOnServer();
-					}
-					for(PlayerMPData data : clients.values()) {
-						sendData("06," + cInt(part[2]) + "," + cInt(part[3]) + "," + cInt(part[4]), data.socket);
-					}
-					//Engine.world.destroyBlock(b);
-				}*/
-				/*Block b = Engine.world.getBlockAt(cInt(part[1]),cInt(part[2]), cInt(part[3]));
-				if(b != Block.NOTHING) {
-					Engine.world.destroyBlock(b, false);*/
+
 					for(PlayerMP client : clients.values()){
 						if(!client.name.equals(senderName)) {
 							sendData(message, client.socket);
 	
 						}
 					}
-				/*}else {
-					Main.err("(SERVER) Client tried to destroy air block:" + message);
-				}*/
 
 				break;
 			case "07": // EDIT METADATA
@@ -367,11 +292,8 @@ public class GameServer extends Thread{
 					sendData(message, client.socket);
 				}
 				break;
-			case "13": // ADD TO BLOCK INVENTORY
+			case "13": // ADD TO BLOCK INVENTORY TODO még elvileg nem megy
 				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
-				//if(Main.GAME != null && Main.GAME.remoteInventory.getInv().items.size()==0) TODO ez kellhet
-				//	Main.GAME.SwitchInventory(true);
-				//clients.get(part[1]).inventory.addMore(Main.Items.get(part[2]), cInt(part[3]));
 				for(PlayerMP client : clients.values()){
 					if(!client.name.equals(senderName)) {
 						sendData(("13," + part[2] + "," + part[3] + "," + part[4] + "," + part[5] + "," + part[6]), client.socket);
@@ -379,40 +301,22 @@ public class GameServer extends Thread{
 						Main.log("Block inv insert forwarded to "+client.name);
 					}
 				}
-				//sendData(message,socketstream);
 				break;
 			case "14": // SWAP BLOCKS
-				//boolean addToLocal = Boolean.parseBoolean(part[6]);
-				//clients.get(part[1]).inventory.add(Main.Items.get(part[5]), addToLocal?1:-1, false);
-				//((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal?-1:1, false);
 				for(PlayerMP client : clients.values()){
-					//if(client.username.equals(senderName)) {
-						sendData(message, client.socket);
-
-						Main.log("item swap forwarded to "+senderName);
-					//}
+					sendData(message, client.socket);
+					Main.log("item swap forwarded to "+senderName);
 				}
 				break;
 			case "15": // SPAWN ENTITY
-				/*String className = part[1];
-				Vector pos2=new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-				EAngle aim=new EAngle(Float.parseFloat(part[5]), Float.parseFloat(part[6]));
-				String name=part[7];
-				long ID=Long.parseLong(part[8]);
-				Entity e = Entity.createEntity(className, pos2, aim, name, ID); 
-				Engine.world.addEntity(e);*/
 				for(PlayerMP client : clients.values()){
-					//if(!client.name.equals(part[7])) { // respawnnal ne kuldje vissza
 						sendData(message, client.socket);
-
-					//}
 				}
 				break;
 			case "16": // MOVE ENTITY
 				long parsedID = Long.parseLong(part[1]);
 				Entity e = Engine.world.getEntity(parsedID);
 				if(e!=null) { 
-					//e.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
 					for(PlayerMP client : clients.values()){
 						if(client.socket != conn) {
 							sendData(message, client.socket);
@@ -425,22 +329,9 @@ public class GameServer extends Thread{
 				}
 
 				break;
-			/*case "17": // KILL ENTITIY
-				//Engine.world.killEntity(Long.parseLong(part[1]), false);
-				for(PlayerMP client : clients.values()){
-					//if(!client.name.equals(Config.username)) {
-						sendData(message, client.socket);
-
-					//}
-				}
-				break;*/
 			case "18": // HURT ENTITIY
-				//Engine.world.getEntity(Long.parseLong(part[1])).hurt(Integer.parseInt(part[2]),false);
 				for(PlayerMP client : clients.values()){
-					//if(!client.name.equals(Config.username)) {
 						sendData(message, client.socket);
-
-					//}
 				}
 				break;
 			case "ping":
@@ -488,12 +379,6 @@ public class GameServer extends Thread{
 
 	private void dropClient(String name) {
 		PlayerMP playerData=clients.get(name);
-		/*for(PlayerMPData client2 : clients.values()){
-			if(client2.socket.equals(socket)) {
-				playerData=client2;
-				break;
-			}
-		}*/
 		if(playerData != null) {
 			for(PlayerMP client : clients.values()){
 				if(!playerData.name.equals(client.name))
@@ -506,46 +391,16 @@ public class GameServer extends Thread{
 		}else {
 			Main.err("Client "+ name+" couldn't be removed ("+clients+")");
 		}
-			
-		
-		
-		
-		/*for(PlayerMPData mpdata : clients.values()) {
-			if(mpdata.socket == socket) {
-				clients.remove(mpdata.username);
-				break;
-			}
-		}*/
-		
-		
-		
-		/*try {
-			socket.socket.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}*/
-		
 		
 	}
 	
-	/*private void dropClient(String username) {
-		dropClient(clients.get(username).socket);
-	}*/
-	
 	
 
-	
 	public void kill(){
 		serverRunning=false;
 	}
 	
 	
-
-
-
-	
-	
-
 
 	private static int cInt(String data){
 		try{

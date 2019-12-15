@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -55,14 +54,9 @@ public class Main
 
 	public final static JFrame Frame = new JFrame();
 	public static Game GAME;
-	/*
-	 * public static HashMap<String, String> BlockRegistry = new HashMap<>(); public
-	 * static HashMap<String, BufferedImage> ItemTextures = new HashMap<>(); public
-	 * static HashMap<String, BufferedImage> ViewmodelTextures = new HashMap<>();
-	 */
+
 	public static final HashMap<String, ItemType> Items = new HashMap<>(20);
 
-	// public static byte MMframeCount = 0;
 
 	public static Surface lamp;
 	public static final ArrayList<String> ModRegistry = new ArrayList<>();
@@ -81,7 +75,6 @@ public class Main
 	
 	static Clip BGMusic;
 
-	//static boolean focused = true;
 	static BufferedImage GUIBG;
 	static BufferedImage Logo;
 	static BufferedImage MainMenuBG, PausedBG, SettingsBG;
@@ -91,9 +84,8 @@ public class Main
 	static String PreviousCLCard = "";
 	static long seed;
 
-	// public static AffineTransform at;
 
-	static Color skyColor = Color.BLACK;// new Color(161, 191, 217);
+	static Color skyColor = Color.BLACK;
 	static boolean sound = true;
 	private static AudioInputStream BGAudioStream;
 
@@ -108,34 +100,17 @@ public class Main
 
 	static int screen;
 	public static int Width;
-	//static FileOutputStream logStream;
 	public static int Height;
 	
 	
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception
 	{
-		/*try
-		{
-			logStream=new FileOutputStream("log.txt", true);
-			if(!devmode) { // ha nincs debug, a fájlba írja a kivételeket
-				PrintStream out = new PrintStream(logStream);
-				System.setErr(out);
-			}
-		} catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}*/
-		
+
 		System.setOut(new ProxyPrintStream(System.out, "log.txt"));
         System.setErr(new ProxyPrintStream(System.err, "log.txt"));
 		
-		/*javax.swing.SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{*/
-        
+
         List<String> params = Arrays.asList(args);
         String name=null,map=null;
         for(int i=0;i<params.size();i++) {
@@ -161,39 +136,18 @@ public class Main
 		
 	}
 
-	/*private static void launchDevWorld()
-	{
 
-		GAME = new Game("", 0, LoadMethod.DEVELOPMENT, new JLabel());
-		if(GAME.error != null) {
-			Main.err(GAME.error);
-			JOptionPane.showMessageDialog(Main.Frame, "Error:"+GAME.error);
-			GAME=null;
-			return;
-		}
-
-	
-		openGame();
-	}*/
 
 	public static void setupWindow(String username)
 	{
 		if(username == null) {
-		//if (Config.username.equals("Guest"))
-		//{
-			//Config.Prefs.remove("username");
-			//Config.username = "Guest" + new Random().nextInt(100000);
-		//}
+
 
 		String username2 = JOptionPane.showInputDialog("Enter username", Config.username);
 		Config.username = username2 == null ? Config.username : username2;
 
 		Config.save();
 		}else {
-			//if(username.equals("Guest")) {
-				
-			//}
-				
 			Config.username = username;
 		}
 
