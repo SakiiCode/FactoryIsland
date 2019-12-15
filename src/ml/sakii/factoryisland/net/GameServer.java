@@ -500,10 +500,9 @@ public class GameServer extends Thread{
 					sendData(("67," + playerData.name), client.socket);
 			}
 			
-			World.savePlayer(Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory, playerData.getHealth());
 			clients.remove(playerData.name);
 			Listener.Connections.remove(playerData.socket);
-			Main.log(playerData.name+"Logged out ("+clients+")");
+			Main.log(playerData.name+" logged out ("+playerData+")");
 		}else {
 			Main.err("Client "+ name+" couldn't be removed ("+clients+")");
 		}

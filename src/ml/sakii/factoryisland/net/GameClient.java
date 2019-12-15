@@ -17,9 +17,12 @@ import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Vector;
+import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.entities.Entity;
+import ml.sakii.factoryisland.entities.PlayerMP;
+import ml.sakii.factoryisland.items.ItemType;
 
 
 public class GameClient extends Thread{
@@ -232,6 +235,10 @@ public class GameClient extends Thread{
 		case "67": // DELETE PLAYER
 			for(Entity e : game.Engine.world.getAllEntities()) {
 				if(e.name.equals(otherName)) {
+					if(game.Engine.server != null) {
+						PlayerMP playerData = (PlayerMP)e;
+						World.savePlayer(game.Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory, playerData.getHealth());
+					}
 					game.Engine.world.Entities.remove(e.ID);
 					game.Objects.removeAll(e.Objects);
 				}
@@ -472,7 +479,7 @@ public class GameClient extends Thread{
 		//sendData("04," + username + "," + x + "," + y + "," + z + "," + yaw +"," + pitch);
 	}
 	
-	private void sendData(String data){
+	public void sendData(String data){
 		if(data.isEmpty()) {
 			Main.log("empty message from client");
 			return;
@@ -511,23 +518,24 @@ public class GameClient extends Thread{
 		
 	}
 	
-	public void kill(){
-		
-		Main.log("sending 66");
-
-		sendData(("66," + Config.username));
-		
-		synchronized (lock) {
+	public void kill(boolean send66){
+		if(send66) {
+			Main.log("sending 66");
+	
+			sendData(("66," + Config.username));
 			
-			try
-			{
-				lock.wait();
-			} catch (InterruptedException e)
-			{
-				e.printStackTrace();
+			synchronized (lock) {
+				
+				try
+				{
+					lock.wait();
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				
+				
 			}
-			
-			
 		}
 		
 		terrainLoaded=true;
