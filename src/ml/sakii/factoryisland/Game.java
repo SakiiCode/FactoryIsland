@@ -1276,8 +1276,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				if (Engine.client != null)
 				{
 						Main.log("disconnecting from multiplayer");
+						if(error != null) {
+							Engine.client.kill(false);
+						}else {
+							Engine.client.kill(true);
+						}
 						
-						Engine.client.kill();
 		
 					if (Engine.server != null)
 					{

@@ -123,24 +123,24 @@ public class GameServer extends Thread{
 					ArrayList<Block> Blocks =Engine.world.getWhole(false); 
 					int size = Blocks.size();
 					for(int i = 0; i<size; i= i+(Main.MP_PACKET_EACH)){
-						String message2 = "";
-						String message3 = "";
+						StringBuilder message2=new StringBuilder();
+						StringBuilder message3=new StringBuilder();
 						for(int j = 0; j < (Main.MP_PACKET_EACH);j++){
 							int index = i+j;
 							if(index < size){
 								Block b = Blocks.get(index);
-								message2 += "01," + b.toString() + ",";
+								message2.append("01," + b.toString() + ",");
 								if(b.BlockMeta.size()>0){
 									for(Entry<String,String> metadata : b.BlockMeta.entrySet()){
-										message3 += "08," + b.x + "," + b.y + "," + b.z + "," + metadata.getKey() + "," + metadata.getValue() + ",";
+										message3.append("08," + b.x + "," + b.y + "," + b.z + "," + metadata.getKey() + "," + metadata.getValue() + ",");
 									}
 								}
 							}else{
 								break;
 							}
 						}
-						sendData(message2, conn);
-						sendData(message3, conn);
+						sendData(message2.toString(), conn);
+						sendData(message3.toString(), conn);
 						
 					}
 					
@@ -414,7 +414,7 @@ public class GameServer extends Thread{
 				if(e!=null) { 
 					//e.move(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]), false);
 					for(PlayerMP client : clients.values()){
-						if(client.ID != Long.parseLong(part[1])) {
+						if(client.socket != conn) {
 							sendData(message, client.socket);
 	
 						}

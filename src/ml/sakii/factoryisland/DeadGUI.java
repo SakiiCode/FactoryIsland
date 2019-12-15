@@ -65,6 +65,7 @@ public class DeadGUI extends JPanel implements ActionListener, KeyListener {
 			Main.GAME.resume();
 		}
 		if(e.getActionCommand().equals("exit")) {
+			//TODO ilyenkor mpben nem menti a poziciot es inventoryt
 			Main.GAME.disconnect(null);
 		}
 	}

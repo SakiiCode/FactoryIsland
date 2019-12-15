@@ -440,13 +440,14 @@ public class World {
 		
 	}
 
-	public PlayerMP parsePE(String username, GameEngine engine) {
-		PlayerMP result = new PlayerMP(engine);
+
+	
+	public void parsePE(String username, PlayerMP result) {
 		result.getPos().set(loadVector(username, new String[] {"x","y","z"}));
 		float[] other = loadVector(username, new String[] {"yaw", "pitch", "health"});
 		result.ViewAngle.set(other[0],other[1]);
 		result.setHealth((int) other[2]);
-		return result;
+		result.name = username;
 	}
 	
 	public float[] loadVector(String username, String params[]) {
@@ -728,8 +729,9 @@ public class World {
 		if(game != null) {
 			if(e == game.PE) {
 				game.notifyDeath();
+			}else {
+				game.Objects.removeAll(e.Objects);
 			}
-			game.Objects.removeAll(e.Objects);
 		}
 		
 		Entities.remove(ID);

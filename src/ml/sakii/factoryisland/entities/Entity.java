@@ -237,7 +237,7 @@ public class Entity{
 	public String toString()
 	{
 		//return "[" + ViewFrom + "," + className + "]\r\n";
-		return ID+","+ViewFrom;
+		return ID+","+ViewFrom+","+ViewAngle;
 	}
 	
 	
