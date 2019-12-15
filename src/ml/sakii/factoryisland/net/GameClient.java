@@ -136,7 +136,7 @@ public class GameClient extends Thread{
 
 			
 			if(Main.devmode && !message.substring(0, 2).equals("16")) {
-					Main.log("(CLIENT:"+Config.username+") RECEIVED:  "+message);
+					Main.log("(CLIENT:"+Config.username+":"+game.PE.ID+") RECEIVED:  "+message);
 			}
 			
 
@@ -493,9 +493,9 @@ public class GameClient extends Thread{
 			if(Main.devmode) {
 				String code = data.split(",")[0];
 				if(ALLCODES.contains(code)){
-					//if(!code.equals("16")) {
+					if(!code.equals("16")) {
 						Main.log("(CLIENT:"+Config.username+") SENT:      "+data);
-					//}
+					}
 				}else if(!data.isEmpty()){
 					Main.log("(CLIENT:"+Config.username+") I DUNNO WAT I SENT LOL:  "+data);
 				}

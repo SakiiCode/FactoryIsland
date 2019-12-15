@@ -462,10 +462,16 @@ public class GameServer extends Thread{
 			outToClient.write(data);
 			outToClient.newLine();
 			outToClient.flush();
+			String target = "UNKNOWN";
+			for(PlayerMP client : clients.values()) {
+				if(client.socket == socket) {
+					target = client.name;
+				}
+			}
 			if(Main.devmode) {
 				if(GameClient.ALLCODES.contains(data.split(",")[0])){
 					if(!data.substring(0, 2).equals("16"))
-					Main.log("(SERVER) SENT:      "+data);
+					Main.log("(SERVER->"+target+") SENT:      "+data);
 				}else{
 					Main.log("(SERVER) I DUNNO WAT I SENT LOL:  "+data);
 				}
