@@ -9,7 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Paint;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -21,12 +20,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
+import java.awt.image.RescaleOp;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,9 +99,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	 boolean localInvActive = true;
 	 final int MAXSAMPLES = 30;
-	 Kernel kernel = new Kernel(3, 3, new float[]
-	{ 1f / 40f, 1f / 40f, 1f / 40f, 1f / 40f, 1f / 40f, 1f / 40f, 1f / 40f, 1f / 40f, 1f / 40f });
-	 BufferedImageOp op = new ConvolveOp(kernel);
+	 BufferedImageOp op;
 
 	 float measurement;
 	 Vector previousPos;
@@ -276,6 +271,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		dx = -Config.zoom * dP.x + centerX;
 		dy = -Config.zoom * dP.y + centerY;
 
+
+		    op = new RescaleOp(
+		            new float[]{0.2f, 0.2f, 0.2f, 1f}, // scale factors for red, green, blue, alpha
+		            new float[]{0, 0, 0, 0}, // offsets for red, green, blue, alpha
+		            null);
+		
 		try
 		{
 			rob = new Robot();
@@ -314,15 +315,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				CalcAverageTick();
 			}
 
-			if (Main.Frame.isActive() && centered)
+			if (Main.Frame.isActive())
 			{
-				Point arg0 = MouseInfo.getPointerInfo().getLocation();
-				difX = McenterX - (float) (arg0.getX());
-				difY = McenterY - (float) (arg0.getY());
-			}
-
-			if ((Main.Frame.isActive()))
-			{
+				
+				if(centered) {
+					Point arg0 = MouseInfo.getPointerInfo().getLocation();
+					difX = McenterX - (float) (arg0.getX());
+					difY = McenterY - (float) (arg0.getY());
+				}else {
+					difX=0;
+					difY=0;
+				}
+				
 				try
 				{
 					rob.mouseMove((int) McenterX, (int) McenterY);
@@ -331,10 +335,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 					Main.log("Could not center mouse:" + e.getMessage());
 				}
-			}else if(!Main.Frame.isActive() && !Main.nopause){
+			}else if(!Main.nopause){
 				Main.log("game not in focus");
-				pause();
-
+				new Thread() {
+					@Override
+					public void run() {
+						pauseTo("pause");
+					}
+				}.start();
 				return;
 			}
 
@@ -872,9 +880,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				locked = !locked;
 			}
 
-		}
-		if (arg0.getKeyCode() == KeyEvent.VK_F)
-		{
 			for(Point3D t : Engine.TickableBlocks) {
 				Block b = Engine.world.getBlockAtP(t);
 				System.out.println(b);
@@ -911,7 +916,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
 		{
-			pause();
+			pauseTo("pause");
 		}
 
 		if (arg0.getKeyCode() == KeyEvent.VK_T)
@@ -1168,7 +1173,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 			
 				renderThread.kill();
-
 				Engine.ticker.stop();
 				Engine.stopPhysics();
 				if (Engine.client != null)
@@ -1213,10 +1217,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	}
 
 
-	void pause()
-	{
-		pauseTo("pause");
-	}
 	
 	private void pauseTo(String UiName) {
 		renderThread.kill();
@@ -1235,7 +1235,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.stopPhysics();
 		}
 		
-		//Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
 
 		centered = false;
 		setCursor(Cursor.getDefaultCursor());
@@ -1298,9 +1297,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
-		bufferArea.reset();
-		bufferArea.add(new Area(new Rectangle(FrameBuffer.getWidth(),FrameBuffer.getHeight())));
-		prevFrame = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
 
 		centerX = w / 2;
 		centerY = h / 2;

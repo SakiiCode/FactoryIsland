@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -77,7 +78,7 @@ public class Main
 
 	static BufferedImage GUIBG;
 	static BufferedImage Logo;
-	static BufferedImage MainMenuBG, PausedBG, SettingsBG;
+	static BufferedImage MainMenuBG, PausedBG, SettingsBG, originalPausedBG;
 	static BufferedImage MenuButtonTexture;
 	static ArrayList<String> Mods = new ArrayList<>();
 
@@ -370,6 +371,7 @@ public class Main
 		Logo = loadTexture("textures/logo.png");
 		MainMenuBG = loadTexture("textures/mainmenu.png");
 		PausedBG = loadTexture("textures/paused.png");
+		originalPausedBG = loadTexture("textures/paused.png");
 		SettingsBG = loadTexture("textures/settings.png");
 
 		MenuButtonTexture = loadTexture("textures/button.png");
