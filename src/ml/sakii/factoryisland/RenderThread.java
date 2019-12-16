@@ -3,6 +3,13 @@ package ml.sakii.factoryisland;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 public class RenderThread extends Thread
 {
@@ -31,12 +38,17 @@ public class RenderThread extends Thread
 		Graphics graphics = strategy.getDrawGraphics();
 		while(running) {
 			try {
-				if(Config.directRendering) {
+				if(Config.directRendering && !screenshot) {
 					game.render(graphics);
 					strategy.show();
 				}else {
 					game.render(game.FrameBuffer.getGraphics());
 					game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
+					if(screenshot) {
+						game.prevFrame = Main.deepCopy(game.FrameBuffer);
+						saveScreenshot(game.prevFrame);
+						screenshot=false;
+					}
 				}
 				
 				
@@ -54,10 +66,9 @@ public class RenderThread extends Thread
 
 	}
 	
-	/* Direkt rendereleshez nem megoldhato
-	 * private void saveScreenshot(Graphics g) {
+	 private void saveScreenshot(BufferedImage img) {
 		
-		if(screenshot && !screenshotstarted) {
+		if(!screenshotstarted) {
 			
 			
 			screenshotstarted=true;
@@ -77,7 +88,6 @@ public class RenderThread extends Thread
 							e.printStackTrace();
 						}
 						Main.log("Screenshot saved");
-						screenshot=false;
 						screenshotstarted=false;
 
 	
@@ -87,7 +97,7 @@ public class RenderThread extends Thread
 			});
 
 		}
-	}*/
+	}
 	
 	public void kill() {
 		running=false;

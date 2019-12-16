@@ -976,10 +976,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			key[6] = false;
 		}
-		/*if (arg0.getKeyCode() == KeyEvent.VK_F2)
+		if (arg0.getKeyCode() == KeyEvent.VK_F2)
 		{
 			renderThread.screenshot=true;
-		}*/
+		}
 		
 		if (arg0.getKeyCode() == KeyEvent.VK_F1)
 		{
