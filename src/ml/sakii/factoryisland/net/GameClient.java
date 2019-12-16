@@ -149,6 +149,8 @@ public class GameClient extends Thread{
 			
 		}
 		
+		exit();
+		
 		
 
 	}
@@ -261,13 +263,9 @@ public class GameClient extends Thread{
 		case "pong":
 			Main.log("ping time: " + (System.currentTimeMillis()-pingTime) + " ms");
 			break;
-		case "66":
-			synchronized(lock) {
-				lock.notifyAll();
-				
-			}
-			exit();
-			
+		case "66": // CONFIRM DISCONNECT
+			terrainLoaded=true;
+			connected=false;			
 			break;
 		default:
 			Main.err("(CLIENT) Unknown message received: "+message);
@@ -476,11 +474,11 @@ public class GameClient extends Thread{
 				
 				
 			}
-		}
+		}else {
 		
 		terrainLoaded=true;
 		connected=false;
-		
+		}
 		
 	}
 	
