@@ -398,6 +398,11 @@ public class GameServer extends Thread{
 
 	public void kill(){
 		serverRunning=false;
+		try {
+			this.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

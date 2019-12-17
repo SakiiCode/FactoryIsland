@@ -479,6 +479,11 @@ public class GameClient extends Thread{
 		terrainLoaded=true;
 		connected=false;
 		}
+		try {
+			this.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	

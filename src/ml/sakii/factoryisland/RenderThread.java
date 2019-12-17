@@ -101,6 +101,11 @@ public class RenderThread extends Thread
 	
 	public void kill() {
 		running=false;
+		try {
+			this.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

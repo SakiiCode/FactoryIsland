@@ -1183,20 +1183,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						}else {
 							Engine.client.kill(true);
 						}
-						try {
-							Engine.client.join();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+						
 		
 					if (Engine.server != null)
 					{
 						Engine.server.kill();
-						try {
-							Engine.server.join();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+
 					}
 		
 		
@@ -1220,11 +1212,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	private void pauseTo(String UiName) {
 		renderThread.kill();
-		try {
-			renderThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+
 		if(Config.directRendering) {
 			Main.PausedBG=Main.originalPausedBG;
 		}else {
