@@ -45,7 +45,6 @@ public class GameClient extends Thread{
 	long pingTime;
 	private boolean terrainLoaded=false;
 	
-	private final Object lock = new Object();
 	
 	
 	public GameClient(Game game){
@@ -401,7 +400,7 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveInvBlockAdd(String[] part) {
-		((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]))).getInv().add(Main.Items.get(part[4]), cInt(part[5]), false);
+		((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
 	}
 	
 	public void sendInvPlayerAdd(String username, ItemType kind, int amount) {
@@ -462,22 +461,10 @@ public class GameClient extends Thread{
 	
 			sendData(("66," + Config.username));
 			
-			synchronized (lock) {
-				
-				try
-				{
-					lock.wait();
-				} catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				
-				
-			}
 		}else {
 		
-		terrainLoaded=true;
-		connected=false;
+			terrainLoaded=true;
+			connected=false;
 		}
 		try {
 			this.join();

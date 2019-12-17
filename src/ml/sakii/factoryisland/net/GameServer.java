@@ -184,11 +184,11 @@ public class GameServer extends Thread{
 							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.getHealth()+","+e.ID, conn);
 					}
 					
-					//és a blockok inventoryját
+					//és a blokkok inventoryját
 					for(Block b : Engine.world.getWhole(false)) {
 						if(b instanceof BlockInventoryInterface) {
 							for(Entry<ItemType,Integer> entry : ((BlockInventoryInterface) b).getInv().items.entrySet()) {
-								sendData("13,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), conn);
+								sendData("13,SERVER,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), conn);
 							}
 						}
 					}
@@ -274,7 +274,7 @@ public class GameServer extends Thread{
 					}
 
 				break;
-			case "07": // EDIT METADATA
+			case "07": // EDIT METADATA TODO tesztelni
 				Block bl = Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
 				if(bl != Block.NOTHING) {
 					
@@ -293,13 +293,14 @@ public class GameServer extends Thread{
 				}
 				break;
 			case "13": // ADD TO BLOCK INVENTORY TODO még elvileg nem megy
-				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
+//				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
 				for(PlayerMP client : clients.values()){
-					if(!client.name.equals(senderName)) {
-						sendData(("13," + part[2] + "," + part[3] + "," + part[4] + "," + part[5] + "," + part[6]), client.socket);
+//					if(!client.name.equals(senderName)) {
+//						sendData(("13," + part[2] + "," + part[3] + "," + part[4] + "," + part[5] + "," + part[6]), client.socket);
+					sendData(message, client.socket);
 
 						Main.log("Block inv insert forwarded to "+client.name);
-					}
+//					}
 				}
 				break;
 			case "14": // SWAP BLOCKS
