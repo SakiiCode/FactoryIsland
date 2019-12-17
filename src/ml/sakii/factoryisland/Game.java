@@ -1218,9 +1218,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}else {
 			Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
 		}
-		if (Engine.server == null && Engine.client ==  null) { // ezek multiplayerben nem allhatnak le
+		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
 			Engine.ticker.stop();
-			Engine.stopPhysics();
+			Engine.stopPhysics();//tavoli mpnel nem is futott ugyhogy mindegy
 		}
 		
 
@@ -1266,7 +1266,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if(!Engine.ticker.isRunning()) {
 			Engine.ticker.start();
 		}
-		if(!Engine.physics.isRunning()) {
+		if(!Engine.physics.isRunning() && (Engine.isSingleplayer() || Engine.isLocalMP())) {
 			Engine.startPhysics();
 		}
 		firstframe = true;

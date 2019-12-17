@@ -814,33 +814,19 @@ public class GameEngine{
 	public void startPhysics() {
 		physics2=System.currentTimeMillis();
 		physics.start();
-		//physics = new java.util.Timer();
-		//physics.scheduleAtFixedRate(task, 0, 1000/physicsFPS);
-		/*if(physics != null) {
-		//	Main.err("physics thread already created:"+physics.toString());
-		//	new Exception().printStackTrace(System.out);
-		}else {
-			//physics = new PhysicsThread(this);
-			//physics=new Timer();
-
-		//	Main.log("physics started");
-		//	new Exception().printStackTrace(System.out);
-
-		}*/
 	}
 	
 	public void stopPhysics() {
 		physics.stop();
-		//physics.cancel();
-		/*if(physics == null) {
-		//	Main.err("physics thread not created");
-		//	new Exception().printStackTrace(System.out);
-//
-		}else {
-			physics=null;
-		//	Main.log("physics stopped");
-		//	new Exception().printStackTrace(System.out);
-
-		}*/
+	}
+	
+	public boolean isSingleplayer() {
+		return client == null && server == null;
+	}
+	public boolean isLocalMP() {
+		return client != null && server != null;
+	}
+	public boolean isRemoteMP() {
+		return client != null && server == null;
 	}
 }

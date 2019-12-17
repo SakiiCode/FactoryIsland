@@ -322,7 +322,7 @@ public class Main
 	private static void openGame() {
 		Main.log("Game setup done.");
 		GAME.Engine.ticker.start();
-		if(GAME.Engine.client == null)
+		if(GAME.Engine.isSingleplayer())
 			GAME.Engine.startPhysics();
 		
 		
