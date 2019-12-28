@@ -266,23 +266,11 @@ public class GameEngine{
 							if(!(e instanceof PlayerMP)) {
 								data.append(",");
 								data.append(e);
-								
+								counter++;
 							}
-							counter++;
 						}
 						if(counter>0) {
-							/*for(Entry<String,PlayerMP> entry : server.clients.entrySet()) {
-								String name = entry.getKey();
-								if(!name.equals(Config.username)) {
-									
-									server.sendData(data.toString(), entry.getValue().socket);
-	//								for(Entity e : world.getAllEntities()) { // TODO batch send
-	//									if(!(e instanceof PlayerMP)) {
-	//										server.sendData(GameClient.constructEntityMove(e.ID, e.getPos().x, e.getPos().y, e.getPos().z, e.ViewAngle.yaw, e.ViewAngle.pitch), entry.getValue().socket);
-	//									}
-	//								}
-								}
-							}*/
+
 							client.sendData(data.toString());
 						}
 					}
@@ -291,7 +279,8 @@ public class GameEngine{
 				Tick++;
 
 
-            }};
+            }
+        };
 
         ticker = new Timer((int)(1000*Main.TICKSPEED) , tickPerformer);
 
@@ -402,7 +391,7 @@ public class GameEngine{
 
 
             
-            };
+        };
     	
     	
         
