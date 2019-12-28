@@ -25,7 +25,7 @@ public class SocketListener extends Thread {
 	public SocketListener(TCPListener Listener) {
 		try {
 			try {
-	            this.socket = new ServerSocket(1420);
+	            this.socket = new ServerSocket(GameServer.DEFAULT_PORT);
 	        } catch (@SuppressWarnings("unused") IOException ex) {
 	        	this.socket = new ServerSocket(0);
 	        }

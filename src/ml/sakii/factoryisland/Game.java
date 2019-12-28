@@ -177,7 +177,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 			String[] addr = location.split(":");
-			int port = 1420;
+			int port = GameServer.DEFAULT_PORT;
 			if (addr.length != 1)
 			{
 				port = Integer.parseInt(addr[1]);

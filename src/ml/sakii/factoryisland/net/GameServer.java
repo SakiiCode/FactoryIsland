@@ -31,6 +31,7 @@ public class GameServer extends Thread{
 
 	public TCPListener Listener;
 	
+	public static final int DEFAULT_PORT = 1420;
 	
 	public GameServer(GameEngine engine){
 		Engine = engine;
