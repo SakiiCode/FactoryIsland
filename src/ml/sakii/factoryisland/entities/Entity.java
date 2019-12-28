@@ -85,10 +85,10 @@ public class Entity{
 		
 		
 		
-		//top TODO nem jó
+		//top
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
-		//bottom TODO nem jó
-		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, xy1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		//bottom
+		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, x1y1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//left
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//right
