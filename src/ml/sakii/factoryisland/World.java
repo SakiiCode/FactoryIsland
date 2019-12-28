@@ -462,7 +462,6 @@ public class World {
 		
 		Blocks.put(b.pos, b);
 		
-		//TODO itt fordított sorrend kellhet
 
 		
 		for (Block entry : get6Blocks(b, false).values()) {

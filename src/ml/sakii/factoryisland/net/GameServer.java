@@ -275,17 +275,9 @@ public class GameServer extends Thread{
 					}
 
 				break;
-			case "07": // EDIT METADATA TODO tesztelni
-				Block bl = Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
-				if(bl != Block.NOTHING) {
-					
-					bl.setMetadata(part[4], part[5], false);
-				}
+			case "07": // EDIT METADATA
 				for(PlayerMP client : clients.values()){
-					if(!client.name.equals(Config.username)) {
-						sendData(message, client.socket);
-
-					}
+					sendData(message, client.socket);
 				}
 				break;
 			case "10": // ADD TO INVENTORY
@@ -293,7 +285,7 @@ public class GameServer extends Thread{
 					sendData(message, client.socket);
 				}
 				break;
-			case "13": // ADD TO BLOCK INVENTORY TODO még elvileg nem megy
+			case "13": // ADD TO BLOCK INVENTORY
 //				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
 				for(PlayerMP client : clients.values()){
 //					if(!client.name.equals(senderName)) {

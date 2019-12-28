@@ -56,7 +56,7 @@ public class Vertex extends Vector{
 	}
 	
 	public UVZ getUVZ(int[] uv) {
-		double z = Copy.set(this).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector); //TODO lehet hogy a copy ide nem jó
+		double z = Copy.set(this).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector);
 		//ViewToPoint;//= Main.GAME.PE.ViewFrom.to(pos);//pos.add(Main.GAME.PE.ViewFrom.multiply(-1)); 
 		 //= ViewToPoint;
 		UVZ uvz=new UVZ();

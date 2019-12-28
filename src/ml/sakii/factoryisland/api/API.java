@@ -12,7 +12,7 @@ public class API {
 	
 	public static void setBlock(String name, int x, int y, int z) {
 		Block b = new Block(name, x, y, z);
-		Main.GAME.Engine.world.addBlockNoReplace(b.b, true);//TODO itt replace volt
+		Main.GAME.Engine.world.addBlockNoReplace(b.b, true);
 	}
 	
 	public static void deleteBlock(int x, int y, int z) {
@@ -27,7 +27,7 @@ public class API {
 	}
 	
 	public static void setBlock(Block b) {
-		Main.GAME.Engine.world.addBlockNoReplace(b.b, true);//TODO itt replace volt
+		Main.GAME.Engine.world.addBlockNoReplace(b.b, true);
 	}
 	
 	public static void teleport(float x, float y, float z) {

@@ -152,10 +152,7 @@ public class Block extends Object3D
 			{
 				if (b2 instanceof TickListener && (Engine.client == null || (Engine.client != null && Engine.client != null)))
 				{
-					//addToUpdates((TickListener) b2);
-					//if(!Engine.TickableBlocks.contains(b2.pos)) { TODO ez kellhet
-						Engine.TickableBlocks.add(b2.pos);
-					//}
+					Engine.TickableBlocks.add(b2.pos);
 				}
 			}
 			

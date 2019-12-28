@@ -314,6 +314,8 @@ public class GameClient extends Thread{
 		Block bl = game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
 		if(bl != Block.NOTHING) {
 			bl.setMetadata(part[4], part[5], false);
+		}else {
+			Main.err("Metadata edit on empty block");
 		}
 	}
 	
@@ -395,7 +397,7 @@ public class GameClient extends Thread{
 	}
 	
 	public void sendInvBlockAdd(String username, Block b, String name, int amount) {
-		sendData("13,"+username+","+b.x+","+b.y+","+b.z+","+name+","+amount); //TODO nem stimmel
+		sendData("13,"+username+","+b.x+","+b.y+","+b.z+","+name+","+amount);
 
 	}
 	

@@ -169,7 +169,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		
 		}
 
-		PE=new PlayerMP(Config.username, Engine);
+		PE=new PlayerMP(Config.username,new Vector(19.5f, 19.5f, 15.0f), -135,0,20, new PlayerInventory(Config.username,Engine),null,0, Engine); // alap playermp
 		Engine.world.addEntity(PE, false);
 
 		switch(loadmethod) {

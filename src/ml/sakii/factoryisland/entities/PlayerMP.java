@@ -25,10 +25,6 @@ public class PlayerMP extends Entity {
 		showName=true;
 		Objects.add(new Text3D(name, ViewFrom.x, ViewFrom.y, ViewFrom.z));
 	}
-	
-	public PlayerMP(String username, GameEngine engine) { // atmeneti, parse elotti inicializalashoz TODO valszeg megkerulheto
-		this(username,new Vector(19.5f, 19.5f, 15.0f), -135,0,20, new PlayerInventory(username,engine),null,0, engine);
-	}
 
 	
 

@@ -402,7 +402,6 @@ public class GameEngine{
 	}
 
 	static void doGravity(Entity entity, World world, int physicsFPS) {//, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
-		//TODO lehet h tudnak alienek a levegoben setalni
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
 		//Point3D feetPoint=entity.feetPoint;
