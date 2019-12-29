@@ -1134,29 +1134,14 @@ public class World {
 		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
 		
-		if(Engine.server == null) { // singleplayer, game-bõl szedi az adatokat
-			//HashMap<PlayerMPData, Inventory> map = new HashMap<>();
-			//map.put(new PlayerMPData(0, null, new float[] {game.PE.ViewFrom.x, game.PE.ViewFrom.y, game.PE.ViewFrom.z}, game.ViewAngle.yaw, Config.username), Engine.Inv);
-			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT);
-
-			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? game.tmpInventory : game.PE.inventory, game.PE.getHealth());
-		}else { //multiplayer, engine.server-bõl szedi az adatokat
-			//saveWorld(worldName, new ArrayList<>(Blocks.values()), Engine.Tick, CHUNK_HEIGHT); 
-			//saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities());
-			
-			//HashMap<PlayerMPData, Inventory> map = new HashMap<>();
-			
-			
-			
-			for(PlayerMP data : Engine.server.clients.values()) {
-				//map.put(key, value)
-				
-
-				
+		if(Engine.server != null) {
+			for(PlayerMP data : Engine.server.clients.values()) { // mentes utan ki vannak leptetve
 				savePlayer(worldName, data.name, data.getPos(), data.ViewAngle, data.inventory, data.getHealth());
 			}
-			
 		}
+		
+		//helyi jatekost mar kilottuk a clients-bol, ezert mindenkepp el kell menteni
+		savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? game.tmpInventory : game.PE.inventory, game.PE.getHealth());
 	}
 
 	public static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {

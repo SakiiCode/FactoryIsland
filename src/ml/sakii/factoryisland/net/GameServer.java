@@ -81,7 +81,7 @@ public class GameServer extends Thread{
 		}
 		Engine.world.saveByShutdown();
 		
-		for(PlayerMP client : clients.values()){
+		for(PlayerMP client : clients.values()){ // helyi jatekos ilyenkor mar ki van lepve
 			sendData("98", client.socket);
 		}
 		
