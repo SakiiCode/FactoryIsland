@@ -771,7 +771,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		if (difX != 0)
 		{
-			PE.ViewAngle.yaw -= difX * (Config.sensitivity) / FPS * PE.VerticalVector.z;
+			PE.ViewAngle.yaw += difX * (Config.sensitivity) / FPS * PE.VerticalVector.z;
 
 		}
 		if (difY != 0)

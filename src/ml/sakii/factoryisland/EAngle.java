@@ -16,10 +16,12 @@ public class EAngle {
 	}
 	
 	public Vector toVector(){
+		double yaw2 = Math.toRadians(yaw);
+		double pitch2 = Math.toRadians(pitch);
 		toVector.set(
-				(float) (Math.sin(Math.toRadians(yaw))*Math.cos(Math.toRadians(pitch))),
-				(float) (Math.cos(Math.toRadians(yaw))*Math.cos(Math.toRadians(pitch))),
-				(float) Math.sin(Math.toRadians(pitch))).normalize();
+				(float) (Math.cos(yaw2)*Math.cos(pitch2)),
+				(float) (Math.sin(yaw2)*Math.cos(pitch2)),
+				(float) Math.sin(pitch2)).normalize();
 		return toVector;
 		
 		

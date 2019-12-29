@@ -360,7 +360,7 @@ public class GameEngine{
     								//lastupdate=time;
     							}
     							*/
-    							alien.ViewAngle.yaw=(float) Math.atan2(aim.x, aim.y);
+    							alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
     							alien.update();
     						}
     						

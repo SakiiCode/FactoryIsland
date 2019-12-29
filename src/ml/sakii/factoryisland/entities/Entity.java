@@ -89,13 +89,13 @@ public class Entity{
 		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		//bottom
 		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, x1y1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
-		//left
-		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
-		//right
-		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
-		//front
-		Objects.add(new Polygon3D(new Vertex[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front));
 		//back
+		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		//front
+		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front));
+		//left
+		Objects.add(new Polygon3D(new Vertex[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		//right
 		Objects.add(new Polygon3D(new Vertex[] {xyz1, x1yz1, x1yz0, xyz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
 		
 	}
@@ -171,7 +171,7 @@ public class Entity{
 	}
 	
 	private void init() {
-		float yaw2 = -ViewAngle.yaw;//(float) (-ViewAngle.yaw +Math.PI/2);
+		float yaw2 = (float) Math.toRadians(ViewAngle.yaw);
 
 		float x = ViewFrom.x;
 		float y = ViewFrom.y;
@@ -189,10 +189,10 @@ public class Entity{
 
 		
 		
-		fxy = rotateCoordinates(x-0.5f, y-1f, x, y, yaw2);
-		fxy1 = rotateCoordinates(x-0.5f, y, x, y, yaw2);
-		fx1y1 = rotateCoordinates(x+0.5f, y, x, y, yaw2);
-		fx1y = rotateCoordinates(x+0.5f,y-1f, x, y, yaw2);
+		fxy = rotateCoordinates(x-1f, y-0.5f, x, y, yaw2);
+		fxy1 = rotateCoordinates(x-1f, y+0.5f, x, y, yaw2);
+		fx1y1 = rotateCoordinates(x, y+0.5f, x, y, yaw2);
+		fx1y = rotateCoordinates(x,y-0.5f, x, y, yaw2);
 		
 	}
 	
