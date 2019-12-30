@@ -17,7 +17,6 @@ public class SocketListener extends Thread {
 
 	private boolean running=true;
 	private ServerSocket socket;
-	//private CopyOnWriteArrayList<Connection> Connections;
 	private TCPListener Listener;
 	public int port;
 	public String success="OK";
@@ -42,7 +41,6 @@ public class SocketListener extends Thread {
 			e.printStackTrace();
 		}
 		this.Listener = Listener;
-		//this.Connections = connections;
 	}
 	
 	@Override
@@ -55,25 +53,19 @@ public class SocketListener extends Thread {
 				s.setReceiveBufferSize(8196);
 				Connection conn = new Connection(new BufferedReader(new InputStreamReader(s.getInputStream())), new BufferedWriter(new OutputStreamWriter(s.getOutputStream())));
 				Listener.Connections.add(conn);
-				//Connections.add(ss);
 	    	} catch (IOException e) {
-	    		//if(e.getMessage().equalsIgnoreCase("Socket closed")) {
-	    			//Main.err(e.getMessage());
-	    		//	e.printStackTrace();
-	    		//}else {
-					e.printStackTrace();
-	    		//}
+					Main.log(e.getMessage());
 	    	}
     	}
-    	
-    	try {
-			this.socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
     }
 	
 	public void kill() {
 		running=false;
+		try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

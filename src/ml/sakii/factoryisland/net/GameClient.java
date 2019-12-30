@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.Game;
+import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
@@ -37,8 +38,9 @@ public class GameClient extends Thread{
 	public int packetCount, blockcount;
 	
 	
+	private GameEngine Engine;
 	private Game game;
-	private Socket socket;
+	Socket socket; // headles servernek tudnia kell
 	private BufferedWriter outputStream;
 	private BufferedReader inputStream;
 
@@ -47,14 +49,15 @@ public class GameClient extends Thread{
 	
 	
 	
-	public GameClient(Game game){
+	public GameClient(Game game, GameEngine Engine){
+		this.Engine = Engine;
 		this.game = game;
 		this.setName("GameClient");
 
 		
 	}
 	
-	public String connect(String ipAddress, int port, boolean sendPos) {
+	public String connect(String ipAddress, int port) {
 		try {
 			Main.log("Connecting... "+ipAddress+":"+port);
 			socket = new Socket(InetAddress.getByName(ipAddress), port);
@@ -62,12 +65,12 @@ public class GameClient extends Thread{
 			inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
 			sendData("ping");
-			if(sendPos) {
+			if(Engine.isRemoteMP()) {
 				sendData(("00,"+Config.username +","+ game.PE.getPos() +","+ Math.toRadians(game.PE.ViewAngle.yaw)+","+ Math.toRadians(game.PE.ViewAngle.pitch) + "," + game.PE.getHealth()));
 			}else {
 				sendData("00,"+Config.username);	
 			}
-			
+		
 			while(!terrainLoaded) {
 			
 			
@@ -134,13 +137,13 @@ public class GameClient extends Thread{
 
 			
 			if(Main.devmode && !message.substring(0, 2).equals("16")) {
-					Main.log("(CLIENT:"+Config.username+":"+game.PE.ID+") RECEIVED:  "+message);
+					Main.log("(CLIENT:"+Config.username+") RECEIVED:  "+message);
 			}
 			
 
 			String error = handleMessage(message);
 			if(error != null) {
-				game.disconnect(error);
+				disconnect(error);
 				break;
 			}
 			
@@ -163,19 +166,19 @@ public class GameClient extends Thread{
 			if(!part[1].equals(""+Connection.PROTOCOL_VERSION)) {
 				return "Incompatible server version: "+part[1] + "(current:"+Connection.PROTOCOL_VERSION+")";
 			}
-			game.Engine.world.Entities.remove(game.PE.ID);
+			Engine.world.Entities.remove(game.PE.ID);
 			game.PE.ID = Long.parseLong(part[2]);
-			game.Engine.world.Entities.put(game.PE.ID, game.PE);
-			game.Engine.Tick=Long.parseLong(part[3]);
+			Engine.world.Entities.put(game.PE.ID, game.PE);
+			Engine.Tick=Long.parseLong(part[3]);
 			break;
 		
 		case "01": // DOWNLOAD BLOCKS
 			
 			
 			for(int i = 0;i<part.length;i=i+5){
-				Block b = game.Engine.createBlockByName(part[i+1], cInt(part[i+2]), cInt(part[i+3]), cInt(part[i+4]));
+				Block b = Engine.createBlockByName(part[i+1], cInt(part[i+2]), cInt(part[i+3]), cInt(part[i+4]));
 				if(b != Block.NOTHING && b != null){
-					game.Engine.world.addBlockNoReplace(b, false);
+					Engine.world.addBlockNoReplace(b, false);
 					blockcount++;
 				}else{
 					Main.log("Could not parse received values as a block: " + part[i+1]+","+cInt(part[i+2])+","+cInt(part[i+3])+","+cInt(part[i+4]));
@@ -188,7 +191,7 @@ public class GameClient extends Thread{
 			
 			for(int i = 0;i<part.length;i=i+6){
 				
-				game.Engine.world.getBlockAt(cInt(part[i+1]), cInt(part[i+2]), cInt(part[i+3])).BlockMeta.put(part[i+4], part[i+5]);
+				Engine.world.getBlockAt(cInt(part[i+1]), cInt(part[i+2]), cInt(part[i+3])).BlockMeta.put(part[i+4], part[i+5]);
 			}
 			
 			
@@ -204,13 +207,13 @@ public class GameClient extends Thread{
 		case "67": // DELETE PLAYER
 			
 			
-			for(Entity e : game.Engine.world.getAllEntities()) {
+			for(Entity e : Engine.world.getAllEntities()) {
 				if(e.name.equals(otherName)) {
-					if(game.Engine.server != null) {
+					if(Engine.server != null) {
 						PlayerMP playerData = (PlayerMP)e;
-						World.savePlayer(game.Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory, playerData.getHealth());
+						World.savePlayer(Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory, playerData.getHealth());
 					}
-					game.Engine.world.Entities.remove(e.ID);
+					Engine.world.Entities.remove(e.ID);
 					game.Objects.removeAll(e.Objects);
 				}
 			}
@@ -237,7 +240,7 @@ public class GameClient extends Thread{
 			receiveInvSwap(part);
 			break;
 		case "98": // SERVER CLOSED
-			if(game.Engine.server == null) {
+			if(Engine.server == null) {
 				return "Server closed";
 			}
 			break;
@@ -288,11 +291,11 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveBlockPlace(String[] part) {
-		Block b = game.Engine.createBlockByName(part[2], cInt(part[3]), cInt(part[4]), cInt(part[5]));
+		Block b = Engine.createBlockByName(part[2], cInt(part[3]), cInt(part[4]), cInt(part[5]));
 		for(int i=6;i<part.length;i+=2) {
 			b.setMetadata(part[i], part[i+1], false);
 		}
-		game.Engine.world.addBlockNoReplace(b,false);
+		Engine.world.addBlockNoReplace(b,false);
 
 	}
 	
@@ -302,7 +305,7 @@ public class GameClient extends Thread{
 	}
 	
 	public void receiveBlockDestroy(String[] part) {
-		game.Engine.world.destroyBlock(game.Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4])), false);
+		Engine.world.destroyBlock(Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4])), false);
 
 	}
 	
@@ -311,7 +314,7 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveMetadataEdit(String[] part) {
-		Block bl = game.Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
+		Block bl = Engine.world.getBlockAt(cInt(part[1]), cInt(part[2]), cInt(part[3]));
 		if(bl != Block.NOTHING) {
 			bl.setMetadata(part[4], part[5], false);
 		}else {
@@ -335,12 +338,12 @@ public class GameClient extends Thread{
 		String name=part[7];
 		int health = Integer.parseInt(part[8]);
 		long ID=Long.parseLong(part[9]);
-		if(name.equals(game.PE.name)) { // respawnnal ne uj entityt hozzon letre
-			game.Engine.world.addEntity(game.PE, false);
+		if(game != null && name.equals(game.PE.name)) { // respawnnal ne uj entityt hozzon letre
+			Engine.world.addEntity(game.PE, false);
 			Main.log("(CLIENT:"+Config.username+") Ignored entity create on respawn ("+game.PE.name+"->"+name+")");
 		}else {
-			Entity e = Entity.createEntity(className, pos, aim, name,health, ID, game.Engine); 
-			game.Engine.world.addEntity(e, false);
+			Entity e = Entity.createEntity(className, pos, aim, name,health, ID, Engine); 
+			Engine.world.addEntity(e, false);
 		}
 
 	}
@@ -357,7 +360,7 @@ public class GameClient extends Thread{
 	void receiveEntityMove(String[] part) {
 		for(int i=1;i<part.length;i+=6) {
 			long parsedID = Long.parseLong(part[i]);
-			Entity en = game.Engine.world.getEntity(parsedID);
+			Entity en = Engine.world.getEntity(parsedID);
 			if(en!=null) {
 				en.move(Float.parseFloat(part[i+1]), Float.parseFloat(part[i+2]), Float.parseFloat(part[i+3]), false);
 				en.ViewAngle.yaw = Float.parseFloat(part[i+4]);
@@ -375,7 +378,7 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveEntityHurt(String[] part) {
-		game.Engine.world.hurtEntity(Long.parseLong(part[1]),Integer.parseInt(part[2]),false);
+		Engine.world.hurtEntity(Long.parseLong(part[1]),Integer.parseInt(part[2]),false);
 	}
 	
 
@@ -387,13 +390,13 @@ public class GameClient extends Thread{
 	
 	void receiveInvSwap(String[] part) {
 		boolean addToLocal = Boolean.parseBoolean(part[6]);
-		for(Entity e : game.Engine.world.getAllEntities()) {
+		for(Entity e : Engine.world.getAllEntities()) {
 			if(e.name.equals(part[1]) && e instanceof PlayerMP) {
 				((PlayerMP)e).inventory.add(Main.Items.get(part[5]), addToLocal ? 1 : -1, false);
 				break;
 			}
 		}
-		((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal ? -1 : 1, false);
+		((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), addToLocal ? -1 : 1, false);
 	}
 	
 	public void sendInvBlockAdd(String username, Block b, String name, int amount) {
@@ -402,7 +405,7 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveInvBlockAdd(String[] part) {
-		((BlockInventoryInterface)game.Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
+		((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
 	}
 	
 	public void sendInvPlayerAdd(String username, ItemType kind, int amount) {
@@ -410,7 +413,7 @@ public class GameClient extends Thread{
 	}
 	
 	void receiveInvPlayerAdd(String[] part) {
-		for(Entity e : game.Engine.world.getAllEntities()) {
+		for(Entity e : Engine.world.getAllEntities()) {
 			if(e.name.equals(part[1]) && e instanceof PlayerMP) {
 				((PlayerMP)e).inventory.add(Main.Items.get(part[2]), cInt(part[3]), false);
 				break;
@@ -450,11 +453,19 @@ public class GameClient extends Thread{
 			}
 
 		} catch (IOException e) {
-			game.disconnect(e.getMessage());
+			disconnect(e.getMessage());
 		}
 		
 		
 		
+	}
+	
+	private void disconnect(String error) {
+		if(Main.headless) {
+			Engine.disconnect(error);
+		}else {
+			game.disconnect(error);
+		}
 	}
 	
 	public void kill(boolean send66){

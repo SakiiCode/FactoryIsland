@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import ml.sakii.factoryisland.blocks.Block;
@@ -47,7 +46,6 @@ import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
-import ml.sakii.factoryisland.net.GameClient;
 import ml.sakii.factoryisland.net.GameServer;
 
 public class Game extends JPanel implements KeyListener, MouseListener, MouseWheelListener
@@ -182,7 +180,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				port = Integer.parseInt(addr[1]);
 			}
-			error = connect(addr[0], port, false);
+			error = Engine.startClient(addr[0], port, this);
 			
 			break;
 		case EXISTING:
@@ -749,7 +747,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		g.drawRect(0, Config.height-2*icon, icon, icon);
 		g.drawRect(0, Config.height-3*icon, icon, icon);
 		g.drawRect(0, Config.height-4*icon, icon, icon);*/
-		return Config.height-icon-icon/2; //kijelolt felirat kozepe
 		
 	}
 
@@ -900,26 +897,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F6)
 		{
-			if (Engine.client == null && Engine.server == null)
-			{
-				Engine.server = new GameServer(Engine);
-				Engine.server.start();
-				if(Engine.server.Listener.acceptThread.success.equals("OK")) {
-					
-					Main.log("Server started");
-	
-					String error = connect("localhost", Engine.server.Listener.acceptThread.port, true);
-					if (error != null)
-					{
-						disconnect("Server launch failed:"+error);
-					}else {
-						JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server opened to LAN at port " + Engine.server.Listener.acceptThread.port, "Press SPACE to continue", JOptionPane.INFORMATION_MESSAGE);
-					}
-				}else {
-					
-						disconnect("Server launch failed:"+Engine.server.Listener.acceptThread.success);
-					
-				}
+			String error =Engine.startServer(); 
+			if(error != null) {
+				disconnect(error);
 			}
 		}
 
@@ -1153,58 +1133,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 	}
 
-	String connect(String IP, int port, boolean sendPos)
-	{
 
-		Engine.client = new GameClient(this);
-		String error = Engine.client.connect(IP, port, sendPos);
-		if (error == null)
-		{
-			Engine.client.start();
-			Main.log("Client started");
-		}
-
-		return error;
-
-	}
-	
 	
 
 	public void disconnect(String error)
 	{
-		if(error !=null) {
-			Main.err(error);
-			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
-		}
+		
 		Thread t = new Thread() {
 			@Override
 			public void run() {
 				
 			
 				renderThread.kill();
-				Engine.ticker.stop();
-				Engine.stopPhysics();
-				if (Engine.client != null)
-				{
-						Main.log("disconnecting from multiplayer");
-						if(error != null) {
-							Engine.client.kill(false);
-						}else {
-							Engine.client.kill(true);
-						}
-						
-		
-					if (Engine.server != null)
-					{
-						Engine.server.kill();
-
-					}
-		
-		
-				} else
-				{
-					Engine.world.saveByShutdown();
-				}
+				Engine.disconnect(error);
 				Objects.clear();
 				Main.SwitchWindow("mainmenu");
 				Main.Base.remove(Game.this);
@@ -1275,7 +1216,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if(!Engine.ticker.isRunning()) {
 			Engine.ticker.start();
 		}
-		if(!Engine.physics.isRunning() && (Engine.isSingleplayer() || Engine.isLocalMP())) {
+		if(!Engine.isPhysicsRunning() && (Engine.isSingleplayer() || Engine.isLocalMP())) {
 			Engine.startPhysics();
 		}
 		firstframe = true;

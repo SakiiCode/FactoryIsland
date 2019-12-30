@@ -43,6 +43,7 @@ import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
+import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -136,7 +137,7 @@ public class World {
 	                   }else if (qName.equalsIgnoreCase("version")) {
 	                	   bVersion=true;
 	                   }else if (qName.equalsIgnoreCase("blocks")) {
-	                	   statusLabel.setText("Loading blocks...");
+	                	   GameEngine.updateLabel(statusLabel, "Loading blocks...");
 	                   }else if (qName.equalsIgnoreCase("block")) {
 	                	   //boolean nem kell mert curBlock van helyette
 	                       Iterator<Attribute> attributes = startElement.getAttributes();
@@ -156,7 +157,7 @@ public class World {
 	                   }else if (qName.equalsIgnoreCase("tick")) {
 	                	   bTick=true;
 	                   }else if(qName.equalsIgnoreCase("entities")) {
-	                	   statusLabel.setText("Loading entities...");
+	                	   GameEngine.updateLabel(statusLabel, "Loading entities...");
 	                   }else if (qName.equalsIgnoreCase("entity")) {
 	                	   //boolean nem kell mert sosem lesz leszarmazott tagje
 	                       Iterator<Attribute> attributes = startElement.getAttributes();
@@ -234,7 +235,7 @@ public class World {
 	            		   if(curBlock!=null) {
 	            			   addBlockNoReplace(curBlock,true);
 	            			   curBlock=null;
-	            			   statusLabel.setText("Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
+	            			   GameEngine.updateLabel(statusLabel, "Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
 	            		   }else {
 	            			   return "Closing tag of empty block";
 	            		   }
@@ -554,6 +555,10 @@ public class World {
 					if(source!=b)
 						addLight(source.pos, source, source.lightLevel); //valojaban csak az uj blokkokhoz adodik hozza 
 				}
+			}
+			
+			if(Engine.isLocalMP() || Engine.isSingleplayer()) {
+				addBlockNoReplace(new WaterBlock(0,0,0,Engine), true);
 			}
 		}
 	}
@@ -1136,8 +1141,10 @@ public class World {
 			}
 		}
 		
-		//helyi jatekost mar kilottuk a clients-bol, ezert mindenkepp el kell menteni
-		savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? game.tmpInventory : game.PE.inventory, game.PE.getHealth());
+		if(!Main.headless) {
+			//helyi jatekost mar kilottuk a clients-bol, ezert mindenkepp el kell menteni
+			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? game.tmpInventory : game.PE.inventory, game.PE.getHealth());
+		}
 	}
 
 	public static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {

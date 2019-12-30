@@ -4,6 +4,7 @@ package ml.sakii.factoryisland.entities;
 import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Text3D;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.items.PlayerInventory;
@@ -13,6 +14,7 @@ public class PlayerMP extends Entity {
 	
 	public Connection socket;
 	public PlayerInventory inventory;
+	public static final PlayerMP ServerPerson = new PlayerMP();
 	
 	public PlayerMP(Vector ViewFrom, EAngle aim, String name, int health, long ID, GameEngine engine){ // createEntity hozza letre
 		this(name,ViewFrom, aim.yaw, aim.pitch, health, new PlayerInventory(name, engine), null, ID, engine);
@@ -24,6 +26,10 @@ public class PlayerMP extends Entity {
 		this.socket=socket;
 		showName=true;
 		Objects.add(new Text3D(name, ViewFrom.x, ViewFrom.y, ViewFrom.z));
+	}
+	
+	public PlayerMP() {
+		super("PlayerMP", new Vector(0,0,0), new EAngle(0, 0),"SERVER",Integer.MAX_VALUE,Integer.MAX_VALUE,0,Main.Engine,Surface.EMPTY,Surface.EMPTY);
 	}
 
 	

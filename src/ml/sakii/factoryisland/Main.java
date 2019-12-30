@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
@@ -45,9 +46,9 @@ public class Main
 
 	public final static byte MAJOR = 0;
 	public final static byte MINOR = 10;
-	public final static byte REVISION = -6;
+	public final static byte REVISION = -7;
 	
-	public static boolean devmode = true, nopause = false;
+	public static boolean devmode = true, nopause = false, headless=false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
 	public static BufferedImage drillSide;
 	public static Color4 drillSideColor, drillFrontColor, chestModule, tankModule;
@@ -102,7 +103,8 @@ public class Main
 	static int screen;
 	public static int Width;
 	public static int Height;
-	
+	public static GameEngine Engine; //csak a headless server hasznalja
+
 	
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception
@@ -121,17 +123,60 @@ public class Main
         	if(params.get(i).equals("-map")) {
         		map=params.get(i+1);
         	}
+        	if(params.get(i).equals("-server")) {
+        		headless=true;
+        	}
         }
         
-        setupWindow(name);
-   
-        if(map !=null) {
-			SwitchWindow("generate");
-			SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
-			sp.worldsList.setSelectedValue(map, true);
-			sp.join(false);
-			
-		}
+
+        
+        if(headless) {
+        	Config.username="SERVER";
+        	LoadResources();
+        	if(map==null) {
+        		map="server";
+        	}
+        	File mapFile = new File("saves/"+map+"/map.xml");
+        	if(mapFile.exists()) {
+        		Engine = new GameEngine(map,null,123,LoadMethod.EXISTING,null);
+        	}else {
+        		Engine = new GameEngine(map,null,123,LoadMethod.GENERATE,null);
+        	}
+        	
+        	Engine.afterGen();
+        	Engine.startPhysics();
+        	Engine.ticker.start();
+        	Main.log("Timers started");
+        	String error = Engine.startServer();
+        	if(error != null) {
+        		Engine.disconnect(error);
+        	}else {
+	        	Main.log("Setup done");
+	        	Scanner s = new Scanner(System.in);
+	        	while(s.hasNextLine()) {
+	        		String line = s.nextLine();
+	        		if(line.trim().equalsIgnoreCase("stop")) {
+	        			Main.log("Stopping server...");
+	        			Engine.disconnect(null);
+	        			break;
+	        		}
+					Main.err("Unknown command: "+line);
+	        	}
+	        	s.close();
+        	}
+        }else {
+        
+	        setupWindow(name);
+	   
+	        if(map !=null) {
+				SwitchWindow("generate");
+				SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
+				sp.worldsList.setSelectedValue(map, true);
+				sp.join(false);
+				
+			}
+        
+        }
 					
 
 		
@@ -186,11 +231,11 @@ public class Main
 		}
 
 		
+    	LoadResources();
 
 		//Frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		Frame.setTitle("FactoryIsland " + MAJOR + "." + MINOR + "." + REVISION);
 
-		LoadResources();
 
 		MPGui = new MultiplayerGUI();
 		Base.add(new SingleplayerGUI(), "generate");

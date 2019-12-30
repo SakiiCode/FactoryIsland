@@ -170,8 +170,14 @@ public class Block extends Object3D
 
 	protected BufferedImage generateIcon()
 	{
-		int size = (int) (Main.Frame.getWidth() * 64f / 1440f);
-		int s16 = (int) (Main.Frame.getWidth() * 16f / 1440f);
+		int size, s16;
+		if(Main.headless) {
+			size=1;
+			s16=1;
+		}else {
+			size = (int) (Main.Frame.getWidth() * 64f / 1440f);
+			s16 = (int) (Main.Frame.getWidth() * 16f / 1440f);
+		}
 		BufferedImage icon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = icon.createGraphics();
 		Point[] p = new Point[]
@@ -233,7 +239,12 @@ public class Block extends Object3D
 	protected BufferedImage generateViewmodel()
 	{
 
-		float res = Main.Frame.getHeight() / 900f;
+		float res;
+		if(Main.headless) {
+			res=1;
+		}else {
+			res = Main.Frame.getHeight() / 900f;
+		}
 		int size = (int) (res * 250);
 		BufferedImage icon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = icon.createGraphics();

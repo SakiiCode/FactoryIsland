@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import ml.sakii.factoryisland.blocks.Block;
@@ -45,7 +46,7 @@ public class GameEngine{
 	
 	//PhysicsThread physics=null;
 	
-	Timer physics;
+	private Timer physics;
 	int physicsFPS=30;
 	
 	
@@ -72,8 +73,7 @@ public class GameEngine{
 		
 		switch(loadmethod) {
 		case GENERATE:
-			Main.log("Generating world " + location);
-			statusLabel.setText("Generating world " + location);
+			updateLabel(statusLabel,"Generating world " + location);
 			long startTime = System.currentTimeMillis();
 			
 			world = new World(location, this, game, false, statusLabel);
@@ -84,8 +84,7 @@ public class GameEngine{
 			
 
 			long finishTime = System.currentTimeMillis();
-			Main.log("Done. World generation took: " + (finishTime-startTime)/1000.0f + " seconds.");
-			statusLabel.setText("<html><body>Done. World generation took: " + (finishTime-startTime)/1000.0f + " seconds.<br>Loading...</body></html>");
+			updateLabel(statusLabel,"Worldgen done in " + (finishTime-startTime)/1000.0f + " seconds, loading...");
 
 			break;
 		case MULTIPLAYER:
@@ -95,23 +94,25 @@ public class GameEngine{
 			}
 			break;
 		case EXISTING:
-			Main.log("Loading world "+location+"...");
-			statusLabel.setText("Loading world "+location+"...");
+			updateLabel(statusLabel,"Loading world "+location+"...");
 			world = new World(location, this, game, true, statusLabel);
 			if(!world.success.equals("OK")) {
 				error = (world.success);
 				return;
 			}
-			String str ="Map loading done: " + world.getSize() + " block loaded."; 
-			Main.log(str);
-			statusLabel.setText(str);
+			updateLabel(statusLabel,"Map loading done: " + world.getSize() + " block loaded.");
 		}
 		
 		
 				
 	}
 
-
+	static void updateLabel(JLabel label, String text) {
+		if(label!=null) {
+			label.setText(text);
+		}
+//		Main.log(text);
+	}
 
 	
 	private void initTimers() {
@@ -174,30 +175,27 @@ public class GameEngine{
 								
 								
 							for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
-								if(Main.GAME.PE.VerticalVector.z == 1 && entry.getValue() == BlockFace.TOP) {
+//								if(Main.GAME.PE.VerticalVector.z == 1 && entry.getValue() == BlockFace.TOP) {
+								if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
 									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
 										pos=entry.getKey().centroid;
 										//found=true;
 										
 									}
 									break;
-								}else if(Main.GAME.PE.VerticalVector.z == -1 && entry.getValue() == BlockFace.BOTTOM) {
-									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
-										pos=entry.getKey().centroid;
-										//found=true;
-										
-									}
-									break;
-									
 								}
+//								}else if(Main.GAME.PE.VerticalVector.z == -1 && entry.getValue() == BlockFace.BOTTOM) {
+//									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
+//										pos=entry.getKey().centroid;
+//										//found=true;
+//										
+//									}
+//									break;
+//									
+//								}
 			
 							}
 								
-								
-								
-								
-							
-									
 						if(pos!=null) {
 							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
 							world.addEntity(newAlien, true);
@@ -226,7 +224,7 @@ public class GameEngine{
 
 								}
 								for(Entity data : world.getAllEntities()) {
-									if(data instanceof PlayerMP) {
+									if(data instanceof PlayerMP && data != PlayerMP.ServerPerson) {
 										
 										if(data.getPos().distance(alien.getPos())<0.2) {
 											world.hurtEntity(data.ID, 3, true);
@@ -294,100 +292,100 @@ public class GameEngine{
 
     		{
     			physics1 = physics2;
-    				physics2 = System.currentTimeMillis();
+				physics2 = System.currentTimeMillis();
 
-    				if (physics1 == 0L)
-    				{
-    					actualphysicsfps = 60;
-    					//measurement = (float) CalcAverageTick(FPS);
-    				} else
-    				{
-    					actualphysicsfps = 1000f / (physics2 - physics1);
-    					//measurement = (float) CalcAverageTick(FPS);
-    				}
-    				world.getAllEntities().parallelStream().forEach(entity-> /*);
-    				for(Entity entity : world.getAllEntities()) */{
-    					if(entity instanceof Alien) {
-    						Alien alien = (Alien)entity;
-    						Vector closest = null;
-    						
-    						
-    						Vector alienPos = alien.getPos();
-    						
+				if (physics1 == 0L)
+				{
+					actualphysicsfps = 60;
+					//measurement = (float) CalcAverageTick(FPS);
+				} else
+				{
+					actualphysicsfps = 1000f / (physics2 - physics1);
+					//measurement = (float) CalcAverageTick(FPS);
+				}
+				world.getAllEntities().parallelStream().forEach(entity-> /*);
+				for(Entity entity : world.getAllEntities()) */{
+					if(entity instanceof Alien) {
+						Alien alien = (Alien)entity;
+						Vector closest = null;
+						
+						
+						Vector alienPos = alien.getPos();
+						
 
-    						
-    						float dst=Float.MAX_VALUE;
-							
-							for(Entity e : world.Entities.values()) {
-								if(e instanceof PlayerMP) {
-									PlayerMP player = (PlayerMP)e;
-									//min kiválasztás
-									float distance = player.getPos().distance(alienPos);
-									if(distance<10 && distance < dst) {
-										dst=distance;
-										closest=player.getPos();
-									}
+						
+						float dst=Float.MAX_VALUE;
+						
+						for(Entity e : world.Entities.values()) {
+							if(e instanceof PlayerMP && e != PlayerMP.ServerPerson) {
+								PlayerMP player = (PlayerMP)e;
+								//min kiválasztás
+								float distance = player.getPos().distance(alienPos);
+								if(distance<10 && distance < dst) {
+									dst=distance;
+									closest=player.getPos();
 								}
-								
 							}
-    						
-    						
-    						if(closest!=null) {
-    							alien.target.set(closest);
-    							alien.locked=true;
-    						}else {
-    							alien.locked=false;
-    						}
-    					
-    						alien.target.z=alienPos.z;
-    						
-    						Vector aim = alien.aim.set(alien.target).substract(alienPos);
-    						if(aim.getLength()>0.2f) {
-    							aim.normalize();
-    							
-    							//long time=System.currentTimeMillis();
-    							
-    							//if(client == null || ((client != null && server != null)&& time-lastupdate>Main.TICKSPEED*1000*Main.ENTITYSYNCRATE) ) {
-    								if(!world.walk(aim, 2, alien, physicsFPS, false)){ // false mert a sync mashol van
-    									alien.jump();
-    								}
-    							/*	lastupdate=time;
-    							}else if(client != null && server != null) {
-    								
-    								if(!world.walk(aim, 2, alien, physicsFPS, false)){
-    									alien.jump();
-    								}
-    								//lastupdate=time;
-    							}
-    							*/
-    							alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
-    							alien.update();
-    						}
-    						
-    					}
+							
+						}
+						
+						
+						if(closest!=null) {
+							alien.target.set(closest);
+							alien.locked=true;
+						}else {
+							alien.locked=false;
+						}
+					
+						alien.target.z=alienPos.z;
+						
+						Vector aim = alien.aim.set(alien.target).substract(alienPos);
+						if(aim.getLength()>0.2f) {
+							aim.normalize();
+							
+							//long time=System.currentTimeMillis();
+							
+							//if(client == null || ((client != null && server != null)&& time-lastupdate>Main.TICKSPEED*1000*Main.ENTITYSYNCRATE) ) {
+								if(!world.walk(aim, 2, alien, physicsFPS, false)){ // false mert a sync mashol van
+									alien.jump();
+								}
+							/*	lastupdate=time;
+							}else if(client != null && server != null) {
+								
+								if(!world.walk(aim, 2, alien, physicsFPS, false)){
+									alien.jump();
+								}
+								//lastupdate=time;
+							}
+							*/
+							alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
+							alien.update();
+						}
+						
+					}
 
-    					if(!(entity instanceof PlayerMP)) {
-    						Block under = world.getBlockUnderEntity(false, true, entity);
-    						if (!entity.flying && under == Block.NOTHING)
-    						{
-    							entity.fly(true);
-    						} else if(entity.flying && under != Block.NOTHING)
-    						{
-    							entity.fly(false);
-    						}
-    						if (!entity.flying)
-    						{
-    					
-    							doGravity(entity, world, physicsFPS);
-    							entity.update();
-    						
-    						}
-    					}
-    				
-    				
-    				}); // minden entity kód vége
-            	
-    			}
+					if(!(entity instanceof PlayerMP)) {
+						Block under = world.getBlockUnderEntity(false, true, entity);
+						if (!entity.flying && under == Block.NOTHING)
+						{
+							entity.fly(true);
+						} else if(entity.flying && under != Block.NOTHING)
+						{
+							entity.fly(false);
+						}
+						if (!entity.flying)
+						{
+					
+							doGravity(entity, world, physicsFPS);
+							entity.update();
+						
+						}
+					}
+				
+				
+				}); // minden entity kód vége
+        	
+			}
 
 
             
@@ -504,8 +502,7 @@ public class GameEngine{
 		
 		
 		
-		Main.log("- Adding pond...");
-		statusLabel.setText("- Adding pond...");
+		updateLabel(statusLabel,"- Adding pond...");
 		int top = world.getTop(0, 0);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
 
 		for(int i = -1; i <= 1; i++)
@@ -515,8 +512,7 @@ public class GameEngine{
 		
 		
 		
-		Main.log("- Creating earth above sea level...");
-		statusLabel.setText("- Creating earth above sea level...");
+		updateLabel(statusLabel,"- Creating earth above sea level...");
 		System.gc();
 
 		int hillCount = RandomGen.nextInt(8)+8;
@@ -543,8 +539,7 @@ public class GameEngine{
 				}
 			}
 		}
-		Main.log("- Creating earth under sea level...");
-		statusLabel.setText("- Creating earth under sea level...");
+		updateLabel(statusLabel,"- Creating earth under sea level...");
 		System.gc();
 		hillCount = RandomGen.nextInt(8)+8;
 
@@ -573,7 +568,7 @@ public class GameEngine{
 		System.gc();
 
 		
-		Main.log("- Sprinkling sand and grass...");
+		updateLabel(statusLabel,"- Sprinkling sand and grass...");
 		
 		for(Block b : world.getWhole(false)){
 			if(!b.name.equals("Water") && !b.name.equals("Old")){
@@ -606,8 +601,7 @@ public class GameEngine{
 		}*/
 		
 		//int bushCount = RandomGen.nextInt(10)+5;
-		Main.log("- Planting tree ...");
-		statusLabel.setText("- Planting tree ...");
+		updateLabel(statusLabel,"- Planting tree ...");
 		
 		ArrayList<Block> grasses = new ArrayList<>();
 		for(Block b : world.getWhole(false)){
@@ -655,8 +649,7 @@ public class GameEngine{
 			world.addBlockNoReplace(new SaplingBlock(0, 0, 1, this), false);
 		}
 		
-		Main.log("- Lunar module landing ...");
-		statusLabel.setText("- Lunar module landing ...");
+		updateLabel(statusLabel,"- Lunar module landing ...");
 		
 		int lmbx = RandomGen.nextInt(60)-30;
 		int lmby = RandomGen.nextInt(60)-30;
@@ -798,11 +791,93 @@ public class GameEngine{
 		return createBlock(className, 0, 0, 0, null);
 	}
 	
+	public String startServer() {
+		String error=null;
+		if (client == null && server == null)
+		{
+			server = new GameServer(this);
+			server.start();
+			if(server.Listener.acceptThread.success.equals("OK")) {
+				
+				Main.log("Server started");
+
+				error = startClient("localhost", server.Listener.acceptThread.port, Main.GAME);
+				if (error == null)
+				{
+					if(!Main.headless) {
+						JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server opened to LAN at port " + server.Listener.acceptThread.port, "Press SPACE to continue", JOptionPane.INFORMATION_MESSAGE);
+					}
+				}
+				
+				
+			}else {
+				error = server.Listener.acceptThread.success;
+			}
+		}
+		return error;
+	}
+	
+	public String startClient(String IP, int port, Game game)
+	{
+		if(Main.headless) {
+			client = new GameClient(game, this);
+		}else {
+			client = new GameClient(game, this);	
+		}
+		String error = client.connect(IP, port);
+		if (error == null)
+		{
+			client.start();
+			Main.log("Client started");
+		}
+
+		return error;
+
+	}
+	
+
+	public void disconnect(String error) {
+		if(error !=null) {
+			Main.err(error);
+			if(!Main.headless)
+			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
+		}
+		ticker.stop();
+		stopPhysics();
+		if (client != null)
+		{
+				Main.log("disconnecting from multiplayer");
+				if(error != null) {
+					client.kill(false);
+				}else {
+					client.kill(true);
+				}
+				
+
+			if (server != null)
+			{
+				server.kill();
+
+			}
+
+
+		} else
+		{
+			world.saveByShutdown();
+		}
+	}
+	
+	
 
 	public void startPhysics() {
 		physics2=System.currentTimeMillis();
 		physics.start();
 	}
+	
+	boolean isPhysicsRunning() {
+		return physics.isRunning();
+	}
+	
 	
 	public void stopPhysics() {
 		physics.stop();

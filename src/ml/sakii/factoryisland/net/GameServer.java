@@ -195,25 +195,24 @@ public class GameServer extends Thread{
 					}
 
 					
-				}else {	
-					playerE=Main.GAME.PE;
+				}else {	// helyi
+					if(Main.headless) {
+						playerE=PlayerMP.ServerPerson;
+					}else {
+						playerE=Main.GAME.PE;
+					}
 					playerE.socket=conn;
 				}
 
-
-				//es a tobbi jatekost
+				//es a tobbi jatekost, headlessnel ez eloszor ures, utana a headlesst nem kuldjuk tovabb
 				for(PlayerMP client : clients.values()){
-
-						sendData(GameClient.constructEntityCreate(playerE), client.socket);
-
+					sendData(GameClient.constructEntityCreate(playerE), client.socket);
+					if(client != PlayerMP.ServerPerson) {
 						sendData(GameClient.constructEntityCreate(client), conn);
-						
-
-					
+					}
 				}
-				
-				
 
+				
 				clients.put(senderName,playerE);
 
 				

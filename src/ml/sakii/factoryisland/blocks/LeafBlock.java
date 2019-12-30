@@ -46,7 +46,8 @@ public class LeafBlock extends Block implements BreakListener{
 		//}
 		for(Entity e : Engine.world.getAllEntities()) {
 			if(e.name.equals(username) && e instanceof PlayerMP) {
-				((PlayerMP)e).inventory.add(Main.Items.get(giveSapling?"Sapling":"Leaf"), 1, true);
+				String item =  giveSapling ? "Sapling":"Leaf";
+				((PlayerMP)e).inventory.add(Main.Items.get(item), 1, true);
 
 			}
 		}
