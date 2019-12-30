@@ -92,7 +92,7 @@ public class Polygon3D extends Object3D{
 
 
 	@Override
-	boolean update(){
+	protected boolean update(){
 			
 		// Ha bÃ¡rmelyik hamis, eltûnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
@@ -255,7 +255,7 @@ public class Polygon3D extends Object3D{
 
 
 	@Override
-	public void draw(BufferedImage FrameBuffer, Graphics g){
+	protected void draw(BufferedImage FrameBuffer, Graphics g){
 		boolean lighted=false;
 		Graphics2D g2d=(Graphics2D)g;
 		if(s.color || !Config.useTextures || AvgDist > 25){

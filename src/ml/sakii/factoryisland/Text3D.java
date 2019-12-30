@@ -23,7 +23,7 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	boolean update()
+	protected boolean update()
 	{
 		
 		ViewToPoint.set(location);
