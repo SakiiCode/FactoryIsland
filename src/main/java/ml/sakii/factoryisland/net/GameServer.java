@@ -180,7 +180,7 @@ public class GameServer extends Thread{
 					
 					//és az entityket
 					for(Entity e : Engine.world.getAllEntities()) {
-						//15,className,x,y,z,yaw,pitch,name,ID
+						//15,className,x,y,z,yaw,pitch,name,health,ID
 						if(!(e instanceof PlayerMP))
 							sendData("15,"+e.className+","+e.getPos()+","+e.ViewAngle+","+e.name+","+e.getHealth()+","+e.ID, conn);
 					}

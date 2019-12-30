@@ -232,7 +232,7 @@ public class GameClient extends Thread{
 		case "07": // EDIT METADATA
 			receiveMetadataEdit(part);
 			break;
-		case "10": // ADD TO INVENTORY
+		case "10": // ADD TO PLAYER INVENTORY
 			receiveInvPlayerAdd(part);
 			break;
 		case "13": // ADD TO BLOCK INVENTORY

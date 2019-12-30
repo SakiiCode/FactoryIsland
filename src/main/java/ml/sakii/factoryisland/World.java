@@ -1134,17 +1134,6 @@ public class World {
 
 		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
-		
-		if(Engine.server != null) {
-			for(PlayerMP data : Engine.server.clients.values()) { // mentes utan ki vannak leptetve
-				savePlayer(worldName, data.name, data.getPos(), data.ViewAngle, data.inventory, data.getHealth());
-			}
-		}
-		
-		if(!Main.headless) {
-			//helyi jatekost mar kilottuk a clients-bol, ezert mindenkepp el kell menteni
-			savePlayer(worldName, Config.username, game.PE.getPos(), game.PE.ViewAngle, game.creative ? game.tmpInventory : game.PE.inventory, game.PE.getHealth());
-		}
 	}
 
 	public static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {
@@ -1276,6 +1265,7 @@ public class World {
 	}
 	
 	public static void savePlayer(String worldName, String username, Vector position, EAngle direction, PlayerInventory inventory, int health) {
+		Main.log("Saving "+username+"...");
 		File saves = new File("saves");
 		File mods = new File("mods");
 		File wname = new File("saves/" + worldName);
