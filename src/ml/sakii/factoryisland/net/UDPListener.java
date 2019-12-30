@@ -5,13 +5,13 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import ml.sakii.factoryisland.net.PacketEntry;
 
 public class UDPListener extends Thread {
 	
 	protected DatagramSocket socket;
-	public CopyOnWriteArrayList<PacketEntry<DatagramPacket,String>> packets = new CopyOnWriteArrayList<>();
+	public ConcurrentLinkedQueue<PacketEntry<DatagramPacket,String>> packets = new ConcurrentLinkedQueue<>();
 	private boolean running= true;
 	
 	
@@ -57,13 +57,7 @@ public class UDPListener extends Thread {
 	
 	
 	public Entry<DatagramPacket,String> read(){
-		for(Entry<DatagramPacket, String> entry : packets){
-			if(entry == null)
-				continue;
-			packets.remove(entry);
-			return entry;
-		}
-		return null;
+		return packets.poll();
 	}
 	
 	
