@@ -229,84 +229,6 @@ public class GameServer extends Thread{
 				dropClient(senderName);
 				
 				break;
-			
-			case "04": // MOVE (unused)
-				try {
-					
-					PlayerMP player = clients.get(senderName);
-					if(player == null){
-						Main.err("Unknown player: " + senderName + " (all:"+clients.size()+")");
-						break;
-					}
-					
-					Vector newPos = new Vector(Float.parseFloat(part[2]), Float.parseFloat(part[3]), Float.parseFloat(part[4]));
-					float newYaw = Float.parseFloat(part[5]);
-					float newPitch = Float.parseFloat(part[6]);
-					player.getPos().set(newPos);
-					player.ViewAngle.yaw=(newYaw);
-					for(PlayerMP client : clients.values()){
-						if(!client.name.equals(senderName))
-							sendData(("04," + senderName + "," + newPos.x + "," + newPos.y + "," + newPos.z + "," + newYaw + "," + newPitch), client.socket);
-					}
-				}catch(Exception e) {
-					Main.err("Bad player position: " + e.getMessage());
-					Main.err(message);
-				}
-
-				break;
-				
-			
-			case "05": // PLACE BLOCK
-
-					for(PlayerMP client : clients.values()){
-						if(!client.name.equals(senderName)) {
-							sendData(message, client.socket);
-	
-						}
-					}
-				break;
-			case "06": // DELETE BLOCK
-
-					for(PlayerMP client : clients.values()){
-						if(!client.name.equals(senderName)) {
-							sendData(message, client.socket);
-	
-						}
-					}
-
-				break;
-			case "07": // EDIT METADATA
-				for(PlayerMP client : clients.values()){
-					sendData(message, client.socket);
-				}
-				break;
-			case "10": // ADD TO INVENTORY
-				for(PlayerMP client : clients.values()){
-					sendData(message, client.socket);
-				}
-				break;
-			case "13": // ADD TO BLOCK INVENTORY
-//				((BlockInventoryInterface)Engine.world.getBlockAt(cInt(part[2]), cInt(part[3]), cInt(part[4]))).getInv().add(Main.Items.get(part[5]), cInt(part[6]), false);
-				for(PlayerMP client : clients.values()){
-//					if(!client.name.equals(senderName)) {
-//						sendData(("13," + part[2] + "," + part[3] + "," + part[4] + "," + part[5] + "," + part[6]), client.socket);
-					sendData(message, client.socket);
-
-						Main.log("Block inv insert forwarded to "+client.name);
-//					}
-				}
-				break;
-			case "14": // SWAP BLOCKS
-				for(PlayerMP client : clients.values()){
-					sendData(message, client.socket);
-					Main.log("item swap forwarded to "+senderName);
-				}
-				break;
-			case "15": // SPAWN ENTITY
-				for(PlayerMP client : clients.values()){
-						sendData(message, client.socket);
-				}
-				break;
 			case "16": // MOVE ENTITY
 				long parsedID = Long.parseLong(part[1]);
 				Entity e = Engine.world.getEntity(parsedID);
@@ -323,16 +245,13 @@ public class GameServer extends Thread{
 				}
 
 				break;
-			case "18": // HURT ENTITIY
-				for(PlayerMP client : clients.values()){
-						sendData(message, client.socket);
-				}
-				break;
 			case "ping":
 				sendData("pong", conn);
 				break;
-			default:
-				Main.err("(SERVER) Unknown message received: "+message);
+			default: // everything else
+				for(PlayerMP client : clients.values()){
+					sendData(message, client.socket);
+				}
 				break;
 		}
 		
@@ -401,12 +320,4 @@ public class GameServer extends Thread{
 	
 	
 
-	private static int cInt(String data){
-		try{
-			return Integer.parseInt(data); 
-		}catch(@SuppressWarnings("unused") Exception e){
-			Main.err("Incompatible int conversion: "+data);
-			return 0;
-		}
-	}
 }

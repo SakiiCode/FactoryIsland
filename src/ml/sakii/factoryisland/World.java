@@ -415,10 +415,9 @@ public class World {
 		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
 			if(Engine.client != null && resend) {
 				Engine.client.sendBlockPlace(Config.username,b);
-			}
-			//if(resend) {
+			}else {
 				ReplaceBlock(b);
-			//}
+			}
 			return true;
 		}
 		return false;
@@ -509,8 +508,8 @@ public class World {
 	public void destroyBlock(Block b, boolean resend) {
 		if(Engine.client != null && resend) {
 			Engine.client.sendBlockDestroy(Config.username,b);
-		}
-		//if(resend) {
+		}else {
+		
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
 				Main.err("Attempted to destroy air block: "+b.pos);
 				//Thread.dumpStack();
@@ -556,7 +555,7 @@ public class World {
 						addLight(source.pos, source, source.lightLevel); //valojaban csak az uj blokkokhoz adodik hozza 
 				}
 			}
-		//}
+		}
 	}
 	
 	public void addEntity(Entity e, boolean resend) {
