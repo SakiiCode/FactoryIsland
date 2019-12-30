@@ -1,1 +1,1 @@
-worker: java -jar export/latest.jar -map dev -server
+worker: java -jar target/factoryisland-latest.jar -map dev -server

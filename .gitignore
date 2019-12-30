@@ -6,4 +6,5 @@ mods/
 .settings/
 screenshots/
 /*.png
-deploy
+deploy/
+target/
