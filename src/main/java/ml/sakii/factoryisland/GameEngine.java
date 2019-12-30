@@ -515,7 +515,7 @@ public class GameEngine{
 		updateLabel(statusLabel,"- Creating earth above sea level...");
 		System.gc();
 
-		int hillCount = RandomGen.nextInt(8)+8;
+		int hillCount = Main.small? RandomGen.nextInt(3)+2 : RandomGen.nextInt(8)+8;
 		Point3D tmpPoint=new Point3D();
 		for(int i = 0;i<hillCount;i++){
 			int z = RandomGen.nextInt(3)+3;
@@ -541,7 +541,7 @@ public class GameEngine{
 		}
 		updateLabel(statusLabel,"- Creating earth under sea level...");
 		System.gc();
-		hillCount = RandomGen.nextInt(8)+8;
+		hillCount = Main.small? RandomGen.nextInt(3)+2 : RandomGen.nextInt(8)+8;
 
 		for(int i = 0;i<hillCount;i++){
 			int z = RandomGen.nextInt(3)+3;

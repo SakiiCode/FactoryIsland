@@ -48,7 +48,7 @@ public class Main
 	public final static byte MINOR = 10;
 	public final static byte REVISION = -7;
 	
-	public static boolean devmode = true, nopause = false, headless=false;
+	public static boolean devmode = true, nopause = false, headless=false, small=false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
 	public static BufferedImage drillSide;
 	public static Color4 drillSideColor, drillFrontColor, chestModule, tankModule;
@@ -117,14 +117,15 @@ public class Main
         List<String> params = Arrays.asList(args);
         String name=null,map=null;
         for(int i=0;i<params.size();i++) {
-        	if(params.get(i).equals("-name")) {
-        		name=params.get(i+1);
-        	}
-        	if(params.get(i).equals("-map")) {
-        		map=params.get(i+1);
-        	}
-        	if(params.get(i).equals("-server")) {
-        		headless=true;
+        	switch(params.get(i)) {
+        	case "-name":name=params.get(i+1);
+        		break;
+        	case "-map":map=params.get(i+1);
+        		break;
+        	case "-server":headless=true;
+        		break;
+        	case "-small":small=true;
+        		break;
         	}
         }
         
