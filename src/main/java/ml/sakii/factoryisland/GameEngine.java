@@ -204,7 +204,7 @@ public class GameEngine{
 					}
             	
 				
-					if(Tick % (2f/Main.TICKSPEED) == 0) {
+					if(Tick % (2*Main.TICKSPEED) == 0) {
 						for(Entity entity : world.getAllEntities()) {
 							if(entity instanceof Alien) {
 								
@@ -247,7 +247,7 @@ public class GameEngine{
 					
 					if(Main.GAME != null && client != null){
 
-							if( Main.GAME.PE.getPos().distance(previousPos)>0.2f || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>20) {
+							if( Main.GAME.PE.getPos().distance(previousPos)>0 || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>0) {
 								client.sendPlayerPos();
 
 								previousPos.set(Main.GAME.PE.getPos());
@@ -280,7 +280,7 @@ public class GameEngine{
             }
         };
 
-        ticker = new Timer((int)(1000*Main.TICKSPEED) , tickPerformer);
+        ticker = new Timer(1000/Main.TICKSPEED , tickPerformer);
 
         //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain);
 

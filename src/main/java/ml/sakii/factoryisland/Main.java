@@ -47,7 +47,7 @@ public class Main
 
 	public final static byte MAJOR = 0;
 	public final static byte MINOR = 10;
-	public final static byte REVISION = -7;
+	public final static byte REVISION = -8;
 	
 	public static boolean devmode = true, nopause = false, headless=false, small=false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
@@ -67,7 +67,7 @@ public class Main
 	public final static int MP_PACKET_EACH = 300;
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
 			alienFront, alienSide;
-	public final static float TICKSPEED = 0.05f; // 1 tick every 0.05s
+	public final static int TICKSPEED = 20; // 20 tick every second
 	public final static int ENTITYSYNCRATE = 3; //every 3 ticks (=0.15s)
 	public final static int PHYSICS_FPS = 30;
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
