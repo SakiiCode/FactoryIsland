@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -139,9 +140,9 @@ public class Main
         	}
         	File mapFile = new File("saves/"+map+"/map.xml");
         	if(mapFile.exists()) {
-        		Engine = new GameEngine(map,null,123,LoadMethod.EXISTING,null);
+        		Engine = new GameEngine(map,null,0,LoadMethod.EXISTING,null);
         	}else {
-        		Engine = new GameEngine(map,null,123,LoadMethod.GENERATE,null);
+        		Engine = new GameEngine(map,null,new Random().nextLong(),LoadMethod.GENERATE,null);
         	}
         	
         	Engine.afterGen();
@@ -464,7 +465,7 @@ public class Main
 			while ((line = reader.readLine()) != null)
 			{
 
-				GameEngine.nullBlock("ml.sakii.factoryisland.blocks." + line + "Block");
+				GameEngine.nullBlock("ml.sakii.factoryisland.blocks." + line + "Block"); //TODO ez kell még?
 				PlayerInventory.Creative.add(Items.get(line), 1, false);
 			}
 		} catch (IOException e1)
