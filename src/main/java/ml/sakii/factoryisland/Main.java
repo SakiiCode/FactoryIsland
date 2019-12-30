@@ -505,25 +505,33 @@ public class Main
 			saves.mkdir();
 		}
 
-		try
-		{
-
-			BufferedInputStream inputStream = new BufferedInputStream(
-					Main.class.getResourceAsStream("sounds/Zongora.wav"));
-			BGAudioStream = AudioSystem.getAudioInputStream(inputStream);
-
-			BGMusic = AudioSystem.getClip();
-			BGMusic.open(BGAudioStream);
-			sound = true;
-		} catch (Exception e)
-		{
-			Main.log("Could not load sounds: " + e.getMessage());
-			sound = false;
+		
+		if(!headless) {
+			try
+			{
+		
+				BufferedInputStream inputStream = new BufferedInputStream(
+						Main.class.getResourceAsStream("sounds/Zongora.wav"));
+				BGAudioStream = AudioSystem.getAudioInputStream(inputStream);
+		
+				BGMusic = AudioSystem.getClip();
+				BGMusic.open(BGAudioStream);
+				sound = true;
+			} catch (Exception e)
+			{
+				Main.log("Could not load sounds: " + e.getMessage());
+				sound = false;
+			}
+		}else {
+			sound=false;
 		}
 	}
 
 	private static BufferedImage loadTexture(String path)
 	{
+		if(headless) {
+			return newEmptyImage();
+		}
 		BufferedImage image;
 		try
 		{
@@ -531,15 +539,20 @@ public class Main
 
 		} catch (Exception e)
 		{
-			image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-			Graphics ig = image.createGraphics();
-			ig.setColor(Color.WHITE);
-			ig.fillRect(0, 0, 1, 1);
-			ig.dispose();
+			image = newEmptyImage();
 			Main.log("Could not load texture from '" + path + "': " + e.getMessage());
 
 		}
 		return toCompatibleImage(image);
+	}
+	
+	private static BufferedImage newEmptyImage() {
+		BufferedImage i = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+		Graphics ig = i.createGraphics();
+		ig.setColor(Color.WHITE);
+		ig.fillRect(0, 0, 1, 1);
+		ig.dispose();
+		return i;
 	}
 	
 	static BufferedImage toCompatibleImage(BufferedImage image)
