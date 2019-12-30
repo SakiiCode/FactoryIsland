@@ -660,8 +660,21 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					drawInventory(g, remoteInventory.getInv(), fontSize, viewportscale, false, remoteInventory.getBlock(), localInvActive);
 	
 				}
-			
-			}
+				
+				int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
+				int centerY = Config.height-icon-icon/2;
+				int halfBarHeight = icon/6;
+				int halfBgHeight = icon/4;
+				int halfTextHeight = g.getFontMetrics().getAscent()-g.getFontMetrics().getHeight()/2;
+				g.setColor(Color.DARK_GRAY);
+				g.fillRoundRect((int) (400*viewportscale), centerY-halfBgHeight, (int) (20*30*viewportscale), halfBgHeight*2,5,5);
+				g.setColor(Color.RED);
+				g.fillRoundRect((int) (400*viewportscale), centerY-halfBarHeight, (int) (PE.getHealth()*30*viewportscale), halfBarHeight*2, 20, 20);
+				g.setColor(Color.BLACK);
+				g.drawString(PE.getHealth()+"",(int)(480*viewportscale),centerY+halfTextHeight);
+				g.setColor(Color.WHITE);
+				g.drawString(PE.getHealth()+"",(int)(480*viewportscale)-1,centerY+halfTextHeight-1);
+			} // showHUD
 
 		
 		}
