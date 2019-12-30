@@ -777,10 +777,7 @@ public class World {
 	private void modifyLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped, boolean add)
 	{
 		Point3D p0s = new Point3D().set(pos); //pos at lesz irva ugyanebben a ciklusban, ezert masolni kell ha kulcskent hasznaljuk
-		if(alreadyMapped==null) {
-			alreadyMapped=new HashMap<>();
-			alreadyMapped.put(p0s, intensity);
-		}else if(!alreadyMapped.containsKey(p0s) || alreadyMapped.get(p0s)<intensity) {
+		if(!alreadyMapped.containsKey(p0s) || alreadyMapped.get(p0s)<intensity) {
 				alreadyMapped.put(p0s, intensity);
 		}else{
 				return;

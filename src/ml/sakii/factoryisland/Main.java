@@ -45,7 +45,7 @@ public class Main
 
 	public final static byte MAJOR = 0;
 	public final static byte MINOR = 10;
-	public final static byte REVISION = -4;
+	public final static byte REVISION = -6;
 	
 	public static boolean devmode = true, nopause = false;
 	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
@@ -180,7 +180,7 @@ public class Main
 			Frame.setBounds(bounds);
 
 			
-		} else // a linux egy bug miatt mindig kiteszi egy bizonyos képernyõre TODO ellenorizni
+		} else // linuxon a talcat es stb nem lehet eltakarni
 		{
 			d.setFullScreenWindow(Frame);
 		}

@@ -1219,7 +1219,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 	
-	private void pauseTo(String UiName) {
+	void pauseTo(String UiName) {
 		renderThread.kill();
 
 		if(Config.directRendering) {
