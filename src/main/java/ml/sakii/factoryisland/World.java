@@ -1245,6 +1245,9 @@ public class World {
 				entity.setAttribute("health", e.getHealth()+"");
 				
 				entitiesNode.appendChild(entity);
+			}else {
+				PlayerMP p = (PlayerMP)e;
+				savePlayer(worldName, p.name, p.getPos(), p.ViewAngle, p.inventory, p.getHealth());
 			}
 		}
 		

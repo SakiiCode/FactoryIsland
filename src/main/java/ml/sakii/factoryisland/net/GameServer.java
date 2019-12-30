@@ -211,7 +211,14 @@ public class GameServer extends Thread{
 						sendData(GameClient.constructEntityCreate(client), conn);
 					}
 				}
-
+				
+				//server gameclient-jenek el kell kuldeni a jatekos meglevo inventoryjat, de korabban nem lehet, mert ott meg nem spawnolt
+				if(Main.headless && playerE != PlayerMP.ServerPerson) {
+					for(Entry<ItemType, Integer> is : playerE.inventory.items.entrySet()) {
+						// add to player inv
+						sendData("10,"+senderName+","+is.getKey().name+","+is.getValue(), PlayerMP.ServerPerson.socket);	
+					}
+				}
 				
 				clients.put(senderName,playerE);
 
