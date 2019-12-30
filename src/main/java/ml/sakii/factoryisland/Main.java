@@ -54,7 +54,7 @@ public class Main
 	public static Color4 drillSideColor, drillFrontColor, chestModule, tankModule;
 	public static Surface fire;
 
-	public final static JFrame Frame = new JFrame();
+	public static JFrame Frame;
 	public static Game GAME;
 
 	public static final HashMap<String, ItemType> Items = new HashMap<>(20);
@@ -214,7 +214,7 @@ public class Main
 			screen = 0;
 
 		GraphicsDevice d = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen];
-
+		Frame= new JFrame();
 		Frame.setUndecorated(true);
 
 		//Frame.setExtendedState(java.awt.Frame.NORMAL);
@@ -544,6 +544,9 @@ public class Main
 	
 	static BufferedImage toCompatibleImage(BufferedImage image)
 	{
+		if(headless) {
+			return image;
+		}
 	    // obtain the current system graphical settings
 	    /*GraphicsConfiguration gfxConfig = GraphicsEnvironment.
 	        getLocalGraphicsEnvironment().getDefaultScreenDevice().

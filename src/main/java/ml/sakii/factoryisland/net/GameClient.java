@@ -214,7 +214,9 @@ public class GameClient extends Thread{
 						World.savePlayer(Engine.world.worldName, playerData.name, playerData.getPos(), playerData.ViewAngle, playerData.inventory, playerData.getHealth());
 					}
 					Engine.world.Entities.remove(e.ID);
-					game.Objects.removeAll(e.Objects);
+					if(!Main.headless) {
+						game.Objects.removeAll(e.Objects);
+					}
 				}
 			}
 
