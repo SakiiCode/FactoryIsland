@@ -614,11 +614,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 	
 						Iterator<String> iter = debugInfo.iterator();
-						int i = 0;
+						int height = g.getFontMetrics().getHeight();
+						int ascent = g.getFontMetrics().getAscent();
+						int i = ascent;
 						while (iter.hasNext())
 						{
-							g.drawString(iter.next(), 20, 40 + i + j);
-							i += g.getFont().getSize()*(1.15f+(Config.height-320f)/704f);
+							i += (int) (10*viewportscale)+height;
+							g.drawString(iter.next(), 20, i + j);
 						}
 						g.setColor(Color.WHITE);
 					}
@@ -668,23 +670,22 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize+2));
 
 
+		int halfTextHeight=-g.getFontMetrics().getAscent()+g.getFontMetrics().getHeight()/2;//-(int) (getStringBounds(g,"0123456789ABCDEFGHIKLMNOPRSTUVWXYZ",0,0).getHeight()/2); // J Q nelkul
+		
 		int i = -1;
-		int w = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
-		int h=w;
-		int offset = w / 3;
-		int mainOffset = (int) (150*viewportscale);
-
+		int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
+		int iconTextOffset = icon / 3;
+		int iconY=Config.height - icon - (local?0:2*icon);
+		int textY = iconY- halfTextHeight;
 		for(Entry<ItemType, Integer>  stack : Inv.items.entrySet())
 		{
 			ItemType kind = stack.getKey();
 			int amount = stack.getValue();
 			i++;
 			ItemType item = Main.Items.get(kind.name);
-			BufferedImage icon = item.ItemTexture;
-			g.drawImage(icon, i * w, Config.height - h - (local?0:mainOffset),w, h, null);
+			g.drawImage(item.ItemTexture, i * icon, iconY,icon, icon, null);
 
-			int textX = i * w + offset;
-			int textY = Config.height - h  - (local?0:mainOffset);
+			int textX = i * icon + iconTextOffset;
 
 			if (kind != Inv.getSelectedKind() || (local != localInvActive))
 			{ //alap
@@ -707,40 +708,35 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		
 		// KIJELÖLT FELIRAT
-		if(local) {
+		if (Inv.hasSelected()) 
+		{
+			g.setColor(Color.BLACK);
+			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale), Config.height - icon-icon/2-halfTextHeight);
+			g.setColor(Color.WHITE);
+			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale - 1), Config.height - icon-icon/2-halfTextHeight - 1);
+		
+		}
+		
+		// TÁVOLI BLOKK
+		if(!local) {
 			
-			//ez távoli inventorynál is megjelenik, ötletem sincs miért
-			
-			if (Inv.hasSelected()) 
-			{
-				g.setColor(Color.BLACK);
-				g.drawString(Inv.getSelectedKind().name, 25, Config.height - h-offset*3);
-				g.setColor(Color.WHITE);
-				g.drawString(Inv.getSelectedKind().name, 25 - 1, Config.height - h-offset*3 - 1);
-			
-			}
-			
-		}else {
-			
-
-			if (Inv.hasSelected()) 
-			{
-				g.setColor(Color.BLACK);
-				g.drawString(Inv.getSelectedKind().name, 25, Config.height - h-offset*3);
-				g.setColor(Color.WHITE);
-				g.drawString(Inv.getSelectedKind().name, 25 - 1, Config.height - h-offset*3 - 1);
-			
-			}
-
-
-
 			
 			g.setColor(Color.BLACK);
-			g.drawString(remoteBlock.toString(), 25, (int) (Config.height - 100*viewportscale - mainOffset));
+			g.drawString(remoteBlock.toString(), 25, Config.height - 3*icon-icon/2-halfTextHeight);
 			g.setColor(Color.WHITE);
-			g.drawString(remoteBlock.toString(), 25 - 1, (int) (Config.height - 100*viewportscale - 1 - mainOffset));
+			g.drawString(remoteBlock.toString(), 25 - 1, Config.height - 3*icon-icon/2-halfTextHeight - 1);
 			
 		}
+		/*g.drawRect(0, Config.height-icon, icon, icon);
+		g.setColor(Color.RED);
+		g.drawLine(0, Config.height-icon-halfTextHeight, icon, Config.height-icon-halfTextHeight);
+		g.setColor(Color.BLUE);
+		g.drawLine(0, textY, icon, textY);
+		g.setColor(Color.WHITE);
+		g.drawRect(0, Config.height-2*icon, icon, icon);
+		g.drawRect(0, Config.height-3*icon, icon, icon);
+		g.drawRect(0, Config.height-4*icon, icon, icon);*/
+		return Config.height-icon-icon/2; //kijelolt felirat kozepe
 		
 	}
 
