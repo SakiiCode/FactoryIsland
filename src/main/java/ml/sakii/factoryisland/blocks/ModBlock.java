@@ -14,7 +14,9 @@ import ml.sakii.factoryisland.Surface;
 
 public class ModBlock extends Block implements BreakListener, InteractListener, PlaceListener, PowerListener, TickListener, WorldGenListener{
 
-    ScriptEngineManager factory = new ScriptEngineManager();
+    public Surface[] surfaces;
+	
+	ScriptEngineManager factory = new ScriptEngineManager();
 
     ScriptEngine engine = factory.getEngineByName("nashorn");
     
@@ -39,13 +41,16 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
         	Surface south = new Surface(engine.eval("south"));
         	Surface east = new Surface(engine.eval("east"));
         	Surface west = new Surface(engine.eval("west"));
+        	surfaces= new Surface[]{top,bottom,north,south,east,west};
         	float xscale = Float.parseFloat(engine.eval("xscale").toString());
         	float yscale = Float.parseFloat(engine.eval("yscale").toString());
         	float zscale = Float.parseFloat(engine.eval("zscale").toString());
         	if(!Main.ModRegistry.contains(name)) {
         		Main.ModRegistry.add(name);
         	}
-			generate(name, x, y, z, top, bottom, north, south, east, west, xscale, yscale, zscale);
+        	this.name=name;
+			surfaces = new Surface[] {top, bottom, north, south, east, west};
+			generate(xscale, yscale, zscale);
 		} catch (ScriptException e) {
 			Main.err("Problem loading " + name + " textures: " + e.getMessage());
 			//e.printStackTrace();
@@ -123,6 +128,11 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 			Main.err(e.getMessage());
 			return true;
 		}
+	}
+
+	@Override
+	public Surface[] getSurfaces() {
+		return surfaces;
 	}
 
 	/*@Override

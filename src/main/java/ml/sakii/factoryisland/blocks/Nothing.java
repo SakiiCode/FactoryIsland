@@ -1,5 +1,7 @@
 package ml.sakii.factoryisland.blocks;
 
+import ml.sakii.factoryisland.Surface;
+
 public class Nothing extends Block {
 
 	public Nothing(){
@@ -8,5 +10,10 @@ public class Nothing extends Block {
 		fullblock=false;
 		solid = false;
 		transparent=false;
+	}
+
+	@Override
+	public Surface[] getSurfaces() {
+		return null;
 	}
 }

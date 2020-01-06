@@ -6,23 +6,27 @@ import java.util.Random;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 //import ml.sakii.factoryisland.Polygon3D;
+import ml.sakii.factoryisland.Surface;
 
 public class SaplingBlock extends Block implements TickListener{
 	
-	//int growTime=0;
-	//int placedTick=-1;
 
+	public static Surface[] surfaces = new Surface[] {Main.saplingTop, Main.sapling, Main.sapling, Main.sapling, Main.sapling, Main.sapling};
+	
 	
 	public SaplingBlock(int x, int y, int z, GameEngine engine) {
-		super("Sapling", x, y, z, Main.saplingTop, Main.sapling, Main.sapling, Main.sapling, Main.sapling, Main.sapling, 0.6f, 0.6f, 1,engine);
+		super("Sapling", x, y, z, 0.6f, 0.6f, 1,engine);
 		
-		this.name = "Sapling";
-		//this.fullblock = false;
 		
 		BlockMeta.put("growTime", 200 + new Random().nextInt(200)+"");
 		BlockMeta.put("placedTick", getTick()+"");
 		canBePlacedOn.add("Grass");
 		refreshRate = 20;
+	}
+	
+	@Override
+	public Surface[] getSurfaces() {
+		return surfaces;
 	}
 	
 	private int placedTick(){
@@ -86,6 +90,8 @@ public class SaplingBlock extends Block implements TickListener{
 		
 		
 	}
+
+
 	
 	
 }

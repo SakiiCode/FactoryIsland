@@ -15,15 +15,18 @@ import ml.sakii.factoryisland.items.PlayerInventory;
 public class ChestModuleBlock extends Block implements InteractListener, BlockInventoryInterface, BreakListener, WorldGenListener{
 	
 	BlockInventory inv;
+	
+	public static Surface[] surfaces = new Surface[] {
+			new Surface(Main.chestModule),
+			new Surface(Main.chestModule),
+			new Surface(Main.chestModule),
+			new Surface(Main.chestModule),
+			new Surface(Main.chestModule),
+			new Surface(Main.chestModule)};
+	
+	
 	public ChestModuleBlock(int x, int y, int z, GameEngine engine){
-		super("ChestModule", x, y, z,  
-				new Surface(Main.chestModule),
-				new Surface(Main.chestModule),
-				new Surface(Main.chestModule),
-				new Surface(Main.chestModule),
-				new Surface(Main.chestModule),
-				new Surface(Main.chestModule),
-				engine);
+		super("ChestModule", x, y, z, engine);
 		inv = new BlockInventory(this,engine);
 		//returnOnBreak=false;
 
@@ -63,6 +66,11 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	public void generateWorld() {
 		inv.add(Main.Items.get("Stone"), 1, false);
 
+	}
+
+	@Override
+	public Surface[] getSurfaces() {
+		return surfaces;
 	}
 	
 	
