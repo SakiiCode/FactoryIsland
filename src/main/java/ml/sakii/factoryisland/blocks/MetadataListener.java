@@ -3,8 +3,6 @@ package ml.sakii.factoryisland.blocks;
 public interface MetadataListener
 {
 	/**
-	 * 
-	 * 
 	 * @param key
 	 * @param value
 	 * @return true ha volt hashmap.put

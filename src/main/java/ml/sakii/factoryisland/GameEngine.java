@@ -767,7 +767,6 @@ public class GameEngine{
 				if(Block.class.isAssignableFrom(blockClass)){
 					Constructor<?> ctor = blockClass.getConstructor(int.class, int.class, int.class, GameEngine.class);
 					result = (Block)(ctor.newInstance(new Object[] { x ,y , z, engine}));
-					
 				}else {
 					Main.err("Could create block: "+className+" is not an instance of " + Block.class.getName());
 				}
@@ -820,11 +819,7 @@ public class GameEngine{
 	
 	public String startClient(String IP, int port, Game game)
 	{
-		if(Main.headless) {
-			client = new GameClient(game, this);
-		}else {
-			client = new GameClient(game, this);	
-		}
+		client = new GameClient(game, this);	
 		String error = client.connect(IP, port);
 		if (error == null)
 		{

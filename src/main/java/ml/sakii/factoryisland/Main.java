@@ -65,7 +65,7 @@ public class Main
 	public static Surface lamp;
 	public static final ArrayList<String> ModRegistry = new ArrayList<>();
 
-	public final static int MP_PACKET_EACH = 300;
+	public final static int MP_PACKET_EACH = 50;
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
 			alienFront, alienSide;
 	public final static int TICKSPEED = 20; // 20 tick every second
@@ -135,6 +135,7 @@ public class Main
         
         if(headless) {
         	Config.username="SERVER";
+        	Config.creative=true;
         	LoadResources();
         	if(map==null) {
         		map="server";

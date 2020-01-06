@@ -11,7 +11,7 @@ public class Surface {
 	@Override
 	public String toString() {
 		//return "Surface [Texture=" + Texture + ", c=" + c + ", p=" + p + ", color=" + color + ", paint=" + paint + "]";
-		return c+"";
+		return c+""+p;
 	}
 
 	public BufferedImage Texture;
@@ -35,15 +35,15 @@ public class Surface {
 			this.c.set(new Color4((Color)o));
 			color = true;
 			paint = false;
-		} else
+		} else {
 			try
 			{
-				throw new Exception();
+				throw new ClassCastException("Invalid Surface initializer:"+o);
 			} catch (Exception e)
 			{
 				e.printStackTrace();
 			}
-		
+		}
 	}
 	
 	/*public Surface(Color c){

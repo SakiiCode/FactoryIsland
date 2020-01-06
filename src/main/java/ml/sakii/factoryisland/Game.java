@@ -183,7 +183,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				port = Integer.parseInt(addr[1]);
 			}
 			error = Engine.startClient(addr[0], port, this);
-			
 			break;
 		case EXISTING:
 			File playerFile = new File("saves/" + location + "/" + Config.username + ".xml");
@@ -586,7 +585,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("truetime:"+truetime+"falsetime"+falsetime+ ",testing:"+key[6]);
 					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
-					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) );
+					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) +", blockLightPass:"+Engine.world.lightCalcRuns);
 					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+PE.inventory.getHotbarIndex()+", selected:"+((PE.inventory.getHotbarIndex()>-1 ) ? PE.inventory.getSelectedKind() : ""));
 					if (Engine.client != null)
 					{

@@ -83,8 +83,8 @@ public class World {
 		
 		if(existing) {
 			success = loadWorld(engine, statusLabel);
+			if(success==null) success="";
 		}
-		
 		
 	}
 
@@ -523,9 +523,6 @@ public class World {
 		
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
 				Main.err("Attempted to destroy air block: "+b.pos);
-				//Thread.dumpStack();
-				//throw new NullPointerException("Attempted to destroy air block:"+b.pos);
-				//return;
 			}
 	
 			if(b.lightLevel>0)
@@ -890,7 +887,6 @@ public class World {
 		}
 		
 		Point3D coord = new Point3D().set(pos);// get6blocks atirja a parametert ezert le kell masolni
-
 		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
 		
 		
@@ -949,9 +945,7 @@ public class World {
 				BlockFace polyface = polys.getValue(); 
 				Polygon3D poly = polys.getKey();
 				if(polyface == face.getOpposite()) {
-
 					poly.removeSource(source);
-
 					if(polyface == BlockFace.TOP && poly.adjecentFilter && poly.getLight()<7 && !SpawnableSurface.contains(poly.spawnpoint)) {
 						SpawnableSurface.add(poly.spawnpoint);
 					
@@ -1202,6 +1196,10 @@ public class World {
 
 		Element blocks = document.createElement("blocks");
 		for (Block b : Blocks) {
+			if(b==Block.NOTHING) {
+				Main.err("Nothing block on map!");
+				continue;
+			}
 			Element BlockElement = document.createElement("block");
 			BlockElement.setAttribute("x", "" + b.x);
 			BlockElement.setAttribute("y", "" + b.y);

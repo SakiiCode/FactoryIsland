@@ -6,7 +6,9 @@ import java.awt.image.BufferedImage;
 public abstract class Object3D implements Comparable<Object3D> {
 	float AvgDist;
 	
-	// true ha lathato
+	/**
+	 * @return true ha lathato
+	 */
 	protected abstract boolean update();
 	
 	protected abstract void draw(BufferedImage FrameBuffer, Graphics g);
