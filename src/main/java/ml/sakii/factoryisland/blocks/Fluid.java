@@ -7,25 +7,28 @@ import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 
 
-public class Fluid extends Block implements TickListener, LoadListener, MetadataListener, BreakListener {
+public abstract class Fluid extends Block implements TickListener, LoadListener, MetadataListener, BreakListener{
 
-	private Surface[] textures;
-	
+
+	//private int tmpHeight;
+	private Surface[] textures; //szintenkent
+	private int maxHeight;
 	public Fluid(String name, int x, int y, int z, Surface[] textures, GameEngine engine) {
-		this(name,x,y,z,4,textures,engine);
+		this(name,x,y,z,textures.length,textures,engine);
 	}
 	
 	public Fluid(String name, int x, int y, int z, int height, Surface[] textures, GameEngine engine) {
-		super(name,x, y, z, textures[height], textures[height], textures[height], textures[height], textures[height], textures[height],engine);
-
+		super(name,x, y, z,engine);
+		//tmpHeight=height;
+		this.textures=textures;
+		maxHeight=textures.length-1;
 		BlockMeta.put("height", height+"");
+		heightMap();
 		transparent=true;
 		solid = false;
 		refreshRate = 10;
-		this.textures=textures;
 
 	}
-	
 	
 	
 	public void setHeight(int newHeight){
@@ -74,9 +77,9 @@ public class Fluid extends Block implements TickListener, LoadListener, Metadata
 				if(key != BlockFace.BOTTOM && key != BlockFace.TOP){
 					if(value == Block.NOTHING){
 						hasEmptyNearby = true;
-					}else if(value instanceof WaterBlock){
-						//WaterBlock wb = (WaterBlock)value;
-						int otherHeight = value.getHeight();
+					}else if(value.name.equals(name)){
+						Fluid wb = (Fluid)value;
+						int otherHeight = wb.getHeight();
 						
 						if(otherHeight == height+1){
 							hasPlusOneNearby=true;
@@ -99,14 +102,13 @@ public class Fluid extends Block implements TickListener, LoadListener, Metadata
 			
 			
 			if(hasBiggerNearby){
-				if(height != 4){
+				if(height != maxHeight){
 					setHeight(biggerheight-1);
 				
 				}
 			}else if(!hasPlusOneNearby){
-				if(height != 4){
+				if(height != maxHeight){
 					if(height == 1){
-						//deleteBlock(this);
 						Engine.world.destroyBlock(this, true);
 
 						return false;
@@ -134,7 +136,8 @@ public class Fluid extends Block implements TickListener, LoadListener, Metadata
 								Block wvalue = wentry.getValue();
 								if(wkey != BlockFace.TOP && wkey != BlockFace.BOTTOM){
 									if(wvalue.name.equals(name)){
-										WaterBlock wb = (WaterBlock)wvalue;
+										
+										Fluid wb = (Fluid)wvalue;
 										int wotherHeight = wb.getHeight();
 										if(wotherHeight > height + 1 && biggestyet < wotherHeight){
 											biggestyet=wotherHeight;
@@ -168,10 +171,19 @@ public class Fluid extends Block implements TickListener, LoadListener, Metadata
 	@Override
 	public boolean breaked(String username)
 	{
-		if(getHeight()==4) {
+		if(getHeight()==maxHeight) {
 			return true;
 		}
 		return false;
 	}
+	public int getHeight()
+	{
+		String h =BlockMeta.get("height"); 
+		if(h==null) {
+			return 1;
+		}
+		return Integer.parseInt(h);
+	}
+
 	
 }
