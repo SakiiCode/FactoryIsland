@@ -136,7 +136,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	private Paint crosshairColor=new Color(1.0f, 1.0f, 1.0f, 0.2f);
 	private Vector tmp = new Vector();
-	PlayerInventory tmpInventory;
 
 
 	int previousSkyLight;
@@ -192,16 +191,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				Engine.world.parsePE(Config.username, PE);
 				
-				statusLabel.setText("Loading player inventory...");
 				
-				if(Config.creative) {
-					tmpInventory = Engine.world.loadInv(PE.name, Engine);
-					creative=true;
-					PE.inventory=PlayerInventory.Creative;
-				}else {
-					creative=false;
-					PE.inventory=Engine.world.loadInv(PE.name, Engine);
-				}
+				
 				break;
 			}
 
@@ -210,6 +201,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			teleportToSpawn();
 		}
 		
+		statusLabel.setText("Loading player inventory...");
+		if(Config.creative) {
+			PE.inventory=PlayerInventory.Creative;
+		}else {
+			PE.inventory=Engine.world.loadInv(PE.name, Engine);
+		}
 		
 		init();
 		

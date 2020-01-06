@@ -149,16 +149,24 @@ public class GameServer extends Thread{
 					if(playerFile.exists()) {
 						Vector pos = new Vector().set(Engine.world.loadVector(senderName, new String[] {"x", "y", "z"}));
 						float[] other = Engine.world.loadVector(senderName, new String[] { "yaw", "pitch", "health"});
-						
-						
-						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], Engine.world.loadInv(senderName, Engine), conn, ID, Engine);
 
 						//force move
 						sendData("11,"+pos.x+","+pos.y+","+pos.z+","+other[0]+","+other[1]+","+other[2], conn);
 						
-						for(Entry<ItemType, Integer> is : playerE.inventory.items.entrySet()) {
-							// add to player inv
-							sendData("10,"+senderName+","+is.getKey().name+","+is.getValue(), conn);
+						Boolean creative = Boolean.parseBoolean(part[2]);
+						
+						
+						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], creative ? PlayerInventory.Creative : Engine.world.loadInv(senderName, Engine), conn, ID, Engine);
+
+
+						
+						
+						
+						if(!creative) {
+							for(Entry<ItemType, Integer> is : playerE.inventory.items.entrySet()) {
+								// add to player inv
+								sendData("10,"+senderName+","+is.getKey().name+","+is.getValue(), conn);
+							}
 						}
 						
 						

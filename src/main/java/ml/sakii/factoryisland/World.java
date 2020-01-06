@@ -482,7 +482,7 @@ public class World {
 			Engine.TickableBlocks.add(b.pos);
 		}
 		
-		if (b instanceof TextureListener) {
+		if (b instanceof TextureListener && game != null) {
 			game.TextureBlocks.add((TextureListener)b);
 		}
 		
@@ -543,11 +543,11 @@ public class World {
 			
 
 			if (b instanceof TickListener) {
-					Engine.TickableBlocks.remove(b.pos);
+				while(Engine.TickableBlocks.remove(b.pos));
 			}
 			
 			
-			if (b instanceof TextureListener) {
+			if (b instanceof TextureListener && game != null) {
 				game.TextureBlocks.remove((TextureListener)b);
 			}
 	

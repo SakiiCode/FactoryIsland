@@ -21,6 +21,7 @@ import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
+import ml.sakii.factoryisland.blocks.BreakListener;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemType;
@@ -65,11 +66,8 @@ public class GameClient extends Thread{
 			inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
 			sendData("ping");
-			if(Engine.isRemoteMP()) {
-				sendData(("00,"+Config.username +","+ game.PE.getPos() +","+ Math.toRadians(game.PE.ViewAngle.yaw)+","+ Math.toRadians(game.PE.ViewAngle.pitch) + "," + game.PE.getHealth()));
-			}else {
-				sendData("00,"+Config.username);	
-			}
+			sendData(("00,"+Config.username +","+Config.creative));
+
 		
 			while(!terrainLoaded) {
 			

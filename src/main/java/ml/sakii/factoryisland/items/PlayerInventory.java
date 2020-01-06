@@ -7,11 +7,8 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
 public class PlayerInventory {
-	//public final CopyOnWriteArrayList<ItemStack> items = new CopyOnWriteArrayList<>();
-	//public final Map<ItemType, Integer> items = Collections.synchronizedMap(new LinkedHashMap<ItemType, Integer>());
 	public final ConcurrentHashMap<ItemType, Integer> items = new ConcurrentHashMap<>();
 	public static final PlayerInventory Creative = new CreativeInventory();
-	//public Entry<ItemType, Integer> SelectedStack = null;
 	private final ItemStack SelectedStack = new ItemStack(null,0);
 	private int hotbarIndex = -1;
 	GameEngine engine;
@@ -36,24 +33,17 @@ public class PlayerInventory {
 			int stack = getStack(kind);
 			
 			int originalSize = items.size();
-			//if(stack == 0){ // hozzáad 1-et
-				/*stack = new ItemStack(kind, amount);
-				items.add(stack);*/
-			//	items.put(kind, amount);
-			//}else{
-				//stack.amount +=amount;
-				items.put(kind, stack+amount);
-			//}
+			items.put(kind, stack+amount);
 			
-			
+			if(!Main.headless) {
 			if(originalSize==0 && items.size()==1){ //üres volt, nem lett üres
-				if(activateOnFirst && Main.GAME != null) {
-					if(Main.GAME.remoteInventory != null && Main.GAME.remoteInventory.getInv().items.size()==0) {
-						setHotbarIndex(0);
-					}else if(Main.GAME.remoteInventory==null) {
-						setHotbarIndex(0);	
+					if(activateOnFirst && Main.GAME != null) {
+						if(Main.GAME.remoteInventory != null && Main.GAME.remoteInventory.getInv().items.size()==0) {
+							setHotbarIndex(0);
+						}else if(Main.GAME.remoteInventory==null) {
+							setHotbarIndex(0);	
+						}
 					}
-					//SelectedStack = items.entrySet().toArray(new Entry<ItemType, Integer>[0])[0];
 				}
 			}
 			
@@ -61,24 +51,18 @@ public class PlayerInventory {
 			
 			if(stack+amount==0) { //a stack kifogyott
 				
-				//ItemStack selected = getSelectedStack(); 
-				//if(selected != null && kind==selected.kind) {
-					if(hotbarIndex==items.size()-1){
-						setHotbarIndex(hotbarIndex-1);
-					}
-					/*if(hotbarIndex>-1){
-						SelectedStack = items.get(hotbarIndex);
-					}else{
-						SelectedStack = null;
-					}*/
-				//}
+				if(hotbarIndex==items.size()-1){
+					setHotbarIndex(hotbarIndex-1);
+				}
 				
 				items.remove(kind);
 				
 				if(items.size()==0){ //nem volt üres, üres lett
 					setHotbarIndex(-1);
-					if(Main.GAME.remoteInventory != null) {
-						Main.GAME.SwapInv();
+					if(!Main.headless) {
+						if(Main.GAME.remoteInventory != null) {
+							Main.GAME.SwapInv();
+						}
 					}
 				}
 				
@@ -91,17 +75,7 @@ public class PlayerInventory {
 		return kind;
 
 	}
-	
-	/*public ItemStack getStack(ItemStack is){
-		if(items.contains(is)){
-			return items.get(items.indexOf(is));
-		}
-		return null;
-	}*/
-	
-	/*public ItemStack getSelectedStack(){
-		return SelectedStack;
-	}*/
+
 	
 	public ItemType getSelectedKind() {
 		return SelectedStack.kind;
@@ -116,11 +90,7 @@ public class PlayerInventory {
 	}
 	
 	public int getStack(ItemType kind){
-		/*for(ItemStack is : items){
-			if(is.kind == kind){
-				return is;
-			}
-		}*/
+
 		Integer count = items.get(kind);
 		return count==null ? 0 : count;
 	}
@@ -145,8 +115,7 @@ public class PlayerInventory {
 
 	public void clear() {
 		items.clear();
-		//SelectedStack=null;
-		//hotbarIndex=-1;
+
 		setHotbarIndex(-1);
 	}
 	
@@ -157,7 +126,6 @@ public class PlayerInventory {
 			}else if(hotbarIndex<items.size()-1) {
 					setHotbarIndex(hotbarIndex+1);
 			}
-			//SelectedStack = items.get(hotbarIndex);
 		}
 		
 	}
@@ -170,7 +138,6 @@ public class PlayerInventory {
 			}else{
 				setHotbarIndex(hotbarIndex-1);
 			}
-			//SelectedStack = items.get(hotbarIndex);
 		}
 	}
 	
