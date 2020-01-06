@@ -199,6 +199,7 @@ public class GameClient extends Thread{
 		
 		case "loaded":
 			terrainLoaded = true;
+			Engine.world.loading=false;
 			Main.log("Terrain download from server completed ("+blockcount+" blocks / "+packetCount+" packets)");
 			
 			

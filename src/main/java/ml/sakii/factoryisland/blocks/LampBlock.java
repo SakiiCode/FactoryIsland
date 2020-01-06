@@ -9,25 +9,8 @@ public class LampBlock extends Block{
 	//lightLevel=15;
 	public LampBlock(int x, int y, int z, GameEngine engine) {
 		super("Lamp", x, y, z, Main.lamp, Main.lamp, Main.lamp, Main.lamp, Main.lamp, Main.lamp, 0.5f, 0.5f, 0.5f, engine);
-		setLight(MAXLIGHT);
-		
 	}
 
-	/*@Override
-	public void placed(BlockFace SelectedFace) {
-	}*/
-
-	/*@Override
-	public void onLoad(){
-		
-	}*/
-
-	/*@Override
-	public boolean breaked(String username)
-	{
-		//Engine.world.removeLight(this.x, this.y, this.z, this, lightLevel);
-		return false;
-	}*/
 	
 
 }

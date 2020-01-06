@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
-import ml.sakii.factoryisland.blocks.Block;
-
 public class Polygon3D extends Object3D{
 	Polygon polygon = new Polygon();
 	//float AvgDist;
@@ -40,13 +38,13 @@ public class Polygon3D extends Object3D{
 	HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.height);
 	
 	private Plane tmpnear=new Plane();
-	private Vector /*ViewToPoint=new Vector(),*/RadiusVector=new Vector();
+	private Vector RadiusVector=new Vector();
 	private Vector CameraToTriangle = new Vector();
 	private Vector tmp=new Vector();
 	int ymax, ymin;
 	private int light=0;
 	
-	private final HashMap<Block, Integer> lightSources = new HashMap<>();
+	private final HashMap<Point3D, Integer> lightSources = new HashMap<>();
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
 	Color4 pixel = new Color4();
@@ -94,7 +92,7 @@ public class Polygon3D extends Object3D{
 	@Override
 	protected boolean update(){
 			
-		// Ha bármelyik hamis, elt�nik. Csak akkor jelenik meg, ha az �sszes igaz.
+		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
 				if(!Main.GAME.locked) {
 					if(Main.GAME.ViewBlock.Polygons.contains(this)) {
@@ -176,24 +174,24 @@ public class Polygon3D extends Object3D{
 			return false;
 		}
 	
-	public void addSource(Block b, int intensity) {
+	public void addSource(Point3D b, int intensity) {
 		
 		lightSources.put(b, intensity);
 		
 		recalcLightedColor();
 	}
 	
-	void removeSource(Block b) {
+	void removeSource(Point3D b) {
 		
 		lightSources.remove(b);
 		recalcLightedColor();
 	}
 	
-	Integer checkSource(Block b) {
+	Integer checkSource(Point3D b) {
 		return lightSources.get(b);
 	}
 	
-	Set<Block> getSources(){
+	Set<Point3D> getSources(){
 		return lightSources.keySet();
 	}
 	
@@ -405,12 +403,14 @@ public class Polygon3D extends Object3D{
 		if(!lighted && !Config.useTextures) {
 			
 			Color4 lightedc=getLightOverlay();
-			//Graphics2D g2 =((Graphics2D)g); 
-			g2d.setColor(lightedc.getColor());
-			g2d.fillPolygon(polygon);
-			//Graphics2D g2 = (Graphics2D) g;
-            //g2.setStroke(new BasicStroke(2));
-			//g.drawPolygon(polygon);
+			if(!s.paint) {
+				g2d.setColor(lightedc.getColor());
+				g2d.fillPolygon(polygon);
+			}else {
+				g2d.setColor(lightedc.getColor());
+				g2d.fillPolygon(polygon);
+			}
+
 			
 		}
 		/*if(Main.GAME.key[6]) {

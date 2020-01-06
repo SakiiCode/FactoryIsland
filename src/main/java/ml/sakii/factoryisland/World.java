@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JLabel;
@@ -68,6 +68,8 @@ public class World {
 	public ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
 	
 	private int worldTop,worldBottom;
+	int lightCalcRuns=0;
+	public boolean loading=true;
 	
 	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
 		Engine = engine;
@@ -445,16 +447,15 @@ public class World {
 	}*/
 	
 	private void ReplaceBlock(Block b) {
+		HashSet<Point3D> sources=new HashSet<>();
 
-		
-		ArrayList<Block> sources=new ArrayList<>(); // kikapcsolja az osszes fenyforrast es elmenti oket
-		for(Block nearby : get6Blocks(b, false).values()) {
-			for(Polygon3D poly : nearby.Polygons) {
-				Set<Block> sources2 = poly.getSources();
-				
-				for(Block source : new ArrayList<>(sources2)) {
-					sources.add(source);
-					removeLight(source.pos, source, source.lightLevel);
+		if(!loading) {
+			for(Block nearby : get6Blocks(b, false).values()) {
+				for(Polygon3D poly : nearby.Polygons) {
+					for(Point3D source : new HashSet<>(poly.getSources())) {//concurrentmodificationexception
+						sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
+						removeLight(source);
+					}
 				}
 			}
 		}
@@ -485,13 +486,14 @@ public class World {
 		
 
 		
-		
-		for(Block source : sources) { //elterjeszti az elmentett a fenyforrasokat
-			addLight(source.pos, source, source.lightLevel);
-		}
-		
-		if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
-			addLight(b.pos, b, b.lightLevel);
+		if(!loading) {
+			for(Point3D source : sources) { //elterjeszti az elmentett a fenyforrasokat
+				addLight(source);
+			}
+			
+			if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
+				addLight(b.pos);
+			}
 		}
 		
 		if(b.z>worldTop) {
@@ -518,6 +520,9 @@ public class World {
 				//return;
 			}
 	
+			if(b.lightLevel>0)
+				removeLight(b.pos);
+			
 			Blocks.remove(b.pos);
 			
 			for (Block bu : get6Blocks(b, false).values()) {
@@ -530,7 +535,6 @@ public class World {
 			
 
 			if (b instanceof TickListener) {
-				while(Engine.TickableBlocks.contains(b.pos))
 					Engine.TickableBlocks.remove(b.pos);
 			}
 			
@@ -546,18 +550,23 @@ public class World {
 			}
 			
 
-			if(b.lightLevel>0)
-				removeLight(b.pos, b, b.lightLevel);
 			
-			for(Polygon3D poly : b.Polygons) { // kiuteskor eleg ujraszamolni a kozeli forrasokat
-				//for(Block source : poly.lightSources.keySet()) {
-				for(Block source : poly.getSources()) {
-					if(source!=b)
-						addLight(source.pos, source, source.lightLevel); //valojaban csak az uj blokkokhoz adodik hozza 
+			
+			HashSet<Point3D> sources = new HashSet<>();
+			for(Polygon3D poly : b.Polygons) { // kiuteskor eleg ujraszamolni az erintett forrasokat
+				for(Point3D source : poly.getSources()) {
+					if(!source.equals(b.pos))
+						sources.add(source);
 				}
 			}
 			
-			if(Engine.isLocalMP() || Engine.isSingleplayer()) {
+			for(Point3D source:sources) {
+				addLight(source);		 //valojaban csak az uj blokkokhoz adodik hozza
+			}
+			
+			
+			
+			if(Blocks.size()==0 && (Engine.isLocalMP() || Engine.isSingleplayer())) {
 				addBlockNoReplace(new WaterBlock(0,0,0,Engine), true);
 			}
 		}
@@ -779,21 +788,16 @@ public class World {
 	}
 	
 	
-	private void modifyLight(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped, boolean add)
+	private void modifyLight(Point3D pos, Point3D source, int intensity, HashMap<Point3D, Integer> alreadyMapped, boolean add, HashMap<Polygon3D,Integer> result)
 	{
-		Point3D p0s = new Point3D().set(pos); //pos at lesz irva ugyanebben a ciklusban, ezert masolni kell ha kulcskent hasznaljuk
-		if(!alreadyMapped.containsKey(p0s) || alreadyMapped.get(p0s)<intensity) {
-				alreadyMapped.put(p0s, intensity);
-		}else{
-				return;
-		}
-		
-		if(intensity<=0) {
+		if(intensity<=0 || (alreadyMapped.containsKey(pos) && intensity < alreadyMapped.get(pos))) {
 			return;
 		}
 		
-		Point3D coord = p0s;//new Point3D().set(pos);// get6blocks atirja a parametert ezert le kell masolni
-
+		alreadyMapped.put(new Point3D().set(pos), intensity);
+		
+		Point3D coord = new Point3D().set(pos);
+			
 		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
 		for(Entry<BlockFace, Block> entry : nearby.entrySet()) {
 			Block b = entry.getValue();
@@ -806,14 +810,14 @@ public class World {
 				Polygon3D poly = polys.getKey();
 				if(polyface == face.getOpposite()) {
 					
-					Integer current = poly.checkSource(source);
 					
 					if(add) {
+						Integer current = poly.checkSource(source);
 						if(current==null || current<intensity) {
-							poly.addSource(source, intensity);
+							result.put(poly, intensity);
 						}
 					}else {
-						poly.removeSource(source);
+						result.put(poly, null);
 					}
 					
 				}				
@@ -826,22 +830,41 @@ public class World {
 			Block b = entry.getValue();
 			BlockFace face = entry.getKey();
 			if(b == Block.NOTHING || b.transparent) { // b koordinatai 0,0,0 ezert b-t nem lehet hasznalni
-				modifyLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped, add);
+				modifyLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped, add, result); //itt meg kell az eredeti pos
 			}
 		}
+	}
+	
+	
+	public void addLight(Point3D source) {
+		lightCalcRuns=0;
+		Block sourceBlock = getBlockAt(source.x, source.y, source.z);
+		int intensity = sourceBlock.lightLevel;
+		for(Polygon3D p : sourceBlock.HitboxPolygons.keySet()) {
+			p.addSource(source, intensity);
+		}
+		HashMap<Polygon3D,Integer> results = new HashMap<>();
+		modifyLight(source, source, intensity, new HashMap<Point3D,Integer>(), true,results);
+		for(Entry<Polygon3D, Integer> pass : results.entrySet()) {
+			pass.getKey().addSource(source, pass.getValue());
+			lightCalcRuns++;
 
+		}
+	}
+	
+	public void removeLight(Point3D source) {
+		lightCalcRuns=0;
+
+		int intensity = getBlockAt(source.x, source.y, source.z).lightLevel;
+		HashMap<Polygon3D,Integer> results = new HashMap<>();
+
+		modifyLight(source, source, intensity, new HashMap<Point3D,Integer>(), false,results);
 		
-	}
-	
-	
-	public void addLight(Point3D pos, Block source, int intensity) {
-		modifyLight(pos, source, intensity, new HashMap<Point3D,Integer>(), true);
-		//recalcSpawn(pos, source, intensity, new HashMap<Point3D,Integer>());
-	}
-	
-	public void removeLight(Point3D pos, Block source, int intensity) {
-		modifyLight(pos, source, intensity, new HashMap<Point3D,Integer>(), false);
-		//recalcSpawn(pos, source, intensity, new HashMap<Point3D,Integer>());
+		for(Entry<Polygon3D, Integer> pass : results.entrySet()) {
+			pass.getKey().removeSource(source);
+			lightCalcRuns++;
+
+		}
 	}
 	
 	/*private void recalcSpawn(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
@@ -935,41 +958,35 @@ public class World {
 			
 		}
 		
-
 		
 		Block top = getBlockAt(x, y, z + 1);
 		if (top == Block.NOTHING) {
 			removeLight(x, y, z+1, source, level-1, alreadyMapped);
 		}
-
 		Block bottom = getBlockAt(x, y, z - 1);
 		if (bottom == Block.NOTHING) {
 			removeLight(x, y, z - 1, source, level-1, alreadyMapped);
 		}
-
 		Block west = getBlockAt(x - 1, y, z);
 		if (west == Block.NOTHING) {
 			removeLight(x - 1, y, z, source, level-1, alreadyMapped);
 		}
-
 		Block east = getBlockAt(x + 1, y, z);
 		if (east == Block.NOTHING) {
 			removeLight(x + 1, y, z, source, level-1, alreadyMapped);
 		}
-
 		Block south = getBlockAt(x, y - 1, z);
 		if (south == Block.NOTHING) {
 			removeLight(x, y - 1, z, source, level-1, alreadyMapped);
 		}
-
 		Block north = getBlockAt(x, y + 1, z);
 		if (north == Block.NOTHING) {
 			removeLight(x, y + 1, z, source, level-1, alreadyMapped);
 		}
-
 		
 	}*/
-	
+
+
 
 	public int getTop(int x, int y) {
 		TreeSet<Block> blockColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));

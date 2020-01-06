@@ -85,7 +85,7 @@ public class GameEngine{
 
 			long finishTime = System.currentTimeMillis();
 			updateLabel(statusLabel,"Worldgen done in " + (finishTime-startTime)/1000.0f + " seconds, loading...");
-
+			world.loading=false;
 			break;
 		case MULTIPLAYER:
 			world = new World(location, this, game, false, statusLabel);
@@ -101,6 +101,7 @@ public class GameEngine{
 				return;
 			}
 			updateLabel(statusLabel,"Map loading done: " + world.getSize() + " block loaded.");
+			world.loading=false;
 		}
 		
 		

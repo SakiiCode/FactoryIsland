@@ -106,12 +106,6 @@ public class Block extends Object3D
 	}
 
 
-	void setLight(int intensity) {
-		lightLevel=intensity;
-		for(Polygon3D poly : Polygons) {
-			poly.addSource(this, lightLevel);
-		}
-	}
 
 	public void select(BlockFace face)
 	{
