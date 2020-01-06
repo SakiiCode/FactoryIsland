@@ -41,6 +41,8 @@ import org.w3c.dom.NodeList;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
+import ml.sakii.factoryisland.blocks.PowerConsumer;
+import ml.sakii.factoryisland.blocks.PowerWire;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
@@ -222,7 +224,13 @@ public class World {
 	            	   }else if(curMeta != null) {
 	            		   curBlock.BlockMeta.put(curMeta, data);
 	            	   }else if(curPower != null) {
-	            		   curBlock.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
+	            		   if(curBlock instanceof PowerWire) {
+	            			   ((PowerWire)curBlock).powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
+	            		   }else if(curBlock instanceof PowerConsumer) {
+	            			   ((PowerConsumer)curBlock).powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
+	            		   }else {
+	            			   Main.err("Power on non-wire block: "+curBlock);
+	            		   }
 	            	   }else if(curInv != null) {
 	            		   ((BlockInventoryInterface) curBlock).getInv().add(Main.Items.get(curInv), Integer.parseInt(data), false);
 	            	   }
@@ -1208,12 +1216,25 @@ public class World {
 			}
 			BlockElement.appendChild(Metadata);
 
+			
+			
 			Element Powers = document.createElement("power");
-			for (Entry<BlockFace, Integer> entry : b.powers.entrySet()) {
-				Element power = document.createElement(entry.getKey().name());
-				power.setTextContent(entry.getValue().toString());
-				Powers.appendChild(power);
+			
+			if(b instanceof PowerWire) {
+				for (Entry<BlockFace, Integer> entry : ((PowerWire)b).powers.entrySet()) {
+					Element power = document.createElement(entry.getKey().name());
+					power.setTextContent(entry.getValue().toString());
+					Powers.appendChild(power);
+				}				
+			}else if(b instanceof PowerConsumer) {
+				for (Entry<BlockFace, Integer> entry : ((PowerConsumer)b).powers.entrySet()) {
+					Element power = document.createElement(entry.getKey().name());
+					power.setTextContent(entry.getValue().toString());
+					Powers.appendChild(power);
+				}				
 			}
+			
+			
 			BlockElement.appendChild(Powers);
 			
 			if(b instanceof BlockInventoryInterface) {

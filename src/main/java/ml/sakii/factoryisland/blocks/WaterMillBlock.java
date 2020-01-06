@@ -1,163 +1,47 @@
 package ml.sakii.factoryisland.blocks;
 
 
-import java.awt.Color;
-import java.util.Map.Entry;
-
-import ml.sakii.factoryisland.Color4;
+import java.awt.GradientPaint;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.Surface;
 
-public class WaterMillBlock extends SimpleMachine implements TickListener{
+public class WaterMillBlock extends SimpleMachineGenerator {
 	
+	public static Surface[] surfaces = Block.generateSurfaces(Main.wmSideColor);
 
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
-		super("WaterMill", x, y, z,  
-				Main.wmSideColor,Main.wmGradientBeginColor,Main.wmPoweredColor, new Color4(Color.BLUE), engine);
-		BlockMeta.put("active", "0");
+		super("WaterMill", x, y, z,Main.wmSideColor,Main.wmGradientBeginColor,Main.wmPoweredColor,Main.waters[4].c, engine);
 
 	}
-	
-	
-	
-	@Override
-	public boolean onMetadataUpdate(String key, String value) {
-		super.onMetadataUpdate(key, value);
-		BlockMeta.put(key, value);
-		int target = getTarget().id;
-		if(key.equals("active")){
-			if(Integer.parseInt(value) != 0){
-				for(int i=0;i<6;i++){
-					if(i != target){
-						Polygons.get(i).s.c.set(Main.wmPoweredColor);
-						Polygons.get(i).recalcLightedColor();
-					}
-				}
-			}else{
-				for(int i=0;i<6;i++){
-					if(i != target){
-						
-						Polygons.get(i).s.c.set(Main.wmSideColor);
-						Polygons.get(i).recalcLightedColor();
-					}
-				}
-			}
-		}
-		
-		return true;
-	}
-
 
 	@Override
-	public void onLoad(){
-		super.onLoad();
-		
-			if(Integer.parseInt(BlockMeta.get("active"))>0){
-				for(int i=0;i<6;i++){
-					if(i != getTarget().id){
-						Polygons.get(i).s.c.set(Main.wmPoweredColor);
-						Polygons.get(i).recalcLightedColor();
-
-					}
-				}
-			}else{
-				for(int i=0;i<6;i++){
-					if(i != getTarget().id){
-						Polygons.get(i).s.c.set(Main.wmSideColor);
-						Polygons.get(i).recalcLightedColor();
-
-					}
-				}
-			}
+	public Surface[] getSurfaces() {
+		return new Surface[] {new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT))};
 	}
 	
 	@Override
-	public boolean tick(long tickCount) {
-			doPower();
-			return false;
-		
-	}
-	
-
-	
-	private void doPower(){
+	void refresh(){
 		BlockFace target=getTarget();
 		Block tBlock =Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]); 
-		if(tBlock instanceof WaterBlock){
-			WaterBlock targetBlock = (WaterBlock)tBlock;
-			if(targetBlock.getHeight() < 4){
-				setMetadata("active", "1", true);
-				for(Entry<BlockFace, Block> e : Engine.world.get6Blocks(this.pos, false).entrySet()){
-					BlockFace face = e.getKey();
-					Block b = e.getValue();
-					
-					if(face != target && b instanceof PowerListener && !b.powers.containsKey(face.getOpposite())){
-						PowerListener pl = (PowerListener)(b);
-						pl.addPower(10, e.getKey().getOpposite());
-
-						
-					}
-				}
-				//this.addPower(10, BlockFace.NONE);
-			}else if(targetBlock.getHeight() == 4){
-
-				setMetadata("active", "0", true);
-				//setMetadata("powered", "0");
-				for(Entry<BlockFace, Block> e : Engine.world.get6Blocks(this.pos, false).entrySet()){
-					BlockFace face = e.getKey();
-					Block b = e.getValue();
-					
-					if(face != target && b instanceof PowerListener && b.powers.containsKey(face.getOpposite())){
-						PowerListener pl = (PowerListener)(b);
-						pl.removePower(e.getKey().getOpposite());
-					}
-				}
-				//this.removePower(BlockFace.NONE);
-			}
-			
-
-			/*Block oppositeBlock =getBlockAt(x-target.direction[0], y-target.direction[1], z-target.direction[2]);
-			if(oppositeBlock instanceof PowerListener){
-				boolean oppositePowered = Boolean.parseBoolean(oppositeBlock.BlockMeta.get("powered"));
-				if(getState() && !oppositePowered){
-					//((PowerListener)oppositeBlock).powerApplied();
-					oppositeBlock.setMetadata("powered", "true");
-					Main.log("sending power to oppositeblock");
-				}else if(!getState() && oppositePowered){
-					oppositeBlock.setMetadata("powered", "false");
-					//((PowerListener)oppositeBlock).powerStopped();
-				}
-			
-			}*/
-			
-		}else{
-			setMetadata("active", "0", true);
-			for(Entry<BlockFace, Block> e :Engine.world.get6Blocks(this.pos, false).entrySet()){
-				BlockFace face = e.getKey();
-				Block b = e.getValue();
-				
-				if(face != target && b instanceof PowerListener && b.powers.containsKey(face.getOpposite())){
-					PowerListener pl = (PowerListener)(b);
-					pl.removePower(e.getKey().getOpposite());
-
-					
-				}
+		BlockFace[] notTargetSides = new BlockFace[5];
+		for(int i=0,idx=0;i<6;i++) {
+			if(BlockFace.values[i] != target) {
+				notTargetSides[idx]=BlockFace.values[i];
+				idx++;
 			}
 		}
-		
+		if(tBlock instanceof WaterBlock && ((WaterBlock)tBlock).getHeight()<4){
+			switchPower(true,notTargetSides);
+		}else {
+			switchPower(false,notTargetSides);
+		}
 	}
 
-	/*@Override
-	public void addPower(int power, BlockFace relativeFrom){
-		powers.put(relativeFrom, power);
-		setMetadata("powered", ""+getCharge());
-	}
-
-	@Override
-	public void removePower(BlockFace relativeFrom) {
-		powers.remove(relativeFrom);
-		setMetadata("powered", ""+getCharge());
-	}
-*/
 
 }

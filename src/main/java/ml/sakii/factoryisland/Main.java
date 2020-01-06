@@ -50,9 +50,8 @@ public class Main
 	public final static byte REVISION = -8;
 	
 	public static boolean devmode = true, nopause = false, headless=false, small=false;
-	public static Color4 drillGradientBeginColor = new Color4(100, 40, 40, 200);
 	public static BufferedImage drillSide;
-	public static Color4 drillSideColor, drillFrontColor, chestModule, tankModule;
+	public static Color4 drillGradientBeginColor, drillSideColor, chestModule, tankModule;
 	public static Surface fire;
 
 	public static JFrame Frame;
@@ -447,8 +446,9 @@ public class Main
 		alienFront = new Surface(Color.GREEN.darker().darker());
 		drillSide = loadTexture("textures/blocks/drill_side5.png");
 		drillSideColor = Surface.averageColor(drillSide);
-		//Color4 tmp = new Color4(drillGradientBeginColor);
-		drillFrontColor = new Color4().set(drillSideColor).darker().darker();//tmp.blend(drillSideColor);
+		drillGradientBeginColor = new Color4(200, 70, 60, 255);
+		//drillFrontColor = new Color4().set(drillSideColor).darker().darker();
+
 		lamp = new Surface(new Color(240, 220, 170));
 
 		wmSideColor = new Color4(200, 200, 255);
