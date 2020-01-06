@@ -217,8 +217,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(b instanceof LoadListener) {
 				((LoadListener)b).onLoad();
 			}
+			statusLabel.setText("Spreading light...");
 			if(b.lightLevel>1) {
-				Engine.world.addLight(b.pos, b, b.lightLevel);
+				Engine.world.addLight(b.pos);
 			}
 		}
 		
@@ -1395,5 +1396,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Block SpawnBlock = Engine.world.getSpawnBlock();
 		PE.move(SpawnBlock.x + 0.5f, SpawnBlock.y + 0.5f, SpawnBlock.z + 2.7f, false);
 	}
+
 
 }
