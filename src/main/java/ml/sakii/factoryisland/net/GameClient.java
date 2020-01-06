@@ -307,7 +307,11 @@ public class GameClient extends Thread{
 	}
 	
 	public void receiveBlockDestroy(String[] part) {
-		Engine.world.destroyBlock(Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4])), false);
+		Block b = Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4]));
+		if(b instanceof BreakListener) {
+			((BreakListener) b).breaked(part[1]);
+		}
+		Engine.world.destroyBlock(b, false);
 
 	}
 	

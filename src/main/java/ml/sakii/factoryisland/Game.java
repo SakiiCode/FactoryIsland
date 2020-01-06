@@ -1029,7 +1029,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						if (PE.inventory.hasSelected())
 						{
 							ItemType selected = PE.inventory.getSelectedKind();
-							if (selected.className.contains("ml.sakii.factoryisland.blocks") && placeBlock(selected.className))
+							if (placeBlock(selected.className))
 							{
 								PE.inventory.add(selected, -1, true);
 							}
@@ -1342,7 +1342,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 
 		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
-		if (placeable instanceof PlaceListener) //simplemachine miatt addblock utan
+		if (placeable instanceof PlaceListener) 
 		{
 			((PlaceListener) placeable).placed(SelectedFace);
 		}
