@@ -40,7 +40,10 @@ import ml.sakii.factoryisland.blocks.BreakListener;
 import ml.sakii.factoryisland.blocks.InteractListener;
 import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.PlaceListener;
+import ml.sakii.factoryisland.blocks.PowerConsumer;
+import ml.sakii.factoryisland.blocks.PowerWire;
 import ml.sakii.factoryisland.blocks.TextureListener;
+import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -1043,6 +1046,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					} else if (SelectedBlock instanceof InteractListener)
 					{
 						((InteractListener) SelectedBlock).interact(SelectedFace);
+						if(SelectedBlock instanceof TickListener) {
+							Engine.TickableBlocks.add(SelectedBlock.pos);
+						}
 						if (SelectedBlock instanceof BlockInventoryInterface)
 						{
 							PlayerInventory otherInv = ((BlockInventoryInterface) SelectedBlock).getInv();

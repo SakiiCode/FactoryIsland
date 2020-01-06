@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -459,16 +461,38 @@ public class Main
 		BufferedReader reader = new BufferedReader(
 				new InputStreamReader(Main.class.getResourceAsStream("blocks/BlockRegistry.txt")));
 
-		String line = "";
+		String name;
 		try
 		{
-			while ((line = reader.readLine()) != null)
+			while ((name = reader.readLine()) != null)
 			{
 
-				GameEngine.nullBlock("ml.sakii.factoryisland.blocks." + line + "Block"); //TODO ez kell még?
-				PlayerInventory.Creative.add(Items.get(line), 1, false);
+				if (!Main.Items.containsKey(name))
+				{
+					ItemType item;
+					Surface[] surfaces;
+					String className;
+					if(Main.ModRegistry.contains(name)) {
+						ModBlock mb = new ModBlock(name, 0,0,0, null);
+						surfaces = mb.surfaces;
+						className=name;
+						
+					}else {
+						className = "ml.sakii.factoryisland.blocks." + name + "Block";
+						Class<?> blockClass = Class.forName(className);
+						surfaces = (Surface[]) blockClass.getField("surfaces").get(new Surface[] {});
+					}
+					
+					item=new ItemType(name, className,
+							generateIcon(surfaces[0], surfaces[3], surfaces[4]),
+							generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
+					
+					Main.Items.put(name, item);
+					
+				}
+				PlayerInventory.Creative.add(Items.get(name), 1, false);
 			}
-		} catch (IOException e1)
+		} catch (IOException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1)
 		{
 			e1.printStackTrace();
 		}
@@ -527,6 +551,144 @@ public class Main
 		}else {
 			sound=false;
 		}
+	}
+	
+	public static BufferedImage generateIcon(Surface topS, Surface southS, Surface eastS)
+	{
+		int size, s16;
+		if(Main.headless) {
+			size=1;
+			s16=1;
+		}else {
+			size = (int) (Main.Frame.getWidth() * 64f / 1440f);
+			s16 = (int) (Main.Frame.getWidth() * 16f / 1440f);
+		}
+		BufferedImage icon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = icon.createGraphics();
+		Point[] p = new Point[]
+		{ new Point(0, s16), new Point(s16, 0), new Point(size, 0), new Point(s16 * 3, s16), new Point(0, size),
+				new Point(s16 * 3, size), new Point(size, s16 * 3) };
+		Polygon top = new Polygon(new int[]
+		{ p[0].x, p[1].x, p[2].x, p[3].x }, new int[]
+		{ p[0].y, p[1].y, p[2].y, p[3].y }, 4);
+		Polygon front = new Polygon(new int[]
+		{ p[0].x, p[3].x, p[5].x, p[4].x }, new int[]
+		{ p[0].y, p[3].y, p[5].y, p[4].y }, 4);
+		Polygon side = new Polygon(new int[]
+		{ p[2].x, p[3].x, p[5].x, p[6].x }, new int[]
+		{ p[2].y, p[3].y, p[5].y, p[6].y }, 4);
+
+		if (topS.color)
+		{ // TOP
+			g.setColor(topS.c.getColor());
+			g.fillPolygon(top);
+		} else
+		{
+			g.setClip(top);
+			Rectangle bounds = top.getBounds();
+			g.drawImage(topS.Texture, bounds.x, bounds.y, bounds.width, bounds.height, null);
+			g.setClip(null);
+		}
+
+		if (southS.color)
+		{ // SOUTH
+			g.setColor(southS.c.getColor());
+			g.fillPolygon(front);
+		} else
+		{
+			g.setClip(front);
+			Rectangle bounds = front.getBounds();
+			g.drawImage(southS.Texture, bounds.x, bounds.y, bounds.width, bounds.height, null);
+			g.setClip(null);
+		}
+
+		if (eastS.color)
+		{ // EAST
+			g.setColor(eastS.c.getColor());
+			g.fillPolygon(side);
+		} else
+		{
+			g.setClip(side);
+			Rectangle bounds = side.getBounds();
+			g.drawImage(eastS.Texture, bounds.x, bounds.y, bounds.width, bounds.height, null);
+			g.setClip(null);
+		}
+		g.setColor(Color.BLACK);
+		g.drawPolygon(top);
+		g.drawPolygon(side);
+		g.drawPolygon(front);
+		g.dispose();
+		return icon;
+	}
+
+	public static BufferedImage generateViewmodel(Surface topS, Surface southS, Surface eastS)
+	{
+
+		float res;
+		if(Main.headless) {
+			res=1;
+		}else {
+			res = Main.Frame.getHeight() / 900f;
+		}
+		int size = (int) (res * 250);
+		BufferedImage icon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = icon.createGraphics();
+		Point[] p = new Point[]
+		{ new Point(0, (int) (res * 100)), new Point((int) (res * 90), (int) (res * 50)),
+				new Point((int) (res * 200), (int) (res * 20)), new Point((int) (res * 100), (int) (res * 70)),
+				new Point((int) (res * 50), (int) (res * 230)), new Point((int) (res * 160), (int) (res * 200)),
+				new Point(size, (int) (res * 150)) };
+		Polygon top = new Polygon(new int[]
+		{ p[0].x, p[1].x, p[2].x, p[3].x }, new int[]
+		{ p[0].y, p[1].y, p[2].y, p[3].y }, 4);
+		Polygon front = new Polygon(new int[]
+		{ p[0].x, p[3].x, p[5].x, p[4].x }, new int[]
+		{ p[0].y, p[3].y, p[5].y, p[4].y }, 4);
+		Polygon side = new Polygon(new int[]
+		{ p[2].x, p[3].x, p[5].x, p[6].x }, new int[]
+		{ p[2].y, p[3].y, p[5].y, p[6].y }, 4);
+
+		if (topS.color)
+		{ // TOP
+			g.setColor(topS.c.getColor());
+			g.fillPolygon(top);
+		} else
+		{
+			g.setClip(top);
+			Rectangle bounds = top.getBounds();
+			g.drawImage(topS.Texture, bounds.x, bounds.y, bounds.width, bounds.height, null);
+			g.setClip(null);
+		}
+
+		if (southS.color)
+		{ // SOUTH
+			g.setColor(southS.c.getColor());
+			g.fillPolygon(front);
+		} else
+		{
+			g.setClip(front);
+			Rectangle bounds = front.getBounds();
+			g.drawImage(southS.Texture, bounds.x, bounds.y, bounds.width, bounds.height, null);
+			g.setClip(null);
+		}
+
+		if (eastS.color)
+		{ // EAST
+			g.setColor(eastS.c.getColor());
+			g.fillPolygon(side);
+		} else
+		{
+			g.setClip(side);
+			Rectangle bounds = side.getBounds();
+			g.drawImage(eastS.Texture, bounds.x, bounds.y, bounds.width, bounds.height, null);
+			g.setClip(null);
+		}
+		g.setColor(Color.BLACK);
+		g.drawPolygon(top);
+		g.drawPolygon(side);
+		g.drawPolygon(front);
+		g.dispose();
+		return icon;
 	}
 
 	private static BufferedImage loadTexture(String path)
