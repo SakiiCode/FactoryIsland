@@ -47,9 +47,8 @@ import ml.sakii.factoryisland.items.PlayerInventory;
 public class Main
 {
 
-	public final static byte MAJOR = 0;
-	public final static byte MINOR = 10;
-	public final static byte REVISION = -8;
+	public static byte MAJOR, MINOR, REVISION;
+
 	
 	public static boolean devmode = true, nopause = false, headless=false, small=false;
 	public static BufferedImage drillSide;
@@ -112,10 +111,29 @@ public class Main
 	public static void main(String[] args) throws Exception
 	{
 
+		
+		
 		System.setOut(new ProxyPrintStream(System.out, "log.txt"));
         System.setErr(new ProxyPrintStream(System.err, "log.txt"));
 		
-
+		try(java.io.InputStream is = Main.class.getResourceAsStream("version.properties")){
+	        java.util.Properties p = new Properties();
+			p.load(is);
+	        String[] version = p.getProperty("version","0.0.0").split("\\.");
+	        
+	        MAJOR = Byte.parseByte(version[0]);
+	        MINOR = Byte.parseByte(version[1]);
+	        REVISION = Byte.parseByte(version[2]);
+		}catch(Exception e) {
+			MAJOR = 0;
+	        MINOR = 0;
+	        REVISION = 0;
+	        e.printStackTrace();
+	        
+		}
+        
+        
+        
         List<String> params = Arrays.asList(args);
         String name=null,map=null;
         for(int i=0;i<params.size();i++) {

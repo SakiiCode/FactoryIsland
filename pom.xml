@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ml.sakii</groupId>
   <artifactId>factoryisland</artifactId>
-  <version>latest</version>
+  <version>0.10.0</version>
   <name>FactoryIsland</name>
   <description></description>
   <properties>
@@ -10,7 +10,55 @@
   <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
   <build>
+  
+  <resources>
+	<resource>
+   	  <directory>src/main/resources</directory>
+      <filtering>true</filtering>
+    </resource>
+  </resources>
   <plugins>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+    </plugin>
+    <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+        <execution>
+            <phase>install</phase>
+            <goals>
+            <goal>exec</goal>
+            </goals>
+            <configuration>
+            <executable>target/build.sh</executable>
+            <workingDirectory>target</workingDirectory>
+            <arguments>
+                <argument>${project.version}</argument>
+            </arguments>
+            </configuration>
+        </execution>
+        </executions>
+    </plugin>
+      <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+            <version>1.0.0</version>
+            <executions>
+                <execution>
+                    <phase>generate-resources</phase>
+                    <goals>
+                        <goal>write-project-properties</goal>
+                    </goals>
+                    <configuration>
+                        <outputFile>${project.build.outputDirectory}/version.properties</outputFile>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     <plugin>
       <!-- Build an executable JAR -->
       <groupId>org.apache.maven.plugins</groupId>

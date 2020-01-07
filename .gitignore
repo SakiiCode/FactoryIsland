@@ -5,6 +5,6 @@ saves/
 mods/
 .settings/
 screenshots/
-/*.png
-deploy/
-target/
+target/*
+!target/packr.jar
+!target/build.sh

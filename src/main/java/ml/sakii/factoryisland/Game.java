@@ -33,6 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
@@ -43,10 +44,10 @@ import ml.sakii.factoryisland.blocks.PlaceListener;
 import ml.sakii.factoryisland.blocks.PowerConsumer;
 import ml.sakii.factoryisland.blocks.PowerWire;
 import ml.sakii.factoryisland.blocks.TextureListener;
-import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
+import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.net.GameServer;
@@ -204,7 +205,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if(Config.creative) {
 			PE.inventory=PlayerInventory.Creative;
 		}else {
-			PE.inventory=Engine.world.loadInv(PE.name, Engine);
+			Engine.world.loadInv(PE.name, PE.inventory);
 		}
 		
 		init();
@@ -1003,20 +1004,24 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				if (SelectedBlock != Block.NOTHING)
 				{
-					boolean returnAsItem=true;
+					if(Engine.isSingleplayer()) { //mpben az item visszaadast a gameclient kezeli
 					
-					if (SelectedBlock instanceof BreakListener)
-					{
-						returnAsItem = ((BreakListener) SelectedBlock).breaked(Config.username);
-					}
-					ItemType item = Main.Items.get(SelectedBlock.name);
-					Engine.world.destroyBlock(SelectedBlock, true);
-					
-					if(returnAsItem)
-					{
+						ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(SelectedBlock.name),1)};
 						
-						PE.inventory.add( item, 1, true);
-
+						if (SelectedBlock instanceof BreakListener)
+						{
+							ItemStack[] returnAsItem2 = ((BreakListener) SelectedBlock).breaked(Config.username);
+							if(returnAsItem2!=null){
+								returnAsItem=returnAsItem2;
+							}
+						}
+						Engine.world.destroyBlock(SelectedBlock, true);
+						
+							
+						PE.inventory.add( returnAsItem, true);
+	
+					}else{
+						Engine.world.destroyBlock(SelectedBlock, true);
 					}
 				}else if(SelectedEntity != null) {
 					Engine.world.hurtEntity(SelectedEntity.ID, 1, true);
@@ -1043,9 +1048,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					} else if (SelectedBlock instanceof InteractListener)
 					{
 						((InteractListener) SelectedBlock).interact(SelectedFace);
-						if(SelectedBlock instanceof TickListener) {
-							Engine.TickableBlocks.add(SelectedBlock.pos);
-						}
+						
 						if (SelectedBlock instanceof BlockInventoryInterface)
 						{
 							PlayerInventory otherInv = ((BlockInventoryInterface) SelectedBlock).getInv();
@@ -1349,12 +1352,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			return false;
 		}
-
-		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
 		if (placeable instanceof PlaceListener) 
 		{
 			((PlaceListener) placeable).placed(SelectedFace);
 		}
+		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
+		
 		return success;
 		
 
