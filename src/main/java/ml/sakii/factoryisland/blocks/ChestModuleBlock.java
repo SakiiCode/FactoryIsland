@@ -1,6 +1,7 @@
 package ml.sakii.factoryisland.blocks;
 
 
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.GameEngine;
@@ -9,6 +10,7 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.BlockInventory;
+import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
@@ -50,16 +52,16 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	}
 
 	@Override
-	public boolean breaked(String username) {
+	public ItemStack[] breaked(String username) {
+		
+		ArrayList<ItemStack> stacks = new ArrayList<>();
+		
 		for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
-			for(Entity e : Engine.world.getAllEntities()) {
-				if(e.name.equals(username) && e instanceof PlayerMP) {
-					((PlayerMP)e).inventory.add(is.getKey(), is.getValue(), true);
-					
-				}
-			}
+			
+			stacks.add(new ItemStack(is.getKey(),is.getValue()));
 		}
-		return true;
+		stacks.add(new ItemStack(Main.Items.get(this.name),1));
+		return stacks.toArray(new ItemStack[0]);
 	}
 
 	@Override

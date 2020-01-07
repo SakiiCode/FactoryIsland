@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.items.ItemStack;
 
-public abstract class PowerGenerator extends Block{
+public abstract class PowerGenerator extends Block implements BreakListener{
 
 
 	
@@ -62,6 +63,10 @@ public abstract class PowerGenerator extends Block{
 		}
 	}
 	
-
+	@Override
+	public ItemStack[] breaked(String username) {
+		switchPower(false, BlockFace.values);
+		return null;
+	}
 
 }

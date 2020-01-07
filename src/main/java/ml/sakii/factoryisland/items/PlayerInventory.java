@@ -51,14 +51,18 @@ public class PlayerInventory {
 			
 			if(stack+amount==0) { //a stack kifogyott
 				
-				if(hotbarIndex==items.size()-1){
+				if(hotbarIndex==items.size()-1){// ha a vegerol fogy ki csokken eggyel
 					setHotbarIndex(hotbarIndex-1);
+					items.remove(kind);
+				}else {// amugy marad a hotbarindex
+					items.remove(kind);
+					setHotbarIndex(hotbarIndex);
 				}
 				
-				items.remove(kind);
+				
 				
 				if(items.size()==0){ //nem volt üres, üres lett
-					setHotbarIndex(-1);
+					//setHotbarIndex(-1);
 					if(!Main.headless) {
 						if(Main.GAME.remoteInventory != null) {
 							Main.GAME.SwapInv();
@@ -144,5 +148,15 @@ public class PlayerInventory {
 	void doMultiplayer(ItemType kind, int amount) {
 		engine.client.sendInvPlayerAdd(playerName, kind, amount);	
 		Main.log("PlayerInv sent data from client to server");
+	}
+
+
+
+
+	public void add(ItemStack[] stacks, boolean resend) {
+		for(ItemStack stack : stacks) {
+			add(stack.kind,stack.amount,resend);
+		}
+		
 	}
 }

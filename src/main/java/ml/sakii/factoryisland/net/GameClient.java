@@ -24,6 +24,7 @@ import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.BreakListener;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
+import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 
 
@@ -307,10 +308,25 @@ public class GameClient extends Thread{
 	
 	public void receiveBlockDestroy(String[] part) {
 		Block b = Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4]));
-		if(b instanceof BreakListener) {
-			((BreakListener) b).breaked(part[1]);
+		ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(b.name),1)};
+		
+		if (b instanceof BreakListener)
+		{
+			ItemStack[] returnAsItem2 = ((BreakListener) b).breaked(part[1]);
+			if(returnAsItem2!=null){
+				returnAsItem=returnAsItem2;
+			}
 		}
+		
 		Engine.world.destroyBlock(b, false);
+		if(Engine.isLocalMP()) {
+			for(Entity e : Engine.world.getAllEntities()) {
+				if(e.name.equals(part[1]) && e instanceof PlayerMP) {
+					((PlayerMP)e).inventory.add(returnAsItem, true);
+					break;
+				}
+			}
+		}
 
 	}
 	

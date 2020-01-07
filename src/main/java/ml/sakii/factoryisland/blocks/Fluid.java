@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.items.ItemStack;
 
 
 public abstract class Fluid extends Block implements TickListener, LoadListener, MetadataListener, BreakListener{
@@ -169,12 +170,12 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 
 
 	@Override
-	public boolean breaked(String username)
+	public ItemStack[] breaked(String username)
 	{
 		if(getHeight()==maxHeight) {
-			return true;
+			return null;
 		}
-		return false;
+		return new ItemStack[] {};
 	}
 	public int getHeight()
 	{

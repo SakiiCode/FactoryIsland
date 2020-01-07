@@ -11,8 +11,9 @@ import javax.script.ScriptException;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.items.ItemStack;
 
-public class ModBlock extends Block implements BreakListener, InteractListener, PlaceListener, PowerListener, TickListener, WorldGenListener{
+public class ModBlock extends PowerConsumer implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener{
 
     public Surface[] surfaces;
 	
@@ -121,12 +122,15 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 	}
 
 	@Override
-	public boolean breaked(String username) {
+	public ItemStack[] breaked(String username) {
 		try {
-			return (boolean) invocable.invokeFunction("breaked");
+			if((boolean)invocable.invokeFunction("breaked")) {
+				return null;
+			}
+			return new ItemStack[] {};
 		} catch (NoSuchMethodException | ScriptException e) {
 			Main.err(e.getMessage());
-			return true;
+			return null;
 		}
 	}
 

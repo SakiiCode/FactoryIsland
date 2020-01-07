@@ -9,6 +9,7 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
+import ml.sakii.factoryisland.items.ItemStack;
 
 public abstract class PowerWire extends Block implements PowerListener, MetadataListener, LoadListener, BreakListener, TickListener{
 	
@@ -137,11 +138,11 @@ public abstract class PowerWire extends Block implements PowerListener, Metadata
 	}
 	
 	@Override
-	public boolean breaked(String username) {
+	public ItemStack[] breaked(String username) {
 		if(getCharge()>1) {
 			spreadPower(0,false);
 		}
-		return true;
+		return null;
 	}
 	
 	@Override
