@@ -156,7 +156,7 @@ public class GameServer extends Thread{
 						Boolean creative = Boolean.parseBoolean(part[2]);
 						
 						
-						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], creative ? PlayerInventory.Creative : Engine.world.loadInv(senderName, Engine), conn, ID, Engine);
+						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], creative ? PlayerInventory.Creative : Engine.world.loadInv(senderName, new PlayerInventory(senderName,Engine)), conn, ID, Engine);
 
 
 						

@@ -16,16 +16,14 @@ public abstract class SimpleMachineConsumer extends PowerConsumer
 	public Polygon3D TargetPolygon;
 	private Color4 side;
 	private Color4 front;
-	private Color4 active;
 	
 	
-	public SimpleMachineConsumer(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole, GameEngine engine)
+	public SimpleMachineConsumer(String name, int x, int y, int z, Color4 side, Color4 front, Color4 hole, GameEngine engine)
 	{
 		super(name, x, y, z,1,1,1, engine);
 
 		this.side=side;
 		this.front=front;
-		this.active=active;
 		TargetPolygon = new Polygon3D(new Vertex[]
 				{ new Vertex(new Vector()), new Vertex(new Vector()), new Vertex(new Vector()),
 						new Vertex(new Vector()) },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole));
@@ -61,22 +59,7 @@ public abstract class SimpleMachineConsumer extends PowerConsumer
 
 	}
 	
-	private void updateActiveColors() {
-		for(int i=0;i<6;i++){
-			if(i != getTarget().id){
-				if(isActive()){
-					Polygons.get(i).s.c = active;
-				}else {
-					Polygons.get(i).s.c = side;
-				}
-				Polygons.get(i).recalcLightedColor();
-			}
-		}
-	}
 	
-	private boolean isActive() {
-		return Integer.parseInt(BlockMeta.get("active"))>0;
-	}
 	
 	
 
@@ -174,11 +157,6 @@ public abstract class SimpleMachineConsumer extends PowerConsumer
 			BlockMeta.put(key, value);
 			return true;
 		}
-		if(key.equals("active")){
-			BlockMeta.put(key, value);
-			updateActiveColors();
-			return true;
-		}
 		return false;
 
 	}
@@ -186,7 +164,6 @@ public abstract class SimpleMachineConsumer extends PowerConsumer
 	@Override
 	public void onLoad(){
 		updateTargetColors(BlockFace.TOP,getTarget());
-		updateActiveColors();
 	}
 	
 

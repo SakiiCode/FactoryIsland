@@ -290,10 +290,9 @@ public class World {
 		
 	}
 	
-	public PlayerInventory loadInv(String username, GameEngine engine) {
+	public PlayerInventory loadInv(String username, PlayerInventory output) {
 		
 
-		PlayerInventory output = new PlayerInventory(username, engine);
 
 		File file = new File("saves/" + worldName + "/"+username+".xml");
 		if (!file.exists()) {

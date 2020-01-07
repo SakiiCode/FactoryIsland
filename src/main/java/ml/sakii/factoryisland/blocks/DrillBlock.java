@@ -15,7 +15,7 @@ public class DrillBlock extends SimpleMachineConsumer{
 	public DrillBlock(int x, int y, int z, GameEngine engine) {
 		super("Drill", x, y, z, 
 				Main.drillSideColor,
-				Main.drillGradientBeginColor,Main.drillGradientBeginColor, new Color4(Color.RED), engine);
+				Main.drillGradientBeginColor, new Color4(Color.RED), engine);
 				
 	}
 

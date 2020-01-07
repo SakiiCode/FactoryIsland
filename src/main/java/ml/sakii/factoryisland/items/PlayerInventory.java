@@ -36,7 +36,7 @@ public class PlayerInventory {
 			items.put(kind, stack+amount);
 			
 			if(!Main.headless) {
-			if(originalSize==0 && items.size()==1){ //üres volt, nem lett üres
+				if(originalSize==0 && items.size()==1){ //üres volt, nem lett üres
 					if(activateOnFirst && Main.GAME != null) {
 						if(Main.GAME.remoteInventory != null && Main.GAME.remoteInventory.getInv().items.size()==0) {
 							setHotbarIndex(0);

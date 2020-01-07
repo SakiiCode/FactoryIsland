@@ -174,6 +174,9 @@ public abstract class Block
 
 	public final void setMetadata(String key, String value, boolean resend)
 	{
+		if(BlockMeta.get(key) != null && BlockMeta.get(key).equals(value)) {
+			return;
+		}
 		if(resend && Engine.client != null) {
 			Engine.client.sendMetadataEdit(this, key, value);
 		
@@ -188,7 +191,9 @@ public abstract class Block
 			if(!alreadyput) {
 				BlockMeta.put(key, value);
 			}
-			
+			if(this instanceof TickListener) {
+				Engine.TickableBlocks.add(pos);
+			}
 			for (Block b2 : Engine.world.get6Blocks(this, false).values())
 			{
 				if (b2 instanceof TickListener && (Engine.client == null || (Engine.client != null && Engine.client != null)))

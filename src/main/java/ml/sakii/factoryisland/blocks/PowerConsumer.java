@@ -33,7 +33,6 @@ public abstract class PowerConsumer extends Block implements PowerListener{
 	
 
 	private void init() {
-		BlockMeta.put("active", "0");
 
 	}
 
