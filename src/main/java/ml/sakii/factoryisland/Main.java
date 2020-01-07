@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -40,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
@@ -82,7 +84,7 @@ public class Main
 	static BufferedImage Logo;
 	static BufferedImage MainMenuBG, PausedBG, SettingsBG, originalPausedBG;
 	static BufferedImage MenuButtonTexture;
-	static ArrayList<String> Mods = new ArrayList<>();
+	//static ArrayList<String> Mods = new ArrayList<>();
 
 	static String PreviousCLCard = "";
 	static long seed;
@@ -154,6 +156,7 @@ public class Main
         if(headless) {
         	Config.username="SERVER";
         	Config.creative=true;
+        	
         	LoadResources();
         	if(map==null) {
         		map="server";
@@ -163,9 +166,9 @@ public class Main
         		Engine = new GameEngine(map,null,0,LoadMethod.EXISTING,null);
         	}else {
         		Engine = new GameEngine(map,null,new Random().nextLong(),LoadMethod.GENERATE,null);
+            	Engine.afterGen();
         	}
-        	
-        	Engine.afterGen();
+        	API.Engine=Engine;
         	Engine.startPhysics();
         	Engine.ticker.start();
         	Main.log("Timers started");
@@ -480,36 +483,24 @@ public class Main
 		BufferedReader reader = new BufferedReader(
 				new InputStreamReader(Main.class.getResourceAsStream("blocks/BlockRegistry.txt")));
 
-		String name;
+		
 		try
 		{
+			String name;
 			while ((name = reader.readLine()) != null)
 			{
 
-				if (!Main.Items.containsKey(name))
-				{
-					ItemType item;
-					Surface[] surfaces;
-					String className;
-					if(Main.ModRegistry.contains(name)) {
-						ModBlock mb = new ModBlock(name, 0,0,0, null);
-						surfaces = mb.surfaces;
-						className=name;
-						
-					}else {
-						className = "ml.sakii.factoryisland.blocks." + name + "Block";
-						Class<?> blockClass = Class.forName(className);
-						surfaces = (Surface[]) blockClass.getField("surfaces").get(new Surface[] {});
-					}
+					String className = "ml.sakii.factoryisland.blocks." + name + "Block";
+					Class<?> blockClass = Class.forName(className);
+					Surface[] surfaces = (Surface[]) blockClass.getField("surfaces").get(new Surface[] {});
 					
-					item=new ItemType(name, className,
+					ItemType item=new ItemType(name, className,
 							generateIcon(surfaces[0], surfaces[3], surfaces[4]),
 							generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
 					
 					Main.Items.put(name, item);
 					
-				}
-				PlayerInventory.Creative.add(Items.get(name), 1, false);
+					PlayerInventory.Creative.add(item, 1, false);
 			}
 		} catch (IOException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1)
 		{
@@ -535,10 +526,21 @@ public class Main
 			{
 				if (new File(mod, "mod.js").exists())
 				{
-					Main.log("Found mod: " + mod.getName());
-					@SuppressWarnings("unused")
-					ModBlock modBlock = new ModBlock(mod.getName(), 0, 0, 0, null);
-					Mods.add(mod.getName());
+					String name = mod.getName();
+					Main.log("Found mod: " + name);
+					ModBlock modBlock = new ModBlock(name, 0, 0, 0, null);
+					ModRegistry.add(name);
+					
+					Surface[] surfaces = modBlock.surfaces;
+					ItemType item=new ItemType(name, name,
+							generateIcon(surfaces[0], surfaces[3], surfaces[4]),
+							generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
+					
+					Main.Items.put(name, item);
+					
+					PlayerInventory.Creative.add(item, 1, false);
+					
+					
 				}
 
 			}

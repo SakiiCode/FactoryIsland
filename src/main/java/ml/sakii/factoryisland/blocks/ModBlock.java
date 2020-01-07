@@ -46,10 +46,12 @@ public class ModBlock extends PowerConsumer implements BreakListener, InteractLi
         	float xscale = Float.parseFloat(engine.eval("xscale").toString());
         	float yscale = Float.parseFloat(engine.eval("yscale").toString());
         	float zscale = Float.parseFloat(engine.eval("zscale").toString());
-        	if(!Main.ModRegistry.contains(name)) {
+        	/*if(!Main.ModRegistry.contains(name)) {
         		Main.ModRegistry.add(name);
-        	}
+        	}*/
         	this.name=name;
+        	this.solid=Boolean.parseBoolean(engine.eval("solid").toString());
+        	this.transparent=Boolean.parseBoolean(engine.eval("transparent").toString());
 			surfaces = new Surface[] {top, bottom, north, south, east, west};
 			generate(xscale, yscale, zscale);
 		} catch (ScriptException e) {
@@ -79,26 +81,6 @@ public class ModBlock extends PowerConsumer implements BreakListener, InteractLi
 		}
 	}
 
-	@Override
-	public void addPower(int power, BlockFace relativeFrom) {
-		try {
-			invocable.invokeFunction("addpower", power, relativeFrom.id);
-		} catch (NoSuchMethodException | ScriptException e) {
-			Main.err(e.getMessage());
-		}
-
-	}
-
-	@Override
-	public void removePower(BlockFace relativeFrom) {
-		try {
-			invocable.invokeFunction("removepower", relativeFrom.id);
-		} catch (NoSuchMethodException | ScriptException e) {
-			Main.err(e.getMessage());
-		}
-
-		
-	}
 
 	@Override
 	public void placed(BlockFace SelectedFace) {
@@ -139,14 +121,17 @@ public class ModBlock extends PowerConsumer implements BreakListener, InteractLi
 		return surfaces;
 	}
 
-	/*@Override
-	public void breakedOnServer() {
+	@Override
+	void work() {
 		try {
-			invocable.invokeFunction("breakedonserver");
+			invocable.invokeFunction("work");
 		} catch (NoSuchMethodException | ScriptException e) {
 			Main.err(e.getMessage());
 		}
-	}*/
+		
+	}
+
+
 	
 	
 	

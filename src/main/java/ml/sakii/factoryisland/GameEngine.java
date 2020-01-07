@@ -686,9 +686,9 @@ public class GameEngine{
 	
 	void afterGen() {
 		Main.log("- Executing post-worldgen instructions...");
-		if(Main.Mods.size()>0) {
+		if(Main.ModRegistry.size()>0) {
 			
-			for(String mod : Main.Mods) {
+			for(String mod : Main.ModRegistry) {
 				ModBlock block = new ModBlock(mod, 0, 0, 0, null);
 				block.generateWorld();
 			}

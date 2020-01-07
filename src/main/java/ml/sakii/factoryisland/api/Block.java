@@ -1,6 +1,7 @@
 package ml.sakii.factoryisland.api;
 
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.blocks.TickListener;
 
 public class Block{
 
@@ -21,7 +22,12 @@ public class Block{
 		this.y=y;
 		this.z=z;
 		this.name = name;
-		b = Main.GAME.Engine.createBlockByName(name, x, y, z);
+		if(Main.headless) {
+			b = Main.Engine.createBlockByName(name, x, y, z);
+		}else {
+			b = Main.GAME.Engine.createBlockByName(name, x, y, z);
+		}
+		
 	}
 	
 	@Override
@@ -38,13 +44,17 @@ public class Block{
 		b.setMetadata(key, value, true);
 	}
 	
-	/*public void update() {
+	public void update() {
 		if(b instanceof TickListener) {
-			b.addToUpdates((TickListener)b);
+			if(Main.headless) {
+				Main.Engine.TickableBlocks.add(b.pos);
+			}else {
+				Main.GAME.Engine.TickableBlocks.add(b.pos);
+			}
 		}
 	}
 	
-	public int getX() {
+	/*public int getX() {
 		return x;
 	}
 	public int getY() {
