@@ -237,6 +237,26 @@ public class GameEngine{
 							
 						}
 					}
+					
+					if(Tick % Main.ENTITYSYNCRATE == 0 && server != null) {
+						StringBuilder data = new StringBuilder();
+						data.append("16");
+						int counter = 0;
+						for(Entity e : world.getAllEntities()) {
+							if(!(e instanceof PlayerMP)) {
+								data.append(",");
+								data.append(e);
+								counter++;
+							}
+						}
+						if(counter>0) {
+							for(PlayerMP client : server.clients.values()) {
+								if(client != PlayerMP.ServerPerson) {
+									server.sendData(data.toString(),client.socket);
+								}
+							}
+						}
+					}
 
 
 
@@ -257,22 +277,6 @@ public class GameEngine{
 						
 					}
 					
-					if(server != null) {
-						StringBuilder data = new StringBuilder();
-						data.append("16");
-						int counter = 0;
-						for(Entity e : world.getAllEntities()) {
-							if(!(e instanceof PlayerMP)) {
-								data.append(",");
-								data.append(e);
-								counter++;
-							}
-						}
-						if(counter>0) {
-
-							client.sendData(data.toString());
-						}
-					}
 
 				}
 				Tick++;
