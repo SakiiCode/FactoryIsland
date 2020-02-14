@@ -31,3 +31,21 @@ java -jar packr.jar \
      --mainclass ml.sakii.factoryisland.Main \
      --vmargs Xmx1G \
      --output export/$1/linux64
+     
+java -jar packr.jar \
+     --platform mac \
+     --jdk openjdk/jdk13_mac.tar.gz \
+     --executable launch-this \
+     --classpath factoryisland-$1.jar \
+     --removelibs factoryisland-$1.jar \
+     --mainclass ml.sakii.factoryisland.Main \
+     --vmargs Xmx1G \
+     --output export/$1/mac
+     
+rm start.sh
+rm start.bat
+echo "java -jar -Xmx1G factoryisland-$1.jar" >> start.sh
+chmod 777 start.sh
+echo "java -jar -Xmx1G factoryisland-$1.jar" >> start.bat
+mkdir export/$1/universal
+cp {start.bat,start.sh,factoryisland-$1.jar} export/$1/universal
