@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ml.sakii</groupId>
   <artifactId>factoryisland</artifactId>
-  <version>0.10.1</version>
+  <version>0.10.2</version>
   <name>FactoryIsland</name>
   <description></description>
   <properties>
