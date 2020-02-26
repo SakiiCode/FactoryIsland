@@ -130,7 +130,7 @@ public class Main
 			MAJOR = 0;
 	        MINOR = 0;
 	        REVISION = 0;
-	        e.printStackTrace();
+	        Main.err(e.getMessage());
 	        
 		}
         
