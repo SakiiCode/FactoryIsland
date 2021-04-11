@@ -44,10 +44,10 @@ public class SocketListener extends Thread {
 	}
 	
 	@Override
+	@SuppressWarnings("resource")
     public void run() {
     	while(running){
     		try {
-				@SuppressWarnings("resource")
 				Socket s = socket.accept();
 				s.setSendBufferSize(8196);
 				s.setReceiveBufferSize(8196);

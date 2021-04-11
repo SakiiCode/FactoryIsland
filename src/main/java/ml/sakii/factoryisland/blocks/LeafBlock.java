@@ -25,7 +25,8 @@ public class LeafBlock extends Block implements BreakListener{
 	public ItemStack[] breaked(String username) {
 		
 		boolean giveSapling = new Random().nextInt(10) == 1;
-		return new ItemStack[] {new ItemStack(Main.Items.get(giveSapling?"Sapling":"Leaf"),1)};
+		String type = giveSapling?"Sapling":"Leaf";
+		return new ItemStack[] {new ItemStack(Main.Items.get(type),1)};
 		
 	}
 
