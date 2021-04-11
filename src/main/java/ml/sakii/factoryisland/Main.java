@@ -148,6 +148,7 @@ public class Main
         		break;
         	case "-small":small=true;
         		break;
+        	default: Main.err("Unknown launch parameter: "+params.get(i));
         	}
         }
         

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,7 +89,7 @@ public class World {
 		
 	}
 
-	@SuppressWarnings({ "null", "unchecked" })
+	@SuppressWarnings({ "null" })
 	private String loadWorld(GameEngine engine, JLabel statusLabel) {
 		
 		XMLInputFactory factory = XMLInputFactory.newInstance();
@@ -270,6 +271,7 @@ public class World {
 	                	bVersion=false;
 	                }
 	                break;
+	               default: Main.err("Unknown XML syntax: " + event.getEventType());
 	            	   
 	            }
 	            
@@ -539,7 +541,12 @@ public class World {
 			
 
 			if (b instanceof TickListener) {
-				while(Engine.TickableBlocks.remove(b.pos));
+				ListIterator<Point3D> iter = Engine.TickableBlocks.listIterator();
+				while(iter.hasNext()) {
+					if(iter.next().equals(b.pos)) {
+						iter.remove();
+					}
+				}
 			}
 			
 			

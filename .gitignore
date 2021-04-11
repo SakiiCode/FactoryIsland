@@ -8,3 +8,4 @@ screenshots/
 target/*
 !target/packr.jar
 !target/build.sh
+/target/

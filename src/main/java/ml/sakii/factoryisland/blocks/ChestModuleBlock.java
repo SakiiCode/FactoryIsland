@@ -7,8 +7,6 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
-import ml.sakii.factoryisland.entities.Entity;
-import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.BlockInventory;
 import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
