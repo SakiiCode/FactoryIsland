@@ -3,9 +3,9 @@ Zongora.wav
 log.txt
 saves/
 mods/
-.settings/
 screenshots/
 target/*
 !target/packr.jar
 !target/build.sh
 /target/
+.classpath
