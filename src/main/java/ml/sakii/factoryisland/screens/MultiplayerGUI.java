@@ -1,22 +1,20 @@
-package ml.sakii.factoryisland;
+package ml.sakii.factoryisland.screens;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Rectangle2D;
-
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public class MultiplayerGUI extends JPanel implements ActionListener, KeyListener{
+import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.MainMenuButton;
+
+public class MultiplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = 2915856336542984790L;
 	JTextField seedField;
 	public MainMenuButton submitButton;
@@ -25,7 +23,7 @@ public class MultiplayerGUI extends JPanel implements ActionListener, KeyListene
 	
 	
 	public MultiplayerGUI(){
-		
+		super(Main.GUIBG);
 		this.setLayout(null);
 		addKeyListener(this);
 		this.addComponentListener( new ComponentAdapter() {
@@ -68,14 +66,7 @@ public class MultiplayerGUI extends JPanel implements ActionListener, KeyListene
 		
 	}
 	
-	@Override
-	public void paintComponent(Graphics g){
-		g.clearRect(0, 0, Main.Frame.getWidth(), Main.Frame.getHeight());
-		Graphics2D g2 = (Graphics2D)g;
-		g2.setPaint(new TexturePaint(Main.GUIBG, new Rectangle2D.Float(0,0,4,4)));
-		g2.fillRect(0, 0, Main.Frame.getWidth(), Main.Frame.getHeight());
 
-	}
 	
 	
 	@Override

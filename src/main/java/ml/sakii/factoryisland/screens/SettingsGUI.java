@@ -1,7 +1,6 @@
-package ml.sakii.factoryisland;
+package ml.sakii.factoryisland.screens;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -13,12 +12,15 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
+import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.MainMenuButton;
+
+public class SettingsGUI extends TexturedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
 
 	private JButton okButton;
@@ -35,9 +37,13 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 
 	JSlider fovSlider;
 	JTextField NameTextField, widthField, heightField;
-	private int HEIGHT = (int)(Main.Frame.getHeight()*0.05f/4*3);
+	/*private int HEIGHT = (int)(Main.Frame.getHeight()*0.05f/4*3);
 	private int WIDTH=(int)(Main.Frame.getWidth()*0.35f);
-	private int SPACING=(int)(Main.Frame.getHeight()*0.016f);
+	private int EntrySpacing=(int)(Main.Frame.getHeight()*0.016f);*/
+	
+	@SuppressWarnings("hiding")
+	protected int EntryHeight  = (int)(Main.Frame.getHeight()*0.05f/4*3);
+
 	boolean useTextures=Config.useTextures;
 
 	boolean fogEnabled = Config.fogEnabled;
@@ -46,6 +52,8 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 	
 
 	public SettingsGUI(){
+		super(Main.SettingsBG);
+		
 		//background = new BufferedImage(game.getWidth(), game.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		setLayout(null);
 		addKeyListener(this);
@@ -73,16 +81,16 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		
 		
 		NameTextField = new JTextField(50);
-		NameTextField.setSize(WIDTH, HEIGHT);
-		NameTextField.setLocation(Main.Frame.getWidth()/2-WIDTH/2, (int)(Main.Frame.getHeight()/3.4-NameTextField.getHeight()/2));
+		NameTextField.setSize(EntryWidth, EntryHeight);
+		NameTextField.setLocation(Main.Frame.getWidth()/2-EntryWidth/2, (int)(Main.Frame.getHeight()/3.4-NameTextField.getHeight()/2));
 		NameTextField.addKeyListener(this);
 		add(NameTextField);
 		
 
 		
 		sensitivitySlider = new JSlider(SwingConstants.HORIZONTAL,1,16,Config.sensitivity);
-		sensitivitySlider.setSize(WIDTH, HEIGHT);
-		sensitivitySlider.setLocation(Main.Frame.getWidth()/2-sensitivitySlider.getWidth()/2, NameTextField.getY()+HEIGHT+SPACING);
+		sensitivitySlider.setSize(EntryWidth, EntryHeight);
+		sensitivitySlider.setLocation(Main.Frame.getWidth()/2-sensitivitySlider.getWidth()/2, NameTextField.getY()+EntryHeight+EntrySpacing);
 		sensitivitySlider.setMajorTickSpacing(5);
 		sensitivitySlider.setMinorTickSpacing(1);
 		sensitivitySlider.setPaintLabels(true);
@@ -91,8 +99,8 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		add(sensitivitySlider);
 		
 		renderDistanceSlider = new JSlider(SwingConstants.HORIZONTAL,16,130,Config.renderDistance);
-		renderDistanceSlider.setSize(WIDTH, HEIGHT);
-		renderDistanceSlider.setLocation(Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2, sensitivitySlider.getY()+HEIGHT+SPACING);
+		renderDistanceSlider.setSize(EntryWidth, EntryHeight);
+		renderDistanceSlider.setLocation(Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2, sensitivitySlider.getY()+EntryHeight+EntrySpacing);
 		renderDistanceSlider.setMajorTickSpacing(16);
 		renderDistanceSlider.setMinorTickSpacing(4);
 		renderDistanceSlider.setPaintLabels(true);
@@ -101,8 +109,8 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		add(renderDistanceSlider);
 		
 		fovSlider = new JSlider(SwingConstants.HORIZONTAL,200,1000,Config.zoom);
-		fovSlider.setSize(WIDTH, HEIGHT);
-		fovSlider.setLocation((Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2), (renderDistanceSlider.getY()+HEIGHT+SPACING));
+		fovSlider.setSize(EntryWidth, EntryHeight);
+		fovSlider.setLocation((Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2), (renderDistanceSlider.getY()+EntryHeight+EntrySpacing));
 		fovSlider.setMajorTickSpacing(200);
 		fovSlider.setMinorTickSpacing(25);
 		fovSlider.setPaintLabels(true);
@@ -111,8 +119,8 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 		add(fovSlider);
 		
 		brightnessSlider = new JSlider(SwingConstants.HORIZONTAL,6,9,7);//Config.brightness);
-		brightnessSlider.setSize(WIDTH, HEIGHT);
-		brightnessSlider.setLocation((Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2), (fovSlider.getY()+HEIGHT+SPACING));
+		brightnessSlider.setSize(EntryWidth, EntryHeight);
+		brightnessSlider.setLocation((Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2), (fovSlider.getY()+EntryHeight+EntrySpacing));
 		brightnessSlider.setMajorTickSpacing(1);
 		brightnessSlider.setMinorTickSpacing(1);
 		brightnessSlider.setPaintLabels(true);
@@ -124,112 +132,112 @@ public class SettingsGUI extends JPanel implements ActionListener, KeyListener {
 
 		
 		widthField = new JTextField(20);
-		widthField.setSize(WIDTH/2-SPACING, HEIGHT);
-		widthField.setLocation(Main.Frame.getWidth()/2-WIDTH/2, brightnessSlider.getY()+HEIGHT+SPACING/3*2);
+		widthField.setSize(EntryWidth/2-EntrySpacing, EntryHeight);
+		widthField.setLocation(Main.Frame.getWidth()/2-EntryWidth/2, brightnessSlider.getY()+EntryHeight+EntrySpacing/3*2);
 		widthField.addKeyListener(this);
 		add(widthField);
 		
 		heightField = new JTextField(20);
-		heightField.setSize(WIDTH/2, HEIGHT);
-		heightField.setLocation(Main.Frame.getWidth()/2, brightnessSlider.getY()+HEIGHT+SPACING/3*2);
+		heightField.setSize(EntryWidth/2, EntryHeight);
+		heightField.setLocation(Main.Frame.getWidth()/2, brightnessSlider.getY()+EntryHeight+EntrySpacing/3*2);
 		heightField.addKeyListener(this);
 		add(heightField);
 		
 		
 		String[] labels = getButtonLabels();
 		
-		textureButton = new MainMenuButton(labels[0] ,Main.Frame.getWidth()/2-WIDTH/2, heightField.getY()+HEIGHT+SPACING/3*2, WIDTH, HEIGHT);
+		textureButton = new MainMenuButton(labels[0] ,Main.Frame.getWidth()/2-EntryWidth/2, heightField.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
 		textureButton.setActionCommand("switchtexture");
 		textureButton.addActionListener(this);
 		textureButton.addKeyListener(this);
 		add(textureButton);
 		
-		fogButton = new MainMenuButton(labels[1] ,Main.Frame.getWidth()/2-WIDTH/2, textureButton.getY()+HEIGHT+SPACING/3*2, WIDTH, HEIGHT);
+		fogButton = new MainMenuButton(labels[1] ,Main.Frame.getWidth()/2-EntryWidth/2, textureButton.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
 		fogButton.setActionCommand("switchfog");
 		fogButton.addActionListener(this);
 		fogButton.addKeyListener(this);
 		add(fogButton);
 		
-		creativeButton = new MainMenuButton(labels[2] ,Main.Frame.getWidth()/2-WIDTH/2, fogButton.getY()+HEIGHT+SPACING, WIDTH, HEIGHT);
+		creativeButton = new MainMenuButton(labels[2] ,Main.Frame.getWidth()/2-EntryWidth/2, fogButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		creativeButton.setActionCommand("switchcreative");
 		creativeButton.addActionListener(this);
 		creativeButton.addKeyListener(this);
 		add(creativeButton);
 		
 		
-		directRenderingButton = new MainMenuButton(labels[3] ,Main.Frame.getWidth()/2-WIDTH/2, creativeButton.getY()+HEIGHT+SPACING, WIDTH, HEIGHT);
+		directRenderingButton = new MainMenuButton(labels[3] ,Main.Frame.getWidth()/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		directRenderingButton.setActionCommand("switchdirectrendering");
 		directRenderingButton.addActionListener(this);
 		directRenderingButton.addKeyListener(this);
 		add(directRenderingButton);
 		
-		okButton = new MainMenuButton("Save",Main.Frame.getWidth()/2-WIDTH/2, directRenderingButton.getY()+HEIGHT + SPACING*5, WIDTH, HEIGHT);
+		okButton = new MainMenuButton("Save",Main.Frame.getWidth()/2-EntryWidth/2, directRenderingButton.getY()+EntryHeight + EntrySpacing*5, EntryWidth, EntryHeight);
 		okButton.setActionCommand("ok");
 		okButton.addActionListener(this);
 		okButton.addKeyListener(this);
 		add(okButton);
 		
-		resetButton = new MainMenuButton("Reset",Main.Frame.getWidth()/2, okButton.getY()+HEIGHT + SPACING, WIDTH/2, HEIGHT);
+		resetButton = new MainMenuButton("Reset",Main.Frame.getWidth()/2, okButton.getY()+EntryHeight + EntrySpacing, EntryWidth/2, EntryHeight);
 		resetButton.setActionCommand("reset");
 		resetButton.addActionListener(this);
 		resetButton.addKeyListener(this);
 		add(resetButton);
 		
 		JLabel l1 = new JLabel("Username:");
-		l1.setLocation(NameTextField.getX()-180-SPACING, NameTextField.getY());
-		l1.setSize(180, HEIGHT);
+		l1.setLocation(NameTextField.getX()-180-EntrySpacing, NameTextField.getY());
+		l1.setSize(180, EntryHeight);
 		l1.setHorizontalAlignment(SwingConstants.RIGHT);
 		l1.setForeground(Color.WHITE);
 		add(l1);
 		
 		JLabel l2 = new JLabel("Mouse Sensitivity:");
-		l2.setLocation(sensitivitySlider.getX()-180-SPACING, sensitivitySlider.getY());
-		l2.setSize(180, HEIGHT);
+		l2.setLocation(sensitivitySlider.getX()-180-EntrySpacing, sensitivitySlider.getY());
+		l2.setSize(180, EntryHeight);
 		l2.setHorizontalAlignment(SwingConstants.RIGHT);
 		l2.setForeground(Color.WHITE);
 		add(l2);
 		
 		JLabel l3 = new JLabel("Render Distance:");
-		l3.setLocation(sensitivitySlider.getX()-180-SPACING, renderDistanceSlider.getY());
-		l3.setSize(180, HEIGHT);
+		l3.setLocation(sensitivitySlider.getX()-180-EntrySpacing, renderDistanceSlider.getY());
+		l3.setSize(180, EntryHeight);
 		l3.setHorizontalAlignment(SwingConstants.RIGHT);
 		l3.setForeground(Color.WHITE);
 		add(l3);
 		
 		JLabel l4 = new JLabel("Field Of View:");
-		l4.setLocation(fovSlider.getX()-180-SPACING, fovSlider.getY());
-		l4.setSize(180, HEIGHT);
+		l4.setLocation(fovSlider.getX()-180-EntrySpacing, fovSlider.getY());
+		l4.setSize(180, EntryHeight);
 		l4.setHorizontalAlignment(SwingConstants.RIGHT);
 		l4.setForeground(Color.WHITE);
 		add(l4);
 		
 		JLabel l5 = new JLabel("Resolution:");
-		l5.setLocation(widthField.getX()-180-SPACING, widthField.getY());
-		l5.setSize(180, HEIGHT);
+		l5.setLocation(widthField.getX()-180-EntrySpacing, widthField.getY());
+		l5.setSize(180, EntryHeight);
 		l5.setHorizontalAlignment(SwingConstants.RIGHT);
 		l5.setForeground(Color.WHITE);
 		add(l5);
 
 		JLabel l6 = new JLabel("<html><body align='right'>World restart is required for<br>creative setting to take effect</body></html>");
-		l6.setLocation(creativeButton.getX()-250-SPACING, creativeButton.getY());
-		l6.setSize(250, HEIGHT);
+		l6.setLocation(creativeButton.getX()-250-EntrySpacing, creativeButton.getY());
+		l6.setSize(250, EntryHeight);
 		l6.setHorizontalAlignment(SwingConstants.RIGHT);
 		l6.setForeground(Color.WHITE);
 		add(l6);
 		
 		JLabel l7 = new JLabel("Brightness: ");
-		l7.setLocation(brightnessSlider.getX()-180-SPACING, brightnessSlider.getY());
-		l7.setSize(180, HEIGHT);
+		l7.setLocation(brightnessSlider.getX()-180-EntrySpacing, brightnessSlider.getY());
+		l7.setSize(180, EntryHeight);
 		l7.setHorizontalAlignment(SwingConstants.RIGHT);
 		l7.setForeground(Color.WHITE);
 		add(l7);
 	}
 	
-	@Override
+	/*@Override
 	  protected void paintComponent(Graphics g) {
 	    super.paintComponent(g);
 	    g.drawImage(Main.SettingsBG, 0, 0, this.getWidth(), this.getHeight(), null);
-	}
+	}*/
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

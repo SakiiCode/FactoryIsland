@@ -1,8 +1,5 @@
-package ml.sakii.factoryisland;
+package ml.sakii.factoryisland.screens;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -11,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,18 +15,21 @@ import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
-public class SingleplayerGUI extends JPanel implements ActionListener, KeyListener{
+import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.MainMenuButton;
+
+public class SingleplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = -2653478459245096044L;
 	JTextField seedField, nameField;
 	MainMenuButton submitButton, generateButton, deleteButton;
 	private JLabel seedLabel, nameLabel, joinLabel;
 	JLabel statusLabel;
-	JList<String> worldsList;
+	private JList<String> worldsList;
 	
 	private int SPACING = 16;
 	private int MARGIN = 10;
@@ -38,7 +37,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	String mapName;
 	
 	public SingleplayerGUI(){
-		
+		super(Main.GUIBG);
 		this.setLayout(null);
 		addKeyListener(this);
 
@@ -47,11 +46,11 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	        public void componentShown( ComponentEvent e ) {
 	            if(refreshList().length>0) {
 	            	deleteButton.setEnabled(true);
-	            	worldsList.setEnabled(true);
+	            	getWorldsList().setEnabled(true);
 	            	submitButton.setEnabled(true);
 	            }else {
 	            	deleteButton.setEnabled(false);
-	            	worldsList.setEnabled(false);
+	            	getWorldsList().setEnabled(false);
 	            	submitButton.setEnabled(false);
 		            SingleplayerGUI.this.requestFocusInWindow();
 
@@ -112,11 +111,11 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 		joinLabel.setLocation(Main.Frame.getWidth()/4*3-seedField.getWidth()/2, nameLabel.getY());
 		joinLabel.setVisible(true);
 		
-		worldsList = new JList<>(getWorlds());
-		worldsList.setSelectedValue(Config.selectedMap, true);
-		worldsList.setSize(seedField.getWidth(), Main.Frame.getHeight()/4);
-		worldsList.setLocation(joinLabel.getX(), nameField.getY());
-		worldsList.addKeyListener(new KeyListener() {
+		setWorldsList(new JList<>(getWorlds()));
+		getWorldsList().setSelectedValue(Config.selectedMap, true);
+		getWorldsList().setSize(seedField.getWidth(), Main.Frame.getHeight()/4);
+		getWorldsList().setLocation(joinLabel.getX(), nameField.getY());
+		getWorldsList().addKeyListener(new KeyListener() {
 			
 			
 			@Override
@@ -143,15 +142,15 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 			}
 			
 		});
-		worldsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		worldsList.addMouseListener(new MouseListener() {
+		getWorldsList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getWorldsList().addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent evt) {
-			        if (evt.getClickCount() == 2 && !worldsList.isSelectionEmpty()) {
+			        if (evt.getClickCount() == 2 && !getWorldsList().isSelectionEmpty()) {
 			        	join(false);
 			        }
-			        Config.selectedMap=worldsList.getSelectedValue();
+			        Config.selectedMap=getWorldsList().getSelectedValue();
 			        Config.save();
 			}
 
@@ -177,10 +176,10 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 			
 			
 		});
-		worldsList.setVisible(true);
+		getWorldsList().setVisible(true);
 
 		
-		deleteButton= new MainMenuButton("Delete", worldsList.getX(), worldsList.getY()+worldsList.getHeight()+SPACING, worldsList.getHeight(), generateButton.getHeight());
+		deleteButton= new MainMenuButton("Delete", getWorldsList().getX(), getWorldsList().getY()+getWorldsList().getHeight()+SPACING, getWorldsList().getHeight(), generateButton.getHeight());
 		deleteButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		deleteButton.setVerticalTextPosition(SwingConstants.CENTER);
 		deleteButton.setActionCommand("delete");
@@ -211,7 +210,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 		add(seedField);
 		add(generateButton);
 		add(joinLabel);
-		add(worldsList);
+		add(getWorldsList());
 		add(deleteButton);
 		add(submitButton);
 		
@@ -250,14 +249,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 		
 	}
 
-	@Override
-	public void paintComponent(Graphics g){
-		g.clearRect(0, 0, Main.Frame.getWidth(), Main.Frame.getHeight());
-		Graphics2D g2 = (Graphics2D)g;
-		g2.setPaint(new TexturePaint(Main.GUIBG, new Rectangle2D.Float(0,0,4,4)));
-		g2.fillRect(0, 0, Main.Frame.getWidth(), Main.Frame.getHeight());
 
-	}
 	
 	
 	@Override
@@ -284,7 +276,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	    }
 	}
 
-	void join(boolean generate) {
+	public void join(boolean generate) {
 		if(generate && !nameField.getText().isEmpty()){
 			
     		statusLabel.setText("Generating...");
@@ -307,15 +299,15 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
     	}else if(generate) {
     		JOptionPane.showMessageDialog(Main.Frame, "Invalid map name!", "Error!", JOptionPane.ERROR_MESSAGE);
     		return;
-    	}else if(!generate && !worldsList.isSelectionEmpty()){
+    	}else if(!generate && !getWorldsList().isSelectionEmpty()){
     		statusLabel.setText("Loading...");
-    		mapName=worldsList.getSelectedValue();
+    		mapName=getWorldsList().getSelectedValue();
     		Config.selectedMap=mapName;
     		Config.save();
     		
     	}
 		
-    	worldsList.setEnabled(false);
+    	getWorldsList().setEnabled(false);
 		submitButton.setEnabled(false);
 		nameField.setEnabled(false);
 		seedField.setEnabled(false);
@@ -334,7 +326,7 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 			    	seedField.setText("");
 			    	nameField.setText("");
 			    	submitButton.setEnabled(true);
-			    	worldsList.setEnabled(true);
+			    	getWorldsList().setEnabled(true);
 			    	nameField.setEnabled(true);
 					seedField.setEnabled(true);
 					generateButton.setEnabled(true);
@@ -348,8 +340,8 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	}
 	
 	private void delete() {
-		if(worldsList.isSelectionEmpty()) return;
-		String name = worldsList.getSelectedValue();
+		if(getWorldsList().isSelectionEmpty()) return;
+		String name = getWorldsList().getSelectedValue();
 		
 		File index = new File("saves/"+name+"/");
 		
@@ -368,10 +360,10 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	String[] refreshList() {
 		
 		String[] worlds = getWorlds();
-		worldsList.setListData(worlds);
-		worldsList.setSelectedValue(Config.selectedMap, true);
+		getWorldsList().setListData(worlds);
+		getWorldsList().setSelectedValue(Config.selectedMap, true);
 		//worldsList.setSelectedIndex(Math.min(Config.selectedMap, worlds.length));
-		worldsList.requestFocusInWindow();
+		getWorldsList().requestFocusInWindow();
 		//worldsList..requestFocusInWindow();
 		//worldsList.grabFocus();
 		return worlds;
@@ -393,6 +385,14 @@ public class SingleplayerGUI extends JPanel implements ActionListener, KeyListen
 	@Override
 	public void keyTyped(KeyEvent arg0) {
 		
+	}
+
+	public JList<String> getWorldsList() {
+		return worldsList;
+	}
+
+	public void setWorldsList(JList<String> worldsList) {
+		this.worldsList = worldsList;
 	} 
 	
 	

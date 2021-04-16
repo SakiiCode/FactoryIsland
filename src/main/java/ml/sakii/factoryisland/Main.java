@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,6 +46,12 @@ import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
+import ml.sakii.factoryisland.screens.DeadGUI;
+import ml.sakii.factoryisland.screens.MainMenuGUI;
+import ml.sakii.factoryisland.screens.MultiplayerGUI;
+import ml.sakii.factoryisland.screens.PauseGUI;
+import ml.sakii.factoryisland.screens.SettingsGUI;
+import ml.sakii.factoryisland.screens.SingleplayerGUI;
 
 public class Main
 {
@@ -78,20 +85,29 @@ public class Main
 	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;
 	static final JPanel Base = new JPanel(new CardLayout());
 	
-	static Clip BGMusic;
+	public static Clip BGMusic;
 
-	static BufferedImage GUIBG;
-	static BufferedImage Logo;
-	static BufferedImage MainMenuBG, PausedBG, SettingsBG, originalPausedBG;
+	public static BufferedImage GUIBG;
+	//static BufferedImage Logo;
+	//static BufferedImage MainMenuBG;
+
+
+	public static BufferedImage PausedBG;
+
+
+	public static BufferedImage SettingsBG;
+
+
+	static BufferedImage originalPausedBG;
 	static BufferedImage MenuButtonTexture;
 	//static ArrayList<String> Mods = new ArrayList<>();
 
-	static String PreviousCLCard = "";
-	static long seed;
+	public static String PreviousCLCard = "";
+	public static long seed;
 
 
 	static Color skyColor = Color.BLACK;
-	static boolean sound = true;
+	public static boolean sound = true;
 	private static AudioInputStream BGAudioStream;
 
 	private static String CurrentCLCard = "";
@@ -197,7 +213,7 @@ public class Main
 	        if(map !=null) {
 				SwitchWindow("generate");
 				SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
-				sp.worldsList.setSelectedValue(map, true);
+				sp.getWorldsList().setSelectedValue(map, true);
 				sp.join(false);
 				
 			}
@@ -266,7 +282,7 @@ public class Main
 		MPGui = new MultiplayerGUI();
 		Base.add(new SingleplayerGUI(), "generate");
 		Base.add(MPGui, "connect");
-		Base.add(new MainMenuGUI(), "mainmenu");
+		Base.add(new MainMenuGUI(loadTexture("textures/logo.png"), loadTexture("textures/mainmenu.png")), "mainmenu");
 		Base.add(new SettingsGUI(), "settings");
 		pauseGui= new PauseGUI();
 		Base.add(pauseGui, "pause");
@@ -439,8 +455,6 @@ public class Main
 	private static void LoadResources()
 	{
 		GUIBG = loadTexture("textures/stone.png");
-		Logo = loadTexture("textures/logo.png");
-		MainMenuBG = loadTexture("textures/mainmenu.png");
 		PausedBG = loadTexture("textures/paused.png");
 		originalPausedBG = loadTexture("textures/paused.png");
 		SettingsBG = loadTexture("textures/settings.png");
@@ -719,9 +733,9 @@ public class Main
 			return newEmptyImage();
 		}
 		BufferedImage image;
-		try
+		try(InputStream imageStream = Main.class.getResourceAsStream(path))
 		{
-			image = ImageIO.read(Main.class.getResourceAsStream(path));
+			image = ImageIO.read(imageStream);
 
 		} catch (Exception e)
 		{
@@ -779,7 +793,7 @@ public class Main
 		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
 		 WritableRaster raster = bi.copyData(null);
 		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
-		}
+	}
 	
 	public static void log(Object message) {
 		String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
