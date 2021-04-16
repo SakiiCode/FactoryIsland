@@ -1212,13 +1212,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 	
-	void respawn() {
+	public void respawn() {
 		PE.getPos().set(Engine.world.getSpawnBlock().pos).add(new Vector(0,0,2.7f));
 		PE.setHealth(PE.maxHealth);
 		Engine.world.addEntity(PE, true);
 	}
 
-	void resume()
+	public void resume()
 	{
 		if(PE.getHealth()==0) {
 			Main.SwitchWindow("died");

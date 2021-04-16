@@ -71,7 +71,7 @@ public class Config {
 		
 	}
 
-	static void reset()
+	public static void reset()
 	{
 		try
 		{

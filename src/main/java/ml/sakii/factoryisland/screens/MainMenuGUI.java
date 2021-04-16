@@ -1,4 +1,4 @@
-package ml.sakii.factoryisland;
+package ml.sakii.factoryisland.screens;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -7,15 +7,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
-public class MainMenuGUI extends JPanel implements ActionListener{
+import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.MainMenuButton;
+
+public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	private static final long serialVersionUID = 894581305065092909L;
 
 	private JButton sp;
@@ -25,14 +27,18 @@ public class MainMenuGUI extends JPanel implements ActionListener{
 	
 	private int menuL = (int) (Main.Frame.getWidth()*0.1f);
 	private int menuT = (int) (Main.Frame.getHeight()*0.4f);
-	private int W = (int) (Main.Frame.getWidth()*0.3f);
+	/*private int W = (int) (Main.Frame.getWidth()*0.3f);
 	private int H = (int) (Main.Frame.getHeight()*0.055f);
-	private int spacing = (int) (Main.Frame.getHeight()*0.011f);
+	private int EntrySpacing = (int) (Main.Frame.getHeight()*0.011f);*/
 	
 	ArrayList<JButton> Menu = new ArrayList<>();
+	
+	private BufferedImage Logo/*, MainMenuBG*/;
 		
-	public MainMenuGUI(){
-		
+	public MainMenuGUI(BufferedImage Logo, BufferedImage MainMenuBG){
+		super(MainMenuBG);
+		this.Logo=Logo;
+		//this.MainMenuBG=MainMenuBG;
 
 
 		this.addComponentListener( new ComponentAdapter() {
@@ -42,28 +48,28 @@ public class MainMenuGUI extends JPanel implements ActionListener{
 	        }
 	    });
 		
-		sp = new MainMenuButton("Singleplayer" ,menuL, menuT, W, H);
+		sp = new MainMenuButton("Singleplayer" ,menuL, menuT, EntryWidth, EntryHeight);
 		sp.setActionCommand("singleplayer");
 		sp.addActionListener(this);
 		Menu.add(sp);
 
 		
 		
-		mp = new MainMenuButton("Multiplayer",menuL, menuT+spacing, W, H);
+		mp = new MainMenuButton("Multiplayer",menuL, menuT+EntrySpacing, EntryWidth, EntryHeight);
 		mp.setActionCommand("multiplayer");
 		mp.addActionListener(this);
 		Menu.add(mp);
 
 		
 		
-		opt = new MainMenuButton("Settings",menuL, menuT+spacing*2, W, H);
+		opt = new MainMenuButton("Settings",menuL, menuT+EntrySpacing*2, EntryWidth, EntryHeight);
 		opt.setActionCommand("settings");
 		opt.addActionListener(this);
 		Menu.add(opt);
 		
 		
 		
-		exit = new MainMenuButton("Exit Game",menuL, menuT+spacing*3, W, H);
+		exit = new MainMenuButton("Exit Game",menuL, menuT+EntrySpacing*3, EntryWidth, EntryHeight);
 		exit.setActionCommand("exit");
 		exit.addActionListener(this);
 		Menu.add(exit);
@@ -78,7 +84,7 @@ public class MainMenuGUI extends JPanel implements ActionListener{
 			
 			if(i>0) {
 				JButton prevButton = Menu.get(i-1);
-				layout.putConstraint(SpringLayout.NORTH, button, spacing, SpringLayout.SOUTH, prevButton);
+				layout.putConstraint(SpringLayout.NORTH, button, EntrySpacing, SpringLayout.SOUTH, prevButton);
 				layout.putConstraint(SpringLayout.SOUTH, button, button.getHeight(), SpringLayout.NORTH, button);
 				layout.putConstraint(SpringLayout.WEST, button, menuL, SpringLayout.WEST, this);
 				layout.putConstraint(SpringLayout.EAST, button, button.getWidth(), SpringLayout.WEST, button);
@@ -172,28 +178,18 @@ public class MainMenuGUI extends JPanel implements ActionListener{
 	@Override
     public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Rectangle2D area = centerImage(Main.Frame.getWidth(), Main.Frame.getHeight(), Main.MainMenuBG.getWidth(), Main.MainMenuBG.getHeight());
-		g.drawImage(Main.MainMenuBG, (int)area.getX(), (int)area.getY(), (int)area.getWidth(), (int)area.getHeight(), null);
-		float ratio = ((float)Main.Logo.getHeight()/Main.Logo.getWidth());
+		float ratio = ((float)Logo.getHeight()/Logo.getWidth());
 		int x = Main.Frame.getWidth()/15;
 		int y = Main.Frame.getHeight()/15;
 		
 		int h = Main.Frame.getHeight()/4;
 		int w = (int)(h/ratio);
-		g.drawImage(Main.Logo, x, y,  w, h, null);
+		g.drawImage(Logo, x, y,  w, h, null);
 		
     }
 
 	
-	private static Rectangle2D.Float centerImage(int sw, int sh, int iw, int ih){
-		float imageRatio = iw*1.0f/ih;
-        float windowRatio = sw*1.0f/sh;
-        if(windowRatio>imageRatio){
-        	return new Rectangle2D.Float(0, -(sw/imageRatio-sh)/2, sw, sw/imageRatio);
-        }
-		return new Rectangle2D.Float(-(sh*imageRatio-sw)/2, 0, sh*imageRatio, sh);
-		
-	}
+
 	
 	
 }
