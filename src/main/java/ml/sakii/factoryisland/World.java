@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -799,16 +799,42 @@ public class World {
 	}
 	
 	
-	private void modifyLight(Point3D pos, Point3D source, int intensity, HashMap<Point3D, Integer> alreadyMapped, boolean add, HashMap<Polygon3D,Integer> result)
-	{
-		if(intensity<=0 || (alreadyMapped.containsKey(pos) && intensity < alreadyMapped.get(pos))) {
-			return;
+	//BFS
+	private void modifyLight(Point3D source,  LinkedHashMap<Point3D,Integer> queue , boolean add, HashSet<Point3D> discovered, HashMap<Polygon3D, Integer> result) {
+		if(queue.isEmpty()) return;
+		
+		//TODO memoriaoptimalizalas
+
+		Point3D coord = new Point3D().set(queue.keySet().toArray(new Point3D[0])[0]);
+		int intensity = queue.get(coord);//queue.values().toArray(new Integer[0])[0];
+		queue.remove(coord);
+		
+		if(intensity <= 0) return;
+		
+		//Main.log(coord+":"+intensity);
+		applyIntensityToNearby(new Point3D().set(coord), source, intensity, add, result);
+		
+		for(Entry<BlockFace, Block> entry : get6Blocks(new Point3D().set(coord), true).entrySet()) {
+			Block b = entry.getValue();
+			BlockFace face = entry.getKey();
+
+			if(b == Block.NOTHING || b.transparent) {
+				//TODO memoriaoptimalizalas
+				Point3D nextCoord = new Point3D().set(coord).add(face);
+				if(!discovered.contains(nextCoord)) {
+					discovered.add(nextCoord);
+					queue.put(nextCoord, intensity-1);
+				}
+			}
 		}
 		
-		alreadyMapped.put(new Point3D().set(pos), intensity);
 		
-		Point3D coord = new Point3D().set(pos);
-			
+		modifyLight(source,queue,add,discovered,result);
+		
+
+	}
+	
+	private void applyIntensityToNearby(Point3D coord, Point3D source, int intensity, boolean add, HashMap<Polygon3D, Integer> result) {
 		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
 		for(Entry<BlockFace, Block> entry : nearby.entrySet()) {
 			Block b = entry.getValue();
@@ -837,13 +863,7 @@ public class World {
 			
 		}
 		
-		for(Entry<BlockFace, Block> entry : get6Blocks(coord.set(pos), true).entrySet()) {
-			Block b = entry.getValue();
-			BlockFace face = entry.getKey();
-			if(b == Block.NOTHING || b.transparent) { // b koordinatai 0,0,0 ezert b-t nem lehet hasznalni
-				modifyLight(coord.set(pos).add(face), source, intensity-1, alreadyMapped, add, result); //itt meg kell az eredeti pos
-			}
-		}
+
 	}
 	
 	
@@ -854,13 +874,27 @@ public class World {
 		for(Polygon3D p : sourceBlock.HitboxPolygons.keySet()) {
 			p.addSource(source, intensity);
 		}
+		
+		
 		HashMap<Polygon3D,Integer> results = new HashMap<>();
-		modifyLight(source, source, intensity, new HashMap<Point3D,Integer>(), true,results);
+		
+		//BFS
+		LinkedHashMap<Point3D, Integer> queue = new LinkedHashMap<>();
+		queue.put(source, intensity);
+		
+		
+		
+		HashSet<Point3D> discovered = new HashSet<>();
+		discovered.add(source);
+		
+		modifyLight(source, queue , true, discovered , results);
+
 		for(Entry<Polygon3D, Integer> pass : results.entrySet()) {
 			pass.getKey().addSource(source, pass.getValue());
 			lightCalcRuns++;
 
 		}
+		
 	}
 	
 	public void removeLight(Point3D source) {
@@ -869,13 +903,26 @@ public class World {
 		int intensity = getBlockAt(source.x, source.y, source.z).lightLevel;
 		HashMap<Polygon3D,Integer> results = new HashMap<>();
 
-		modifyLight(source, source, intensity, new HashMap<Point3D,Integer>(), false,results);
+		
+		//BFS
+		LinkedHashMap<Point3D, Integer> queue = new LinkedHashMap<>();
+		queue.put(source, intensity);
+		
+		
+		
+		HashSet<Point3D> discovered = new HashSet<>();
+		discovered.add(source);
+		
+		modifyLight(source, queue , false, discovered , results);
+		
 		
 		for(Entry<Polygon3D, Integer> pass : results.entrySet()) {
 			pass.getKey().removeSource(source);
 			lightCalcRuns++;
 
 		}
+		
+
 	}
 	
 	/*private void recalcSpawn(Point3D pos, Block source, int intensity, HashMap<Point3D, Integer> alreadyMapped) {
