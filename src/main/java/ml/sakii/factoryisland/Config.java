@@ -21,7 +21,8 @@ public class Config {
 	public static boolean creative=Prefs.getBoolean("creative", true);
 	public static String selectedMap=Prefs.get("selectedMap", "");
 	public static final int brightness=7;
-	public static boolean directRendering=Prefs.getBoolean("directRendering", true);
+	public static RenderMethod renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 1)];
+	public static TargetMarkerType targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
 	
 	public static void save(){
 		Prefs.putInt("renderDistance",	renderDistance);
@@ -29,46 +30,21 @@ public class Config {
 		Prefs.putInt("zoom", zoom);
 		Prefs.putInt("width", width);
 		Prefs.putInt("height", height);
-		//Prefs.putInt("brightness", brightness);
 		
 		Prefs.putBoolean("useTextures", useTextures);
 		Prefs.putBoolean("fogEnabled", fogEnabled);
 		Prefs.putBoolean("creative", creative);
-		Prefs.putBoolean("directRendering", directRendering);
-		/*Prefs.putBoolean("skyEnabled", skyEnabled);
-		Prefs.putBoolean("fastQuality", fastQuality);*/
-		/*if(username.equals("Guest")) {
-			Main.log("guest string");
-			Prefs.put("username", "Guest"+new Random().nextInt(100000));
-		}else {
-			Prefs.put("username", username);
-		}*/
-		//Prefs.put("username", username.equals("Guest") ? "Guest"+new Random().nextInt(100000) : username);
+		Prefs.putInt("renderMethod", renderMethod.id);
+		Prefs.putInt("targetMarkerType", targetMarkerType.id);
 		Prefs.put("username", username);
 		Prefs.put("multiAddr", multiAddr);
 		Prefs.put("selectedMap", selectedMap);
 		
-		
-		
+
 		if(Main.GAME != null) {
 			Main.GAME.resizeScreen(Config.width, Config.height);
-			//Main.GAME.resizeScreen();
-			//Main.GAME.Engine.world.remapLight();
-			/*if(!Main.GAME.creative && creative)
-				Main.GAME.Engine.switchToCreative();
-			else if(Main.GAME.creative && !creative)
-				Main.GAME.Engine.switchFromCreative();*/
 		}
-		//Prefs.putInt("viewportscale", viewportscale);
-		
-		
-		/*if(Main.GAME != null){
-			Main.GAME.DepthBuffer = new double[Main.Frame.getWidth()/Config.viewportscale][Main.Frame.getHeight()/Config.viewportscale];
-			Main.GAME.FrameBuffer = new BufferedImage(Main.Frame.getWidth()/Config.viewportscale, Main.Frame.getHeight()/Config.viewportscale, BufferedImage.TYPE_INT_ARGB); 
-			
-		}*/
-		
-		
+
 	}
 
 	public static void reset()
@@ -88,6 +64,8 @@ public class Config {
 			height = Prefs.getInt("height", Main.Height);
 			creative=Prefs.getBoolean("creative", true);
 			selectedMap=Prefs.get("selectedMap", "");
+			renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 2)];
+			targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
 		} catch (BackingStoreException e)
 		{
 			e.printStackTrace();
@@ -97,3 +75,4 @@ public class Config {
 	
 		
 }
+

@@ -24,6 +24,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.RescaleOp;
+import java.awt.image.VolatileImage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,6 +94,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	 long lastTime;
 	 int totalframes;
 
+	VolatileImage VolatileFrameBuffer;
 	BufferedImage FrameBuffer;
 	BufferedImage prevFrame;
 
@@ -143,6 +145,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	static long truetime=0l;
 	static long falsetime=0l; 
 	
+	private boolean benchmarkMode = false;
+	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 
 		try {
@@ -184,6 +188,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				port = Integer.parseInt(addr[1]);
 			}
 			error = Engine.startClient(addr[0], port, this);
+			break;
+		case BENCHMARK:
+			benchmarkMode=true;
+			teleportToSpawn();
 			break;
 		case EXISTING:
 			File playerFile = new File("saves/" + location + "/" + Config.username + ".xml");
@@ -447,11 +455,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				}
 			});
 			
-				
-				
-	
-
-			
 			
 			
 			if (SelectedPolygon == null)
@@ -463,6 +466,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			} else
 			{
+				SelectedPolygon.renderSelectOutline(fb);
 				if (SelectedBlock.HitboxPolygons.containsKey(SelectedPolygon))
 				{
 					BlockFace newFace = SelectedBlock.HitboxPolygons.get(SelectedPolygon);
@@ -759,6 +763,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	void Controls()
 	{
+		if(benchmarkMode) {
+			Engine.world.walk(LeftViewVector, speed/2, PE, FPS, false);
+			PE.ViewAngle.yaw -= 10 / FPS * PE.VerticalVector.z;
+			return;
+		}
 
 		if (key[0]) // W
 		{
@@ -1175,9 +1184,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	void pauseTo(String UiName) {
 		renderThread.kill();
 
-		if(Config.directRendering) {
-			Main.PausedBG=Main.originalPausedBG;
+		if(Config.renderMethod == RenderMethod.DIRECT) {
+			Main.PausedBG = Main.originalPausedBG;
+		}else if(Config.renderMethod == RenderMethod.VOLATILE){
+			BufferedImage tmp = new BufferedImage(VolatileFrameBuffer.getWidth(),VolatileFrameBuffer.getHeight(),BufferedImage.TYPE_INT_ARGB);
+			tmp.getGraphics().drawImage(VolatileFrameBuffer, 0,0,tmp.getWidth(), tmp.getHeight(), null);
+			Main.PausedBG = op.filter(tmp, null);
 		}else {
+			
 			Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
 		}
 		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
@@ -1247,7 +1261,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
-
+		VolatileFrameBuffer = Main.graphicsconfig.createCompatibleVolatileImage(w, h);
 		centerX = w / 2;
 		centerY = h / 2;
 

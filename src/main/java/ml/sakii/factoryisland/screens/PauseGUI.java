@@ -1,5 +1,6 @@
 package ml.sakii.factoryisland.screens;
 
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -53,13 +54,13 @@ public class PauseGUI extends TexturedScreen implements ActionListener, KeyListe
 		
 	}
 	
-	/*@Override
-	  protected void paintComponent(Graphics g) {
+	@Override
+	protected void paintComponent(Graphics g) {
 	    
 	    super.paintComponent(g);
 	    g.drawImage(Main.PausedBG, 0, 0, this.getWidth(), this.getHeight(), null);
 
-	}*/
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

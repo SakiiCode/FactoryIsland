@@ -19,6 +19,8 @@ import javax.swing.SwingConstants;
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.MainMenuButton;
+import ml.sakii.factoryisland.RenderMethod;
+import ml.sakii.factoryisland.TargetMarkerType;
 
 public class SettingsGUI extends TexturedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
@@ -28,7 +30,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	JButton textureButton;
 
 	JButton fogButton;
-	JButton creativeButton, directRenderingButton;
+	JButton creativeButton, renderMethodButton, markerTypeButton;
 	JButton resetButton;
 	JSlider sensitivitySlider;//, viewportscaleSlider;
 	JSlider brightnessSlider;
@@ -48,7 +50,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 
 	boolean fogEnabled = Config.fogEnabled;
 	boolean creative = Config.creative;
-	boolean directRendering = Config.directRendering;
+	RenderMethod renderMethod = Config.renderMethod;
+	TargetMarkerType targetMarkerType = Config.targetMarkerType;
 	
 
 	public SettingsGUI(){
@@ -74,7 +77,11 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	        	useTextures=Config.useTextures;
 	        	fogEnabled = Config.fogEnabled;
 	        	creative = Config.creative;
-	        	directRendering = Config.directRendering;
+	        	
+	        	//directRendering = Config.directRendering;
+	        	renderMethod=Config.renderMethod;
+	        	targetMarkerType=Config.targetMarkerType;
+	        	
 	        	updateButtons();
 	        }
 	    });
@@ -165,13 +172,19 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		add(creativeButton);
 		
 		
-		directRenderingButton = new MainMenuButton(labels[3] ,Main.Frame.getWidth()/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
-		directRenderingButton.setActionCommand("switchdirectrendering");
-		directRenderingButton.addActionListener(this);
-		directRenderingButton.addKeyListener(this);
-		add(directRenderingButton);
+		markerTypeButton = new MainMenuButton(labels[4] ,Main.Frame.getWidth()/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		markerTypeButton.setActionCommand("switchmarkertype");
+		markerTypeButton.addActionListener(this);
+		markerTypeButton.addKeyListener(this);
+		add(markerTypeButton);
 		
-		okButton = new MainMenuButton("Save",Main.Frame.getWidth()/2-EntryWidth/2, directRenderingButton.getY()+EntryHeight + EntrySpacing*5, EntryWidth, EntryHeight);
+		renderMethodButton = new MainMenuButton(labels[4] ,Main.Frame.getWidth()/2-EntryWidth/2, markerTypeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		renderMethodButton.setActionCommand("switchrendermethod");
+		renderMethodButton.addActionListener(this);
+		renderMethodButton.addKeyListener(this);
+		add(renderMethodButton);
+		
+		okButton = new MainMenuButton("Save",Main.Frame.getWidth()/2-EntryWidth/2, renderMethodButton.getY()+EntryHeight + EntrySpacing*5, EntryWidth, EntryHeight);
 		okButton.setActionCommand("ok");
 		okButton.addActionListener(this);
 		okButton.addKeyListener(this);
@@ -262,7 +275,9 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		        Config.height = Integer.parseInt(heightField.getText());
 		        
 		        Config.creative=creative;
-		        Config.directRendering=directRendering;
+		        Config.renderMethod=renderMethod;
+		        Config.targetMarkerType=targetMarkerType;
+		        
 		        /*Config.skyEnabled = skyEnabled;
 		        Config.fastQuality = fastQuality;*/
 		        //Config.brightness=brightnessSlider.getValue();
@@ -280,8 +295,19 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		}else if(e.getActionCommand().equals("switchcreative")){
 	        creative = !creative;
 	        updateButtons();
-		}else if(e.getActionCommand().equals("switchdirectrendering")){
-	        directRendering = !directRendering;
+		}else if(e.getActionCommand().equals("switchrendermethod")){
+	        int nextMethod = renderMethod.id +1;
+	        if(nextMethod>2) {
+	        	nextMethod=0;
+	        }
+	        renderMethod=RenderMethod.values()[nextMethod];
+	        updateButtons();
+		}else if(e.getActionCommand().equals("switchmarkertype")){
+	        int nextType = targetMarkerType.id +1;
+	        if(nextType>1) {
+	        	nextType=0;
+	        }
+	        targetMarkerType=TargetMarkerType.values()[nextType];
 	        updateButtons();
 		}else if(e.getActionCommand().equals("reset")){
 			
@@ -297,11 +323,18 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	}
 	
 	void updateButtons() {
-		if(directRendering) {
+		if(renderMethod == RenderMethod.DIRECT) {
     		widthField.setText(Main.Frame.getWidth()+"");
     		widthField.setEnabled(false);
     		heightField.setText(Main.Frame.getHeight()+"");
     		heightField.setEnabled(false);
+    		useTextures=false;
+    		textureButton.setEnabled(false);
+    	}else if(renderMethod==RenderMethod.VOLATILE){
+    		widthField.setText(Config.width+"");
+    		widthField.setEnabled(true);
+    		heightField.setText(Config.height+"");
+    		heightField.setEnabled(true);
     		useTextures=false;
     		textureButton.setEnabled(false);
     	}else {
@@ -316,7 +349,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		textureButton.setText(labels[0]);
     	fogButton.setText(labels[1]);
     	creativeButton.setText(labels[2]);
-    	directRenderingButton.setText(labels[3]);
+    	markerTypeButton.setText(labels[3]);
+    	renderMethodButton.setText(labels[4]);
     	
 	}
 	
@@ -325,7 +359,11 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 				"Textured Rendering: " + (useTextures?"ON":"OFF"),
 				"Show Fog: " + (fogEnabled?"ON":"OFF"),
 				"Creative Mode: " + (creative?"ON":"OFF"),
-				"Direct Rendering (experimental) : " + (directRendering?"ON":"OFF")
+				"Target Marker: " + switch(targetMarkerType) {
+				case SHADE -> "Transparent circle";
+				case OUTLINE -> "White Square";
+				},
+				"Rendering Method : " + renderMethod
 		};
 	}
 	
