@@ -228,17 +228,7 @@ public class Main
 
 	public static void setupWindow(String username)
 	{
-		if(username == null) {
-
-
-		String username2 = JOptionPane.showInputDialog("Enter username", Config.username);
-		Config.username = username2 == null ? Config.username : username2;
-
-		Config.save();
-		}else {
-			Config.username = username;
-		}
-
+		
 		GraphicsDevice[] gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		String[] resolutions = new String[gs.length];
 
@@ -256,12 +246,28 @@ public class Main
 			screen = 0;
 
 		GraphicsDevice d = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen];
+		graphicsconfig = d.getDefaultConfiguration();
+		Rectangle bounds = graphicsconfig.getBounds();
+		Width=bounds.width;
+		Height=bounds.height;
+		
+		
+		if(username == null) {
+
+
+		String username2 = JOptionPane.showInputDialog("Enter username", Config.username);
+		Config.username = username2 == null ? Config.username : username2;
+
+		Config.save();
+		}else {
+			Config.username = username;
+		}
+
+		
 		Frame= new JFrame();
 		Frame.setUndecorated(true);
 
-		//Frame.setExtendedState(java.awt.Frame.NORMAL);
-		graphicsconfig = d.getDefaultConfiguration();
-		Rectangle bounds = graphicsconfig.getBounds();
+		
 		if (System.getProperty("os.name").toLowerCase().contains("win"))
 		{
 			Frame.setBounds(bounds);
@@ -348,9 +354,6 @@ public class Main
 		
 		Frame.setVisible(true);
 		Main.log(Config.username + " @ "+ Frame.getBounds().toString());
-
-		Width = Frame.getWidth();
-		Height = Frame.getHeight();
 	}
 
 	public static boolean joinServer(String IP, JLabel statusLabel)

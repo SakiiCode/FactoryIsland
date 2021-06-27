@@ -16,12 +16,12 @@ public class Config {
 	public static String username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
 	public static String multiAddr = Prefs.get("multiAddr", "");
 	public static int zoom = Prefs.getInt("zoom", 500);
-	public static int width = Prefs.getInt("width", 640);
-	public static int height = Prefs.getInt("height", 480);
+	public static int width = Prefs.getInt("width", Main.Width);
+	public static int height = Prefs.getInt("height", Main.Height);
 	public static boolean creative=Prefs.getBoolean("creative", true);
 	public static String selectedMap=Prefs.get("selectedMap", "");
 	public static final int brightness=7;
-	public static boolean directRendering=Prefs.getBoolean("directRendering", false);
+	public static boolean directRendering=Prefs.getBoolean("directRendering", true);
 	
 	public static void save(){
 		Prefs.putInt("renderDistance",	renderDistance);
@@ -84,8 +84,8 @@ public class Config {
 			username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
 			multiAddr = Prefs.get("multiAddr", "");
 			zoom = Prefs.getInt("zoom", 500);
-			width = Prefs.getInt("width", 640);
-			height = Prefs.getInt("height", 480);
+			width = Prefs.getInt("width", Main.Width);
+			height = Prefs.getInt("height", Main.Height);
 			creative=Prefs.getBoolean("creative", true);
 			selectedMap=Prefs.get("selectedMap", "");
 		} catch (BackingStoreException e)
