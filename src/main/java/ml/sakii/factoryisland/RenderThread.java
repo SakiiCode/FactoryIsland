@@ -38,16 +38,27 @@ public class RenderThread extends Thread
 		Graphics graphics = strategy.getDrawGraphics();
 		while(running) {
 			try {
-				if(Config.directRendering && !screenshot) {
-					game.render(graphics);
-					strategy.show();
-				}else {
+				
+				if(screenshot) {
 					game.render(game.FrameBuffer.getGraphics());
 					game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
-					if(screenshot) {
-						game.prevFrame = Main.deepCopy(game.FrameBuffer);
-						saveScreenshot(game.prevFrame);
-						screenshot=false;
+					game.prevFrame = Main.deepCopy(game.FrameBuffer);
+					saveScreenshot(game.prevFrame);
+					screenshot=false;
+				}else {
+					switch(Config.renderMethod) {
+					case DIRECT:
+						game.render(graphics);
+						strategy.show();
+						break;
+					case VOLATILE:
+						game.render(game.VolatileFrameBuffer.getGraphics());
+						game.getGraphics().drawImage(game.VolatileFrameBuffer, 0, 0,Main.Width, Main.Height, null);
+						break;
+					case BUFFERED:
+						game.render(game.FrameBuffer.getGraphics());
+						game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
+						break;
 					}
 				}
 				

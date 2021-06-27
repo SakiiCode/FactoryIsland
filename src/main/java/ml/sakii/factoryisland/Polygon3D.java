@@ -449,7 +449,13 @@ public class Polygon3D extends Object3D{
 		
 
 		
-		if(selected && !Config.directRendering){
+
+
+	}
+	
+	public void renderSelectOutline(Graphics fb){
+		Graphics2D g2d=((Graphics2D)fb);
+		if(Config.targetMarkerType == TargetMarkerType.SHADE) {
 			g2d.setPaint(new RadialGradientPaint(
 					calculateCentroid(polygon, centroid2D),
 					getRadius(polygon),
@@ -457,16 +463,11 @@ public class Polygon3D extends Object3D{
 					colors ,
 					CycleMethod.NO_CYCLE));
 			g2d.fillPolygon(polygon);
-
-		}else if(selected){
+		}else{
 			g2d.setColor(Color.white);
 			g2d.drawPolygon(polygon);
 		}
-		
-
 	}
-	
-	
 
 
 	public void recalc(Vector tmpVector) {
