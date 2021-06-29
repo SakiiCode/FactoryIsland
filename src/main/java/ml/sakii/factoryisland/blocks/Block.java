@@ -6,12 +6,13 @@ import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Model;
 import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vertex;
 
-public abstract class Block 
+public abstract class Block extends Model
 {
 
 	public static final Block NOTHING = new Nothing();
@@ -112,15 +113,15 @@ public abstract class Block
 		Vertex xkykzn = new Vertex(xk, yk, zn);
 		
 
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xnynzn, xnykzn, xkykzn }, new int[][] {{0,0},{w,0},{w,h},{0,h}},top));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzk, xnykzk, xnynzk, xkynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xnynzn, xnykzn, xkykzn }, new int[][] {{0,0},{w,0},{w,h},{0,h}},top,this));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzk, xnykzk, xnynzk, xkynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom,this));
 
 
-		Polygons.add(new Polygon3D(new Vertex[]	{ xnynzn, xkynzn, xkynzk, xnynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, north));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzn, xnykzn, xnykzk, xkykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, south));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xnynzn, xkynzn, xkynzk, xnynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, north,this));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzn, xnykzn, xnykzk, xkykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, south,this));
 		
-		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzn, xnynzn, xnynzk, xnykzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, east));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xkykzn, xkykzk, xkynzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, west));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xnykzn, xnynzn, xnynzk, xnykzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, east,this));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xkykzn, xkykzk, xkynzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, west,this));
 
 
 		HitboxPolygons.put(Polygons.get(0), BlockFace.TOP);
@@ -230,7 +231,6 @@ public abstract class Block
 		}
 		return 0;
 	}
-	
 	
 
 	/**

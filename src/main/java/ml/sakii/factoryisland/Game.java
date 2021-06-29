@@ -508,70 +508,29 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			} else
 			{
-				if (SelectedBlock.HitboxPolygons.containsKey(SelectedPolygon))
-				{
-					BlockFace newFace = SelectedBlock.HitboxPolygons.get(SelectedPolygon);
-					if (newFace != SelectedFace)
-					{
-						SelectedFace = newFace;
+				if(SelectedPolygon.model instanceof Block b) {
+					SelectedEntity=null;
+					if(SelectedBlock==b) {
+						BlockFace face = b.HitboxPolygons.get(SelectedPolygon);
+						if(face!=b.getSelectedFace()) {
+							b.select(face);
+							SelectedFace=face;
+						}
+					}else {
+						SelectedBlock.select(BlockFace.NONE);
+						SelectedBlock=b;
+						SelectedFace=b.HitboxPolygons.get(SelectedPolygon);
 						SelectedBlock.select(SelectedFace);
 					}
-				} else
-				{
+					if(Config.useTextures) {
+						SelectedPolygon.renderSelectOutline(fb);
+					}
+				
+				}else {
 					SelectedBlock.select(BlockFace.NONE);
 					SelectedBlock = Block.NOTHING;
 					SelectedFace = BlockFace.NONE;
-					Vector centroid = SelectedPolygon.centroid;
-					PE.tmpPoint.set((int)Math.floor(centroid.x), (int)Math.floor(centroid.y), (int)Math.floor(centroid.z));
-					Block block1 = Engine.world.getBlockAtP(PE.tmpPoint);
-					if (block1.HitboxPolygons.containsKey(SelectedPolygon))
-					{
-						SelectedFace = block1.HitboxPolygons.get(SelectedPolygon);
-						SelectedBlock.select(BlockFace.NONE);
-						SelectedBlock = block1;
-						SelectedBlock.select(SelectedFace);
-					} else
-					{
-						HashMap<BlockFace, Block> BlocksNearby;
-						if (block1 == Block.NOTHING)
-						{
-							PE.tmpPoint.set(centroid.x, centroid.y, centroid.z);
-						} else
-						{
-							PE.tmpPoint.set(block1.pos);
-						}
-
-						BlocksNearby = Engine.world.get6Blocks(PE.tmpPoint, false);
-						
-						for (Block block2 : BlocksNearby.values())
-						{
-							if (block2.HitboxPolygons.containsKey(SelectedPolygon))
-							{
-								SelectedFace = block2.HitboxPolygons.get(SelectedPolygon);
-								SelectedBlock.select(BlockFace.NONE);
-								SelectedBlock = block2;
-								SelectedBlock.select(SelectedFace);
-								break;
-							}
-
-						}
-						
-						if(SelectedBlock == Block.NOTHING) {
-							for(Entity e : Engine.world.getAllEntities()) {
-								if(e.Objects.contains(SelectedPolygon)) {
-									SelectedEntity=e;
-									break;
-								}
-							}
-							
-						}
-
-					}
-					
-				}
-				
-				if(SelectedBlock!=Block.NOTHING && Config.useTextures) {
-					SelectedPolygon.renderSelectOutline(fb);
+					SelectedEntity=(Entity) SelectedPolygon.model;
 				}
 				
 

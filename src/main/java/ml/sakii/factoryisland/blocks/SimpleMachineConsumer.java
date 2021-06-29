@@ -26,7 +26,7 @@ public abstract class SimpleMachineConsumer extends PowerConsumer
 		this.front=front;
 		TargetPolygon = new Polygon3D(new Vertex[]
 				{ new Vertex(new Vector()), new Vertex(new Vector()), new Vertex(new Vector()),
-						new Vertex(new Vector()) },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole));
+						new Vertex(new Vector()) },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole),this);
 		Polygons.add(TargetPolygon);
 		BlockMeta.put("target", BlockFace.TOP.id + "");
 
