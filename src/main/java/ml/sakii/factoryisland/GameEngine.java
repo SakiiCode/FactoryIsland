@@ -134,8 +134,7 @@ public class GameEngine{
 						if(bl != Block.NOTHING) {
 							
 							if(Tick % bl.refreshRate == 0){
-								if(bl instanceof TickListener) {
-									TickListener b =(TickListener)bl;
+								if(bl instanceof TickListener b) {
 									
 									if(b.tick(Tick)) {
 										
@@ -207,9 +206,7 @@ public class GameEngine{
 				
 					if(Tick % (2*Main.TICKSPEED) == 0) {
 						for(Entity entity : world.getAllEntities()) {
-							if(entity instanceof Alien) {
-								
-								Alien alien = ((Alien) entity);
+							if(entity instanceof Alien alien) {
 								Vector alienPos = alien.getPos();
 								
 								if(alienPos.getLength()>56) {
@@ -698,8 +695,8 @@ public class GameEngine{
 			}
 		}
 		for(Block b : world.getWhole(false)) {
-			if(b instanceof WorldGenListener) {
-				((WorldGenListener)b).generateWorld();
+			if(b instanceof WorldGenListener wgl) {
+				wgl.generateWorld();
 			}
 		}
 		world.saveByShutdown();

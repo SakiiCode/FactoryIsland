@@ -195,8 +195,8 @@ public class GameServer extends Thread{
 					
 					//és a blokkok inventoryját
 					for(Block b : Engine.world.getWhole(false)) {
-						if(b instanceof BlockInventoryInterface) {
-							for(Entry<ItemType,Integer> entry : ((BlockInventoryInterface) b).getInv().items.entrySet()) {
+						if(b instanceof BlockInventoryInterface bii) {
+							for(Entry<ItemType,Integer> entry : bii.getInv().items.entrySet()) {
 								sendData("13,SERVER,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), conn);
 							}
 						}

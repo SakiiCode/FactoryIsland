@@ -182,9 +182,9 @@ public abstract class Block
 		
 		}else {
 			boolean alreadyput = false;
-			if(this instanceof MetadataListener) {
+			if(this instanceof MetadataListener ml) {
 				
-				alreadyput = ((MetadataListener)this).onMetadataUpdate(key, value);
+				alreadyput = ml.onMetadataUpdate(key, value);
 				
 				
 			}

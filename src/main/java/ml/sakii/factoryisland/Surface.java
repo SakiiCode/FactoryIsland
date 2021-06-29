@@ -26,9 +26,9 @@ public class Surface {
 			this.c.set((Color4) o);
 			color = true;
 			paint = false;
-		}else if(o instanceof BufferedImage){
-			this.Texture = (BufferedImage)o;
-			this.c = averageColor((BufferedImage)o);
+		}else if(o instanceof BufferedImage img){
+			this.Texture = img;
+			this.c = averageColor(img);
 			color = false;
 			paint = false;
 		}else if(o instanceof Color) {
