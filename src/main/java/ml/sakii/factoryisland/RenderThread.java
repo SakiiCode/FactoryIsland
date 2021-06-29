@@ -36,6 +36,7 @@ public class RenderThread extends Thread
 	public void run()
 	{
 		Graphics graphics = strategy.getDrawGraphics();
+		Main.SwitchWindow("game");
 		while(running) {
 			
 				
