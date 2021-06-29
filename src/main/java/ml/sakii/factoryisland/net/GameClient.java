@@ -321,8 +321,8 @@ public class GameClient extends Thread{
 		Engine.world.destroyBlock(b, false);
 		if(Engine.isLocalMP()) {
 			for(Entity e : Engine.world.getAllEntities()) {
-				if(e.name.equals(part[1]) && e instanceof PlayerMP) {
-					((PlayerMP)e).inventory.add(returnAsItem, true);
+				if(e.name.equals(part[1]) && e instanceof PlayerMP p) {
+					p.inventory.add(returnAsItem, true);
 					break;
 				}
 			}
@@ -412,8 +412,8 @@ public class GameClient extends Thread{
 	void receiveInvSwap(String[] part) {
 		boolean addToLocal = Boolean.parseBoolean(part[6]);
 		for(Entity e : Engine.world.getAllEntities()) {
-			if(e.name.equals(part[1]) && e instanceof PlayerMP) {
-				((PlayerMP)e).inventory.add(Main.Items.get(part[5]), addToLocal ? 1 : -1, false);
+			if(e.name.equals(part[1]) && e instanceof PlayerMP p) {
+				p.inventory.add(Main.Items.get(part[5]), addToLocal ? 1 : -1, false);
 				break;
 			}
 		}
@@ -435,8 +435,8 @@ public class GameClient extends Thread{
 	
 	void receiveInvPlayerAdd(String[] part) {
 		for(Entity e : Engine.world.getAllEntities()) {
-			if(e.name.equals(part[1]) && e instanceof PlayerMP) {
-				((PlayerMP)e).inventory.add(Main.Items.get(part[2]), cInt(part[3]), false);
+			if(e.name.equals(part[1]) && e instanceof PlayerMP p) {
+				p.inventory.add(Main.Items.get(part[2]), cInt(part[3]), false);
 				break;
 			}
 		}

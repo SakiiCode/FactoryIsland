@@ -82,8 +82,7 @@ public abstract class PowerWire extends Block implements PowerListener, Metadata
 		for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(new Point3D().set(pos), false).entrySet()){
 			Block b = entry.getValue();
 			BlockFace face = entry.getKey();
-			if(b instanceof PowerListener){ 
-				PowerListener pw = (PowerListener)b;
+			if(b instanceof PowerListener pw){ 
 				if(add) {
 					pw.addPower(targetPower, face.getOpposite());
 				}else {

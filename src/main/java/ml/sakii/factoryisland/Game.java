@@ -222,8 +222,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		previousAim = new EAngle(PE.ViewAngle.yaw, PE.ViewAngle.pitch);
 		
 		for(Block b : Engine.world.getWhole(false)) {
-			if(b instanceof LoadListener) {
-				((LoadListener)b).onLoad();
+			if(b instanceof LoadListener ll) {
+				ll.onLoad();
 			}
 			statusLabel.setText("Spreading light...");
 			if(b.lightLevel>1) {
@@ -427,8 +427,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					public void run() {
 						
 						for(Object3D o : Objects) {
-							if(o instanceof Polygon3D) {
-								((Polygon3D)o).recalcLightedColor();
+							if(o instanceof Polygon3D p) {
+								p.recalcLightedColor();
 							}
 						}
 					}
@@ -570,11 +570,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
-					if(SelectedBlock instanceof PowerWire) {
-						debugInfo.add(((PowerWire)SelectedBlock).powers+"");
+					if(SelectedBlock instanceof PowerWire wire) {
+						debugInfo.add(wire.powers+"");
 					}
-					if(SelectedBlock instanceof PowerConsumer) {
-						debugInfo.add(((PowerConsumer)SelectedBlock).powers+"");
+					if(SelectedBlock instanceof PowerConsumer consumer) {
+						debugInfo.add(consumer.powers+"");
 					}
 					if(SelectedPolygon != null) {
 						debugInfo.add("SelPoly: "+SelectedPolygon+"light:"+SelectedPolygon.getLight());
@@ -1054,13 +1054,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 								PE.inventory.add(selected, -1, true);
 							}
 						}
-					} else if (SelectedBlock instanceof InteractListener)
+					} else if (SelectedBlock instanceof InteractListener il)
 					{
-						((InteractListener) SelectedBlock).interact(SelectedFace);
+						il.interact(SelectedFace);
 						
-						if (SelectedBlock instanceof BlockInventoryInterface)
+						if (SelectedBlock instanceof BlockInventoryInterface bii)
 						{
-							PlayerInventory otherInv = ((BlockInventoryInterface) SelectedBlock).getInv();
+							PlayerInventory otherInv = bii.getInv();
 							if (PE.inventory.items.size() == 0 && otherInv.items.size() > 0)
 							{
 								SwitchInventory(false);
@@ -1366,9 +1366,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			return false;
 		}
-		if (placeable instanceof PlaceListener) 
+		if (placeable instanceof PlaceListener pl) 
 		{
-			((PlaceListener) placeable).placed(SelectedFace);
+			pl.placed(SelectedFace);
 		}
 		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
 		

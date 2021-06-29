@@ -50,9 +50,8 @@ public abstract class PowerGenerator extends Block implements BreakListener{
 			BlockFace face = e.getKey();
 			Block b = e.getValue();
 			
-			if(activeSides.contains(face) && b instanceof PowerListener) {
+			if(activeSides.contains(face) && b instanceof PowerListener pl) {
 				
-				PowerListener pl = (PowerListener)(b);
 				if(on) {
 					pl.addPower(10, face.getOpposite());
 				}else {

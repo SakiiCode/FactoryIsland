@@ -225,10 +225,10 @@ public class World {
 	            	   }else if(curMeta != null) {
 	            		   curBlock.BlockMeta.put(curMeta, data);
 	            	   }else if(curPower != null) {
-	            		   if(curBlock instanceof PowerWire) {
-	            			   ((PowerWire)curBlock).powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
-	            		   }else if(curBlock instanceof PowerConsumer) {
-	            			   ((PowerConsumer)curBlock).powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
+	            		   if(curBlock instanceof PowerWire curWire) {
+	            			   curWire.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
+	            		   }else if(curBlock instanceof PowerConsumer curConsumer) {
+	            			   curConsumer.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
 	            		   }else {
 	            			   Main.err("Power on non-wire block: "+curBlock);
 	            		   }
@@ -1271,14 +1271,14 @@ public class World {
 			
 			Element Powers = document.createElement("power");
 			
-			if(b instanceof PowerWire) {
-				for (Entry<BlockFace, Integer> entry : ((PowerWire)b).powers.entrySet()) {
+			if(b instanceof PowerWire wire) {
+				for (Entry<BlockFace, Integer> entry : wire.powers.entrySet()) {
 					Element power = document.createElement(entry.getKey().name());
 					power.setTextContent(entry.getValue().toString());
 					Powers.appendChild(power);
 				}				
-			}else if(b instanceof PowerConsumer) {
-				for (Entry<BlockFace, Integer> entry : ((PowerConsumer)b).powers.entrySet()) {
+			}else if(b instanceof PowerConsumer consumer) {
+				for (Entry<BlockFace, Integer> entry : consumer.powers.entrySet()) {
 					Element power = document.createElement(entry.getKey().name());
 					power.setTextContent(entry.getValue().toString());
 					Powers.appendChild(power);
@@ -1288,9 +1288,9 @@ public class World {
 			
 			BlockElement.appendChild(Powers);
 			
-			if(b instanceof BlockInventoryInterface) {
+			if(b instanceof BlockInventoryInterface bii) {
 				Element Inv = document.createElement("inventory");
-				for (Entry<ItemType, Integer> entry : ((BlockInventoryInterface)b).getInv().items.entrySet()) {
+				for (Entry<ItemType, Integer> entry : bii.getInv().items.entrySet()) {
 					Element stack = document.createElement(entry.getKey().name);
 					stack.setTextContent(entry.getValue()+"");
 					Inv.appendChild(stack);
@@ -1313,7 +1313,9 @@ public class World {
 		
 		Element entitiesNode = document.createElement("entities");
 		for(Entity e : entities) {
-			if(!(e instanceof PlayerMP)) {
+			if(e instanceof PlayerMP p) {
+				savePlayer(worldName, p.name, p.getPos(), p.ViewAngle, p.inventory, p.getHealth());
+			}else {
 				Element entity = document.createElement("entity");
 				entity.setAttribute("aim", e.ViewAngle.toString());
 				entity.setAttribute("classname", e.className);
@@ -1323,9 +1325,6 @@ public class World {
 				entity.setAttribute("health", e.getHealth()+"");
 				
 				entitiesNode.appendChild(entity);
-			}else {
-				PlayerMP p = (PlayerMP)e;
-				savePlayer(worldName, p.name, p.getPos(), p.ViewAngle, p.inventory, p.getHealth());
 			}
 		}
 		
