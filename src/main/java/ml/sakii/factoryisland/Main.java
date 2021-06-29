@@ -421,8 +421,8 @@ public class Main
 		
 		
 		Base.add(GAME, "game");
-
-		SwitchWindow("game");
+		
+		
 		GAME.renderThread.start();
 		
 		

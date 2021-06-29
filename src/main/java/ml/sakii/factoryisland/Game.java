@@ -1298,14 +1298,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		firstframe = true;
 		renderThread = new RenderThread(this);
-		renderThread.start();
+		
 		
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
 		currentTime=System.nanoTime();
-		Main.SwitchWindow("game");
-
+		//Main.SwitchWindow("game");
+		renderThread.start();
 	}
 
 	void resizeScreen(int w, int h)
