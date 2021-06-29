@@ -6,7 +6,7 @@ public class Color4 {
 	//private static final long serialVersionUID = -4015148584668646478L;
 
 	private int r, g, b, a;
-	private Color buffer;
+	private Color cache;
     private static final double FACTOR = 0.7;
 	
 	public Color4(float r, float g, float b) {
@@ -30,7 +30,7 @@ public class Color4 {
 		this.g = g;
 		this.b = b;
 		this.a = a;
-		this.buffer=new Color(r, g, b, a);
+		this.cache=new Color(r, g, b, a);
 	}
 	
 	public Color4(Color c){
@@ -63,7 +63,7 @@ public class Color4 {
 	}
 	
 	public Color getColor() {
-		return buffer;
+		return cache;
 	}
 		
 
@@ -160,11 +160,11 @@ public class Color4 {
 	}
 	
 	public int getRGB() {
-		return buffer.getRGB();
+		return cache.getRGB();
 	}
 	
 	public Color4() {
-		this.buffer = Color.BLACK;
+		this.cache = Color.BLACK;
 	}
 	
 

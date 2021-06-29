@@ -31,7 +31,7 @@ public class Point3D {
 	
 	@Override
 	public String toString() {
-		return "x="+x+",y="+y+",z="+z;
+		return "("+x+","+y+","+z+")";
 	}
 	
 	@Override

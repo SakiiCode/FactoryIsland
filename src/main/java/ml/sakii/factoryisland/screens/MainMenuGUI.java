@@ -27,18 +27,15 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	
 	private int menuL = (int) (Main.Frame.getWidth()*0.1f);
 	private int menuT = (int) (Main.Frame.getHeight()*0.4f);
-	/*private int W = (int) (Main.Frame.getWidth()*0.3f);
-	private int H = (int) (Main.Frame.getHeight()*0.055f);
-	private int EntrySpacing = (int) (Main.Frame.getHeight()*0.011f);*/
+
 	
 	ArrayList<JButton> Menu = new ArrayList<>();
 	
-	private BufferedImage Logo/*, MainMenuBG*/;
+	private BufferedImage Logo;
 		
 	public MainMenuGUI(BufferedImage Logo, BufferedImage MainMenuBG){
 		super(MainMenuBG);
 		this.Logo=Logo;
-		//this.MainMenuBG=MainMenuBG;
 
 
 		this.addComponentListener( new ComponentAdapter() {
@@ -48,28 +45,28 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	        }
 	    });
 		
-		sp = new MainMenuButton("Singleplayer" ,menuL, menuT, EntryWidth, EntryHeight);
+		sp = new MainMenuButton("Singleplayer", menuL, menuT, EntryWidth, EntryHeight);
 		sp.setActionCommand("singleplayer");
 		sp.addActionListener(this);
 		Menu.add(sp);
 
 		
 		
-		mp = new MainMenuButton("Multiplayer",menuL, menuT+EntrySpacing, EntryWidth, EntryHeight);
+		mp = new MainMenuButton("Multiplayer", menuL, menuT+EntrySpacing, EntryWidth, EntryHeight);
 		mp.setActionCommand("multiplayer");
 		mp.addActionListener(this);
 		Menu.add(mp);
 
 		
 		
-		opt = new MainMenuButton("Settings",menuL, menuT+EntrySpacing*2, EntryWidth, EntryHeight);
+		opt = new MainMenuButton("Settings", menuL, menuT+EntrySpacing*2, EntryWidth, EntryHeight);
 		opt.setActionCommand("settings");
 		opt.addActionListener(this);
 		Menu.add(opt);
 		
 		
 		
-		exit = new MainMenuButton("Exit Game",menuL, menuT+EntrySpacing*3, EntryWidth, EntryHeight);
+		exit = new MainMenuButton("Exit Game", menuL, menuT+EntrySpacing*3, EntryWidth, EntryHeight);
 		exit.setActionCommand("exit");
 		exit.addActionListener(this);
 		Menu.add(exit);

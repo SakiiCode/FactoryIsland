@@ -97,13 +97,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		generateButton.addActionListener(this);
 		generateButton.addKeyListener(this);
 		generateButton.setVisible(true);
-		
-		
-		seedLabel = new JLabel("Seed (optional):");
-		seedLabel.setSize(seedLabel.getPreferredSize());
-		seedLabel.setLocation(nameField.getX(), nameField.getY()+nameField.getHeight()+SPACING);
-		seedLabel.setVisible(true);
-		
+
 		
 		
 		joinLabel = new JLabel("Or select a world to load:");

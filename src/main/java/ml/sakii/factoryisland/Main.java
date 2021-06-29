@@ -458,8 +458,9 @@ public class Main
 	private static void LoadResources()
 	{
 		GUIBG = loadTexture("textures/stone.png");
-		PausedBG = loadTexture("textures/paused.png");
 		originalPausedBG = loadTexture("textures/paused.png");
+		PausedBG = originalPausedBG;
+
 		SettingsBG = loadTexture("textures/settings.png");
 
 		MenuButtonTexture = loadTexture("textures/button.png");
