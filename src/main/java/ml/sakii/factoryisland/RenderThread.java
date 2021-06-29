@@ -37,7 +37,7 @@ public class RenderThread extends Thread
 	{
 		Graphics graphics = strategy.getDrawGraphics();
 		while(running) {
-			try {
+			
 				
 				if(screenshot) {
 					game.render(game.FrameBuffer.getGraphics());
@@ -59,14 +59,8 @@ public class RenderThread extends Thread
 						game.render(game.FrameBuffer.getGraphics());
 						game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
 						break;
-					}
-				}
-				
-				
-			}catch(Exception e) {
-				e.printStackTrace();
-				kill();
-			}
+					}				}
+
 			
 		}
 		
@@ -76,6 +70,7 @@ public class RenderThread extends Thread
 		
 
 	}
+
 	
 	 private void saveScreenshot(BufferedImage img) {
 		

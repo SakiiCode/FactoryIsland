@@ -328,15 +328,15 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
     		widthField.setEnabled(false);
     		heightField.setText(Main.Frame.getHeight()+"");
     		heightField.setEnabled(false);
-    		useTextures=false;
-    		textureButton.setEnabled(false);
+    		//useTextures=false;
+    		//textureButton.setEnabled(false);
     	}else if(renderMethod==RenderMethod.VOLATILE){
     		widthField.setText(Config.width+"");
     		widthField.setEnabled(true);
     		heightField.setText(Config.height+"");
     		heightField.setEnabled(true);
-    		useTextures=false;
-    		textureButton.setEnabled(false);
+    		//useTextures=false;
+    		//textureButton.setEnabled(false);
     	}else {
     		widthField.setText(Config.width+"");
     		widthField.setEnabled(true);
@@ -356,7 +356,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	
 	private String[] getButtonLabels() {
 		return new String[] {
-				"Textured Rendering: " + (useTextures?"ON":"OFF"),
+				"Textures: " + (useTextures?"ON":"OFF"),
 				"Show Fog: " + (fogEnabled?"ON":"OFF"),
 				"Creative Mode: " + (creative?"ON":"OFF"),
 				"Target Marker: " + switch(targetMarkerType) {
