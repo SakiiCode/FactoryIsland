@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.Model;
 import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
@@ -16,7 +17,7 @@ import ml.sakii.factoryisland.Text3D;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
-public class Entity{
+public class Entity extends Model{
 	
 	
 	int health;
@@ -86,17 +87,17 @@ public class Entity{
 		
 		
 		//top
-		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//bottom
-		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, x1y1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, x1y1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//back
-		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//front
-		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front));
+		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front,this));
 		//left
-		Objects.add(new Polygon3D(new Vertex[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		Objects.add(new Polygon3D(new Vertex[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//right
-		Objects.add(new Polygon3D(new Vertex[] {xyz1, x1yz1, x1yz0, xyz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side));
+		Objects.add(new Polygon3D(new Vertex[] {xyz1, x1yz1, x1yz0, xyz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		
 	}
 	
