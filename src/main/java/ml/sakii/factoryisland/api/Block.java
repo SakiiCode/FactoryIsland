@@ -35,6 +35,10 @@ public class Block{
 		return name + "," + x + "," + y + "," + z;
 	}
 	
+	public String getName(){
+		return name;
+	}
+	
 	public String getMetadata(String key) {
 		return b.BlockMeta.get(key);
 	}

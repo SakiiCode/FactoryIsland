@@ -32,16 +32,14 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	JButton fogButton;
 	JButton creativeButton, renderMethodButton, markerTypeButton;
 	JButton resetButton;
-	JSlider sensitivitySlider;//, viewportscaleSlider;
+	JSlider sensitivitySlider;
 	JSlider brightnessSlider;
 
 	JSlider renderDistanceSlider;
 
 	JSlider fovSlider;
 	JTextField NameTextField, widthField, heightField;
-	/*private int HEIGHT = (int)(Main.Frame.getHeight()*0.05f/4*3);
-	private int WIDTH=(int)(Main.Frame.getWidth()*0.35f);
-	private int EntrySpacing=(int)(Main.Frame.getHeight()*0.016f);*/
+
 	
 	@SuppressWarnings("hiding")
 	protected int EntryHeight  = (int)(Main.Frame.getHeight()*0.05f/4*3);
@@ -57,7 +55,6 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	public SettingsGUI(){
 		super(Main.SettingsBG);
 		
-		//background = new BufferedImage(game.getWidth(), game.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		setLayout(null);
 		addKeyListener(this);
 		this.addComponentListener( new ComponentAdapter() {
@@ -78,7 +75,6 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	        	fogEnabled = Config.fogEnabled;
 	        	creative = Config.creative;
 	        	
-	        	//directRendering = Config.directRendering;
 	        	renderMethod=Config.renderMethod;
 	        	targetMarkerType=Config.targetMarkerType;
 	        	
@@ -246,12 +242,6 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		add(l7);
 	}
 	
-	/*@Override
-	  protected void paintComponent(Graphics g) {
-	    super.paintComponent(g);
-	    g.drawImage(Main.SettingsBG, 0, 0, this.getWidth(), this.getHeight(), null);
-	}*/
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getActionCommand().equals("ok")){
@@ -260,7 +250,6 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		        
 		        Config.sensitivity = sensitivitySlider.getValue();
 		        Config.renderDistance = renderDistanceSlider.getValue();
-		        //Config.viewportscale = viewportscaleSlider.getValue();
 		        Config.useTextures = useTextures;
 		        
 		        Config.username = NameTextField.getText();
@@ -277,10 +266,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		        Config.creative=creative;
 		        Config.renderMethod=renderMethod;
 		        Config.targetMarkerType=targetMarkerType;
-		        
-		        /*Config.skyEnabled = skyEnabled;
-		        Config.fastQuality = fastQuality;*/
-		        //Config.brightness=brightnessSlider.getValue();
+
 		        Config.save();
 		        Main.SwitchWindow(Main.PreviousCLCard);
 			}else {

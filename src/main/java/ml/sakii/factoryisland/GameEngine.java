@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,7 +37,7 @@ public class GameEngine{
 	
 	public World world;
 	//public Set<Point3D> TickableBlocks =  Collections.newSetFromMap(new ConcurrentHashMap<Point3D, Boolean>());
-	public CopyOnWriteArrayList<Point3D> TickableBlocks = new CopyOnWriteArrayList<>();
+	public CopyOnWriteArraySet<Point3D> TickableBlocks = new CopyOnWriteArraySet<>();
 	public long Tick;//, day, hours;
 	//public static double skyLightF;
 	
