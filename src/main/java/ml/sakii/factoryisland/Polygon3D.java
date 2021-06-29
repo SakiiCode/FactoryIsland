@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Polygon3D extends Object3D{
 	Polygon polygon = new Polygon();
@@ -44,7 +45,7 @@ public class Polygon3D extends Object3D{
 	int ymax, ymin;
 	private int light=0;
 	
-	private final HashMap<Point3D, Integer> lightSources = new HashMap<>();
+	private final ConcurrentHashMap<Point3D, Integer> lightSources = new ConcurrentHashMap<>();
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
 	Color4 pixel = new Color4();
@@ -61,10 +62,13 @@ public class Polygon3D extends Object3D{
 	
 	private static final long TICKS_PER_DAY = 72000;
 	
-	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s) {
+	Model model;
+	
+	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
 		this.Vertices = vertices;
 		this.UVMap = UVMapOfVertices;
+		this.model=model;
 		/*this.uvz = new UVZ[vertices.length];
 		for(int i=0;i<uvz.length;i++) {
 			uvz[i]=new UVZ(); 
@@ -208,6 +212,8 @@ public class Polygon3D extends Object3D{
 		return overlay.setAlpha((int)(Math.pow(0.8, light+1)*255));
 	}
 	
+
+	
 	private int getLightLevel (double percent) {
 		
 		double radians = percent*2*Math.PI;
@@ -250,173 +256,189 @@ public class Polygon3D extends Object3D{
 	}
 		
 
+	public void drawToBuffer(PixelData[][] ZBuffer) {
+		
+		// buffer init
+		bufferXmin.clear();
+		bufferXmax.clear();
+		bufferUVZmin.clear();
+		bufferUVZmax.clear();
+		
 
+		//vertexről vertexre körbemegyünk
+		for(int i=0;i<clipSize;i++) {
+			
+			int index1= i;
+			int index2= i != clipSize-1 ? i+1 : 0;
+			
+			Vertex v1 = clip[index1]; 
+			Vertex v2 = clip[index2];
+			
+			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1]);
+			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2]);
+			
+			final Point p1 = v1.proj;
+			final Point p2 = v2.proj;
+			
+			//p1 és p2 meredeksége
+			final double m=(p2.y==p1.y) ? 0.0 : (p2.x-p1.x)*1.0/(p2.y-p1.y);
+			
+			// mindenképpen y pozitív irányban szeretnénk végigmenni a polygon oldalán, de lehet, hogy p2 van feljebb.
+			final int xmin = (p1.y<p2.y) ? p1.x : p2.x;
+			final int ymin= (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
+			final int ymax = (p1.y<p2.y) ? p2.y : p1.y;
+
+			
+			
+
+
+			double x  = xmin; //aktuális x érték
+			
+			// megkeressük az adott sor bal és jobb szélét, társítunk a két ponthoz UVZ-t is
+			// y-t 1-gyel, x-et m-mel léptetjük
+			for(int y=ymin;y<ymax;y++) {
+				
+				if(bufferXmin.get(y) == null || x < bufferXmin.get(y)) {
+					bufferXmin.put(y,(int) x);
+					bufferUVZmin.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
+				}
+				
+				if(bufferXmax.get(y) == null || x > bufferXmax.get(y)) {
+					bufferXmax.put(y,(int) x);
+					bufferUVZmax.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
+				}
+				
+				x+=m;
+					
+			}
+				
+			
+			
+
+		}
+	
+		//int imgx = Collections.min(bufferXmin.values());
+		int imgw = Collections.max(bufferXmax.values()) -  Collections.min(bufferXmin.values());
+		//int imgy = ymin;
+		//int imgh = ymax-ymin;
+		
+		
+		if(imgw>0) { //ha merőlegesen állunk ne rajzoljon
+			
+			// átmeneti kép, erre rajzoljuk a polygont, és ezt rajzoljuk az ablakra
+
+			
+			//a polygon minden során végigmegyünk
+			for(int y=ymin;y<ymax;y++)
+			{
+				//a polygon adott sorának két szélének adatai
+				int xmin=bufferXmin.get(y);
+				int xmax=bufferXmax.get(y);
+				UVZ uvzmin = bufferUVZmin.get(y);
+				UVZ uvzmax = bufferUVZmax.get(y);
+			 
+
+
+				double Siz = Util.getSlope(xmin, xmax, uvzmin.iz, uvzmax.iz);
+				double Suz = Util.getSlope(xmin, xmax, uvzmin.uz, uvzmax.uz);
+				double Svz = Util.getSlope(xmin, xmax, uvzmin.vz, uvzmax.vz);
+
+				int xmin2=Math.max(xmin, 0);
+				int xmax2=Math.min(xmax, Config.width);
+				for(int x=xmin2;x<xmax2;x++)
+				{
+				 
+			 		double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
+			 		synchronized(ZBuffer[x][y]) {
+					 	if(ZBuffer[x][y].depth>iz) continue;
+					 	ZBuffer[x][y].depth=iz;
+					 	if(y>ymin && y<ymax-1 &&
+					 			(
+						 			(x<bufferXmin.get(y+1) || x>bufferXmax.get(y+1) || x<bufferXmin.get(y-1) || x>bufferXmax.get(y-1)) || 
+						 			x==xmin2 || x==xmax2-1
+					 			)
+					 		) {
+					 		ZBuffer[x][y].color=0xFF000000;
+					 		continue;
+					 	}else if(y==ymax-1 || y==ymin) {
+					 		ZBuffer[x][y].color=0xFF000000;
+					 		continue;
+					 	}
+					 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
+					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
+					 	
+					 	int rgb;
+					 	if(Main.GAME.key[6]) {
+					 		int px=Math.round(255*(float)(0.03/iz));
+					 		rgb = (255 << 24) | (px << 16) | (px << 8) | px;
+					 		
+					 	}else {
+						 	double u=uz/iz;
+						 	double v=vz/iz;
+						 	
+						 	try {
+						 		int px;
+						 		if(s.color) {
+						 			px=s.c.getRGB();
+						 		}else {
+						 			px=s.Texture.getRGB((int)u, (int)v);
+						 		}
+						 		px=px|0xFF000000;
+							 	/*int previous = ZBuffer[x][y].color;
+							 	int alpha =(px>>24)&0xFF; 
+							 	if(alpha != 255) {
+							 		rgb = Color4.blend(previous, px);//pixel.set(previous).blend(px).getRGB();
+							 	}else {*/
+						 			if(Main.GAME.key[8]) {
+						 				rgb=px;
+						 			}else {
+						 				rgb=Color4.blend(px, overlay.getRGB());
+						 			}
+							 	//}
+	
+						 	}catch(Exception e) {
+						 		e.printStackTrace();
+						 		rgb=0;
+						 	}
+					 	}
+					 	ZBuffer[x][y].color=rgb;
+				 		
+			 		}
+				}
+				
+			}
+			
+
+		}
+	}
 
 	@Override
 	protected void draw(BufferedImage FrameBuffer, Graphics g){
 		boolean lighted=false;
 		Graphics2D g2d=(Graphics2D)g;
-		if(s.color || !Config.useTextures || AvgDist > 25){
-
-			if(!s.paint && !Config.useTextures) {
+			if(!s.paint) {
 				g2d.setColor(lightedcolor.getColor());
 				lighted=true;
 			}else {
 				g2d.setColor(s.c.getColor());
 			}
 			g2d.fillPolygon(polygon);
-			
-		}else{
-			// buffer init
-			bufferXmin.clear();
-			bufferXmax.clear();
-			bufferUVZmin.clear();
-			bufferUVZmax.clear();
-			
-
-			//vertexről vertexre körbemegyünk
-			for(int i=0;i<clipSize;i++) {
-				
-				int index1= i;
-				int index2= i != clipSize-1 ? i+1 : 0;
-				
-				Vertex v1 = clip[index1]; 
-				Vertex v2 = clip[index2];
-				
-				UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1]);
-				UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2]);
-				
-				final Point p1 = v1.proj;
-				final Point p2 = v2.proj;
-				
-				//p1 és p2 meredeksége
-				final double m=(p2.y==p1.y) ? 0.0 : (p2.x-p1.x)*1.0/(p2.y-p1.y);
-				
-				// mindenképpen y pozitív irányban szeretnénk végigmenni a polygon oldalán, de lehet, hogy p2 van feljebb.
-				final int xmin = (p1.y<p2.y) ? p1.x : p2.x;
-				final int ymin= (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
-				final int ymax = (p1.y<p2.y) ? p2.y : p1.y;
-
-				
-				
-
-
-				double x  = xmin; //aktuális x érték
-				
-				// megkeressük az adott sor bal és jobb szélét, társítunk a két ponthoz UVZ-t is
-				// y-t 1-gyel, x-et m-mel léptetjük
-				for(int y=ymin;y<ymax;y++) {
-					
-					if(bufferXmin.get(y) == null || x < bufferXmin.get(y)) {
-						bufferXmin.put(y,(int) x);
-						bufferUVZmin.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
-					}
-					
-					if(bufferXmax.get(y) == null || x > bufferXmax.get(y)) {
-						bufferXmax.put(y,(int) x);
-						bufferUVZmax.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
-					}
-					
-					x+=m;
-						
-				}
-					
-				
-				
-
-			}
-		
-			//int imgx = Collections.min(bufferXmin.values());
-			int imgw = Collections.max(bufferXmax.values()) -  Collections.min(bufferXmin.values());
-			//int imgy = ymin;
-			//int imgh = ymax-ymin;
-			
-			
-			g2d.setColor(Color.BLACK);
-			if(imgw>0) { //ha merőlegesen állunk ne rajzoljon
-				
-				// átmeneti kép, erre rajzoljuk a polygont, és ezt rajzoljuk az ablakra
-
-				
-				//a polygon minden során végigmegyünk
-				for(int y=ymin;y<ymax;y++)
-				{
-					//a polygon adott sorának két szélének adatai
-					int xmin=bufferXmin.get(y);
-					int xmax=bufferXmax.get(y);
-					UVZ uvzmin = bufferUVZmin.get(y);
-					UVZ uvzmax = bufferUVZmax.get(y);
-				 
-
-
-					double Siz = Util.getSlope(xmin, xmax, uvzmin.iz, uvzmax.iz);
-					double Suz = Util.getSlope(xmin, xmax, uvzmin.uz, uvzmax.uz);
-					double Svz = Util.getSlope(xmin, xmax, uvzmin.vz, uvzmax.vz);
-
-					int xmin2=Math.max(xmin, 0);
-					int xmax2=Math.min(xmax, Config.width);
-					for(int x=xmin2;x<xmax2;x++)
-					{
-					 
-					 	double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
-					 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
-					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
-
-					 	if(Main.GAME.key[6]) {
-					 		int px=Math.round(255*(float)(0.03/iz));
-					 		int rgb = (255 << 24) | (px << 16) | (px << 8) | px;
-					 		FrameBuffer.setRGB(x, y, rgb);
-					 	}else {
-						 	double u=uz/iz;
-						 	double v=vz/iz;
-						 	try {
-							 	int px=s.Texture.getRGB((int)u, (int)v);
-							 	int previous = FrameBuffer.getRGB(x, y);
-							 	int previousAlpha =(previous>>24)&0xFF; 
-							 	if(previousAlpha != 255) {
-							 		int rgb = pixel.set(previous).blend(px).getRGB();
-							 		FrameBuffer.setRGB(x, y, rgb);
-							 	}else {
-							 		FrameBuffer.setRGB(x, y, px);
-							 	}
-						 	}catch(Exception e) {
-						 		e.printStackTrace();
-						 	}
-					 	}
-					 	
-					 		
-					 		
-					}
-					
-				}
-			}
-			
-		}
 		
 		if(s.paint){
 			
 			g2d.setPaint(s.p);
 			g2d.fillPolygon(polygon);
-			//((Graphics2D)g).setPaint(Color.BLACK);
 		}
 		
-		if(!lighted && !Config.useTextures) {
+		if(!lighted) {
 			
 			Color4 lightedc=getLightOverlay();
-			if(!s.paint) {
-				g2d.setColor(lightedc.getColor());
-				g2d.fillPolygon(polygon);
-			}else {
-				g2d.setColor(lightedc.getColor());
-				g2d.fillPolygon(polygon);
-			}
-
+			g2d.setColor(lightedc.getColor());
+			g2d.fillPolygon(polygon);
 			
 		}
-		/*if(Main.GAME.key[6]) {
-			Main.GAME.coverageBuffer.subtract(new Area(polygon));
-			g.setClip(Main.GAME.coverageBuffer);
-		}*/
+
+
 
 		
 		boolean drawfog = (AvgDist > Config.renderDistance*(0.75f) && Config.fogEnabled);
@@ -442,12 +464,14 @@ public class Polygon3D extends Object3D{
 			g2d.setColor(Color.BLACK);
 		}
 		
-		if(s.c.getAlpha() == 255 && !Config.useTextures){
+		if(s.c.getAlpha() == 255){
 			g2d.drawPolygon(polygon);
 		}
 		
 		
-
+		if(selected) {
+			renderSelectOutline(g);
+		}
 		
 
 
@@ -661,8 +685,12 @@ public class Polygon3D extends Object3D{
 	public String toString() {
 		/*return "Polygon3D [adjecentFilter=" + adjecentFilter + ", faceFilter=" + faceFilter + ", s=" + s + ", Vertices="
 				+ Arrays.toString(Vertices) + ", ymax=" + ymax + ", ymin=" + ymin + ", lights="+lightSources+"]";*/
-		return s+","+lightSources;
+		return s+","+lightSources.toString().replace(", ", "\r\n");
 	}
+
+
+
+
 	
 	
 	

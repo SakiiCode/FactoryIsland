@@ -31,6 +31,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -97,6 +99,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	VolatileImage VolatileFrameBuffer;
 	BufferedImage FrameBuffer;
 	BufferedImage prevFrame;
+	PixelData[][] ZBuffer;
 
 	 final Cursor invisibleCursor = Toolkit.getDefaultToolkit()
 			.createCustomCursor(new BufferedImage(1, 1, Transparency.TRANSLUCENT), new Point(0, 0), "InvisibleCursor");
@@ -438,22 +441,61 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			
 			
+			if(Config.useTextures) {
+				AtomicInteger polyCount = new AtomicInteger(0);
+				Objects.parallelStream().filter(o -> {return o.update() && o instanceof Polygon3D;}).forEach(o ->{
 
-			Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o->
-			
-			{
-				
-				o.draw(FrameBuffer, fb);
-				
-				if(o instanceof Polygon3D) {
-					Polygon3D poly = (Polygon3D)o;
-					if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
+					Polygon3D p = (Polygon3D)o;
+					p.drawToBuffer(ZBuffer);
+					if (p.polygon.contains(centerX, centerY) &&
+							((SelectedPolygon == null && p.AvgDist<5) || (SelectedPolygon!=null && p.AvgDist<SelectedPolygon.AvgDist)))
 					{
-						SelectedPolygon = poly;
+						SelectedPolygon = p;
 					}
-					VisibleCount++;
+					polyCount.incrementAndGet();
+				});
+				VisibleCount=polyCount.get();
+				
+				for(int x=0;x<ZBuffer.length;x++) {
+					
+					for(int y=0;y<ZBuffer[x].length;y++) {
+						
+						int color =ZBuffer[x][y].color; 
+						
+						if(color==0) continue;
+						if(Config.renderMethod==RenderMethod.BUFFERED) {
+							FrameBuffer.setRGB(x, y, color);
+						}else {
+							if(fb.getColor().getRGB()!=color) {
+								fb.setColor(new Color(color));
+							}
+							fb.drawRect(x, y, 1, 1);
+						}
+						ZBuffer[x][y].reset();
+
+					}
 				}
-			});
+					
+				Objects.parallelStream().filter(o->o instanceof Text3D).sorted().forEachOrdered(t ->{
+					t.draw(null, fb); //nem kell image-t megadni text3d-hez
+				});
+				
+				
+			}else {
+				Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o->
+				{
+					o.draw(FrameBuffer, fb);
+					
+					if(o instanceof Polygon3D poly) {
+						
+						if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
+						{
+							SelectedPolygon = poly;
+						}
+						VisibleCount++;
+					}
+				});
+			}
 			
 			
 			
@@ -466,7 +508,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			} else
 			{
-				SelectedPolygon.renderSelectOutline(fb);
 				if (SelectedBlock.HitboxPolygons.containsKey(SelectedPolygon))
 				{
 					BlockFace newFace = SelectedBlock.HitboxPolygons.get(SelectedPolygon);
@@ -527,15 +568,16 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 					}
 					
-					
-
+				}
+				
+				if(SelectedBlock!=Block.NOTHING && Config.useTextures) {
+					SelectedPolygon.renderSelectOutline(fb);
 				}
 				
 
-				
-				
-
 			}
+			
+			
 			if (remoteInventory != null)
 			{
 				fb.drawImage(op.filter(FrameBuffer, null), 0, 0, null);
@@ -928,6 +970,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			key[6] = true;
 		}
+		
+		if (arg0.getKeyCode() == KeyEvent.VK_Z)
+		{
+			key[8] = true;
+		}
 		if (arg0.getKeyCode() == KeyEvent.VK_CONTROL)
 		{
 			key[7] = !key[7];
@@ -985,6 +1032,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (arg0.getKeyCode() == KeyEvent.VK_T)
 		{
 			key[6] = false;
+		}
+		if (arg0.getKeyCode() == KeyEvent.VK_Z)
+		{
+			key[8] = false;
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F2)
 		{
@@ -1262,6 +1313,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
 		VolatileFrameBuffer = Main.graphicsconfig.createCompatibleVolatileImage(w, h);
+		ZBuffer=new PixelData[w][h];
+		for(int x =0;x<w;x++) {
+			for(int y=0;y<h;y++) {
+				ZBuffer[x][y]=new PixelData();
+			}
+		}
 		centerX = w / 2;
 		centerY = h / 2;
 

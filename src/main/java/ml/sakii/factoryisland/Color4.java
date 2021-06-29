@@ -76,6 +76,40 @@ public class Color4 {
 		return blend(r0, g0, b0, a0);
 	}
 		
+	public static int blend(int source, int dest) {
+		float b0 = ((dest)&0xFF)/255f;
+		float g0 = ((dest>>8)&0xFF)/255f;
+		float r0 = ((dest>>16)&0xFF)/255f;
+		float a0 = ((dest>>24)&0xFF)/255f;
+		
+		float b1 = ((source)&0xFF)/255f;
+		float g1 = ((source>>8)&0xFF)/255f;
+		float r1 = ((source>>16)&0xFF)/255f;
+		float a1 = ((source>>24)&0xFF)/255f;
+		
+
+		
+		float a01 = (1 - a0)*a1 + a0;
+
+		float r01 = ((1 - a0)*a1*r1 + a0*r0) / a01;
+
+		float g01 = ((1 - a0)*a1*g1 + a0*g0) / a01;
+
+		float b01 = ((1 - a0)*a1*b1 + a0*b0) / a01;
+
+		
+		int red = ((int)(r01*255)<<16)& 0x00FF0000;
+		int green = ((int)(g01*255)<<8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
+	    int blue = ((int)(b01*255)) & 0x000000FF; //Mask out anything not blue.
+	    int alpha = ((int)(a01*255)<<24) & 0xFF000000; 
+		
+		//return ((int)(r01*255)<<16+ (int)(g01*255)<<8+ (int)(b01*255)+ (int)(a01*255)<<24);
+		return alpha | red | green | blue;
+		
+
+		
+	}
+	
 	public Color4 blend(int argb) {
 		int b = (argb)&0xFF;
 		int g = (argb>>8)&0xFF;
