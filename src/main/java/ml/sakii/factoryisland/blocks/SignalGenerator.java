@@ -7,25 +7,25 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.items.ItemStack;
 
-public abstract class PowerGenerator extends Block implements BreakListener{
+public abstract class SignalGenerator extends Block implements BreakListener{
 
 
 	
-	public PowerGenerator(int x, int y, int z, GameEngine engine) //ModBlock és Nothing miatt
+	public SignalGenerator(int x, int y, int z, GameEngine engine) //ModBlock és Nothing miatt
 	{
 		
 		super(x, y, z,engine);
 		init();
 	}
 
-	public PowerGenerator(String name, int x, int y, int z, GameEngine engine)
+	public SignalGenerator(String name, int x, int y, int z, GameEngine engine)
 	{
 		super(name, x, y, z,  engine);
 		init();
 
 	}
 	
-	public PowerGenerator(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
+	public SignalGenerator(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
 	{
 		super(name, x, y, z, xscale, yscale, zscale, engine);
 		init();
@@ -39,7 +39,7 @@ public abstract class PowerGenerator extends Block implements BreakListener{
 	}
 
 	
-	void switchPower(boolean on, BlockFace[] sides) {
+	void switchSignal(boolean on, BlockFace[] sides) {
 		if(on) {
 			setMetadata("active", "1", true);
 		}else {
@@ -50,12 +50,12 @@ public abstract class PowerGenerator extends Block implements BreakListener{
 			BlockFace face = e.getKey();
 			Block b = e.getValue();
 			
-			if(activeSides.contains(face) && b instanceof PowerListener pl) {
+			if(activeSides.contains(face) && b instanceof SignalListener sl) {
 				
 				if(on) {
-					pl.addPower(10, face.getOpposite());
+					sl.addSignal(10, face.getOpposite());
 				}else {
-					pl.removePower(face.getOpposite());
+					sl.removeSignal(face.getOpposite());
 				}
 							
 			}
@@ -64,7 +64,7 @@ public abstract class PowerGenerator extends Block implements BreakListener{
 	
 	@Override
 	public ItemStack[] breaked(String username) {
-		switchPower(false, BlockFace.values);
+		switchSignal(false, BlockFace.values);
 		return null;
 	}
 
