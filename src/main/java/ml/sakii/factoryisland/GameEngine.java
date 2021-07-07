@@ -93,6 +93,7 @@ public class GameEngine{
 				throw new Exception(world.success);
 			}
 			break;
+		case BENCHMARK:
 		case EXISTING:
 			updateLabel(statusLabel,"Loading world "+location+"...");
 			world = new World(location, this, game, true, statusLabel);

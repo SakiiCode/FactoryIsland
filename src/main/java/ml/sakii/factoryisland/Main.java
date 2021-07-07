@@ -46,6 +46,7 @@ import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
+import ml.sakii.factoryisland.screens.BenchmarkGUI;
 import ml.sakii.factoryisland.screens.DeadGUI;
 import ml.sakii.factoryisland.screens.MainMenuGUI;
 import ml.sakii.factoryisland.screens.MultiplayerGUI;
@@ -287,6 +288,7 @@ public class Main
 
 		MPGui = new MultiplayerGUI();
 		Base.add(new SingleplayerGUI(), "generate");
+		Base.add(new BenchmarkGUI(), "benchmark");
 		Base.add(MPGui, "connect");
 		Base.add(new MainMenuGUI(loadTexture("textures/logo.png"), loadTexture("textures/mainmenu.png")), "mainmenu");
 		Base.add(new SettingsGUI(), "settings");
@@ -407,6 +409,30 @@ public class Main
 
 		openGame();
 		return true;
+	}
+	
+	
+	public static boolean runBenchmark(String mapName, JLabel statusLabel) {
+		if (sound)  BGMusic.stop();
+		if(GAME != null) {
+			Main.err("Already joined a game");
+			return false;
+		}
+		
+		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK,statusLabel);
+		
+		if(GAME.error != null) {
+			Main.err(GAME.error);
+			statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+			GAME=null;
+			return false;
+		}
+		
+		statusLabel.setText("Opening game screen...");
+
+		openGame();
+		return true;
+		
 	}
 
 	private static void openGame() {

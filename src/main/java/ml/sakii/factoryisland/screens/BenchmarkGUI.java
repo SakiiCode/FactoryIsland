@@ -1,0 +1,318 @@
+package ml.sakii.factoryisland.screens;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.util.ArrayList;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+
+import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.MainMenuButton;
+
+public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyListener{
+	private static final long serialVersionUID = -2653478459245096044L;
+	MainMenuButton submitButton, deleteButton;
+	private JLabel joinLabel;
+	JLabel statusLabel;
+	private JList<String> worldsList;
+	
+	private int SPACING = 16;
+	private int MARGIN = 10;
+	
+	String mapName;
+	
+	public BenchmarkGUI(){
+		super(Main.GUIBG);
+		this.setLayout(null);
+		addKeyListener(this);
+
+		this.addComponentListener( new ComponentAdapter() {
+	        @Override
+	        public void componentShown( ComponentEvent e ) {
+	            if(refreshList().length>0) {
+	            	deleteButton.setEnabled(true);
+	            	getWorldsList().setEnabled(true);
+	            	submitButton.setEnabled(true);
+	            }else {
+	            	deleteButton.setEnabled(false);
+	            	getWorldsList().setEnabled(false);
+	            	submitButton.setEnabled(false);
+		            BenchmarkGUI.this.requestFocusInWindow();
+
+	            	
+	            }
+	         //   worldsList.requestFocus();
+	            
+
+	        }
+	    });
+		
+
+		
+
+		
+		joinLabel = new JLabel("Select a world to load:");
+		joinLabel.setSize(joinLabel.getPreferredSize());
+		joinLabel.setLocation(Main.Frame.getWidth()/4*3,  Main.Frame.getHeight()/7);
+		joinLabel.setVisible(true);
+		
+		setWorldsList(new JList<>(getWorlds()));
+		getWorldsList().setSelectedValue(Config.selectedMap, true);
+		getWorldsList().setSize(WIDTH, Main.Frame.getHeight()/4);
+		getWorldsList().setLocation(joinLabel.getX(), joinLabel.getY()+MARGIN);
+		getWorldsList().addKeyListener(new KeyListener() {
+			
+			
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
+			    	Main.SwitchWindow("mainmenu");
+				}
+				if(arg0.getKeyCode() == KeyEvent.VK_ENTER){
+			    	join();
+				}
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0)
+			{
+				
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0)
+			{
+				
+			}
+			
+		});
+		getWorldsList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getWorldsList().addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent evt) {
+			        if (evt.getClickCount() == 2 && !getWorldsList().isSelectionEmpty()) {
+			        	join();
+			        }
+			        Config.selectedMap=getWorldsList().getSelectedValue();
+			        Config.save();
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				
+			}
+			
+			
+		});
+		getWorldsList().setVisible(true);
+
+		
+		deleteButton= new MainMenuButton("Delete", getWorldsList().getX(), getWorldsList().getY()+getWorldsList().getHeight()+SPACING,
+				getWorldsList().getHeight(), Main.Frame.getHeight()/7);
+		deleteButton.setHorizontalTextPosition(SwingConstants.CENTER);
+		deleteButton.setVerticalTextPosition(SwingConstants.CENTER);
+		deleteButton.setActionCommand("delete");
+		deleteButton.addActionListener(this);
+		deleteButton.addKeyListener(this);
+		deleteButton.setVisible(true);
+		
+		submitButton = new MainMenuButton("Load World",deleteButton.getX(), deleteButton.getY()+deleteButton.getHeight()+SPACING, deleteButton.getWidth(), deleteButton.getHeight());
+		submitButton.setHorizontalTextPosition(SwingConstants.CENTER);
+		submitButton.setVerticalTextPosition(SwingConstants.CENTER);
+		submitButton.setActionCommand("submit");
+		submitButton.addActionListener(this);
+		submitButton.addKeyListener(this);
+		submitButton.setVisible(true);
+		
+		
+		
+		
+		statusLabel = new JLabel("");
+		statusLabel.setLocation(submitButton.getX(), submitButton.getY()+70);
+		statusLabel.setSize(submitButton.getWidth(),submitButton.getHeight()*2);
+		statusLabel.setVisible(true);
+		
+		
+		add(joinLabel);
+		add(getWorldsList());
+		add(deleteButton);
+		add(submitButton);
+		
+		add(statusLabel);
+		
+		
+	}
+	
+	static String[] getWorlds() {
+		
+		File folder = new File("saves/");
+		File[] listOfFiles = folder.listFiles();
+		//String[] worlds = new String[listOfFiles.length];
+		ArrayList<String> worlds = new ArrayList<>(listOfFiles.length);
+	    for (int i = 0; i < listOfFiles.length; i++) {
+	      if (listOfFiles[i].isDirectory()) {
+	        if(new File("saves/"+listOfFiles[i].getName()+"/map.xml").exists()) {
+	        	worlds.add(listOfFiles[i].getName());
+	        	
+	        }
+	      }
+	    }
+		
+		/*String[] worlds = new String[10];
+		for(int i=0;i<worlds.length;i++){
+			if(new File("saves/"+i+".xml").exists()){
+				worlds[i] = "World "+i;
+			}else{
+				worlds[i] = "World "+i+" - Empty";
+			}
+			
+		}*/
+		
+		return worlds.toArray(new String[] {});
+		
+		
+	}
+
+
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String c = e.getActionCommand();
+	    
+	    if(c.equals("submit")){
+	    	
+	    	   join();
+	    		
+	    }else if(c.equals("delete")){
+	        int dialogButton = JOptionPane.YES_NO_OPTION;
+
+	    	int dialogResult = JOptionPane.showConfirmDialog (null, "Do you really want to delete this world?","Warning",dialogButton);
+	    	if(dialogResult == JOptionPane.YES_OPTION){
+	    		delete();
+	    	}
+	    	   
+	    		
+	    }
+	}
+
+	public void join() {
+    	if(getWorldsList().isSelectionEmpty()){
+    		return;
+    	}
+    	
+		statusLabel.setText("Loading...");
+		mapName=getWorldsList().getSelectedValue();
+		Config.selectedMap=mapName;
+		Config.save();
+    		
+    	getWorldsList().setEnabled(false);
+		submitButton.setEnabled(false);
+		deleteButton.setEnabled(false);
+		
+		(new Thread() {
+			  @Override
+				public void run() {
+				  if(!Main.runBenchmark(mapName, statusLabel)) {
+					  BenchmarkGUI.this.requestFocusInWindow();
+					  
+				  }else {
+					  statusLabel.setText("");
+				  }
+		    	submitButton.setEnabled(true);
+		    	getWorldsList().setEnabled(true);
+				deleteButton.setEnabled(true);
+
+	  }
+	 }).start();
+		
+	    	
+    		 
+	}
+	
+	private void delete() {
+		if(getWorldsList().isSelectionEmpty()) return;
+		String name = getWorldsList().getSelectedValue();
+		
+		File index = new File("saves/"+name+"/");
+		
+		String[] entries = index.list();
+		for(String s: entries){
+		    File currentFile = new File(index.getPath(),s);
+		    currentFile.delete();
+		}
+		
+		index.delete();
+		
+		
+		refreshList();
+	}
+	
+	String[] refreshList() {
+		
+		String[] worlds = getWorlds();
+		getWorldsList().setListData(worlds);
+		getWorldsList().setSelectedValue(Config.selectedMap, true);
+		//worldsList.setSelectedIndex(Math.min(Config.selectedMap, worlds.length));
+		getWorldsList().requestFocusInWindow();
+		//worldsList..requestFocusInWindow();
+		//worldsList.grabFocus();
+		return worlds;
+
+	}
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
+	    	Main.SwitchWindow("mainmenu");
+		}
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		
+	}
+
+	public JList<String> getWorldsList() {
+		return worldsList;
+	}
+
+	public void setWorldsList(JList<String> worldsList) {
+		this.worldsList = worldsList;
+	} 
+	
+	
+}
