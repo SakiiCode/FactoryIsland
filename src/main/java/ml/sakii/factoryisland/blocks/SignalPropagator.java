@@ -11,34 +11,34 @@ import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.items.ItemStack;
 
-public abstract class PowerWire extends Block implements PowerListener, MetadataListener, LoadListener, BreakListener, TickListener{
+public abstract class SignalPropagator extends Block implements SignalListener, MetadataListener, LoadListener, BreakListener, TickListener{
 	
 	
 	public HashMap<BlockFace, Integer> powers = new HashMap<>();
 	
 	
-	public PowerWire(int x, int y, int z, GameEngine engine)
+	public SignalPropagator(int x, int y, int z, GameEngine engine)
 	{
 		
 		super(x, y, z,engine);
 		init();
 	}
 
-	public PowerWire(String name, int x, int y, int z, GameEngine engine)
+	public SignalPropagator(String name, int x, int y, int z, GameEngine engine)
 	{
 		super(name, x, y, z,  engine);
 		init();
 	}
 	
 	
-	public PowerWire(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
+	public SignalPropagator(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
 	{
 		super(name, x, y, z, xscale, yscale, zscale, engine);
 		init();
 	}
 
 	private void init() {
-		BlockMeta.put("powered", "0");
+		BlockMeta.put("signalLevel", "0");
 	}
 
 	
@@ -67,13 +67,13 @@ public abstract class PowerWire extends Block implements PowerListener, Metadata
 	
 
 	@Override
-	public void addPower(int power, BlockFace relativeFrom) {
+	public void addSignal(int power, BlockFace relativeFrom) {
 		if(powers.get(relativeFrom) == null  || powers.get(relativeFrom) < power){
 			powers.put(relativeFrom, power);
 			if(power>1){
 				spreadPower(power-1,true);
 			}
-			setMetadata("powered", getCharge()+"", true);
+			setMetadata("signalLevel", getCharge()+"", true);
 		}
 	}
 	
@@ -82,23 +82,23 @@ public abstract class PowerWire extends Block implements PowerListener, Metadata
 		for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(new Point3D().set(pos), false).entrySet()){
 			Block b = entry.getValue();
 			BlockFace face = entry.getKey();
-			if(b instanceof PowerListener pw){ 
+			if(b instanceof SignalListener pw){ 
 				if(add) {
-					pw.addPower(targetPower, face.getOpposite());
+					pw.addSignal(targetPower, face.getOpposite());
 				}else {
-					pw.removePower(face.getOpposite());
+					pw.removeSignal(face.getOpposite());
 				}
 			}
 		}
 	}
 	
 	@Override
-	public void removePower(BlockFace relativeFrom) {
+	public void removeSignal(BlockFace relativeFrom) {
 		if(powers.containsKey(relativeFrom)) {
 			powers.remove(relativeFrom);
 			spreadPower(0,false);
 	
-			setMetadata("powered", getCharge()+"", true);
+			setMetadata("signalLevel", getCharge()+"", true);
 		}
 		
 	}
@@ -107,7 +107,7 @@ public abstract class PowerWire extends Block implements PowerListener, Metadata
 	@Override
 	public boolean onMetadataUpdate(String key, String value)
 	{
-		if(key.equals("powered")){
+		if(key.equals("signalLevel")){
 			BlockMeta.put(key, value);
 			recalcPaints();
 			
@@ -118,7 +118,7 @@ public abstract class PowerWire extends Block implements PowerListener, Metadata
 	}
 	
 	private void recalcPaints() {
-		int charge = Integer.parseInt(BlockMeta.get("powered"));
+		int charge = Integer.parseInt(BlockMeta.get("signalLevel"));
 
 		for(Polygon3D p : Polygons){
 			if(charge == 0){

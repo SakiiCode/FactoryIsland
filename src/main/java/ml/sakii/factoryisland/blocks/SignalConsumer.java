@@ -6,25 +6,25 @@ import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.GameEngine;
 
-public abstract class PowerConsumer extends Block implements PowerListener{
+public abstract class SignalConsumer extends Block implements SignalListener{
 	
-	public final HashMap<BlockFace, Integer> powers = new HashMap<>();
+	public final HashMap<BlockFace, Integer> signals = new HashMap<>();
 	
-	public PowerConsumer(int x, int y, int z, GameEngine engine) //ModBlock és Nothing miatt
+	public SignalConsumer(int x, int y, int z, GameEngine engine) //ModBlock és Nothing miatt
 	{
 		
 		super(x, y, z,engine);
 		init();
 	}
 
-	public PowerConsumer(String name, int x, int y, int z, GameEngine engine)
+	public SignalConsumer(String name, int x, int y, int z, GameEngine engine)
 	{
 		super(name, x, y, z,  engine);
 		init();
 
 	}
 	
-	public PowerConsumer(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
+	public SignalConsumer(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
 	{
 		super(name, x, y, z, xscale, yscale, zscale, engine);
 		init();
@@ -41,25 +41,25 @@ public abstract class PowerConsumer extends Block implements PowerListener{
 	
 	
 	@Override
-	public void addPower(int power, BlockFace relativeFrom) 
+	public void addSignal(int signal, BlockFace relativeFrom) 
 	{
-		if(powers.get(relativeFrom) == null  || powers.get(relativeFrom) < power){
+		if(signals.get(relativeFrom) == null  || signals.get(relativeFrom) < signal){
 			if(getCharge()==0) {
 				work();
 			}
-			powers.put(relativeFrom, power);
-			setMetadata("powered", getCharge() + "", true);
+			signals.put(relativeFrom, signal);
+			setMetadata("signalLevel", getCharge() + "", true);
 		}
 		
 
 	}
 
 	@Override
-	public void removePower(BlockFace relativeFrom)
+	public void removeSignal(BlockFace relativeFrom)
 	{
-		if(powers.containsKey(relativeFrom)){
-			powers.remove(relativeFrom);
-			setMetadata("powered", getCharge() + "", true);
+		if(signals.containsKey(relativeFrom)){
+			signals.remove(relativeFrom);
+			setMetadata("signalLevel", getCharge() + "", true);
 		}
 
 	}
@@ -68,17 +68,17 @@ public abstract class PowerConsumer extends Block implements PowerListener{
 	
 	public int getCharge()
 	{
-		if (powers.isEmpty())
+		if (signals.isEmpty())
 		{
 			return 0;
 		}
-		return powersSorted().lastEntry().getKey();
+		return signalsSorted().lastEntry().getKey();
 	}
 	
-	TreeMap<Integer, BlockFace> powersSorted()
+	TreeMap<Integer, BlockFace> signalsSorted()
 	{
 		TreeMap<Integer, BlockFace> result = new TreeMap<>();
-		for (Entry<BlockFace, Integer> entry : powers.entrySet())
+		for (Entry<BlockFace, Integer> entry : signals.entrySet())
 		{
 			result.put(entry.getValue(), entry.getKey());
 		}

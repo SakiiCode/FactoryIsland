@@ -228,7 +228,7 @@ public class World {
 	            		   if(curBlock instanceof SignalPropagator curWire) {
 	            			   curWire.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
 	            		   }else if(curBlock instanceof SignalConsumer curConsumer) {
-	            			   curConsumer.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
+	            			   curConsumer.signals.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
 	            		   }else {
 	            			   Main.err("Power on non-wire block: "+curBlock);
 	            		   }
@@ -1201,7 +1201,7 @@ public class World {
 					Powers.appendChild(power);
 				}				
 			}else if(b instanceof SignalConsumer consumer) {
-				for (Entry<BlockFace, Integer> entry : consumer.powers.entrySet()) {
+				for (Entry<BlockFace, Integer> entry : consumer.signals.entrySet()) {
 					Element power = document.createElement(entry.getKey().name());
 					power.setTextContent(entry.getValue().toString());
 					Powers.appendChild(power);

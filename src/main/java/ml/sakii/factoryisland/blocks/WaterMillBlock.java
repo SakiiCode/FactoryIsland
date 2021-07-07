@@ -37,9 +37,9 @@ public class WaterMillBlock extends SimpleMachineGenerator {
 			}
 		}
 		if(tBlock instanceof WaterBlock && ((WaterBlock)tBlock).getHeight()<4){
-			switchPower(true,notTargetSides);
+			switchSignal(true,notTargetSides);
 		}else {
-			switchPower(false,notTargetSides);
+			switchSignal(false,notTargetSides);
 		}
 	}
 
