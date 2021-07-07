@@ -2,5 +2,5 @@ package ml.sakii.factoryisland;
 
 public enum LoadMethod
 {
-	GENERATE, MULTIPLAYER, EXISTING;
+	GENERATE, MULTIPLAYER, EXISTING, BENCHMARK;
 }

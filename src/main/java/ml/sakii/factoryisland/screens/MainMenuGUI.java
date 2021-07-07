@@ -20,10 +20,7 @@ import ml.sakii.factoryisland.MainMenuButton;
 public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	private static final long serialVersionUID = 894581305065092909L;
 
-	private JButton sp;
-	private JButton mp;
-	private JButton opt;
-	private JButton exit;
+	private JButton sp, mp, opt, benchmark, exit;
 	
 	private int menuL = (int) (Main.Frame.getWidth()*0.1f);
 	private int menuT = (int) (Main.Frame.getHeight()*0.4f);
@@ -63,6 +60,11 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 		opt.setActionCommand("settings");
 		opt.addActionListener(this);
 		Menu.add(opt);
+		
+		benchmark = new MainMenuButton("Run Benchmark", menuL, menuT+EntrySpacing*3, EntryWidth, EntryHeight);
+		benchmark.setActionCommand("benchmark");
+		benchmark.addActionListener(this);
+		Menu.add(benchmark);
 		
 		
 		
@@ -163,6 +165,11 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	    
 	    if(c.equals("settings")){
 	    	Main.SwitchWindow("settings");
+	    	
+	    }
+	    
+	    if(c.equals("benchmark")){
+	    	Main.SwitchWindow("benchmark");
 	    	
 	    }
 	    
