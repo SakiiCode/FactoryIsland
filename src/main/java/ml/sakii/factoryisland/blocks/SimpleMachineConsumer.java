@@ -10,7 +10,7 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
-public abstract class SimpleMachineConsumer extends PowerConsumer
+public abstract class SimpleMachineConsumer extends SignalConsumer
 		implements InteractListener, PlaceListener, TextureListener, LoadListener, MetadataListener
 {
 	public Polygon3D TargetPolygon;

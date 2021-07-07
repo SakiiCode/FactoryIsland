@@ -13,7 +13,7 @@ import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.items.ItemStack;
 
-public class ModBlock extends PowerConsumer implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener{
+public class ModBlock extends SignalConsumer implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener{
 
     public Surface[] surfaces;
 	

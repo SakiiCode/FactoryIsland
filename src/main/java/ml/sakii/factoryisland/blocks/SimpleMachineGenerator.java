@@ -10,7 +10,7 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
-public abstract class SimpleMachineGenerator extends PowerGenerator
+public abstract class SimpleMachineGenerator extends SignalGenerator
 		implements InteractListener, PlaceListener, TextureListener, LoadListener, MetadataListener,TickListener
 {
 	public Polygon3D TargetPolygon;
