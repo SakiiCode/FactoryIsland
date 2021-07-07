@@ -42,8 +42,8 @@ import org.w3c.dom.NodeList;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.PowerConsumer;
-import ml.sakii.factoryisland.blocks.PowerWire;
+import ml.sakii.factoryisland.blocks.SignalConsumer;
+import ml.sakii.factoryisland.blocks.SignalPropagator;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
@@ -225,9 +225,9 @@ public class World {
 	            	   }else if(curMeta != null) {
 	            		   curBlock.BlockMeta.put(curMeta, data);
 	            	   }else if(curPower != null) {
-	            		   if(curBlock instanceof PowerWire curWire) {
+	            		   if(curBlock instanceof SignalPropagator curWire) {
 	            			   curWire.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
-	            		   }else if(curBlock instanceof PowerConsumer curConsumer) {
+	            		   }else if(curBlock instanceof SignalConsumer curConsumer) {
 	            			   curConsumer.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
 	            		   }else {
 	            			   Main.err("Power on non-wire block: "+curBlock);
@@ -1194,13 +1194,13 @@ public class World {
 			
 			Element Powers = document.createElement("power");
 			
-			if(b instanceof PowerWire wire) {
+			if(b instanceof SignalPropagator wire) {
 				for (Entry<BlockFace, Integer> entry : wire.powers.entrySet()) {
 					Element power = document.createElement(entry.getKey().name());
 					power.setTextContent(entry.getValue().toString());
 					Powers.appendChild(power);
 				}				
-			}else if(b instanceof PowerConsumer consumer) {
+			}else if(b instanceof SignalConsumer consumer) {
 				for (Entry<BlockFace, Integer> entry : consumer.powers.entrySet()) {
 					Element power = document.createElement(entry.getKey().name());
 					power.setTextContent(entry.getValue().toString());

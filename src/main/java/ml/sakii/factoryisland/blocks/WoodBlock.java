@@ -4,7 +4,7 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 
-public class WoodBlock extends PowerWire{
+public class WoodBlock extends SignalPropagator{
 
 	public static Surface[] surfaces = new Surface[] {Main.wood,Main.wood,Main.wood,Main.wood,Main.wood,Main.wood};
 	
