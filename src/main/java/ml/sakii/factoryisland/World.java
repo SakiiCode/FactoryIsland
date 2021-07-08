@@ -203,7 +203,7 @@ public class World {
 	               case XMLStreamConstants.CHARACTERS:
 	            	   Characters characters = event.asCharacters();
 	            	   String data = characters.getData().trim();
-	            	   if(data.isEmpty()) {
+	            	   if(data.isBlank()) {
 	            		   break;
 	            	   }
 	            	   

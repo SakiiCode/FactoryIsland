@@ -271,7 +271,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	}
 
 	public void join(boolean generate) {
-		if(generate && !nameField.getText().isEmpty()){
+		if(generate && !nameField.getText().isBlank()){
 			
     		statusLabel.setText("Generating...");
 
