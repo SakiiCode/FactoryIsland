@@ -168,7 +168,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		add(creativeButton);
 		
 		
-		markerTypeButton = new MainMenuButton(labels[4] ,Main.Frame.getWidth()/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		markerTypeButton = new MainMenuButton(labels[3] ,Main.Frame.getWidth()/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		markerTypeButton.setActionCommand("switchmarkertype");
 		markerTypeButton.addActionListener(this);
 		markerTypeButton.addKeyListener(this);
@@ -240,12 +240,19 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		l7.setHorizontalAlignment(SwingConstants.RIGHT);
 		l7.setForeground(Color.WHITE);
 		add(l7);
+		
+		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended<br>if textures are enabled</body></html>");
+		l8.setLocation(textureButton.getX()-300-EntrySpacing, textureButton.getY());
+		l8.setSize(300, EntryHeight);
+		l8.setHorizontalAlignment(SwingConstants.RIGHT);
+		l8.setForeground(Color.WHITE);
+		add(l8);
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getActionCommand().equals("ok")){
-			if(!NameTextField.getText().trim().isEmpty() && !NameTextField.getText().equals("Guest")) {
+			if(!NameTextField.getText().isBlank() && !NameTextField.getText().equals("Guest")) {
 		        	
 		        
 		        Config.sensitivity = sensitivitySlider.getValue();

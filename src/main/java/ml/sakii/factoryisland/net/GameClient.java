@@ -449,7 +449,7 @@ public class GameClient extends Thread{
 	}
 	
 	public void sendData(String data){
-		if(data.isEmpty()) {
+		if(data.isBlank()) {
 			Main.log("empty message from client");
 			return;
 		}
@@ -468,7 +468,7 @@ public class GameClient extends Thread{
 					if(!code.equals("16")) {
 						Main.log("(CLIENT:"+Config.username+") SENT:      "+data);
 					}
-				}else if(!data.isEmpty()){
+				}else if(!data.isBlank()){
 					Main.log("(CLIENT:"+Config.username+") I DUNNO WAT I SENT LOL:  "+data);
 				}
 			}
