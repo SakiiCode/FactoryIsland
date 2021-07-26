@@ -450,7 +450,7 @@ public class Main
 		
 		
 		GAME.renderThread.start();
-		
+		GAME.centerMouse();
 		
 		if(GAME.PE.getHealth()==0) {
 			GAME.Engine.world.hurtEntity(GAME.PE.ID, 0, false);

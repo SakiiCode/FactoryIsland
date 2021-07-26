@@ -337,13 +337,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					difY=0;
 				}
 				
-				try
-				{
-					rob.mouseMove((int) McenterX, (int) McenterY);
-					centered = true;
-				} catch (Exception e)
-				{
-					Main.log("Could not center mouse:" + e.getMessage());
+				if(difX != 0 || difY != 0) {
+					centerMouse();
 				}
 			}else if(!Main.nopause){
 				Main.log("game not in focus");
@@ -1265,6 +1260,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		currentTime=System.nanoTime();
 		//Main.SwitchWindow("game");
 		renderThread.start();
+		centerMouse();
+	}
+	
+	void centerMouse() {
+		try
+		{
+			rob.mouseMove((int) McenterX, (int) McenterY);
+			centered = true;
+		} catch (Exception e)
+		{
+			Main.log("Could not center mouse:" + e.getMessage());
+		}
 	}
 
 	void resizeScreen(int w, int h)
