@@ -60,7 +60,7 @@ public class Polygon3D extends Object3D{
 	
 	float physicalRadius;
 	
-	private static final long TICKS_PER_DAY = 72000;
+	static final long TICKS_PER_DAY = 72000;
 	
 	Model model;
 	
@@ -199,6 +199,14 @@ public class Polygon3D extends Object3D{
 		return lightSources.keySet();
 	}
 	
+	public Vector getNormal() {
+		return normal;
+	}
+	
+	public Vector getCentroid() {
+		return centroid;
+	}
+	
 	
 	public Color4 getLightOverlay() {
 		light=0;
@@ -222,14 +230,11 @@ public class Polygon3D extends Object3D{
 		}
 			
 		int skylight = (int)(14f*Math.sin(radians)); 
-		//skylight=Math.max(skylight, 0);
 		return skylight;
 	}
 	
 	public static int testLightLevel(double percent) {
-		double radians = percent*2*Math.PI;
-		int skylight = (int)(14f*Math.sin(radians)); 
-		//skylight=Math.max(skylight, 0);
+		int skylight = (int)(14f*Math.sin(percent*2*Math.PI)); 
 		return skylight;
 
 	}
@@ -478,6 +483,8 @@ public class Polygon3D extends Object3D{
 	}
 	
 	public void renderSelectOutline(Graphics fb){
+		if(!Main.GAME.showHUD) return;
+		
 		Graphics2D g2d=((Graphics2D)fb);
 		if(Config.targetMarkerType == TargetMarkerType.SHADE) {
 			g2d.setPaint(new RadialGradientPaint(

@@ -585,7 +585,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 					debugInfo.add("truetime:"+truetime+"falsetime"+falsetime+ ",testing:"+key[6]);
 					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
-					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + ")");
+					long realTime = Engine.Tick % Polygon3D.TICKS_PER_DAY;
+					float timePercent = (realTime*1f/Polygon3D.TICKS_PER_DAY);
+					double light = Math.sin(2*Math.PI*timePercent);
+					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + "), day:"+Engine.isDay((int)PE.ViewFrom.z)+",light:"+light);
 					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) +", blockLightPass:"+Engine.world.lightCalcRuns);
 					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+PE.inventory.getHotbarIndex()+", selected:"+((PE.inventory.getHotbarIndex()>-1 ) ? PE.inventory.getSelectedKind() : ""));
 					if (Engine.client != null)

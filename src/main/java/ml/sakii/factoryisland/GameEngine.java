@@ -16,6 +16,7 @@ import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.GrassBlock;
 import ml.sakii.factoryisland.blocks.ChestModuleBlock;
+import ml.sakii.factoryisland.blocks.DayNightListener;
 import ml.sakii.factoryisland.blocks.Fluid;
 import ml.sakii.factoryisland.blocks.TankModuleBlock;
 import ml.sakii.factoryisland.blocks.ModBlock;
@@ -38,6 +39,7 @@ public class GameEngine{
 	public World world;
 	//public Set<Point3D> TickableBlocks =  Collections.newSetFromMap(new ConcurrentHashMap<Point3D, Boolean>());
 	public CopyOnWriteArraySet<Point3D> TickableBlocks = new CopyOnWriteArraySet<>();
+	public CopyOnWriteArraySet<DayNightListener> DayNightBlocks = new CopyOnWriteArraySet<>();
 	public long Tick;//, day, hours;
 	//public static double skyLightF;
 	
@@ -255,7 +257,34 @@ public class GameEngine{
 							}
 						}
 					}
+					
+					//ezek előre ki lettek számolva: sin(x/TICKS_PER_DAY*2*PI)=3/14 és -3/14
+					for(DayNightListener dnl : DayNightBlocks) {
+						Block b =(Block)dnl; 
+						if(b.z>=0 && Tick % Polygon3D.TICKS_PER_DAY == 2475) {
+							dnl.onDay();
+						}else if(b.z>=0 && Tick % Polygon3D.TICKS_PER_DAY == 33525) {
+							dnl.onNight();
+						}else if(b.z<0 && Tick % Polygon3D.TICKS_PER_DAY == 38745) {
+							dnl.onDay();
+						}else if(b.z<0 && Tick % Polygon3D.TICKS_PER_DAY == 69525) {
+							dnl.onNight();
+						}
+	
+						
+					}
+					
+					if(Tick % Polygon3D.TICKS_PER_DAY == 2475) {
+						Main.log("Day on top");
+					}else if(Tick % Polygon3D.TICKS_PER_DAY == 33525) {
+						Main.log("Night on top");
+					}else if(Tick % Polygon3D.TICKS_PER_DAY == 38745) {
+						Main.log("Day on bottom");
+					}else if(Tick % Polygon3D.TICKS_PER_DAY == 69525) {
+						Main.log("Night on bottom");
+					}
 
+					
 
 
             	} //vege a szerveroldali dolgoknak
@@ -401,13 +430,24 @@ public class GameEngine{
 
         
 	}
+	
+	public boolean isDay(int z) {
+		long realTime = Tick % Polygon3D.TICKS_PER_DAY;
+		float timePercent = (realTime*1f/Polygon3D.TICKS_PER_DAY);
+		double light = Math.sin(2*Math.PI*timePercent);
+		
+		
+		if(z>=0) {
+			return light > 3f/14f;
+		}else {
+			return  light < -3f/14f;
+		}
+	}
 
 	static void doGravity(Entity entity, World world, int physicsFPS) {//, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
-		//Point3D feetPoint=entity.feetPoint;
 		Point3D tmpPoint=entity.tmpPoint;
-		//TreeSet<Point3D> playerColumn = entity.playerColumn;
 
 		tmpPoint.set(entityPos.x, entityPos.y, entityPos.z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z));
 		if (!world.getBlockAtP(tmpPoint).solid)
