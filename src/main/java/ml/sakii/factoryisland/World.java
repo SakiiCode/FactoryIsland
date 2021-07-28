@@ -1397,34 +1397,7 @@ public class World {
 				}
 					
 			}
-			
-			
-			
-			
-			
-			/*if(bl.fullblock) {
 
-				if(!other.fullblock) {
-					side.adjecentFilter=true;
-				}else {
-					
-					if(!bl.transparent && other.transparent) {
-						side.adjecentFilter = true;
-					}else {
-						side.adjecentFilter = false;
-					}
-					
-				}
-				
-			}else {
-				side.adjecentFilter = true;
-			}*/
-			
-			/*if(side.adjecentFilter && side.getLight()<3 && (key == BlockFace.TOP || key == BlockFace.BOTTOM)) {
-				if(!SpawnableSurface.contains(side.spawnpoint)) SpawnableSurface.add(side.spawnpoint);
-			}else if(!side.adjecentFilter || side.getLight()>=3){
-				SpawnableSurface.remove(side.spawnpoint);
-			}*/
 				
 				
 		}

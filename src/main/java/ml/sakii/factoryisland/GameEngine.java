@@ -132,7 +132,6 @@ public class GameEngine{
 					TickableBlocks.clear();
 					for(Point3D p : current) {
         				
-
 						Block bl = world.getBlockAtP(p);
 						if(bl != Block.NOTHING) {
 							
@@ -142,13 +141,11 @@ public class GameEngine{
 									if(b.tick(Tick)) {
 										
 										
-										//TickableBlocks.remove(p);
 										TickableBlocks.add(p);
 									}
 								
 								}else {
 									Main.err("Attempted to tick non-tickable block:"+bl);
-									//TickableBlocks.remove(p);
 								}
 							}else {
 								TickableBlocks.add(p);
@@ -156,46 +153,27 @@ public class GameEngine{
 						}else if(Main.devmode){
 							// Air block ticked
 							Main.err("Attempted to tick air block:"+p);
-
-							//TickableBlocks.remove(p);
 						}
 						
 					}
-					
-					if(world.getAlienCount() < 6 && Math.random() < 0.004 && world.getWhole(true).size()>0) {
+					ArrayList<Block> surface = world.getWhole(true);
+
+					if(world.getAlienCount() < 6 && Math.random() < 0.004 && surface.size()>0) {
 						int Min = 0;
-						//int Max = world.getWhole(true).size();
-						
-						//Vector[] arr = world.SpawnableSurface.toArray(new Vector[0]);
-						ArrayList<Block> surface = world.getWhole(true);
 						Vector pos = null;
 						Block b;
-						//boolean found = false;
-						//do {
 							int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
 							b = surface.get(index);
 							
 								
 								
 							for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
-//								if(Main.GAME.PE.VerticalVector.z == 1 && entry.getValue() == BlockFace.TOP) {
 								if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
 									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
 										pos=entry.getKey().centroid;
-										//found=true;
-										
 									}
 									break;
 								}
-//								}else if(Main.GAME.PE.VerticalVector.z == -1 && entry.getValue() == BlockFace.BOTTOM) {
-//									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
-//										pos=entry.getKey().centroid;
-//										//found=true;
-//										
-//									}
-//									break;
-//									
-//								}
 			
 							}
 								
@@ -374,22 +352,9 @@ public class GameEngine{
 						Vector aim = alien.aim.set(alien.target).substract(alienPos);
 						if(aim.getLength()>0.2f) {
 							aim.normalize();
-							
-							//long time=System.currentTimeMillis();
-							
-							//if(client == null || ((client != null && server != null)&& time-lastupdate>Main.TICKSPEED*1000*Main.ENTITYSYNCRATE) ) {
 								if(!world.walk(aim, 2, alien, physicsFPS, false)){ // false mert a sync mashol van
 									alien.jump();
 								}
-							/*	lastupdate=time;
-							}else if(client != null && server != null) {
-								
-								if(!world.walk(aim, 2, alien, physicsFPS, false)){
-									alien.jump();
-								}
-								//lastupdate=time;
-							}
-							*/
 							alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
 							alien.update();
 						}
@@ -462,8 +427,8 @@ public class GameEngine{
 			//Block tmpNothing = new Nothing();
 			if (resultant < 0)
 			{// lefelé esik önmagához képest
-				Block under = world.getBlockUnderEntity(false, true, entity);//, feetPoint, tmpPoint, playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
-																			// entity.ViewFrom.y, entity.ViewFrom.z+JumpDistance);
+				Block under = world.getBlockUnderEntity(false, true, entity);
+				
 				if (VerticalVector.z == 1)
 				{
 	
@@ -490,9 +455,7 @@ public class GameEngine{
 				}
 			} else if (resultant > 0)
 			{ // felfelé ugrik  önmagához képest
-				Block above = world.getBlockUnderEntity(false, false, entity);//,feetPoint, tmpPoint,  playerColumn);// world.getBlockAtF(entity.ViewFrom.x,
-																				// entity.ViewFrom.y,
-																				// entity.ViewFrom.z+JumpDistance);
+				Block above = world.getBlockUnderEntity(false, false, entity);
 	
 				if (VerticalVector.z == 1)
 				{
@@ -627,23 +590,7 @@ public class GameEngine{
 			}
 			
 		}
-		
-		/*int oilCount = RandomGen.nextInt(4)+1;
-		Main.log("- Spilling oils: " + oilCount + " ...");
-		for(int i=0;i<oilCount;i++){
-			int x, y;
-			do{
-				x = RandomGen.nextInt(world.MAP_RADIUS*world.CHUNK_WIDTH*2)-world.MAP_RADIUS*world.CHUNK_WIDTH;
-				y = RandomGen.nextInt(world.MAP_RADIUS*world.CHUNK_WIDTH*2)-world.MAP_RADIUS*world.CHUNK_WIDTH;
-			}while(!world.getBlockAt(x, y, 1).name.equals("Water"));
-			for(int j=x;j<=x+RandomGen.nextInt(1)+1;j++){
-				for(int k=y;k<=y+RandomGen.nextInt(1)+1;k++){
-					world.addBlock(new OilBlock(j,k,1, this, null), true);
-				}
-			}
-		}*/
-		
-		//int bushCount = RandomGen.nextInt(10)+5;
+
 		updateLabel(statusLabel,"- Planting tree ...");
 		
 		ArrayList<Block> grasses = new ArrayList<>();
@@ -653,31 +600,10 @@ public class GameEngine{
 			}
 		}
 		
-		//for(int i=0;i<bushCount;i++){
-			//int x, y, z;
-			/*do{
-				x = RandomGen.nextInt(world.MAP_RADIUS*world.CHUNK_WIDTH*2)-world.MAP_RADIUS*world.CHUNK_WIDTH;
-				y = RandomGen.nextInt(world.MAP_RADIUS*world.CHUNK_WIDTH*2)-world.MAP_RADIUS*world.CHUNK_WIDTH;
-				z = 0;
-				while(!world.getBlockAt(x, y, z).name.equals("Grass") && z<6){
-					z++;
-				}
-			}while(!world.getBlockAt(x, y, z).name.equals("Grass"));*/
-			/*Block grass = null;
-			do{
-			int index = RandomGen.nextInt(grasses.size());
-			grass = grasses.get(index);
-			}while(world.getBlockAt(grass.x, grass.y, grass.z+1) != Block.NOTHING);
-			world.addBlock(new LeafBlock(grass.x, grass.y, grass.z+1, this, null), true);
-		}*/
-		
-		
-		//Block grass = null;
-		//do{
+
 		if(grasses.size()>0) {
 			int index = RandomGen.nextInt(grasses.size());
 			Block grass = grasses.get(index);
-			//}while(world.getBlockAt(grass.x, grass.y, grass.z+1) != Block.NOTHING);
 			Block replace = world.getBlockAt(grass.x, grass.y, grass.z+1);
 			if(replace != Block.NOTHING) {
 				world.destroyBlock(replace, false);

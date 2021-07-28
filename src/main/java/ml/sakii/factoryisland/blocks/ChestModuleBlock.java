@@ -12,7 +12,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
-public class ChestModuleBlock extends Block implements InteractListener, BlockInventoryInterface, BreakListener, WorldGenListener{
+public class ChestModuleBlock extends Block implements InteractListener, BlockInventoryInterface, BreakListener{
 	
 	BlockInventory inv;
 	
@@ -62,11 +62,6 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 		return stacks.toArray(new ItemStack[0]);
 	}
 
-	@Override
-	public void generateWorld() {
-		inv.add(Main.Items.get("Stone"), 1, false);
-
-	}
 
 	@Override
 	public Surface[] getSurfaces() {
