@@ -11,8 +11,9 @@ import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vertex;
+import ml.sakii.factoryisland.World;
 
-public abstract class Block extends Model
+public abstract class Block extends Model implements BlockInterface
 {
 
 	public static final Block NOTHING = new Nothing();
@@ -159,13 +160,16 @@ public abstract class Block extends Model
 		return selectedFace;
 	}
 
-	public static Surface[] generateSurfaces(Surface s) {
+	public static Surface[] generateSurfacesNoCopy(Surface s) {
 		return new Surface[] {s,s,s,s,s,s};
 	}
 	
+	public static Surface[] generateSurfacesCopy(Surface s) {
+		return new Surface[] {s.copy(),s.copy(),s.copy(),s.copy(),s.copy(),s.copy()};
+	}
+	
 	public static Surface[] generateSurfaces(Color4 c) {
-		Surface s = new Surface(c);
-		return new Surface[] {s,s,s,s,s,s};
+		return new Surface[] {new Surface(c),new Surface(c),new Surface(c),new Surface(c),new Surface(c),new Surface(c)};
 	}
 
 
@@ -243,5 +247,26 @@ public abstract class Block extends Model
 	 * 
 	 */
 	public abstract Surface[] getSurfaces();
+	
+	@Override
+	public GameEngine getEngine() {
+		return Engine;
+	}
+	
+	@Override
+	public World getWorld() {
+		return Engine.world;
+	}
+	
+	@Override
+	public HashMap<String, String> getBlockMeta() {
+		return BlockMeta;
+	}
+	
+	@Override
+	public void setBlockMeta(String key, String value, boolean resend) {
+		setMetadata(key, value, resend);
+
+	}
 
 }

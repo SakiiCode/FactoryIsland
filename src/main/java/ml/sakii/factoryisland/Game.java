@@ -127,6 +127,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	 Star[] Stars;
 	 int tickindex = 0;
 	 final float[] ticklist = new float[MAXSAMPLES];
+	AtomicInteger VisibleCounter = new AtomicInteger(0);
+
 
 	 float ticksum = 0;
 	 int VisibleCount;
@@ -150,7 +152,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private boolean benchmarkMode = false;
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
-
+		this.setBackground(new Color(20,20,20)); // csak igy lehet a feher villanast elkerulni valtaskor cardlayout miatt
 		try {
 
 			Engine = new GameEngine(location, this, seed, loadmethod, statusLabel);
@@ -215,7 +217,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if(Config.creative) {
 			PE.inventory=PlayerInventory.Creative;
 		}else {
-			Engine.world.loadInv(PE.name, PE.inventory);
+			World.loadInv(PE.name,location, PE.inventory);
 		}
 		
 		init();
@@ -225,7 +227,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		
 		for(Block b : Engine.world.getWhole(false)) {
 			if(b instanceof LoadListener ll) {
-				ll.onLoad();
+				ll.onLoad(this);
 			}
 			statusLabel.setText("Spreading light...");
 			if(b.lightLevel>1) {
@@ -436,7 +438,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			
 			if(Config.useTextures) {
-				AtomicInteger polyCount = new AtomicInteger(0);
+				VisibleCounter.set(0);
 				Objects.parallelStream().filter(o -> {return o.update() && o instanceof Polygon3D;}).forEach(o ->{
 
 					Polygon3D p = (Polygon3D)o;
@@ -446,9 +448,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 						SelectedPolygon = p;
 					}
-					polyCount.incrementAndGet();
+					if(F3) {
+						VisibleCounter.incrementAndGet();
+					}
 				});
-				VisibleCount=polyCount.get();
+				VisibleCount=VisibleCounter.get();
 				
 				for(int x=0;x<ZBuffer.length;x++) {
 					
@@ -533,7 +537,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			if (remoteInventory != null)
 			{
-				fb.drawImage(op.filter(FrameBuffer, null), 0, 0, null);
+				g.setColor(new Color(0f,0f,0f,0.5f));
+				g.fillRect(0, 0, Config.width, Config.height);
 			}
 
 			if (ViewBlock instanceof WaterBlock)
@@ -569,7 +574,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add(wire.powers+"");
 					}
 					if(SelectedBlock instanceof SignalConsumer consumer) {
-						debugInfo.add(consumer.powers+"");
+						debugInfo.add(consumer.getSignals()+"");
 					}
 					if(SelectedPolygon != null) {
 						debugInfo.add("SelPoly: "+SelectedPolygon+"light:"+SelectedPolygon.getLight());
@@ -1024,17 +1029,21 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					
 						ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(SelectedBlock.name),1)};
 						
-						if (SelectedBlock instanceof BreakListener)
+						
+						if (SelectedBlock instanceof BreakListener bl)
 						{
-							ItemStack[] returnAsItem2 = ((BreakListener) SelectedBlock).breaked(Config.username);
+							ItemStack[] returnAsItem2 = bl.breaked(Config.username);
 							if(returnAsItem2!=null){
 								returnAsItem=returnAsItem2;
 							}
 						}
-						Engine.world.destroyBlock(SelectedBlock, true);
-						
 							
 						PE.inventory.add( returnAsItem, true);
+						
+						
+						//PowerGenerator miatt utana kell torolni
+						Engine.world.destroyBlock(SelectedBlock, true);
+
 	
 					}else{
 						Engine.world.destroyBlock(SelectedBlock, true);

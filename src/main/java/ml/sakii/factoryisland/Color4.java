@@ -159,6 +159,11 @@ public class Color4 {
 		return this;
 	}
 	
+	public Color4 set(float r, float g, float b, float a) {
+		construct((int)(r*255), (int)(g*255), (int)(b*255), (int)(a*255));
+		return this;
+	}
+	
 	public int getRGB() {
 		return cache.getRGB();
 	}
@@ -244,7 +249,7 @@ public class Color4 {
 	
 	@Override
 	public String toString(){
-		return "Color4("+getRed()+","+getGreen()+","+getBlue()+","+getAlpha()+")";
+		return "Color4("+getRed()+","+getGreen()+","+getBlue()+","+getAlpha()+","+cache+")";
 		
 	}
 
@@ -253,5 +258,7 @@ public class Color4 {
 		construct(r, g, b, pow);
 		return this;
 	}
+
+	
 	  
 }
