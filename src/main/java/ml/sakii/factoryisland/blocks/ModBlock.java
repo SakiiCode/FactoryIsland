@@ -6,8 +6,9 @@ import java.util.HashMap;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
@@ -18,15 +19,26 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 
     public Surface[] surfaces;
 	
-	ScriptEngineManager factory = new ScriptEngineManager();
-
-    ScriptEngine engine = factory.getEngineByName("nashorn");
+    Invocable invocable;
     
-    Invocable invocable = (Invocable) engine;
 	
 	public ModBlock(String name, int x, int y, int z, GameEngine gengine) {
 		super(x, y, z, gengine);
+		ScriptEngine engine;
+	    try {
+			NashornScriptEngineFactory nashorn = new NashornScriptEngineFactory();
+	    	engine = nashorn.getScriptEngine();
+	    	if(engine == null) {
+	    		throw new NullPointerException("Cannot retrieve script engine");
+	    	}
+	    	invocable = (Invocable) engine;
+	    	
+	    }catch(Exception | Error e) {
+	    	e.printStackTrace();
+	    	throw new NullPointerException("Nashorn is unavailable, mod support will be disabled. "+e.getClass().getSimpleName()+":"+e.getMessage());
+	    }	    
 
+		
         try(FileReader fr = new FileReader("mods/"+name+"/mod.js")) {
 			engine.eval(fr);
 			fr.close();

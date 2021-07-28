@@ -153,6 +153,10 @@ public class World {
 	                       int z = Integer.parseInt(attributes.next().getValue());
 	                       
 	                       curBlock=Engine.createBlockByName(name, x, y, z);
+	                       if(curBlock == Block.NOTHING && !name.toLowerCase().startsWith("test")) {
+			           			Main.err("Could not create block: "+ name);
+			           			return "Could not create block: "+ name;
+			           		}
 	                       
 	                   }else if (qName.equalsIgnoreCase("metadata")) {
 	                	   bMetadata=true;                	   
@@ -1374,7 +1378,7 @@ public class World {
 			BlockFace key = entry.getKey();
 			Block other = entry.getValue();
 			if(!bl.HitboxPolygons.containsValue(key)) {
-				Main.err("Unknown side in filterBlock()");
+				Main.err("Unknown side in filterBlock("+bl+") "+key);
 				return;
 			}
 			

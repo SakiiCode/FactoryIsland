@@ -42,6 +42,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+
 import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.items.ItemType;
@@ -133,7 +135,7 @@ public class Main
 		
 		System.setOut(new ProxyPrintStream(System.out, "log.txt"));
         System.setErr(new ProxyPrintStream(System.err, "log.txt"));
-		
+        Main.log("---------------------------------------------------");
 		try(java.io.InputStream is = Main.class.getResourceAsStream("version.properties")){
 	        java.util.Properties p = new Properties();
 			p.load(is);
@@ -566,13 +568,23 @@ public class Main
 					return new File(current, name).isDirectory();
 				}
 			});
+			if(directories.length>0) {
+				NashornScriptEngineFactory nashorn = new NashornScriptEngineFactory();
+		    	Main.log(nashorn.getEngineName() + " "+nashorn.getEngineVersion());
+			}
 			for (File mod : directories)
 			{
 				if (new File(mod, "mod.js").exists())
 				{
 					String name = mod.getName();
 					Main.log("Found mod: " + name);
-					ModBlock modBlock = new ModBlock(name, 0, 0, 0, null);
+					ModBlock modBlock;
+					try {
+						modBlock = new ModBlock(name, 0, 0, 0, null);
+					}catch(NullPointerException e) { // nincs nashorn
+						Main.err(e.getMessage());
+						break;
+					}
 					ModRegistry.add(name);
 					
 					Surface[] surfaces = modBlock.surfaces;

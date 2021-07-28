@@ -561,7 +561,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 	
 					debugInfo.clear();
-					debugInfo.add("Eye:" + PEPos+", yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch));
+					debugInfo.add("Eye:" + PEPos+", yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch) +", difX: "+ difX + ", difY: "+ difY);
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
