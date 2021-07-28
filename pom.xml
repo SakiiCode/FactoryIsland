@@ -2,18 +2,18 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ml.sakii</groupId>
   <artifactId>factoryisland</artifactId>
-  <version>0.10.2</version>
+  <version>0.11.0</version>
   <name>FactoryIsland</name>
   <description></description>
   <properties>
-  <maven.compiler.source>15</maven.compiler.source>
-  <maven.compiler.target>15</maven.compiler.target>
+  <maven.compiler.source>16</maven.compiler.source>
+  <maven.compiler.target>16</maven.compiler.target>
   </properties>
   <dependencies>
     <dependency>
 	  <groupId>org.openjdk.nashorn</groupId>
 	  <artifactId>nashorn-core</artifactId>
-	  <version>15.0</version>
+	  <version>15.3</version>
 	</dependency>
   </dependencies>
   <build>
@@ -37,7 +37,7 @@
         <execution>
             <phase>install</phase>
             <goals>
-            <goal>exec</goal>
+                <goal>exec</goal>
             </goals>
             <configuration>
             <executable>target/build.sh</executable>
@@ -49,35 +49,47 @@
         </execution>
         </executions>
     </plugin>
-      <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>properties-maven-plugin</artifactId>
-            <version>1.0.0</version>
-            <executions>
-                <execution>
-                    <phase>generate-resources</phase>
-                    <goals>
-                        <goal>write-project-properties</goal>
-                    </goals>
-                    <configuration>
-                        <outputFile>${project.build.outputDirectory}/version.properties</outputFile>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
     <plugin>
-      <!-- Build an executable JAR -->
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-jar-plugin</artifactId>
-      <version>3.1.0</version>
-      <configuration>
-        <archive>
-          <manifest>
-            <addClasspath>true</addClasspath>
-            <mainClass>ml.sakii.factoryisland.Main</mainClass>
-          </manifest>
-        </archive>
-      </configuration>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>properties-maven-plugin</artifactId>
+      <version>1.0.0</version>
+      <executions>
+          <execution>
+              <phase>generate-resources</phase>
+              <goals>
+                  <goal>write-project-properties</goal>
+              </goals>
+              <configuration>
+                  <outputFile>${project.build.outputDirectory}/version.properties</outputFile>
+              </configuration>
+          </execution>
+      </executions>
+    </plugin>
+    <plugin>
+	    <!-- NOTE: We don't need a groupId specification because the group is
+	         org.apache.maven.plugins ...which is assumed by default.
+	     -->
+	    <artifactId>maven-assembly-plugin</artifactId>
+	    <version>3.3.0</version>
+	    <configuration>
+			<descriptorRefs>
+				<descriptorRef>jar-with-dependencies</descriptorRef>
+			</descriptorRefs>
+			<archive>
+				<manifest>
+					<mainClass>ml.sakii.factoryisland.Main</mainClass>
+				</manifest>
+			</archive>
+	    </configuration>
+        <executions>
+			<execution>
+				<id>make-assembly</id> <!-- this is used for inheritance merges -->
+				<phase>package</phase> <!-- bind to the packaging phase -->
+				<goals>
+					<goal>single</goal>
+				</goals>
+			</execution>
+		</executions>
     </plugin>
   </plugins>
 </build>
