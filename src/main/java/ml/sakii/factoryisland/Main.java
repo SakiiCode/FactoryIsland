@@ -484,12 +484,13 @@ public class Main
 
 	private static void LoadResources()
 	{
-		GUIBG = loadTexture("textures/stone.png");
-		originalPausedBG = loadTexture("textures/paused.png");
-		PausedBG = originalPausedBG;
+		GUIBG = loadTexture("textures/guibg.png");
+		PausedBG = loadTexture("textures/paused.png");
 
 		SettingsBG = loadTexture("textures/settings.png");
-
+		SettingsTitle = loadTexture("textures/settings_title.png");
+		PausedTitle = loadTexture("textures/paused_title.png");
+		StandardBG = loadTexture("textures/BG.png");
 		MenuButtonTexture = loadTexture("textures/button.png");
 
 		stone = new Surface(loadTexture("textures/blocks/stone.png"));

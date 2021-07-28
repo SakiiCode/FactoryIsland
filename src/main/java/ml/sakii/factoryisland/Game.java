@@ -1201,14 +1201,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		renderThread.kill();
 
 		if(Config.renderMethod == RenderMethod.DIRECT) {
-			Main.PausedBG = Main.originalPausedBG;
+			Main.FreezeBG = Main.StandardBG;
 		}else if(Config.renderMethod == RenderMethod.VOLATILE){
 			BufferedImage tmp = new BufferedImage(VolatileFrameBuffer.getWidth(),VolatileFrameBuffer.getHeight(),BufferedImage.TYPE_INT_ARGB);
 			tmp.getGraphics().drawImage(VolatileFrameBuffer, 0,0,tmp.getWidth(), tmp.getHeight(), null);
-			Main.PausedBG = op.filter(tmp, null);
+			Main.FreezeBG = op.filter(tmp, null);
 		}else {
 			
-			Main.PausedBG = op.filter(Main.deepCopy(FrameBuffer), null);
+			Main.FreezeBG = op.filter(Main.deepCopy(FrameBuffer), null);//TODO kell a deepcopy?
 		}
 		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
 			Engine.ticker.stop();
