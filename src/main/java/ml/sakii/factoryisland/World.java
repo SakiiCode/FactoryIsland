@@ -297,7 +297,7 @@ public class World {
 		
 	}
 	
-	public PlayerInventory loadInv(String username, PlayerInventory output) {
+	public static PlayerInventory loadInv(String username,String worldName, PlayerInventory output) {
 		
 
 
@@ -1250,7 +1250,11 @@ public class World {
 		Element entitiesNode = document.createElement("entities");
 		for(Entity e : entities) {
 			if(e instanceof PlayerMP p) {
-				savePlayer(worldName, p.name, p.getPos(), p.ViewAngle, p.inventory, p.getHealth());
+				if(p.inventory == PlayerInventory.Creative) {
+					savePlayer(worldName, p.name, p.getPos(), p.ViewAngle, loadInv(p.name,worldName, new PlayerInventory(p.name,null)), p.getHealth());
+				}else {
+					savePlayer(worldName, p.name, p.getPos(), p.ViewAngle, p.inventory, p.getHealth());
+				}
 			}else {
 				Element entity = document.createElement("entity");
 				entity.setAttribute("aim", e.ViewAngle.toString());

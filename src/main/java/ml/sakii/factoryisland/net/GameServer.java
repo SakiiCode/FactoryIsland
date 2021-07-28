@@ -12,6 +12,7 @@ import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Vector;
+import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.entities.Entity;
@@ -156,7 +157,7 @@ public class GameServer extends Thread{
 						Boolean creative = Boolean.parseBoolean(part[2]);
 						
 						
-						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], creative ? PlayerInventory.Creative : Engine.world.loadInv(senderName, new PlayerInventory(senderName,Engine)), conn, ID, Engine);
+						playerE = new PlayerMP(senderName, pos, other[0], other[1],(int)other[2], creative ? PlayerInventory.Creative : World.loadInv(senderName, Engine.world.worldName, new PlayerInventory(senderName,Engine)), conn, ID, Engine);
 
 
 						
