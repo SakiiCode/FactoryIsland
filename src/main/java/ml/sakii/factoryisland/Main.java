@@ -90,16 +90,15 @@ public class Main
 
 	public static BufferedImage GUIBG;
 	//static BufferedImage Logo;
-	//static BufferedImage MainMenuBG;
+	public static BufferedImage StandardBG, FreezeBG;
 
 
-	public static BufferedImage PausedBG;
+	public static BufferedImage PausedBG, PausedTitle;
 
 
-	public static BufferedImage SettingsBG;
+	public static BufferedImage SettingsBG,SettingsTitle;
 
 
-	static BufferedImage originalPausedBG;
 	static BufferedImage MenuButtonTexture;
 	//static ArrayList<String> Mods = new ArrayList<>();
 

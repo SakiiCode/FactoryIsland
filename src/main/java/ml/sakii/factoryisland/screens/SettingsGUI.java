@@ -53,7 +53,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	
 
 	public SettingsGUI(){
-		super(Main.SettingsBG);
+		super(Main.StandardBG);
 		
 		setLayout(null);
 		addKeyListener(this);
@@ -247,6 +247,24 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		l8.setHorizontalAlignment(SwingConstants.RIGHT);
 		l8.setForeground(Color.WHITE);
 		add(l8);
+	}
+	
+	@Override
+	protected void paintComponent(Graphics g) {
+	    
+	    
+	    if(Config.renderMethod==RenderMethod.DIRECT || Main.GAME == null) {
+	    	super.paintComponent(g);
+	    }else {
+	    	g.drawImage(Main.FreezeBG, 0, 0, this.getWidth(), this.getHeight(), null);
+	    }
+	    
+	    int titleWidth = Main.Width/2;
+	    int titleHeight = titleWidth*Main.SettingsTitle.getHeight()/Main.SettingsTitle.getWidth();
+	    
+	    g.drawImage(Main.SettingsTitle, Main.Width/2-titleWidth/2, Main.Height/15, titleWidth, titleHeight, null);
+	    
+	    
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package ml.sakii.factoryisland.screens;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -10,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.JLabel;
@@ -66,6 +68,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		nameLabel = new JLabel("Enter world name:");
 		nameLabel.setSize(nameLabel.getPreferredSize());
 		nameLabel.setLocation(Main.Frame.getWidth()/4-Main.Frame.getWidth()/10, Main.Frame.getHeight()/7);
+		nameLabel.setForeground(Color.white);
 		nameLabel.setVisible(true);
 		
 		
@@ -79,6 +82,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		seedLabel = new JLabel("Seed (optional):");
 		seedLabel.setSize(seedLabel.getPreferredSize());
 		seedLabel.setLocation(nameField.getX(), nameField.getY()+nameField.getHeight()+SPACING);
+		seedLabel.setForeground(Color.white);
 		seedLabel.setVisible(true);
 		
 		
@@ -103,6 +107,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		joinLabel = new JLabel("Or select a world to load:");
 		joinLabel.setSize(joinLabel.getPreferredSize());
 		joinLabel.setLocation(Main.Frame.getWidth()/4*3-seedField.getWidth()/2, nameLabel.getY());
+		joinLabel.setForeground(Color.white);
 		joinLabel.setVisible(true);
 		
 		setWorldsList(new JList<>(getWorlds()));
@@ -251,13 +256,12 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		String c = e.getActionCommand();
 	    
 	    if(c.equals("submit")){
-	    	
+	    	if(!getWorldsList().isSelectionEmpty()) {
 	    	   join(false);
+	    	}
 	    		
 	    }else if(c.equals("generate")){
-	    	
 	    	   join(true);
-	    		
 	    }else if(c.equals("delete")){
 	        int dialogButton = JOptionPane.YES_NO_OPTION;
 
@@ -355,7 +359,12 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 		String[] worlds = getWorlds();
 		getWorldsList().setListData(worlds);
-		getWorldsList().setSelectedValue(Config.selectedMap, true);
+		
+		if(!Arrays.asList(worlds).contains(Config.selectedMap)) {
+			getWorldsList().setSelectedIndex(0);
+		}else {
+			getWorldsList().setSelectedValue(Config.selectedMap, true);
+		}
 		//worldsList.setSelectedIndex(Math.min(Config.selectedMap, worlds.length));
 		getWorldsList().requestFocusInWindow();
 		//worldsList..requestFocusInWindow();

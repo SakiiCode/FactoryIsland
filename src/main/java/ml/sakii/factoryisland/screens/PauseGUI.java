@@ -1,5 +1,7 @@
 package ml.sakii.factoryisland.screens;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,27 +11,39 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
+
+import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.MainMenuButton;
+import ml.sakii.factoryisland.RenderMethod;
 
 public class PauseGUI extends TexturedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
 
 	private JButton resumeButton, exitButton, settingsButton;
-	/*private int WIDTH=(int)(Main.Frame.getWidth()*0.3f);
-	private int HEIGHT=(int)(Main.Frame.getHeight()*0.055f);
-	private int SPACING=(int)(Main.Frame.getHeight()*0.016f)+HEIGHT;*/	
+	private JLabel infoLabel;
+	private Color infoBgColor =new Color(0.2f, 0.2f, 0.2f, 0.5f);
+	private Color transparent = new Color(0,0,0,0);
 	
 	public PauseGUI(){
-		super(Main.PausedBG);
+		super(Main.StandardBG);
 		setLayout(null);
 		addKeyListener(this);
 		this.addComponentListener( new ComponentAdapter() {
 	        @Override
 	        public void componentShown( ComponentEvent e ) {
+	        	if(Config.renderMethod==RenderMethod.DIRECT) {
+	        		infoLabel.setBackground(infoBgColor);
+	    	    }else {
+	    	    	infoLabel.setBackground(transparent);
+	    	    }
+	        	PauseGUI.this.repaint();
 	        	PauseGUI.this.requestFocusInWindow();
 	        }
 	    });
+		
+		
 		
 		resumeButton = new MainMenuButton("Resume Game",Main.Frame.getWidth()/2-EntryWidth/2, (int)(Main.Frame.getHeight()/3.4-EntryHeight/2), EntryWidth, EntryHeight);
 		resumeButton.setActionCommand("resume");
@@ -50,6 +64,15 @@ public class PauseGUI extends TexturedScreen implements ActionListener, KeyListe
 		add(exitButton);
 		
 		
+		infoLabel = new JLabel(MainMenuGUI.CONTROLS_TEXT + "</body></html>");
+		infoLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
+		infoLabel.setForeground(Color.WHITE);
+		//infoLabel.setBackground(infoBgColor);
+		//infoLabel.setOpaque(true);
+		infoLabel.setLocation(Main.Frame.getWidth()/2-infoLabel.getPreferredSize().width/2, exitButton.getY()+exitButton.getHeight()+Main.Frame.getHeight()/10);
+		infoLabel.setSize(infoLabel.getPreferredSize());
+		add(infoLabel);
+		
 
 		
 	}
@@ -57,9 +80,21 @@ public class PauseGUI extends TexturedScreen implements ActionListener, KeyListe
 	@Override
 	protected void paintComponent(Graphics g) {
 	    
-	    super.paintComponent(g);
-	    g.drawImage(Main.PausedBG, 0, 0, this.getWidth(), this.getHeight(), null);
-
+	    //.paintComponent(g);
+	    if(Config.renderMethod==RenderMethod.DIRECT || Main.FreezeBG == Main.StandardBG) { //utobbi akkor ha most valtott at directrol masra
+	    	super.paintComponent(g);
+	    }else{
+	    	g.drawImage(Main.FreezeBG, 0, 0, this.getWidth(), this.getHeight(), null);
+	    	
+	    }
+	    
+	    
+	    int titleHeight = Main.Height/7;
+	    int titleWidth = titleHeight*Main.PausedTitle.getWidth()/Main.PausedTitle.getHeight();
+	    
+	    g.drawImage(Main.PausedTitle, Main.Width/2-titleWidth/2, Main.Height/15, titleWidth, titleHeight, null);
+	    
+	    
 	}
 
 	@Override
