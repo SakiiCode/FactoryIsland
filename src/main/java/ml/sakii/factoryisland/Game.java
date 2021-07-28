@@ -26,13 +26,12 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.RescaleOp;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -79,7 +78,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	boolean locked = false;
 	float ratio;
 	int margin;
-	CopyOnWriteArrayList<TextureListener> TextureBlocks = new CopyOnWriteArrayList<>();
+	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
 	Frustum ViewFrustum;
 	Vector ViewVector = new Vector();
 
@@ -386,11 +385,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 			
-			if (!locked)
+			if (!locked && moved)
 			{
 				for (TextureListener b : TextureBlocks)
 				{
-					b.updateTexture(tmp);
+					b.updateTexture(tmp, this);
 				}
 
 			}
@@ -1393,11 +1392,15 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			return false;
 		}
-		if (placeable instanceof PlaceListener pl) 
+		
+		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
+		if(success && placeable instanceof TextureListener tl) {
+			tl.updateTexture(new Vector(), this);
+		}
+		if (success && placeable instanceof PlaceListener pl) 
 		{
 			pl.placed(SelectedFace);
 		}
-		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
 		
 		return success;
 		

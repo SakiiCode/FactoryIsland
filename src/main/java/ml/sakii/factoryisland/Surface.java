@@ -11,7 +11,7 @@ public class Surface {
 	@Override
 	public String toString() {
 		//return "Surface [Texture=" + Texture + ", c=" + c + ", p=" + p + ", color=" + color + ", paint=" + paint + "]";
-		return c+""+p;
+		return c+""+p+",paint:"+paint;
 	}
 
 	public BufferedImage Texture;

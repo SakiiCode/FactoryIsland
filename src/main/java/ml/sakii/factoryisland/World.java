@@ -46,6 +46,7 @@ import ml.sakii.factoryisland.blocks.SignalConsumer;
 import ml.sakii.factoryisland.blocks.SignalPropagator;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
+import ml.sakii.factoryisland.blocks.DayNightListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
@@ -486,6 +487,10 @@ public class World {
 			Engine.TickableBlocks.add(b.pos);
 		}
 		
+		if(b instanceof DayNightListener dnl) {
+			Engine.DayNightBlocks.add(dnl);
+		}
+		
 		if (b instanceof TextureListener && game != null) {
 			game.TextureBlocks.add((TextureListener)b);
 		}
@@ -555,8 +560,12 @@ public class World {
 			}
 			
 			
-			if (b instanceof TextureListener && game != null) {
-				game.TextureBlocks.remove((TextureListener)b);
+			if (b instanceof TextureListener tl && game != null) {
+				game.TextureBlocks.remove(tl);
+			}
+			
+			if(b instanceof DayNightListener dnl) {
+				Engine.DayNightBlocks.remove(dnl);
 			}
 	
 			filterAdjecentBlocks(b);
