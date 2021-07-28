@@ -2,14 +2,14 @@ package ml.sakii.factoryisland.blocks;
 
 import java.awt.geom.Point2D;
 
-import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.Vector;
 
 public class GradientCalculator {
 
 
 	
-	static Point2D[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector tmp){
+	static Point2D[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector tmp, Game game){
 		
 		float[][] values = calculate(nearby, target);
 		
@@ -17,11 +17,11 @@ public class GradientCalculator {
 		float[] begin = values[1];
 		float[] end = values[2];
 		tmp.set(x+begin1[0], y+begin1[1], z+begin1[2]);
-		 Point2D begin1p = Main.GAME.convert3Dto2D(tmp, new Point2D.Float());
+		 Point2D begin1p = game.convert3Dto2D(tmp, new Point2D.Float());
 		 tmp.set(x+begin[0], y+begin[1], z+begin[2]);
-		 Point2D beginp = Main.GAME.convert3Dto2D(tmp, new Point2D.Float());
+		 Point2D beginp = game.convert3Dto2D(tmp, new Point2D.Float());
 		 tmp.set(x+end[0], y+end[1], z+end[2]);
-		 Point2D endp= Main.GAME.convert3Dto2D(tmp, new Point2D.Float());
+		 Point2D endp= game.convert3Dto2D(tmp, new Point2D.Float());
 		
 		return new Point2D[]{begin1p, beginp, endp};
 		

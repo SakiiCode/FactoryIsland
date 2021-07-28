@@ -4,81 +4,52 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import ml.sakii.factoryisland.GameEngine;
-
-public abstract class SignalConsumer extends Block implements SignalListener{
+public interface SignalConsumer extends SignalListener, BlockInterface{
 	
-	public final HashMap<BlockFace, Integer> signals = new HashMap<>();
-	
-	public SignalConsumer(int x, int y, int z, GameEngine engine) //ModBlock és Nothing miatt
-	{
-		
-		super(x, y, z,engine);
-		init();
-	}
-
-	public SignalConsumer(String name, int x, int y, int z, GameEngine engine)
-	{
-		super(name, x, y, z,  engine);
-		init();
-
-	}
-	
-	public SignalConsumer(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
-	{
-		super(name, x, y, z, xscale, yscale, zscale, engine);
-		init();
-
-	}
-	
-
-	private void init() {
-
-	}
-
+	public HashMap<BlockFace, Integer> getSignals();
 	
 	abstract void work();
 	
 	
 	@Override
-	public void addSignal(int signal, BlockFace relativeFrom) 
+	public default void addSignal(int signal, BlockFace relativeFrom) 
 	{
-		if(signals.get(relativeFrom) == null  || signals.get(relativeFrom) < signal){
+		if(getSignals().get(relativeFrom) == null  || getSignals().get(relativeFrom) < signal){
 			if(getCharge()==0) {
 				work();
 			}
-			signals.put(relativeFrom, signal);
-			setMetadata("signalLevel", getCharge() + "", true);
+			getSignals().put(relativeFrom, signal);
+			setBlockMeta("signalLevel", getCharge() + "", true);
 		}
 		
 
 	}
 
 	@Override
-	public void removeSignal(BlockFace relativeFrom)
+	public default void removeSignal(BlockFace relativeFrom)
 	{
-		if(signals.containsKey(relativeFrom)){
-			signals.remove(relativeFrom);
-			setMetadata("signalLevel", getCharge() + "", true);
+		if(getSignals().containsKey(relativeFrom)){
+			getSignals().remove(relativeFrom);
+			setBlockMeta("signalLevel", getCharge() + "", true);
 		}
 
 	}
 	
 
 	
-	public int getCharge()
+	public default int getCharge()
 	{
-		if (signals.isEmpty())
+		if (getSignals().isEmpty())
 		{
 			return 0;
 		}
 		return signalsSorted().lastEntry().getKey();
 	}
 	
-	TreeMap<Integer, BlockFace> signalsSorted()
+	default TreeMap<Integer, BlockFace> signalsSorted()
 	{
 		TreeMap<Integer, BlockFace> result = new TreeMap<>();
-		for (Entry<BlockFace, Integer> entry : signals.entrySet())
+		for (Entry<BlockFace, Integer> entry : getSignals().entrySet())
 		{
 			result.put(entry.getValue(), entry.getKey());
 		}

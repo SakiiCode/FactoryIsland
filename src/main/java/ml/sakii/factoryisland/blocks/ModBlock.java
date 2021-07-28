@@ -2,6 +2,7 @@ package ml.sakii.factoryisland.blocks;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -13,7 +14,7 @@ import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.items.ItemStack;
 
-public class ModBlock extends SignalConsumer implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener{
+public class ModBlock extends Block implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener, SignalConsumer{
 
     public Surface[] surfaces;
 	
@@ -122,13 +123,20 @@ public class ModBlock extends SignalConsumer implements BreakListener, InteractL
 	}
 
 	@Override
-	void work() {
+	public void work() {
 		try {
 			invocable.invokeFunction("work");
 		} catch (NoSuchMethodException | ScriptException e) {
 			Main.err(e.getMessage());
 		}
 		
+	}
+
+	private HashMap<BlockFace, Integer> signals = new HashMap<>();
+
+	@Override
+	public HashMap<BlockFace, Integer> getSignals() {
+		return signals;
 	}
 
 

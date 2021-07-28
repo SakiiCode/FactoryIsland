@@ -2,20 +2,23 @@ package ml.sakii.factoryisland.blocks;
 
 
 import java.awt.Color;
+import java.util.HashMap;
+
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 
-public class DrillBlock extends SimpleMachineConsumer{
+public class DrillBlock extends SimpleMachine implements SignalConsumer{
 	
 	public static Surface[] surfaces = Block.generateSurfaces(Main.drillSideColor);
-
+	private HashMap<BlockFace, Integer> signals = new HashMap<>();
+	
 	
 	public DrillBlock(int x, int y, int z, GameEngine engine) {
 		super("Drill", x, y, z, 
 				Main.drillSideColor,
-				Main.drillGradientBeginColor, new Color4(Color.RED), engine);
+				Main.drillGradientBeginColor,Main.drillSideColor, new Color4(Color.RED), engine);
 				
 	}
 
@@ -32,9 +35,18 @@ public class DrillBlock extends SimpleMachineConsumer{
 
 
 	@Override
-	void work() {
+	public void work() {
 		BlockFace target = getTarget();
-		Engine.world.destroyBlock(Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]), true);
+		Block targetBlock = Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]);
+		if(targetBlock != Block.NOTHING) {
+			Engine.world.destroyBlock(targetBlock, true);
+		}
+	}
+
+
+	@Override
+	public HashMap<BlockFace, Integer> getSignals() {
+		return signals;
 	}
 	
 	

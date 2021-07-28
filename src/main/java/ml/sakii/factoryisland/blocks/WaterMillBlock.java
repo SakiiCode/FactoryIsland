@@ -6,7 +6,7 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 
-public class WaterMillBlock extends SimpleMachineGenerator {
+public class WaterMillBlock extends SimpleMachine implements SignalGenerator {
 	
 	public static Surface[] surfaces = Block.generateSurfaces(Main.wmSideColor);
 
@@ -26,7 +26,7 @@ public class WaterMillBlock extends SimpleMachineGenerator {
 	}
 	
 	@Override
-	void refresh(){
+	public void refresh(){
 		BlockFace target=getTarget();
 		Block tBlock =Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]); 
 		BlockFace[] notTargetSides = new BlockFace[5];

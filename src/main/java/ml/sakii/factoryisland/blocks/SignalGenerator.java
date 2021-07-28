@@ -4,49 +4,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
-import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.items.ItemStack;
 
-public abstract class SignalGenerator extends Block implements BreakListener{
+public interface SignalGenerator extends BreakListener, BlockInterface, TickListener{
 
 
 	
-	public SignalGenerator(int x, int y, int z, GameEngine engine) //ModBlock és Nothing miatt
-	{
-		
-		super(x, y, z,engine);
-		init();
-	}
-
-	public SignalGenerator(String name, int x, int y, int z, GameEngine engine)
-	{
-		super(name, x, y, z,  engine);
-		init();
-
-	}
-	
-	public SignalGenerator(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
-	{
-		super(name, x, y, z, xscale, yscale, zscale, engine);
-		init();
-
-	}
-	
-
-	private void init() {
-		BlockMeta.put("active", "0");
-
-	}
-
-	
-	void switchSignal(boolean on, BlockFace[] sides) {
+	default void switchSignal(boolean on, BlockFace[] sides) {
 		if(on) {
-			setMetadata("active", "1", true);
+			setBlockMeta("active", "1", true);
 		}else {
-			setMetadata("active", "0", true);	
+			setBlockMeta("active", "0", true);	
 		}
 		List<BlockFace> activeSides = Arrays.asList(sides);
-		for(Entry<BlockFace, Block> e : Engine.world.get6Blocks(this, false).entrySet()){
+		for(Entry<BlockFace, Block> e : getEngine().world.get6Blocks((Block)this, false).entrySet()){
 			BlockFace face = e.getKey();
 			Block b = e.getValue();
 			
@@ -63,9 +34,18 @@ public abstract class SignalGenerator extends Block implements BreakListener{
 	}
 	
 	@Override
-	public ItemStack[] breaked(String username) {
+	public default ItemStack[] breaked(String username) {
 		switchSignal(false, BlockFace.values);
 		return null;
 	}
+	
+	@Override
+	public default boolean tick(long tickCount) {
+			refresh();
+			return false;
+		
+	}
+	
+	abstract void refresh();
 
 }

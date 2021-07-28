@@ -2,6 +2,7 @@ package ml.sakii.factoryisland.blocks;
 
 import java.util.Map.Entry;
 
+import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
@@ -60,7 +61,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 
 	
 	@Override
-	public void onLoad(){
+	public void onLoad(Game game){
 		heightMap();
 	}
 

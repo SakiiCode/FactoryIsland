@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Point3D;
@@ -131,7 +132,7 @@ public abstract class SignalPropagator extends Block implements SignalListener, 
 	}
 	
 	@Override
-	public void onLoad(){
+	public void onLoad(Game game){
 		recalcPaints();
 		
 	}

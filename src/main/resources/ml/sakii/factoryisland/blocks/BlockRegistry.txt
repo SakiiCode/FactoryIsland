@@ -12,3 +12,6 @@ WaterMill
 ChestModule
 TankModule
 Lamp
+Silicon
+TestPowerConsumer
+TestPowerWire
