@@ -914,13 +914,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			F3 = !F3;
 		}
-		if (arg0.getKeyCode() == KeyEvent.VK_F6)
+		/*if (arg0.getKeyCode() == KeyEvent.VK_F6)
 		{
 			String error =Engine.startServer(); 
 			if(error != null) {
 				disconnect(error);
 			}
-		}
+		}*/
 
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
 		{
