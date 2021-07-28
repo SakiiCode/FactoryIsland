@@ -15,7 +15,8 @@ public class Config {
 	public static boolean fogEnabled = Prefs.getBoolean("fogEnabled", false);
 	public static String username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
 	public static String multiAddr = Prefs.get("multiAddr", "");
-	public static int zoom = Prefs.getInt("zoom", 500);
+	//public static int zoom = Prefs.getInt("zoom", FOVToZoom(90));
+	public static int FOV = Prefs.getInt("FOV", 90);
 	public static int width = Prefs.getInt("width", Main.Width);
 	public static int height = Prefs.getInt("height", Main.Height);
 	public static boolean creative=Prefs.getBoolean("creative", true);
@@ -27,7 +28,7 @@ public class Config {
 	public static void save(){
 		Prefs.putInt("renderDistance",	renderDistance);
 		Prefs.putInt("sensitivity", sensitivity);
-		Prefs.putInt("zoom", zoom);
+		Prefs.putInt("FOV", FOV);
 		Prefs.putInt("width", width);
 		Prefs.putInt("height", height);
 		
@@ -59,7 +60,7 @@ public class Config {
 			fogEnabled = Prefs.getBoolean("fogEnabled", false);
 			username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
 			multiAddr = Prefs.get("multiAddr", "");
-			zoom = Prefs.getInt("zoom", 500);
+			FOV = Prefs.getInt("FOV", 90);
 			width = Prefs.getInt("width", Main.Width);
 			height = Prefs.getInt("height", Main.Height);
 			creative=Prefs.getBoolean("creative", true);
@@ -71,6 +72,21 @@ public class Config {
 			e.printStackTrace();
 		}
 	}
+	
+	public static int zoomToFOV(double zoom) {
+		return (int) Math.toDegrees(Math.atan((Config.height/2f/zoom)))*2;
+		
+	}
+	
+	public static int FOVToZoom(double FOV) {
+		return (int)(Config.height/2f/Math.tan(Math.toRadians(FOV/2)));
+		
+	}
+	
+	public static int getZoom() {
+		return FOVToZoom(FOV);
+	}
+	
 		
 	
 		

@@ -1,6 +1,7 @@
 package ml.sakii.factoryisland.screens;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -64,7 +65,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	        	NameTextField.setText(Config.username);
 	        	sensitivitySlider.setValue(Config.sensitivity);
 	        	renderDistanceSlider.setValue(Config.renderDistance);
-	        	fovSlider.setValue(Config.zoom);
+	        	fovSlider.setValue(Config.FOV);
 	        	
 	        	widthField.setText(Config.width+"");
 	        	heightField.setText(Config.height+"");
@@ -111,11 +112,11 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		renderDistanceSlider.addKeyListener(this);
 		add(renderDistanceSlider);
 		
-		fovSlider = new JSlider(SwingConstants.HORIZONTAL,200,1000,Config.zoom);
+		fovSlider = new JSlider(SwingConstants.HORIZONTAL,50,130,Config.FOV);
 		fovSlider.setSize(EntryWidth, EntryHeight);
 		fovSlider.setLocation((Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2), (renderDistanceSlider.getY()+EntryHeight+EntrySpacing));
-		fovSlider.setMajorTickSpacing(200);
-		fovSlider.setMinorTickSpacing(25);
+		fovSlider.setMajorTickSpacing(10);
+		fovSlider.setMinorTickSpacing(2);
 		fovSlider.setPaintLabels(true);
 		fovSlider.setPaintTicks(true);
 		fovSlider.addKeyListener(this);
@@ -241,8 +242,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		l7.setForeground(Color.WHITE);
 		add(l7);
 		
-		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended<br>if textures are enabled</body></html>");
-		l8.setLocation(textureButton.getX()-300-EntrySpacing, textureButton.getY());
+		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended<br>only for textured mode</body></html>");
+		l8.setLocation(textureButton.getX()-300-EntrySpacing, renderMethodButton.getY());
 		l8.setSize(300, EntryHeight);
 		l8.setHorizontalAlignment(SwingConstants.RIGHT);
 		l8.setForeground(Color.WHITE);
@@ -284,7 +285,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 					Config.username = NameTextField.getText();
 				}
 		        Config.fogEnabled = fogEnabled;
-		        Config.zoom = fovSlider.getValue();
+		        Config.FOV = fovSlider.getValue();
 		        Config.width = Integer.parseInt(widthField.getText());
 		        Config.height = Integer.parseInt(heightField.getText());
 		        

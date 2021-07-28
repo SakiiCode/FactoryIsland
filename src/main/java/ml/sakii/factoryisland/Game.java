@@ -278,8 +278,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		//resizeScreen(Main.Frame.getWidth(), Main.Frame.getHeight());
 		ViewTo.set(PE.getPos()).add(ViewVector);
 		setP(ViewTo,dP);
-		dx = -Config.zoom * dP.x + centerX;
-		dy = -Config.zoom * dP.y + centerY;
+		dx = -Config.getZoom() * dP.x + centerX;
+		dy = -Config.getZoom() * dP.y + centerY;
 
 
 		    op = new RescaleOp(
@@ -377,8 +377,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				ViewTo.set(PEPos).add(ViewVector);
 				setP(ViewTo,dP);
 
-				dx = -Config.zoom * dP.x + centerX;
-				dy = -Config.zoom * dP.y + centerY;
+				dx = -Config.getZoom() * dP.x + centerX;
+				dy = -Config.getZoom() * dP.y + centerY;
 
 				firstframe = false;
 			}
@@ -1096,8 +1096,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public Point2D.Float convert3Dto2D(Vector tmp, Point2D.Float point)
 	{
 		setP(tmp, point);
-		float x2d = dx + Config.zoom * point.x;
-		float y2d = dy + Config.zoom * point.y;
+		float x2d = dx + Config.getZoom() * point.x;
+		float y2d = dy + Config.getZoom() * point.y;
 
 		point.setLocation(x2d, y2d);
 		return point;
@@ -1287,9 +1287,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		centerX = w / 2;
 		centerY = h / 2;
+		Main.log("FOV:"+Config.FOV+",Zoom:"+Config.FOVToZoom(Config.FOV));
 
-		ViewFrustum.hratio = centerX / Config.zoom;
-		ViewFrustum.vratio = centerY / Config.zoom;
+		ViewFrustum.hratio = centerX / Config.getZoom();
+		ViewFrustum.vratio = centerY / Config.getZoom();
 
 		ratio = (w * 1f / Main.Width
 				+ h * 1f / Main.Height) / 2;
