@@ -8,4 +8,3 @@ target/*
 !target/packr.jar
 !target/build.sh
 /target/
-.classpath
