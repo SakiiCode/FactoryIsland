@@ -637,11 +637,17 @@ public class GameEngine{
 			for(int x=-1;x<=1;x++) {
 				for(int y=-1;y<=1;y++) {
 					lunarModule[lmindex] = new ChestModuleBlock(lmbx+x, lmby+y, lmbz+z, this);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("TestPowerWire"), 1+(int)(Math.random()*20), true);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("Silicon"), 1+(int)(Math.random()*10), true);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("TestPowerConsumer"), 1+(int)(Math.random()*10), true);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("Drill"), 1+(int)(Math.random()*10), true);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("WaterMill"), 1+(int)(Math.random()*10), true);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("Water"), 1+(int)(Math.random()*10), true);
+					((ChestModuleBlock)lunarModule[lmindex]).getInv().add(Main.Items.get("Sapling"), 1+(int)(Math.random()*10), true);
 					lmindex++;
 				}
 			}
 		}
-		//world.addBlocks(lunarModule, true);
 		for(int i=0;i<24;i++) {
 			Block replace = world.getBlockAtP(lunarModule[i].pos);
 			if(replace != Block.NOTHING) {
@@ -649,6 +655,7 @@ public class GameEngine{
 			}
 			world.addBlockNoReplace(lunarModule[i], true);
 		}
+		Tick=3000;
 		
 	}
 	
