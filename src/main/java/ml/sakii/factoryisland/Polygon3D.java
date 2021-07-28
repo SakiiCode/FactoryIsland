@@ -357,17 +357,19 @@ public class Polygon3D extends Object3D{
 			 		synchronized(ZBuffer[x][y]) {
 					 	if(ZBuffer[x][y].depth>iz) continue;
 					 	ZBuffer[x][y].depth=iz;
-					 	if(y>ymin && y<ymax-1 &&
-					 			(
-						 			(x<bufferXmin.get(y+1) || x>bufferXmax.get(y+1) || x<bufferXmin.get(y-1) || x>bufferXmax.get(y-1)) || 
-						 			x==xmin2 || x==xmax2-1
-					 			)
-					 		) {
-					 		ZBuffer[x][y].color=0xFF000000;
-					 		continue;
-					 	}else if(y==ymax-1 || y==ymin) {
-					 		ZBuffer[x][y].color=0xFF000000;
-					 		continue;
+					 	if(!Main.GAME.key[6]) {//depthmap-nál ne mutassa a kereteket
+						 	if(y>ymin && y<ymax-1 &&
+						 			(
+							 			(x<bufferXmin.get(y+1) || x>bufferXmax.get(y+1) || x<bufferXmin.get(y-1) || x>bufferXmax.get(y-1)) || 
+							 			x==xmin2 || x==xmax2-1
+						 			)
+						 		) {
+						 		ZBuffer[x][y].color=0xFF000000;
+						 		continue;
+						 	}else if(y==ymax-1 || y==ymin) {
+						 		ZBuffer[x][y].color=0xFF000000;
+						 		continue;
+						 	}
 					 	}
 					 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
 					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
