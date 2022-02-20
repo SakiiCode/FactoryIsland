@@ -486,7 +486,7 @@ public class Polygon3D extends Object3D{
 		
 		
 
-		if(model instanceof Block) {
+		if(Config.ambientOcclusion && model instanceof Block) {
 			Block b = (Block)model;
 			BlockFace currentFace = b.HitboxPolygons.get(this);
 

@@ -24,6 +24,7 @@ public class Config {
 	public static final int brightness=7;
 	public static RenderMethod renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 1)];
 	public static TargetMarkerType targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
+	public static boolean ambientOcclusion = Prefs.getBoolean("ambientOcclusion", true);
 	
 	public static void save(){
 		Prefs.putInt("renderDistance",	renderDistance);
@@ -40,6 +41,7 @@ public class Config {
 		Prefs.put("username", username);
 		Prefs.put("multiAddr", multiAddr);
 		Prefs.put("selectedMap", selectedMap);
+		Prefs.putBoolean("ambientOcclusion", ambientOcclusion);
 		
 
 		if(Main.GAME != null) {
@@ -67,6 +69,7 @@ public class Config {
 			selectedMap=Prefs.get("selectedMap", "");
 			renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 2)];
 			targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
+			ambientOcclusion = Prefs.getBoolean("ambientOcclusion", true);
 		} catch (BackingStoreException e)
 		{
 			e.printStackTrace();

@@ -31,7 +31,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	JButton textureButton;
 
 	JButton fogButton;
-	JButton creativeButton, renderMethodButton, markerTypeButton;
+	JButton creativeButton, renderMethodButton, markerTypeButton, ambientOcclusionButton;
 	JButton resetButton;
 	JSlider sensitivitySlider;
 	JSlider brightnessSlider;
@@ -51,6 +51,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	boolean creative = Config.creative;
 	RenderMethod renderMethod = Config.renderMethod;
 	TargetMarkerType targetMarkerType = Config.targetMarkerType;
+	boolean ambientOcclusion = Config.ambientOcclusion;
 	
 
 	public SettingsGUI(){
@@ -78,6 +79,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	        	
 	        	renderMethod=Config.renderMethod;
 	        	targetMarkerType=Config.targetMarkerType;
+	        	
+	        	ambientOcclusion=Config.ambientOcclusion;
 	        	
 	        	updateButtons();
 	        }
@@ -175,7 +178,13 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		markerTypeButton.addKeyListener(this);
 		add(markerTypeButton);
 		
-		renderMethodButton = new MainMenuButton(labels[4] ,Main.Frame.getWidth()/2-EntryWidth/2, markerTypeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		ambientOcclusionButton = new MainMenuButton(labels[4] ,Main.Frame.getWidth()/2-EntryWidth/2, markerTypeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		ambientOcclusionButton.setActionCommand("switchambientocclusion");
+		ambientOcclusionButton.addActionListener(this);
+		ambientOcclusionButton.addKeyListener(this);
+		add(ambientOcclusionButton);
+		
+		renderMethodButton = new MainMenuButton(labels[5] ,Main.Frame.getWidth()/2-EntryWidth/2, ambientOcclusionButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		renderMethodButton.setActionCommand("switchrendermethod");
 		renderMethodButton.addActionListener(this);
 		renderMethodButton.addKeyListener(this);
@@ -293,6 +302,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		        Config.renderMethod=renderMethod;
 		        Config.targetMarkerType=targetMarkerType;
 
+		        Config.ambientOcclusion=ambientOcclusion;
 		        Config.save();
 		        Main.SwitchWindow(Main.PreviousCLCard);
 			}else {
@@ -329,6 +339,9 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 				Main.SwitchWindow(Main.PreviousCLCard);
 			}
 			
+		}else if(e.getActionCommand().equals("switchambientocclusion")){
+			ambientOcclusion = !ambientOcclusion;
+	        updateButtons();
 		}
 		
 		
@@ -362,8 +375,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
     	fogButton.setText(labels[1]);
     	creativeButton.setText(labels[2]);
     	markerTypeButton.setText(labels[3]);
-    	renderMethodButton.setText(labels[4]);
-    	
+    	ambientOcclusionButton.setText(labels[4]);
+    	renderMethodButton.setText(labels[5]);
 	}
 	
 	private String[] getButtonLabels() {
@@ -375,7 +388,13 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 				case SHADE -> "Transparent circle";
 				case OUTLINE -> "White Square";
 				},
-				"Rendering Method : " + renderMethod
+				"Ambient Occlusion: " + (ambientOcclusion?"ON":"OFF"),
+				"Rendering Method : " + switch(renderMethod) {
+				case BUFFERED -> "BUFFERED";
+				case VOLATILE -> "VOLATILE (default)";
+				case DIRECT -> "DIRECT";
+				}
+				
 		};
 	}
 	
