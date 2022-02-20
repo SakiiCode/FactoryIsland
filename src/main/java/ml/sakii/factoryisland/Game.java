@@ -901,7 +901,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F)
 		{
-			if(Main.devmode) {
+			if(F3) {
 				locked = !locked;
 			}
 
@@ -927,14 +927,21 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			pauseTo("pause");
 		}
 
-		if (arg0.getKeyCode() == KeyEvent.VK_T)
+		if (arg0.getKeyCode() == KeyEvent.VK_T) //TESZT: deptmap-nál ne mutassa a kereteket
 		{
 			key[6] = true;
 		}
 		
-		if (arg0.getKeyCode() == KeyEvent.VK_Z)
+		if (arg0.getKeyCode() == KeyEvent.VK_Z) //TESZT: árnyékok kikapcsolása textúrás módban
 		{
 			key[8] = true;
+		}
+		if (arg0.getKeyCode() == KeyEvent.VK_B)
+		{
+			//key[8] = true;
+			benchmarkMode=!benchmarkMode;
+			PE.move(20, 20, 15, true);
+			PE.ViewAngle.set(-135, -27);
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_CONTROL)
 		{
