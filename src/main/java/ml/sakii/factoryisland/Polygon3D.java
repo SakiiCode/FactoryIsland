@@ -13,10 +13,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
@@ -73,8 +73,8 @@ public class Polygon3D extends Object3D{
 	Model model;
 	
 	
-	HashSet<BlockFace> SimpleOcclusions = new HashSet<>();
-	HashSet<Point3D> CornerOcclusions = new HashSet<>();
+	CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
+	CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
