@@ -9,7 +9,7 @@ public class GradientCalculator {
 
 
 	
-	static Point2D[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector tmp, Game game){
+	public static Point2D.Float[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector tmp, Game game){
 		
 		float[][] values = calculate(nearby, target);
 		
@@ -17,13 +17,13 @@ public class GradientCalculator {
 		float[] begin = values[1];
 		float[] end = values[2];
 		tmp.set(x+begin1[0], y+begin1[1], z+begin1[2]);
-		 Point2D begin1p = game.convert3Dto2D(tmp, new Point2D.Float());
-		 tmp.set(x+begin[0], y+begin[1], z+begin[2]);
-		 Point2D beginp = game.convert3Dto2D(tmp, new Point2D.Float());
-		 tmp.set(x+end[0], y+end[1], z+end[2]);
-		 Point2D endp= game.convert3Dto2D(tmp, new Point2D.Float());
+		Point2D.Float begin1p = game.convert3Dto2D(tmp, new Point2D.Float());
+		tmp.set(x+begin[0], y+begin[1], z+begin[2]);
+		Point2D.Float beginp = game.convert3Dto2D(tmp, new Point2D.Float());
+		tmp.set(x+end[0], y+end[1], z+end[2]);
+		Point2D.Float endp= game.convert3Dto2D(tmp, new Point2D.Float());
 		
-		return new Point2D[]{begin1p, beginp, endp};
+		return new Point2D.Float[]{begin1p, beginp, endp};
 		
 	}
 	
@@ -166,7 +166,7 @@ public class GradientCalculator {
 		
 	}
 	
-	static Point2D getPerpendicular(Point2D p1, Point2D p2, Point2D interceptPt, double d) {
+	public static Point2D getPerpendicular(Point2D p1, Point2D p2, Point2D interceptPt, double d) {
 	    double xdiff = p1.getX() - p2.getX();
 	    double ydiff = p1.getY() - p2.getY();
 	    double atan = Math.atan2(ydiff, xdiff);

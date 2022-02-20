@@ -82,6 +82,7 @@ public class Main
 	public final static int TICKSPEED = 20; // 20 tick every second
 	public final static int ENTITYSYNCRATE = 3; //every 3 ticks (=0.15s)
 	public final static int PHYSICS_FPS = 30;
+	public static final float AO_STRENGTH = 0.4f;
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 
 	public static Surface[] waters, oils;

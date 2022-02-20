@@ -1,6 +1,7 @@
 package ml.sakii.factoryisland;
 
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -12,8 +13,15 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import ml.sakii.factoryisland.blocks.Block;
+import ml.sakii.factoryisland.blocks.BlockFace;
+import ml.sakii.factoryisland.blocks.Corner;
+import ml.sakii.factoryisland.blocks.GradientCalculator;
 
 public class Polygon3D extends Object3D{
 	Polygon polygon = new Polygon();
@@ -63,6 +71,10 @@ public class Polygon3D extends Object3D{
 	static final long TICKS_PER_DAY = 72000;
 	
 	Model model;
+	
+	
+	HashSet<BlockFace> SimpleOcclusions = new HashSet<>();
+	HashSet<Point3D> CornerOcclusions = new HashSet<>();
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
@@ -450,7 +462,7 @@ public class Polygon3D extends Object3D{
 		
 		boolean drawfog = (AvgDist > Config.renderDistance*(0.75f) && Config.fogEnabled);
 		if(drawfog){
-			g2d.setClip(polygon);
+			//g2d.setClip(polygon);
 			float totalFogSize = Config.renderDistance/4f;
 			float foggyDist = Config.renderDistance-AvgDist;
 			int ratio = (int) (255*(foggyDist/totalFogSize));
@@ -465,11 +477,74 @@ public class Polygon3D extends Object3D{
 
 			g2d.fillPolygon(polygon);
 
-			g2d.setClip(null);
+			//g2d.setClip(null);
 			g2d.setColor(new Color(0,0,0,ratio));
 		}else{
 			g2d.setColor(Color.BLACK);
 		}
+		
+		
+		
+
+		if(model instanceof Block) {
+			Block b = (Block)model;
+			BlockFace currentFace = b.HitboxPolygons.get(this);
+
+			
+			for(BlockFace nearbyFace : SimpleOcclusions) {
+				Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, new Vector(), Main.GAME);
+				Point2D.Float begin1 = values[0];
+				Point2D.Float begin2 = values[1];
+				Point2D.Float end = values[2];					
+				
+				
+				Vector lineVec = new Vector(begin1.x-begin2.x,begin1.y-begin2.y,0).normalize();
+				Vector pointVec = new Vector(end.x-begin2.x,end.y-begin2.y,0);
+				lineVec.multiply(lineVec.DotProduct(pointVec));
+				Point2D intersection = new Point2D.Float(lineVec.x+begin2.x,lineVec.y+begin2.y);
+					
+				g2d.setPaint(new GradientPaint(intersection, new Color4(0,0,0,Main.AO_STRENGTH).getColor(), end,Main.TRANSPARENT));
+				g2d.fillPolygon(polygon);
+				g2d.setColor(Color.black);
+			}
+			
+
+			
+			BlockFace face = currentFace;
+			
+			
+			for(Point3D delta : CornerOcclusions) {
+				
+				
+				
+				Corner c = Corner.fromDelta(face, delta);
+				
+				
+				int corner = c.toInt();
+				
+				
+				Point2D.Float begin1 = Main.GAME.convert3Dto2D(Vertices[Math.floorMod(corner-1, 4)].cpy(), new Point2D.Float());
+				Point2D.Float begin2 = Main.GAME.convert3Dto2D(Vertices[Math.floorMod(corner+1, 4)].cpy(), new Point2D.Float());
+				Point2D.Float end = Main.GAME.convert3Dto2D(Vertices[Math.floorMod(corner, 4)].cpy(), new Point2D.Float());
+				
+				Vector lineVec = new Vector(begin1.x-begin2.x,begin1.y-begin2.y,0).normalize();
+				Vector pointVec = new Vector(end.x-begin2.x,end.y-begin2.y,0);
+				lineVec.multiply(lineVec.DotProduct(pointVec));
+				Point2D intersection = new Point2D.Float(lineVec.x+begin2.x,lineVec.y+begin2.y);
+				
+
+				g2d.setPaint(new GradientPaint(intersection, Main.TRANSPARENT, end, new Color4(0,0,0,Main.AO_STRENGTH).getColor()));
+				g2d.fillPolygon(polygon);
+				g2d.setColor(Color.black);
+				
+			}
+
+		}
+			
+		
+		
+		
+		
 		
 		if(s.c.getAlpha() == 255){
 			g2d.drawPolygon(polygon);
@@ -483,6 +558,55 @@ public class Polygon3D extends Object3D{
 
 
 	}
+	
+
+	void recalcSimpleOcclusions(World world){
+		SimpleOcclusions.clear();
+		Block b = (Block)model;
+		if(b.transparent || b.lightLevel>0) {
+			return;
+		}
+		BlockFace face = b.HitboxPolygons.get(this);
+		
+		for(Entry<BlockFace, Block> entry : world.get6Blocks(b.pos.cpy().add(face), false).entrySet()) {
+			if(entry.getValue().transparent || entry.getValue().lightLevel>0) {
+				continue;
+			}
+			
+			BlockFace nearbyFace = entry.getKey();
+			if(nearbyFace == face || nearbyFace == face.getOpposite()) {
+				continue;
+			}
+			SimpleOcclusions.add(nearbyFace);
+			
+			
+			
+		}
+		
+	}
+	
+	void recalcCornerOcclusions(World world) {
+		CornerOcclusions.clear();
+		Block b = ((Block)model);
+		if(b.transparent || b.lightLevel>0) {
+			return;
+		}
+		BlockFace face = b.HitboxPolygons.get(this);
+
+		for(Entry<Point3D, Block> entry : world.get4Blocks(b.pos, face, false).entrySet()) {
+			Point3D delta = entry.getKey();
+			if(world.getBlockAtP(b.pos.cpy().add(face).add(delta.x,0,0)) != Block.NOTHING || 
+					world.getBlockAtP(b.pos.cpy().add(face).add(0,delta.y,0)) != Block.NOTHING || 
+							world.getBlockAtP(b.pos.cpy().add(face).add(0,0,delta.z)) != Block.NOTHING) {
+				continue;
+			}
+			if(entry.getValue().transparent || entry.getValue().lightLevel > 0) {
+				continue;
+			}
+			CornerOcclusions.add(delta);
+		}
+	}
+	
 	
 	public void renderSelectOutline(Graphics fb){
 		if(!Main.GAME.showHUD) return;

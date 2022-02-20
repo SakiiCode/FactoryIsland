@@ -6,7 +6,11 @@ public class Vector {
 	
 	public static final Vector PLAYER = new Vector(0, 0, 1.7f);
 
+	public static final Vector X = new Vector(1, 0, 0);
+	public static final Vector Y = new Vector(0, 1, 0);
 	public static final Vector Z = new Vector(0, 0, 1);
+	
+	
 	
 	public Vector(){
 		this.x = 0;
@@ -193,6 +197,10 @@ public class Vector {
 		this.y=V.y;
 		this.z=V.z;
 		return this;
+	}
+
+	public Vector cpy() {
+		return new Vector(x,y,z);
 	}
 	
 	

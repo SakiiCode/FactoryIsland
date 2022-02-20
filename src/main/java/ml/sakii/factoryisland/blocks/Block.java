@@ -26,10 +26,7 @@ public abstract class Block extends Model implements BlockInterface
 
 	public boolean transparent;
 	//public Surface[] surfaces = new Surface[6];//top,bottom,north,south,east,west
-	public int x, y, z;
 
-
-	public Point3D pos;
 
 	GameEngine Engine;
 	
@@ -115,7 +112,7 @@ public abstract class Block extends Model implements BlockInterface
 		
 
 		Polygons.add(new Polygon3D(new Vertex[]	{ xkynzn, xnynzn, xnykzn, xkykzn }, new int[][] {{0,0},{w,0},{w,h},{0,h}},top,this));
-		Polygons.add(new Polygon3D(new Vertex[]	{ xkykzk, xnykzk, xnynzk, xkynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom,this));
+		Polygons.add(new Polygon3D(new Vertex[]	{ xnynzk, xkynzk, xkykzk, xnykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom,this));
 
 
 		Polygons.add(new Polygon3D(new Vertex[]	{ xnynzn, xkynzn, xkynzk, xnynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, north,this));

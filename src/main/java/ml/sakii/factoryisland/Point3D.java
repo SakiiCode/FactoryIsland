@@ -3,9 +3,8 @@ package ml.sakii.factoryisland;
 import ml.sakii.factoryisland.blocks.BlockFace;
 
 public class Point3D {
-	int x, y;
-	public int z;
-	
+	public int x,y,z;
+		
 	public Point3D() {
 		this(0, 0, 0);
 	}
@@ -69,6 +68,24 @@ public class Point3D {
 	
 	public Point3D add(BlockFace face) {
 		return set(x+face.direction[0], y+face.direction[1], z+face.direction[2]);
+	}
+	
+	public Point3D cpy() {
+		return new Point3D(x,y,z);
+	}
+	
+	public Point3D add(int x2, int y2, int z2) {
+		x+=x2;
+		y+=y2;
+		z+=z2;
+		return this;
+	}
+
+	public Point3D add(Point3D delta) {
+		x+=delta.x;
+		y+=delta.y;
+		z+=delta.z;
+		return this;
 	}
 
 }

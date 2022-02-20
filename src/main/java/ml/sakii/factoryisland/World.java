@@ -482,11 +482,18 @@ public class World {
 		
 
 		
-		for (Block entry : get6Blocks(b, false).values()) {
-			if (entry instanceof TickListener) {
-				Engine.TickableBlocks.add(entry.pos);
+		for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
+			Block block = entry.getValue();
+			if (block instanceof TickListener) {
+				Engine.TickableBlocks.add(block.pos);
 			}
+			
+			
 		}
+		
+		
+
+		
 		if (b instanceof TickListener) {
 			Engine.TickableBlocks.add(b.pos);
 		}
@@ -500,7 +507,10 @@ public class World {
 		}
 		
 		filterAdjecentBlocks(b);
-
+		
+		recalcAO(b.pos);
+		
+		
 		if(game != null) {
 			game.Objects.addAll(b.Polygons);
 		}
@@ -543,10 +553,12 @@ public class World {
 			
 			Blocks.remove(b.pos);
 			
-			for (Block bu : get6Blocks(b, false).values()) {
+			for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
+				Block bu = entry.getValue();
 				if (bu instanceof TickListener) {
 					Engine.TickableBlocks.add(bu.pos);
 				}
+				
 			}
 			
 			
@@ -574,6 +586,8 @@ public class World {
 	
 			filterAdjecentBlocks(b);
 	
+			recalcAO(b.pos);
+			
 			if(game != null) {
 				game.Objects.removeAll(b.Polygons);
 			}
@@ -597,6 +611,31 @@ public class World {
 			
 			if(Blocks.size()==0 && (Engine.isLocalMP() || Engine.isSingleplayer())) {
 				addBlockNoReplace(new WaterBlock(0,0,0,Engine), true);
+			}
+		}
+	}
+	
+	private void recalcAO(Point3D pos) {
+		for(Point3D point1 : get6BlocksP(pos)) {
+			for(Point3D point2 : get6BlocksP(point1)) {
+				Block b1 = getBlockAtP(point2);
+				if(b1 != Block.NOTHING) {
+					for(Polygon3D poly : b1.HitboxPolygons.keySet()) {
+						poly.recalcSimpleOcclusions(this);
+						poly.recalcCornerOcclusions(this);
+					}
+				}
+				for(Point3D point3 : get6BlocksP(point2)) {
+					Block b2 = getBlockAtP(point3);
+					if(b2 == Block.NOTHING) {
+						continue;
+					}
+					
+					for(Polygon3D poly : b2.HitboxPolygons.keySet()) {
+						poly.recalcSimpleOcclusions(this);
+						poly.recalcCornerOcclusions(this);
+					}
+				}
 			}
 		}
 	}
@@ -768,6 +807,21 @@ public class World {
 		
 	}
 	
+	public static ArrayList<Point3D> get6BlocksP(Point3D p){
+		ArrayList<Point3D> result = new ArrayList<>(6);
+		int x = p.x;
+		int y = p.y;
+		int z = p.z;
+		result.add(new Point3D(x, y, z + 1));
+		result.add(new Point3D(x, y, z - 1));
+		result.add(new Point3D(x - 1, y, z));
+		result.add(new Point3D(x + 1, y, z));
+		result.add(new Point3D(x, y - 1, z));
+		result.add(new Point3D(x, y + 1, z));
+		return result;
+
+	}
+	
 	public HashMap<BlockFace, Block> get6Blocks(Point3D p, boolean includeNothing){
 		int x = p.x;
 		int y = p.y;
@@ -814,6 +868,57 @@ public class World {
 
 		
 		
+	}
+	
+	public HashMap<Point3D, Block> get4Blocks(Point3D p, BlockFace face, boolean includeNothing){
+		Point3D[] deltas = new Point3D[8];
+		
+		deltas[0] = new Point3D(-1,-1,-1);
+		deltas[1] = new Point3D(-1,-1,1);
+		deltas[2] = new Point3D(-1,1,-1);
+		deltas[3] = new Point3D(-1,1,1);
+		deltas[4] = new Point3D(1,-1,-1);
+		deltas[5] = new Point3D(1,-1,1);
+		deltas[6] = new Point3D(1,1,-1);
+		deltas[7] = new Point3D(1,1,1);
+		
+		
+		Point3D[] selected;
+		switch(face) {
+		case TOP:
+			selected = new Point3D[]{deltas[1],deltas[3],deltas[5],deltas[7]};
+			return getBlocksByDelta(p,selected,face,includeNothing);
+		case BOTTOM:
+			selected = new Point3D[]{deltas[0],deltas[2],deltas[4],deltas[6]};
+			return getBlocksByDelta(p,selected,face,includeNothing);
+		case NORTH:
+			selected = new Point3D[]{deltas[2],deltas[3],deltas[6],deltas[7]};
+			return getBlocksByDelta(p,selected,face,includeNothing);
+		case SOUTH:
+			selected = new Point3D[]{deltas[0],deltas[1],deltas[4],deltas[5]};
+			return getBlocksByDelta(p,selected,face,includeNothing);
+		case EAST:
+			selected = new Point3D[]{deltas[4],deltas[5],deltas[6],deltas[7]};
+			return getBlocksByDelta(p,selected,face,includeNothing);
+		case WEST:
+			selected = new Point3D[]{deltas[0],deltas[1],deltas[2],deltas[3]};
+			return getBlocksByDelta(p,selected,face,includeNothing);
+		default:
+			return null;
+		}
+		
+		
+	}
+	
+	private HashMap<Point3D, Block> getBlocksByDelta(Point3D pos, Point3D[] deltas, BlockFace face, boolean includeNothing){
+		HashMap<Point3D, Block> result = new HashMap<>();
+		for(Point3D delta : deltas) {
+			Block b = getBlockAtP(pos.cpy().add(delta));
+			if(b != Block.NOTHING || includeNothing) {
+				result.put(delta.add(face.getOpposite()), b);
+			}
+		}
+		return result;
 	}
 	
 	
