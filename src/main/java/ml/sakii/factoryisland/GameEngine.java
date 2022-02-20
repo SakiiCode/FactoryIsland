@@ -185,7 +185,7 @@ public class GameEngine{
 					}
             	
 				
-					if(Tick % (2*Main.TICKSPEED) == 0) {
+					if(Tick % (2*Globals.TICKSPEED) == 0) {
 						for(Entity entity : world.getAllEntities()) {
 							if(entity instanceof Alien alien) {
 								Vector alienPos = alien.getPos();
@@ -216,7 +216,7 @@ public class GameEngine{
 						}
 					}
 					
-					if(Tick % Main.ENTITYSYNCRATE == 0 && server != null) {
+					if(Tick % Globals.ENTITYSYNCRATE == 0 && server != null) {
 						StringBuilder data = new StringBuilder();
 						data.append("16");
 						int counter = 0;
@@ -269,7 +269,7 @@ public class GameEngine{
 
 
 
-				if(Tick % Main.ENTITYSYNCRATE == 0) {
+				if(Tick % Globals.ENTITYSYNCRATE == 0) {
 					
 					if(Main.GAME != null && client != null){
 
@@ -290,7 +290,7 @@ public class GameEngine{
             }
         };
 
-        ticker = new Timer(1000/Main.TICKSPEED , tickPerformer);
+        ticker = new Timer(1000/Globals.TICKSPEED , tickPerformer);
 
         //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain);
 

@@ -76,14 +76,9 @@ public class Main
 	public static Surface lamp;
 	public static final ArrayList<String> ModRegistry = new ArrayList<>();
 
-	public final static int MP_PACKET_EACH = 50;
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
 			alienFront, alienSide;
-	public final static int TICKSPEED = 20; // 20 tick every second
-	public final static int ENTITYSYNCRATE = 3; //every 3 ticks (=0.15s)
-	public final static int PHYSICS_FPS = 30;
-	public static final float AO_STRENGTH = 0.4f;
-	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+
 
 	public static Surface[] waters, oils;
 	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;

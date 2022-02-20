@@ -8,6 +8,9 @@ public class Color4 {
 	private int r, g, b, a;
 	private Color cache;
     private static final double FACTOR = 0.7;
+    
+	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+
 	
 	public Color4(float r, float g, float b) {
 		construct((int)(r*255), (int)(g*255), (int)(b*255), 255);

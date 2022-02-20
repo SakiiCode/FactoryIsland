@@ -96,7 +96,7 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 			
 			Point2D endPerp = GradientCalculator.getPerpendicular(begin1, begin, begin, begin.distance(end));
 				
-			Polygons.get(nearby.id).s.p = new GradientPaint(begin, this.front.getColor(), endPerp,Main.TRANSPARENT);
+			Polygons.get(nearby.id).s.p = new GradientPaint(begin, this.front.getColor(), endPerp,Color4.TRANSPARENT);
 		 }
 		
 	}

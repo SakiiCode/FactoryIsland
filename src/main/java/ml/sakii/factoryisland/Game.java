@@ -52,7 +52,6 @@ import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
-import ml.sakii.factoryisland.net.GameServer;
 
 public class Game extends JPanel implements KeyListener, MouseListener, MouseWheelListener
 {
@@ -186,7 +185,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 			String[] addr = location.split(":");
-			int port = GameServer.DEFAULT_PORT;
+			int port = Globals.DEFAULT_PORT;
 			if (addr.length != 1)
 			{
 				port = Integer.parseInt(addr[1]);

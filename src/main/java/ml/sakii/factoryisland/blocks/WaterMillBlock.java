@@ -2,6 +2,8 @@ package ml.sakii.factoryisland.blocks;
 
 
 import java.awt.GradientPaint;
+
+import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
@@ -17,12 +19,12 @@ public class WaterMillBlock extends SimpleMachine implements SignalGenerator {
 
 	@Override
 	public Surface[] getSurfaces() {
-		return new Surface[] {new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Main.TRANSPARENT))};
+		return new Surface[] {new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT))};
 	}
 	
 	@Override

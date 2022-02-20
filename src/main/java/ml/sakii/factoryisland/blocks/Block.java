@@ -17,7 +17,6 @@ public abstract class Block extends Model implements BlockInterface
 {
 
 	public static final Block NOTHING = new Nothing();
-	public static final int MAXLIGHT=10;
 	public final HashMap<String, String> BlockMeta = new HashMap<>();
 	public final ArrayList<String> canBePlacedOn = new ArrayList<>();
 	public String name;

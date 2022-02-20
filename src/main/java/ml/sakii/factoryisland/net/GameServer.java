@@ -10,6 +10,7 @@ import java.util.Random;
 
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
@@ -32,7 +33,6 @@ public class GameServer extends Thread{
 
 	public TCPListener Listener;
 	
-	public static final int DEFAULT_PORT = 1420;
 	
 	public GameServer(GameEngine engine){
 		Engine = engine;
@@ -117,10 +117,10 @@ public class GameServer extends Thread{
 				
 					ArrayList<Block> Blocks =Engine.world.getWhole(false); 
 					int size = Blocks.size();
-					for(int i = 0; i<size; i= i+(Main.MP_PACKET_EACH)){
+					for(int i = 0; i<size; i= i+(Globals.MP_PACKET_EACH)){
 						StringBuilder message2=new StringBuilder();
 						StringBuilder message3=new StringBuilder();
-						for(int j = 0; j < (Main.MP_PACKET_EACH);j++){
+						for(int j = 0; j < (Globals.MP_PACKET_EACH);j++){
 							int index = i+j;
 							if(index < size){
 								Block b = Blocks.get(index);
@@ -140,7 +140,7 @@ public class GameServer extends Thread{
 					}
 					
 					
-					Main.log(Math.ceil(size*1.0f / (Main.MP_PACKET_EACH)) + " sent.");
+					Main.log(Math.ceil(size*1.0f / (Globals.MP_PACKET_EACH)) + " sent.");
 					
 					
 

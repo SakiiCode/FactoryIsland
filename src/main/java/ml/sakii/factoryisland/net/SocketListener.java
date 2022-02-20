@@ -11,6 +11,7 @@ import java.net.SocketException;
 
 import javax.swing.JOptionPane;
 
+import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 
 public class SocketListener extends Thread {
@@ -24,7 +25,7 @@ public class SocketListener extends Thread {
 	public SocketListener(TCPListener Listener) {
 		try {
 			try {
-	            this.socket = new ServerSocket(GameServer.DEFAULT_PORT);
+	            this.socket = new ServerSocket(Globals.DEFAULT_PORT);
 	        } catch (@SuppressWarnings("unused") IOException ex) {
 	        	this.socket = new ServerSocket(0);
 	        }

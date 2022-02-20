@@ -503,7 +503,7 @@ public class Polygon3D extends Object3D{
 				lineVec.multiply(lineVec.DotProduct(pointVec));
 				Point2D intersection = new Point2D.Float(lineVec.x+begin2.x,lineVec.y+begin2.y);
 					
-				g2d.setPaint(new GradientPaint(intersection, new Color4(0,0,0,Main.AO_STRENGTH).getColor(), end,Main.TRANSPARENT));
+				g2d.setPaint(new GradientPaint(intersection, new Color4(0,0,0,Globals.AO_STRENGTH).getColor(), end,Color4.TRANSPARENT));
 				g2d.fillPolygon(polygon);
 				g2d.setColor(Color.black);
 			}
@@ -533,7 +533,7 @@ public class Polygon3D extends Object3D{
 				Point2D intersection = new Point2D.Float(lineVec.x+begin2.x,lineVec.y+begin2.y);
 				
 
-				g2d.setPaint(new GradientPaint(intersection, Main.TRANSPARENT, end, new Color4(0,0,0,Main.AO_STRENGTH).getColor()));
+				g2d.setPaint(new GradientPaint(intersection, Color4.TRANSPARENT, end, new Color4(0,0,0,Globals.AO_STRENGTH).getColor()));
 				g2d.fillPolygon(polygon);
 				g2d.setColor(Color.black);
 				
