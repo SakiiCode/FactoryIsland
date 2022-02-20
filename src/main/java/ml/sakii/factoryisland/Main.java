@@ -62,7 +62,7 @@ public class Main
 	public static byte MAJOR, MINOR, REVISION;
 
 	
-	public static boolean devmode = true, nopause = false, headless=false, small=false;
+	public static boolean verbose = false, nopause = false, headless=false, small=false;
 	public static BufferedImage drillSide;
 	public static Color4 drillGradientBeginColor, drillSideColor, chestModule, tankModule;
 	public static Surface fire;
@@ -132,8 +132,6 @@ public class Main
 	public static void main(String[] args) throws Exception
 	{
 
-		
-		
 		System.setOut(new ProxyPrintStream(System.out, "log.txt"));
         System.setErr(new ProxyPrintStream(System.err, "log.txt"));
         Main.log("---------------------------------------------------");
@@ -167,6 +165,8 @@ public class Main
         		break;
         	case "-small":small=true;
         		break;
+        	case "-verbose":verbose=true;
+    			break;
         	default: Main.err("Unknown launch parameter: "+params.get(i));
         	}
         }

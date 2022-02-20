@@ -85,7 +85,7 @@ public class GameClient extends Thread{
 				
 	
 				
-				if(Main.devmode && !message.substring(0, 2).equals("16") && !message.substring(0, 2).equals("04")) {
+				if(Main.verbose && !message.substring(0, 2).equals("16") && !message.substring(0, 2).equals("04")) {
 						Main.log("(CLIENT:"+Config.username+") RECEIVED:  "+message);
 				}
 				
@@ -135,7 +135,7 @@ public class GameClient extends Thread{
 			
 
 			
-			if(Main.devmode && !message.substring(0, 2).equals("16")) {
+			if(Main.verbose && !message.substring(0, 2).equals("16")) {
 					Main.log("(CLIENT:"+Config.username+") RECEIVED:  "+message);
 			}
 			
@@ -462,7 +462,7 @@ public class GameClient extends Thread{
 			outputStream.newLine();
 			outputStream.flush();
 			
-			if(Main.devmode) {
+			if(Main.verbose) {
 				String code = data.split(",")[0];
 				if(ALLCODES.contains(code)){
 					if(!code.equals("16")) {

@@ -66,7 +66,7 @@ public class GameServer extends Thread{
 			
 			
 			
-			if(Main.devmode && !message.substring(0, 2).equals("16") && !message.substring(0, 2).equals("04")) {
+			if(Main.verbose && !message.substring(0, 2).equals("16") && !message.substring(0, 2).equals("04")) {
 
 					Main.log("(SERVER) RECEIVED:  "+message);
 			}
@@ -287,7 +287,7 @@ public class GameServer extends Thread{
 					target = client.name;
 				}
 			}
-			if(Main.devmode) {
+			if(Main.verbose) {
 				if(GameClient.ALLCODES.contains(data.split(",")[0])){
 					if(!data.substring(0, 2).equals("16"))
 					Main.log("(SERVER->"+target+") SENT:      "+data);

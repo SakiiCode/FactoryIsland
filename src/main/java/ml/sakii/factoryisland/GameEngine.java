@@ -150,7 +150,7 @@ public class GameEngine{
 							}else {
 								TickableBlocks.add(p);
 							}
-						}else if(Main.devmode){
+						}else if(Main.verbose){
 							// Air block ticked
 							Main.err("Attempted to tick air block:"+p);
 						}
