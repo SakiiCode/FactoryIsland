@@ -17,8 +17,7 @@ public class Config {
 	public static String multiAddr = Prefs.get("multiAddr", "");
 	//public static int zoom = Prefs.getInt("zoom", FOVToZoom(90));
 	public static int FOV = Prefs.getInt("FOV", 90);
-	public static int width = Prefs.getInt("width", Main.Width);
-	public static int height = Prefs.getInt("height", Main.Height);
+	public static float resolutionScaling = Prefs.getFloat("resolutionScaling", 1f);
 	public static boolean creative=Prefs.getBoolean("creative", true);
 	public static String selectedMap=Prefs.get("selectedMap", "");
 	public static final int brightness=7;
@@ -30,8 +29,7 @@ public class Config {
 		Prefs.putInt("renderDistance",	renderDistance);
 		Prefs.putInt("sensitivity", sensitivity);
 		Prefs.putInt("FOV", FOV);
-		Prefs.putInt("width", width);
-		Prefs.putInt("height", height);
+		Prefs.putFloat("resolutionScaling", resolutionScaling);
 		
 		Prefs.putBoolean("useTextures", useTextures);
 		Prefs.putBoolean("fogEnabled", fogEnabled);
@@ -45,7 +43,7 @@ public class Config {
 		
 
 		if(Main.GAME != null) {
-			Main.GAME.resizeScreen(Config.width, Config.height);
+			Main.GAME.resizeScreen(Config.getWidth(), Config.getHeight());
 		}
 
 	}
@@ -63,8 +61,7 @@ public class Config {
 			username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
 			multiAddr = Prefs.get("multiAddr", "");
 			FOV = Prefs.getInt("FOV", 90);
-			width = Prefs.getInt("width", Main.Width);
-			height = Prefs.getInt("height", Main.Height);
+			resolutionScaling=Prefs.getFloat("resolutionScaling", 1f);
 			creative=Prefs.getBoolean("creative", true);
 			selectedMap=Prefs.get("selectedMap", "");
 			renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 2)];
@@ -77,12 +74,12 @@ public class Config {
 	}
 	
 	public static int zoomToFOV(double zoom) {
-		return (int) Math.toDegrees(Math.atan((Config.height/2f/zoom)))*2;
+		return (int) Math.toDegrees(Math.atan((Config.getHeight()/2f/zoom)))*2;
 		
 	}
 	
 	public static int FOVToZoom(double FOV) {
-		return (int)(Config.height/2f/Math.tan(Math.toRadians(FOV/2)));
+		return (int)(Config.getHeight()/2f/Math.tan(Math.toRadians(FOV/2)));
 		
 	}
 	
@@ -90,6 +87,13 @@ public class Config {
 		return FOVToZoom(FOV);
 	}
 	
+	public static int getWidth() {
+		return (int)(Main.Width*resolutionScaling); 
+	}
+	
+	public static int getHeight() {
+		return (int)(Main.Height*resolutionScaling);
+	}
 		
 	
 		

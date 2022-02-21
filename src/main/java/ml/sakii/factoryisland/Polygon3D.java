@@ -40,11 +40,11 @@ public class Polygon3D extends Object3D{
 	private int clipSize, clip2Size;
 	final HashMap<Vertex, UVZ> TextureMap = new HashMap<>();
 	
-	HashMap<Integer, Integer> bufferXmin = new HashMap<>(Config.height);
-	HashMap<Integer, Integer> bufferXmax = new HashMap<>(Config.height);
+	HashMap<Integer, Integer> bufferXmin = new HashMap<>(Config.getHeight());
+	HashMap<Integer, Integer> bufferXmax = new HashMap<>(Config.getHeight());
 	
-	HashMap<Integer, UVZ> bufferUVZmin = new HashMap<>(Config.height);
-	HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.height);
+	HashMap<Integer, UVZ> bufferUVZmin = new HashMap<>(Config.getHeight());
+	HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.getHeight());
 	
 	private Plane tmpnear=new Plane();
 	private Vector RadiusVector=new Vector();
@@ -361,7 +361,7 @@ public class Polygon3D extends Object3D{
 				double Svz = Util.getSlope(xmin, xmax, uvzmin.vz, uvzmax.vz);
 
 				int xmin2=Math.max(xmin, 0);
-				int xmax2=Math.min(xmax, Config.width);
+				int xmax2=Math.min(xmax, Config.getWidth());
 				for(int x=xmin2;x<xmax2;x++)
 				{
 				 

@@ -36,10 +36,10 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	JSlider sensitivitySlider;
 	JSlider brightnessSlider;
 
-	JSlider renderDistanceSlider;
+	JSlider renderDistanceSlider, resolutionScalingSlider;
 
 	JSlider fovSlider;
-	JTextField NameTextField, widthField, heightField;
+	JTextField NameTextField;
 
 	
 	@SuppressWarnings("hiding")
@@ -67,9 +67,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	        	sensitivitySlider.setValue(Config.sensitivity);
 	        	renderDistanceSlider.setValue(Config.renderDistance);
 	        	fovSlider.setValue(Config.FOV);
-	        	
-	        	widthField.setText(Config.width+"");
-	        	heightField.setText(Config.height+"");
+
+	        	resolutionScalingSlider.setValue((int)(Config.resolutionScaling*100));
 	        	
 	        	brightnessSlider.setValue(Config.brightness);
 	        	
@@ -136,24 +135,21 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		brightnessSlider.setEnabled(false);
 		add(brightnessSlider);
 		
+		resolutionScalingSlider = new JSlider(SwingConstants.HORIZONTAL,25,200,(int)(Config.resolutionScaling*100));
+		resolutionScalingSlider.setSize(EntryWidth, EntryHeight);
+		resolutionScalingSlider.setLocation((Main.Frame.getWidth()/2-renderDistanceSlider.getWidth()/2), (brightnessSlider.getY()+EntryHeight+EntrySpacing));
+		resolutionScalingSlider.setMajorTickSpacing(25);
+		resolutionScalingSlider.setMinorTickSpacing(5);
+		resolutionScalingSlider.setPaintLabels(true);
+		resolutionScalingSlider.setPaintTicks(true);
+		resolutionScalingSlider.addKeyListener(this);
+		add(resolutionScalingSlider);
 
-		
-		widthField = new JTextField(20);
-		widthField.setSize(EntryWidth/2-EntrySpacing, EntryHeight);
-		widthField.setLocation(Main.Frame.getWidth()/2-EntryWidth/2, brightnessSlider.getY()+EntryHeight+EntrySpacing/3*2);
-		widthField.addKeyListener(this);
-		add(widthField);
-		
-		heightField = new JTextField(20);
-		heightField.setSize(EntryWidth/2, EntryHeight);
-		heightField.setLocation(Main.Frame.getWidth()/2, brightnessSlider.getY()+EntryHeight+EntrySpacing/3*2);
-		heightField.addKeyListener(this);
-		add(heightField);
 		
 		
 		String[] labels = getButtonLabels();
 		
-		textureButton = new MainMenuButton(labels[0] ,Main.Frame.getWidth()/2-EntryWidth/2, heightField.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
+		textureButton = new MainMenuButton(labels[0] ,Main.Frame.getWidth()/2-EntryWidth/2, resolutionScalingSlider.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
 		textureButton.setActionCommand("switchtexture");
 		textureButton.addActionListener(this);
 		textureButton.addKeyListener(this);
@@ -230,8 +226,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		l4.setForeground(Color.WHITE);
 		add(l4);
 		
-		JLabel l5 = new JLabel("Resolution:");
-		l5.setLocation(widthField.getX()-180-EntrySpacing, widthField.getY());
+		JLabel l5 = new JLabel("Resolution scaling:");
+		l5.setLocation(resolutionScalingSlider.getX()-180-EntrySpacing, resolutionScalingSlider.getY());
 		l5.setSize(180, EntryHeight);
 		l5.setHorizontalAlignment(SwingConstants.RIGHT);
 		l5.setForeground(Color.WHITE);
@@ -295,8 +291,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 				}
 		        Config.fogEnabled = fogEnabled;
 		        Config.FOV = fovSlider.getValue();
-		        Config.width = Integer.parseInt(widthField.getText());
-		        Config.height = Integer.parseInt(heightField.getText());
+		        Config.resolutionScaling=resolutionScalingSlider.getValue()/100f;
 		        
 		        Config.creative=creative;
 		        Config.renderMethod=renderMethod;
@@ -349,26 +344,14 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	
 	void updateButtons() {
 		if(renderMethod == RenderMethod.DIRECT) {
-    		widthField.setText(Main.Frame.getWidth()+"");
-    		widthField.setEnabled(false);
-    		heightField.setText(Main.Frame.getHeight()+"");
-    		heightField.setEnabled(false);
-    		//useTextures=false;
-    		//textureButton.setEnabled(false);
+			resolutionScalingSlider.setValue(100);
+			resolutionScalingSlider.setEnabled(false);
     	}else if(renderMethod==RenderMethod.VOLATILE){
-    		widthField.setText(Config.width+"");
-    		widthField.setEnabled(true);
-    		heightField.setText(Config.height+"");
-    		heightField.setEnabled(true);
-    		//useTextures=false;
-    		//textureButton.setEnabled(false);
+    		resolutionScalingSlider.setValue((int)(Config.resolutionScaling*100));
+			resolutionScalingSlider.setEnabled(true);
     	}else {
-    		widthField.setText(Config.width+"");
-    		widthField.setEnabled(true);
-    		heightField.setText(Config.height+"");
-    		heightField.setEnabled(true);
-    		//useTextures=Config.useTextures;
-    		textureButton.setEnabled(true);
+    		resolutionScalingSlider.setValue((int)(Config.resolutionScaling*100));
+			resolutionScalingSlider.setEnabled(true);
     	}
 		String[] labels = getButtonLabels();
 		textureButton.setText(labels[0]);

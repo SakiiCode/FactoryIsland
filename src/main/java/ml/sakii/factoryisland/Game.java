@@ -274,7 +274,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		ViewFrustum = new Frustum(this);
 
-		resizeScreen(Config.width, Config.height);
+		resizeScreen(Config.getWidth(), Config.getHeight());
 		//resizeScreen(Main.Frame.getWidth(), Main.Frame.getHeight());
 		ViewTo.set(PE.getPos()).add(ViewVector);
 		setP(ViewTo,dP);
@@ -406,7 +406,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			Graphics fb = g;//FrameBuffer.createGraphics();
 			fb.setColor(Main.skyColor);
-			fb.fillRect(0, 0, Config.width, Config.height);
+			fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 
 			fb.setColor(Color.WHITE);
 			
@@ -537,7 +537,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if (remoteInventory != null)
 			{
 				g.setColor(new Color(0f,0f,0f,0.5f));
-				g.fillRect(0, 0, Config.width, Config.height);
+				g.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 			}
 
 			if (ViewBlock instanceof WaterBlock)
@@ -551,15 +551,15 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 				int cX = (int)centerX;
 				int cY = (int)centerY;
-				int crosshairSize = Config.height/50;
+				int crosshairSize = Config.getHeight()/50;
 				g.drawLine(cX, cY - crosshairSize, cX, cY + crosshairSize);
 				g.drawLine(cX - crosshairSize, cY, cX + crosshairSize, cY);
 				
 				
-				int fontSize = (int) (Math.cbrt(Config.height)*2)-2;
+				int fontSize = (int) (Math.cbrt(Config.getHeight())*2)-2;
 				g.setFont(new Font("SANS", Font.BOLD, fontSize));
 				g.setColor(Color.GRAY);
-				float viewportscale=(float) Math.sqrt(Config.width*Config.height*1f/Main.Width/Main.Height);
+				float viewportscale=(float) Math.sqrt(Config.getWidth()*Config.getHeight()*1f/Main.Width/Main.Height);
 	
 				if (F3)
 				{
@@ -656,7 +656,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						int wv = viewmodel.getWidth();
 						int hv = viewmodel.getHeight();
 	
-						g.drawImage(viewmodel, Config.width / 3 * 2, Config.height - hv, 2 * wv, 2 * hv, null);
+						g.drawImage(viewmodel, Config.getWidth() / 3 * 2, Config.getHeight() - hv, 2 * wv, 2 * hv, null);
 
 					}
 					
@@ -673,7 +673,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				}
 				
 				int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
-				int centerY = Config.height-icon-icon/2;
+				int centerY = Config.getHeight()-icon-icon/2;
 				int halfBarHeight = icon/6;
 				int halfBgHeight = icon/4;
 				int halfTextHeight = g.getFontMetrics().getAscent()-g.getFontMetrics().getHeight()/2;
@@ -699,7 +699,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		int i = -1;
 		int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
 		int iconTextOffset = icon / 3;
-		int iconY=Config.height - icon - (local?0:2*icon);
+		int iconY=Config.getHeight() - icon - (local?0:2*icon);
 		int textY = iconY- halfTextHeight;
 		for(Entry<ItemType, Integer>  stack : Inv.items.entrySet())
 		{
@@ -735,9 +735,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (Inv.hasSelected()) 
 		{
 			g.setColor(Color.BLACK);
-			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale), Config.height - icon-icon/2-halfTextHeight);
+			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale), Config.getHeight() - icon-icon/2-halfTextHeight);
 			g.setColor(Color.WHITE);
-			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale - 1), Config.height - icon-icon/2-halfTextHeight - 1);
+			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale - 1), Config.getHeight() - icon-icon/2-halfTextHeight - 1);
 		
 		}
 		
@@ -746,9 +746,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			
 			g.setColor(Color.BLACK);
-			g.drawString(remoteBlock.toString(), 25, Config.height - 3*icon-icon/2-halfTextHeight);
+			g.drawString(remoteBlock.toString(), 25, Config.getHeight() - 3*icon-icon/2-halfTextHeight);
 			g.setColor(Color.WHITE);
-			g.drawString(remoteBlock.toString(), 25 - 1, Config.height - 3*icon-icon/2-halfTextHeight - 1);
+			g.drawString(remoteBlock.toString(), 25 - 1, Config.getHeight() - 3*icon-icon/2-halfTextHeight - 1);
 			
 		}
 		/*g.drawRect(0, Config.height-icon, icon, icon);
