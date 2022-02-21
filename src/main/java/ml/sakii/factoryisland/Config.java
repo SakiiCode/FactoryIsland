@@ -64,9 +64,10 @@ public class Config {
 			resolutionScaling=Prefs.getFloat("resolutionScaling", 1f);
 			creative=Prefs.getBoolean("creative", true);
 			selectedMap=Prefs.get("selectedMap", "");
-			renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 2)];
+			renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 1)];
 			targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
 			ambientOcclusion = Prefs.getBoolean("ambientOcclusion", true);
+			save();
 		} catch (BackingStoreException e)
 		{
 			e.printStackTrace();

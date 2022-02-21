@@ -10,6 +10,7 @@ public class Color4 {
     private static final double FACTOR = 0.7;
     
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
+	public static final Color AO_MAX = new Color(0, 0, 0, 0.4f);
 
 	
 	public Color4(float r, float g, float b) {
