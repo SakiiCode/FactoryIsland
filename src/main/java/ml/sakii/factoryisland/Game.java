@@ -32,6 +32,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -149,6 +151,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	static long falsetime=0l; 
 	
 	private boolean benchmarkMode = false;
+	
+	private MaskManager maskManager  = new MaskManager();
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 		this.setBackground(new Color(20,20,20)); // csak igy lehet a feher villanast elkerulni valtaskor cardlayout miatt
@@ -451,27 +455,32 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						VisibleCounter.incrementAndGet();
 					}
 				});
-				VisibleCount=VisibleCounter.get();
-				
-				for(int x=0;x<ZBuffer.length;x++) {
-					
-					for(int y=0;y<ZBuffer[x].length;y++) {
-						
-						int color =ZBuffer[x][y].color; 
-						
-						if(color==0) continue;
-						if(Config.renderMethod==RenderMethod.BUFFERED) {
-							FrameBuffer.setRGB(x, y, color);
-						}else {
-							if(fb.getColor().getRGB()!=color) {
-								fb.setColor(new Color(color));
-							}
-							fb.drawRect(x, y, 1, 1);
-						}
-						ZBuffer[x][y].reset();
 
-					}
-				}
+				VisibleCount=VisibleCounter.get();
+				maskManager.clear();
+				
+				IntStream.range(0, maskManager.threads).parallel()
+					.forEach(id -> {
+						int start = id*maskManager.tileWidth;
+						int end = Math.min(ZBuffer.length, start+maskManager.tileWidth);//start+ZBuffer.length/maskManager.threads;
+						for(int x=start;x<end;x++) {
+							
+							for(int y=0;y<ZBuffer[x].length;y++) {
+								
+								int color =ZBuffer[x][y].color; 
+								
+								if(color != 0) {
+									maskManager.setRGB(x, y, color);
+								}
+								ZBuffer[x][y].reset();
+				
+							}
+						}
+					});
+
+				maskManager.render(fb);
+
+
 					
 				Objects.parallelStream().filter(o->o instanceof Text3D).sorted().forEachOrdered(t ->{
 					t.draw(null, fb); //nem kell image-t megadni text3d-hez
@@ -1295,6 +1304,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
+		maskManager.resizeScreen(w, h);
 		VolatileFrameBuffer = Main.graphicsconfig.createCompatibleVolatileImage(w, h);
 		ZBuffer=new PixelData[w][h];
 		for(int x =0;x<w;x++) {

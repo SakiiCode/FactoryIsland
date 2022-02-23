@@ -169,6 +169,61 @@ public abstract class Block extends Model implements BlockInterface
 	}
 
 
+	public void recalcSimpleOcclusions(World world){
+		for(Entry<Polygon3D, BlockFace> entry1 : HitboxPolygons.entrySet()) {
+			Polygon3D poly = entry1.getKey();
+			poly.SimpleOcclusions.clear();
+				
+			if(transparent || lightLevel>0) {
+				continue;
+			}
+		
+			BlockFace face = entry1.getValue();
+			
+			for(Entry<BlockFace, Block> entry : world.get6Blocks(pos.cpy().add(face), false).entrySet()) {
+				if(entry.getValue().transparent || entry.getValue().lightLevel>0) {
+					continue;
+				}
+				
+				BlockFace nearbyFace = entry.getKey();
+				if(nearbyFace == face || nearbyFace == face.getOpposite()) {
+					continue;
+				}
+				poly.SimpleOcclusions.add(nearbyFace);
+				
+				
+				
+			}
+		}
+		
+	}
+	
+	public void recalcCornerOcclusions(World world, Point3D tmp) {
+		for(Entry<Polygon3D, BlockFace> entry1 : HitboxPolygons.entrySet()) {
+			Polygon3D poly = entry1.getKey();
+		
+			poly.CornerOcclusions.clear();
+			if(transparent || lightLevel>0) {
+				return;
+			}
+			BlockFace face = entry1.getValue();
+	
+			for(Entry<Point3D, Block> entry : world.get4Blocks(pos, face, false).entrySet()) {
+				Point3D delta = entry.getKey();
+				if(world.getBlockAtP(tmp.set(pos).add(face).add(delta.x,0,0)) != Block.NOTHING || 
+						world.getBlockAtP(tmp.set(pos).add(face).add(0,delta.y,0)) != Block.NOTHING || 
+								world.getBlockAtP(tmp.set(pos).add(face).add(0,0,delta.z)) != Block.NOTHING) {
+					continue;
+				}
+				if(entry.getValue().transparent || entry.getValue().lightLevel > 0) {
+					continue;
+				}
+				poly.CornerOcclusions.add(delta);
+			}
+		}
+	}
+	
+	
 
 
 

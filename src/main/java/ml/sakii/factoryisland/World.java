@@ -616,25 +616,22 @@ public class World {
 	}
 	
 	private void recalcAO(Point3D pos) {
+		Point3D tmp = new Point3D();
 		for(Point3D point1 : get6BlocksP(pos)) {
 			for(Point3D point2 : get6BlocksP(point1)) {
 				Block b1 = getBlockAtP(point2);
 				if(b1 != Block.NOTHING) {
-					for(Polygon3D poly : b1.HitboxPolygons.keySet()) {
-						poly.recalcSimpleOcclusions(this);
-						poly.recalcCornerOcclusions(this);
-					}
+					b1.recalcSimpleOcclusions(this);
+					b1.recalcCornerOcclusions(this, tmp);
 				}
 				for(Point3D point3 : get6BlocksP(point2)) {
 					Block b2 = getBlockAtP(point3);
-					if(b2 == Block.NOTHING) {
-						continue;
+					if(b2 != Block.NOTHING) {
+						b2.recalcSimpleOcclusions(this);
+						b2.recalcCornerOcclusions(this, tmp);
 					}
 					
-					for(Polygon3D poly : b2.HitboxPolygons.keySet()) {
-						poly.recalcSimpleOcclusions(this);
-						poly.recalcCornerOcclusions(this);
-					}
+					
 				}
 			}
 		}
@@ -870,9 +867,9 @@ public class World {
 		
 	}
 	
-	public HashMap<Point3D, Block> get4Blocks(Point3D p, BlockFace face, boolean includeNothing){
-		Point3D[] deltas = new Point3D[8];
-		
+	private final static Point3D[] deltas = new Point3D[8];
+	
+	static {
 		deltas[0] = new Point3D(-1,-1,-1);
 		deltas[1] = new Point3D(-1,-1,1);
 		deltas[2] = new Point3D(-1,1,-1);
@@ -881,6 +878,10 @@ public class World {
 		deltas[5] = new Point3D(1,-1,1);
 		deltas[6] = new Point3D(1,1,-1);
 		deltas[7] = new Point3D(1,1,1);
+	}
+	
+	public HashMap<Point3D, Block> get4Blocks(Point3D p, BlockFace face, boolean includeNothing){
+		
 		
 		
 		Point3D[] selected;
@@ -912,10 +913,11 @@ public class World {
 	
 	private HashMap<Point3D, Block> getBlocksByDelta(Point3D pos, Point3D[] deltas, BlockFace face, boolean includeNothing){
 		HashMap<Point3D, Block> result = new HashMap<>();
+		Point3D tmp = new Point3D();
 		for(Point3D delta : deltas) {
-			Block b = getBlockAtP(pos.cpy().add(delta));
+			Block b = getBlockAtP(tmp.set(pos).add(delta));
 			if(b != Block.NOTHING || includeNothing) {
-				result.put(delta.add(face.getOpposite()), b);
+				result.put(delta.cpy().add(face.getOpposite()), b);
 			}
 		}
 		return result;

@@ -202,6 +202,13 @@ public class Vector {
 	public Vector cpy() {
 		return new Vector(x,y,z);
 	}
+
+	public void add(float x2, float y2, float z2) {
+		this.x += x2;
+		this.y += y2;
+		this.z += z2;
+	}
 	
 	
 }
+

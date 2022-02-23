@@ -13,7 +13,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -71,16 +70,25 @@ public class Polygon3D extends Object3D{
 	static final long TICKS_PER_DAY = 72000;
 	
 	Model model;
+
+	public CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
+	public CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
+	public CopyOnWriteArrayList<GradientPaint> OcclusionPaints = new CopyOnWriteArrayList<>();
 	
+	Vector lineVec = new Vector();
+	Vector pointVec = new Vector();
 	
-	CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
-	CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
+	Point2D.Float begin1=new Point2D.Float();
+	Point2D.Float begin2=new Point2D.Float();
+	Point2D.Float end=new Point2D.Float();
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
 		this.Vertices = vertices;
 		this.UVMap = UVMapOfVertices;
 		this.model=model;
+
+		
 		/*this.uvz = new UVZ[vertices.length];
 		for(int i=0;i<uvz.length;i++) {
 			uvz[i]=new UVZ(); 
@@ -142,7 +150,6 @@ public class Polygon3D extends Object3D{
 							clip(tmpnear);
 						}
 						
-					
 						if(clipSize>0){
 							
 							polygon.reset();
@@ -179,6 +186,11 @@ public class Polygon3D extends Object3D{
 								}
 							
 							}
+							
+							if(!Config.useTextures) {
+								recalcOcclusionPaints();
+							}
+							
 							return true;
 	
 						
@@ -403,17 +415,8 @@ public class Polygon3D extends Object3D{
 						 			px=s.Texture.getRGB((int)u, (int)v);
 						 		}
 						 		px=px|0xFF000000;
-							 	/*int previous = ZBuffer[x][y].color;
-							 	int alpha =(px>>24)&0xFF; 
-							 	if(alpha != 255) {
-							 		rgb = Color4.blend(previous, px);//pixel.set(previous).blend(px).getRGB();
-							 	}else {*/
-						 			if(Main.GAME.key[8]) {
-						 				rgb=px;
-						 			}else {
-						 				rgb=Color4.blend(px, overlay.getRGB());
-						 			}
-							 	//}
+				 				rgb=Color4.blend(px, overlay.getRGB());
+
 	
 						 	}catch(Exception e) {
 						 		e.printStackTrace();
@@ -433,36 +436,29 @@ public class Polygon3D extends Object3D{
 
 	@Override
 	protected void draw(BufferedImage FrameBuffer, Graphics g){
-		boolean lighted=false;
 		Graphics2D g2d=(Graphics2D)g;
-			if(!s.paint) {
-				g2d.setColor(lightedcolor.getColor());
-				lighted=true;
-			}else {
-				g2d.setColor(s.c.getColor());
-			}
-			g2d.fillPolygon(polygon);
 		
-		if(s.paint){
-			
+		g2d.setColor(s.paint ? s.c.getColor() : lightedcolor.getColor());
+		g2d.fillPolygon(polygon);
+
+		if(s.paint) {
 			g2d.setPaint(s.p);
 			g2d.fillPolygon(polygon);
-		}
-		
-		if(!lighted) {
-			
 			Color4 lightedc=getLightOverlay();
 			g2d.setColor(lightedc.getColor());
 			g2d.fillPolygon(polygon);
-			
 		}
-
-
-
+		
+		if(Config.ambientOcclusion) {
+			for(GradientPaint p : OcclusionPaints) {
+				g2d.setPaint(p);
+				g2d.fillPolygon(polygon);
+				//g2d.fillRect(0, 0, Config.getWidth(), Config.getHeight());
+			}
+		}
 		
 		boolean drawfog = (AvgDist > Config.renderDistance*(0.75f) && Config.fogEnabled);
 		if(drawfog){
-			//g2d.setClip(polygon);
 			float totalFogSize = Config.renderDistance/4f;
 			float foggyDist = Config.renderDistance-AvgDist;
 			int ratio = (int) (255*(foggyDist/totalFogSize));
@@ -476,74 +472,10 @@ public class Polygon3D extends Object3D{
 			g2d.setColor(customColor);
 
 			g2d.fillPolygon(polygon);
-
-			//g2d.setClip(null);
 			g2d.setColor(new Color(0,0,0,ratio));
 		}else{
 			g2d.setColor(Color.BLACK);
 		}
-		
-		
-		
-
-		if(Config.ambientOcclusion && model instanceof Block) {
-			Block b = (Block)model;
-			BlockFace currentFace = b.HitboxPolygons.get(this);
-
-			
-			for(BlockFace nearbyFace : SimpleOcclusions) {
-				Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, new Vector(), Main.GAME);
-				Point2D.Float begin1 = values[0];
-				Point2D.Float begin2 = values[1];
-				Point2D.Float end = values[2];					
-				
-				
-				Vector lineVec = new Vector(begin1.x-begin2.x,begin1.y-begin2.y,0).normalize();
-				Vector pointVec = new Vector(end.x-begin2.x,end.y-begin2.y,0);
-				lineVec.multiply(lineVec.DotProduct(pointVec));
-				Point2D intersection = new Point2D.Float(lineVec.x+begin2.x,lineVec.y+begin2.y);
-					
-				g2d.setPaint(new GradientPaint(intersection, new Color4(0,0,0,Globals.AO_STRENGTH).getColor(), end,Color4.TRANSPARENT));
-				g2d.fillPolygon(polygon);
-				g2d.setColor(Color.black);
-			}
-			
-
-			
-			BlockFace face = currentFace;
-			
-			
-			for(Point3D delta : CornerOcclusions) {
-				
-				
-				
-				Corner c = Corner.fromDelta(face, delta);
-				
-				
-				int corner = c.toInt();
-				
-				
-				Point2D.Float begin1 = Main.GAME.convert3Dto2D(Vertices[Math.floorMod(corner-1, 4)].cpy(), new Point2D.Float());
-				Point2D.Float begin2 = Main.GAME.convert3Dto2D(Vertices[Math.floorMod(corner+1, 4)].cpy(), new Point2D.Float());
-				Point2D.Float end = Main.GAME.convert3Dto2D(Vertices[Math.floorMod(corner, 4)].cpy(), new Point2D.Float());
-				
-				Vector lineVec = new Vector(begin1.x-begin2.x,begin1.y-begin2.y,0).normalize();
-				Vector pointVec = new Vector(end.x-begin2.x,end.y-begin2.y,0);
-				lineVec.multiply(lineVec.DotProduct(pointVec));
-				Point2D intersection = new Point2D.Float(lineVec.x+begin2.x,lineVec.y+begin2.y);
-				
-
-				g2d.setPaint(new GradientPaint(intersection, Color4.TRANSPARENT, end, new Color4(0,0,0,Globals.AO_STRENGTH).getColor()));
-				g2d.fillPolygon(polygon);
-				g2d.setColor(Color.black);
-				
-			}
-
-		}
-			
-		
-		
-		
 		
 		
 		if(s.c.getAlpha() == 255){
@@ -555,56 +487,6 @@ public class Polygon3D extends Object3D{
 			renderSelectOutline(g);
 		}
 		
-
-
-	}
-	
-
-	void recalcSimpleOcclusions(World world){
-		SimpleOcclusions.clear();
-		Block b = (Block)model;
-		if(b.transparent || b.lightLevel>0) {
-			return;
-		}
-		BlockFace face = b.HitboxPolygons.get(this);
-		
-		for(Entry<BlockFace, Block> entry : world.get6Blocks(b.pos.cpy().add(face), false).entrySet()) {
-			if(entry.getValue().transparent || entry.getValue().lightLevel>0) {
-				continue;
-			}
-			
-			BlockFace nearbyFace = entry.getKey();
-			if(nearbyFace == face || nearbyFace == face.getOpposite()) {
-				continue;
-			}
-			SimpleOcclusions.add(nearbyFace);
-			
-			
-			
-		}
-		
-	}
-	
-	void recalcCornerOcclusions(World world) {
-		CornerOcclusions.clear();
-		Block b = ((Block)model);
-		if(b.transparent || b.lightLevel>0) {
-			return;
-		}
-		BlockFace face = b.HitboxPolygons.get(this);
-
-		for(Entry<Point3D, Block> entry : world.get4Blocks(b.pos, face, false).entrySet()) {
-			Point3D delta = entry.getKey();
-			if(world.getBlockAtP(b.pos.cpy().add(face).add(delta.x,0,0)) != Block.NOTHING || 
-					world.getBlockAtP(b.pos.cpy().add(face).add(0,delta.y,0)) != Block.NOTHING || 
-							world.getBlockAtP(b.pos.cpy().add(face).add(0,0,delta.z)) != Block.NOTHING) {
-				continue;
-			}
-			if(entry.getValue().transparent || entry.getValue().lightLevel > 0) {
-				continue;
-			}
-			CornerOcclusions.add(delta);
-		}
 	}
 	
 	
@@ -624,6 +506,63 @@ public class Polygon3D extends Object3D{
 			g2d.setColor(Color.white);
 			g2d.drawPolygon(polygon);
 		}
+	}
+	
+	public void recalcOcclusionPaints() {
+		if(!(model instanceof Block)){
+			return;
+		}
+		Block b = (Block) model;
+		BlockFace currentFace = b.HitboxPolygons.get(this);
+		OcclusionPaints.clear();
+		
+		for(BlockFace nearbyFace : SimpleOcclusions) {
+			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, lineVec, Main.GAME);
+			begin1 = values[0];
+			begin2 = values[1];
+			end = values[2];					
+			
+			pointVec.set(end.x-begin2.x,end.y-begin2.y,0);
+			lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y,0)
+				.normalize()
+				.multiply(lineVec.DotProduct(pointVec))
+				.add(begin2.x, begin2.y, 0);
+
+			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX, end.x, end.y, Color4.TRANSPARENT));
+		}
+		
+
+		
+		BlockFace face = currentFace;
+		
+		
+		
+		for(Point3D delta : CornerOcclusions) {
+			
+			
+			Corner c = Corner.fromDelta(face, delta);
+			
+			
+			int corner = c.toInt();
+			
+			
+			Main.GAME.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner-1, 4)]), begin1);
+			Main.GAME.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner+1, 4)]), begin2);
+			Main.GAME.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner, 4)]), end);
+			
+			
+			
+			pointVec.set(end.x-begin2.x,end.y-begin2.y,0);
+			lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y,0)
+				.normalize()
+				.multiply(lineVec.DotProduct(pointVec))
+				.add(begin2.x, begin2.y, 0);
+			
+
+			OcclusionPaints.add((new GradientPaint(lineVec.x, lineVec.y, Color4.TRANSPARENT, end.x, end.y, Color4.AO_MAX)));
+			
+		}
+
 	}
 
 
@@ -818,7 +757,8 @@ public class Polygon3D extends Object3D{
 	public String toString() {
 		/*return "Polygon3D [adjecentFilter=" + adjecentFilter + ", faceFilter=" + faceFilter + ", s=" + s + ", Vertices="
 				+ Arrays.toString(Vertices) + ", ymax=" + ymax + ", ymin=" + ymin + ", lights="+lightSources+"]";*/
-		return s+","+lightSources.toString().replace(", ", "\r\n");
+		return s+",light:"+getLight()+",simple:"+SimpleOcclusions+",corner:"+CornerOcclusions+",paints:"
+				+", "+OcclusionPaints;
 	}
 
 
