@@ -639,9 +639,9 @@ public class Polygon3D extends Object3D{
 	}
 
 	private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
-		for(int i=0;i<clip.length;i++) {
-			clip[i].set(i<size ? vertexArr[i] : Vertex.NULL);
-			clipUV[i] = i<size ? uvArr[i] : new int[]{0,0};
+		for(int i=0;i<size;i++) {
+			clip[i].set(vertexArr[i]);
+			clipUV[i]=uvArr[i];
 		}
 		clipSize=size;
 	}

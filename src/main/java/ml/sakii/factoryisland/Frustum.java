@@ -55,7 +55,7 @@ public class Frustum {
 		  
 		  // top
 		  at.set(game.TopViewVector);
-		  at.multiply(hratio);
+		  at.multiply(vratio);
 		  at.add(game.ViewVector);
 		  at.CrossProduct2(game.LeftViewVector);
 		  sides[2].normal.set(at);
@@ -63,7 +63,7 @@ public class Frustum {
 		  
 		  // bottom
 		  ab.set(game.BottomViewVector);
-		  ab.multiply(hratio);
+		  ab.multiply(vratio);
 		  ab.add(game.ViewVector);
 		  ab.CrossProduct2(game.RightViewVector);
 		  sides[3].normal.set(ab);

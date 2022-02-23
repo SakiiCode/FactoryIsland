@@ -16,7 +16,7 @@ public class Util {
 		return y1+(x-x1)*slope;
 	}
 	
-	public static int limit(int value, int min, int max) {
+	public static int wrap(int value, int min, int max) {
 		return Math.floorMod(value , (max-min+1))+min;
 		
 	}
