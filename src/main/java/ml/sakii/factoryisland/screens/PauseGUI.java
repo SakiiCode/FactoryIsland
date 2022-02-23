@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.Main;
-import ml.sakii.factoryisland.MainMenuButton;
 import ml.sakii.factoryisland.RenderMethod;
 
 public class PauseGUI extends TexturedScreen implements ActionListener, KeyListener {

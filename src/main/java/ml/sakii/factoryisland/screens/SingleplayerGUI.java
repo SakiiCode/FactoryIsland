@@ -23,7 +23,6 @@ import javax.swing.SwingConstants;
 
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.Main;
-import ml.sakii.factoryisland.MainMenuButton;
 
 public class SingleplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = -2653478459245096044L;

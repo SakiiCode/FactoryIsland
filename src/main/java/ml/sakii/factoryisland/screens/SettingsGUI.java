@@ -19,7 +19,6 @@ import javax.swing.SwingConstants;
 
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.Main;
-import ml.sakii.factoryisland.MainMenuButton;
 import ml.sakii.factoryisland.RenderMethod;
 import ml.sakii.factoryisland.TargetMarkerType;
 

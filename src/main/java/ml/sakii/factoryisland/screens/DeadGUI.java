@@ -9,7 +9,6 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
 import ml.sakii.factoryisland.Main;
-import ml.sakii.factoryisland.MainMenuButton;
 
 public class DeadGUI extends PaintedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;

@@ -1,10 +1,13 @@
-package ml.sakii.factoryisland;
+package ml.sakii.factoryisland.screens;
 
 import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+
+import ml.sakii.factoryisland.Color4;
+import ml.sakii.factoryisland.Main;
 
 public class MainMenuButton extends JButton{
 	private static final long serialVersionUID = 6317521383259312584L;

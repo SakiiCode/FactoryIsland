@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.SpringLayout;
 
 import ml.sakii.factoryisland.Main;
-import ml.sakii.factoryisland.MainMenuButton;
 
 public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	private static final long serialVersionUID = 894581305065092909L;
