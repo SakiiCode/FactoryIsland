@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
-import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
@@ -55,104 +54,94 @@ import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
-public class Game extends JPanel implements KeyListener, MouseListener, MouseWheelListener
-{
+public class Game extends JPanel implements KeyListener, MouseListener, MouseWheelListener {
+	static final long serialVersionUID = 2515747642091598425L;
 
-	 static final long serialVersionUID = 2515747642091598425L;
-
+	// ENGINE
 	public GameEngine Engine;
 	public PlayerMP PE;
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
-
-	public boolean moved;
-	public BlockInventoryInterface remoteInventory;
-
+	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
+	
+	
+	// RENDERING
 	final Vector BottomViewVector = new Vector(), TopViewVector = new Vector(), RightViewVector = new Vector(),
 			LeftViewVector = new Vector();
-	 final Vector ViewTo = new Vector();
-	 final Vector FrontViewVector = new Vector();
-	 final Vector BackViewVector = new Vector();
+	private final Vector ViewTo = new Vector();
+	private final Vector FrontViewVector = new Vector();
+	private final Vector BackViewVector = new Vector();
+	RenderThread renderThread;
 	
-
-	float hratio, vratio;
-	final boolean[] key = new boolean[20];
-	boolean locked = false;
-	float ratio;
-	int margin;
-	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
 	Frustum ViewFrustum;
 	Vector ViewVector = new Vector();
+	
+	float ratio;
+	int margin;
+	
+	boolean showHUD=true;
+	private Point2D.Float dP=new Point2D.Float();
+	private float dx, dy;
+	private boolean F3 = false;
+	private float FPS = 30f;
+	private LinkedList<String> debugInfo = new LinkedList<>();
+	private long lastTime;
+	private int totalframes;
+	private long previousTime, currentTime;
+	private int previousSkyLight;
 
-	boolean centered;
-	 float centerX, centerY, McenterX, McenterY;
-
-	 float difX, difY;
-	 Point2D.Float dP=new Point2D.Float();
-
-	 float dx, dy;
-	 boolean F3 = false;
-	 float FPS = 30f;
-	 LinkedList<String> debugInfo = new LinkedList<>();
-	 long lastTime;
-	 int totalframes;
 
 	VolatileImage VolatileFrameBuffer;
 	BufferedImage FrameBuffer;
 	BufferedImage prevFrame;
-	PixelData[][] ZBuffer;
+	private PixelData[][] ZBuffer;
+	private BufferedImageOp op;
 
-	 final Cursor invisibleCursor = Toolkit.getDefaultToolkit()
+	
+	private BlockFace SelectedFace;
+	private Polygon3D SelectedPolygon;
+	private Block SelectedBlock = Block.NOTHING;
+	private Entity SelectedEntity;
+	private Block ViewBlock;
+	private Star[] Stars;
+
+	private AtomicInteger VisibleCounter = new AtomicInteger(0);
+	private int VisibleCount;
+	private MaskManager maskManager = new MaskManager();
+
+	// CONTROLS
+	public boolean moved;
+	boolean[] key = new boolean[20];
+	boolean locked = false;
+	boolean centered;
+	
+	private float centerX, centerY, McenterX, McenterY;
+	private float difX, difY;
+	
+	
+	private final Cursor invisibleCursor = Toolkit.getDefaultToolkit()
 			.createCustomCursor(new BufferedImage(1, 1, Transparency.TRANSLUCENT), new Point(0, 0), "InvisibleCursor");
+	private float measurement;
+	private boolean firstframe = true;
+	
+	private Vector previousPos;
+	private EAngle previousAim;
+	private Robot rob;
+	
+	private float speed = Globals.WALK_SPEED;
+	private boolean customfly=false;
 
-	 boolean localInvActive = true;
-	 final int MAXSAMPLES = 30;
-	 BufferedImageOp op;
 
-	 float measurement;
-	 Vector previousPos;
-	 EAngle previousAim;
-	 long previousTime, currentTime;
-	 Robot rob;
-
-	 boolean running = true;
-
-	boolean firstframe = true;
+	// INVENTORY
+	public BlockInventoryInterface remoteInventory;
+	private boolean localInvActive = true;
 	
 
-	 BlockFace SelectedFace;
-	 Polygon3D SelectedPolygon;
-	 Block SelectedBlock = Block.NOTHING;
-	 Entity SelectedEntity;
-	 Block ViewBlock;
-	 float speed = 4.8f;
-	 Star[] Stars;
-	 int tickindex = 0;
-	 final float[] ticklist = new float[MAXSAMPLES];
-	AtomicInteger VisibleCounter = new AtomicInteger(0);
-
-
-	 float ticksum = 0;
-	 int VisibleCount;
-	boolean creative;
+	// OTHER
 	String error;
-	
-	boolean customfly=false;
-
-	
-	RenderThread renderThread;
-	boolean showHUD=true;
-
-	private Paint crosshairColor=new Color(1.0f, 1.0f, 1.0f, 0.2f);
 	private Vector tmp = new Vector();
-
-
-	int previousSkyLight;
-	static long truetime=0l;
-	static long falsetime=0l; 
-	
 	private boolean benchmarkMode = false;
 	
-	private MaskManager maskManager  = new MaskManager();
+	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
 		this.setBackground(new Color(20,20,20)); // csak igy lehet a feher villanast elkerulni valtaskor cardlayout miatt
@@ -243,8 +232,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		
 		
-		//SwitchInventory(true);
-
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
@@ -263,7 +250,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private void init()
 	{
 
-		//this.setDoubleBuffered(true);
 		setCursor(invisibleCursor);
 
 		McenterX = Main.Frame.getX() + Main.Width / 2;
@@ -279,7 +265,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		ViewFrustum = new Frustum(this);
 
 		resizeScreen(Config.getWidth(), Config.getHeight());
-		//resizeScreen(Main.Frame.getWidth(), Main.Frame.getHeight());
 		ViewTo.set(PE.getPos()).add(ViewVector);
 		setP(ViewTo,dP);
 		dx = -Config.getZoom() * dP.x + centerX;
@@ -408,20 +393,21 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			SelectedPolygon = null;
 			VisibleCount = 0;
 
-			Graphics fb = g;//FrameBuffer.createGraphics();
+			Graphics fb = g;
 			fb.setColor(Main.skyColor);
 			fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 
 			fb.setColor(Color.WHITE);
 			
-			Stars[Stars.length-1].pos.set((float)Math.cos(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI), 0f, (float)Math.sin(Polygon3D.getTimePercent(Engine.Tick)*2*Math.PI));
+			double timeFraction = Polygon3D.getTimePercent(Engine.Tick);
+			Stars[Stars.length-1].pos.set((float)Math.cos(timeFraction*2*Math.PI), 0f, (float)Math.sin(timeFraction*2*Math.PI));
 			
 			for (int i = 0; i < Stars.length; i++)
 			{
 				Stars[i].draw(fb);
 			}
 			
-			int skyLight = Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick));
+			int skyLight = Polygon3D.testLightLevel(timeFraction);
 			if(skyLight != previousSkyLight) {
 				previousSkyLight=skyLight;
 				new Thread() {
@@ -462,7 +448,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				IntStream.range(0, maskManager.threads).parallel()
 					.forEach(id -> {
 						int start = id*maskManager.tileWidth;
-						int end = Math.min(ZBuffer.length, start+maskManager.tileWidth);//start+ZBuffer.length/maskManager.threads;
+						int end = Math.min(ZBuffer.length, start+maskManager.tileWidth);
 						for(int x=start;x<end;x++) {
 							
 							for(int y=0;y<ZBuffer[x].length;y++) {
@@ -556,7 +542,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 
 			if(showHUD) {
-				((Graphics2D) g).setPaint(crosshairColor);
+				((Graphics2D) g).setPaint(Color4.CROSSHAIR_COLOR);
 	
 				int cX = (int)centerX;
 				int cY = (int)centerY;
@@ -595,10 +581,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("SelectedEntity: null");
 					}
 					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
-					debugInfo.add("truetime:"+truetime+"falsetime"+falsetime+ ",testing:"+key[6]);
+					debugInfo.add("testing:"+key[6]);
 					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
-					long realTime = Engine.Tick % Polygon3D.TICKS_PER_DAY;
-					float timePercent = (realTime*1f/Polygon3D.TICKS_PER_DAY);
+					long realTime = Engine.Tick % Globals.TICKS_PER_DAY;
+					float timePercent = (realTime*1f/Globals.TICKS_PER_DAY);
 					double light = Math.sin(2*Math.PI*timePercent);
 					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + "), day:"+Engine.isDay((int)PE.ViewFrom.z)+",light:"+light);
 					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) +", blockLightPass:"+Engine.world.lightCalcRuns);
@@ -623,10 +609,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
 					int x=(int) Math.floor(PEPos.x) ;
 					int y= (int) Math.floor(PEPos.y);
-					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + World.GravityAcceleration / FPS) * PE.VerticalVector.z));
+					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + Globals.GravityAcceleration / FPS) * PE.VerticalVector.z));
 					PE.tmpPoint.set(x, y, feetZ);
-					debugInfo.add("Physics FPS: " + (int)Engine.actualphysicsfps +", skyLight:"+Polygon3D.getTimePercent(Engine.Tick)+", cached:"+previousSkyLight);
-					debugInfo.add("level:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)) + "Inverse:"+Polygon3D.testLightLevel(Polygon3D.getTimePercent(Engine.Tick)));	
+					debugInfo.add("Physics FPS: " + Engine.getActualphysicsfps() +", skyLight:"+timeFraction+", cached:"+previousSkyLight+"level:"+Polygon3D.testLightLevel(timeFraction));
 					// DEBUG SZÖVEG
 					g.setColor(Color.BLACK);
 					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
@@ -650,8 +635,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 				}
 				
-				//int w=0, h=0, offset=0;
-	
 				//INVENTORY SOR
 				if (PE.inventory.items.size() > 0)
 				{
@@ -703,7 +686,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize+2));
 
 
-		int halfTextHeight=-g.getFontMetrics().getAscent()+g.getFontMetrics().getHeight()/2;//-(int) (getStringBounds(g,"0123456789ABCDEFGHIKLMNOPRSTUVWXYZ",0,0).getHeight()/2); // J Q nelkul
+		int halfTextHeight=-g.getFontMetrics().getAscent()+g.getFontMetrics().getHeight()/2;
 		
 		int i = -1;
 		int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
@@ -735,8 +718,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 				g.setColor(Color.WHITE);
 				g.drawString(amount + "", textX - 1, textY - 1);
-				
-				//Selected.set(kind, amount);
 			}
 		}
 		
@@ -760,19 +741,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			g.drawString(remoteBlock.toString(), 25 - 1, Config.getHeight() - 3*icon-icon/2-halfTextHeight - 1);
 			
 		}
-		/*g.drawRect(0, Config.height-icon, icon, icon);
-		g.setColor(Color.RED);
-		g.drawLine(0, Config.height-icon-halfTextHeight, icon, Config.height-icon-halfTextHeight);
-		g.setColor(Color.BLUE);
-		g.drawLine(0, textY, icon, textY);
-		g.setColor(Color.WHITE);
-		g.drawRect(0, Config.height-2*icon, icon, icon);
-		g.drawRect(0, Config.height-3*icon, icon, icon);
-		g.drawRect(0, Config.height-4*icon, icon, icon);*/
 		
 	}
 
-	void Controls()
+	private void Controls()
 	{
 		if(benchmarkMode) {
 			Engine.world.walk(LeftViewVector, speed/2, PE, FPS, false);
@@ -864,7 +836,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(key[4]) {
 				PE.jump();
 			}
-			GameEngine.doGravity(PE, Engine.world, (int) FPS);
+			GameEngine.doGravity(PE, Engine.world, FPS);
 		}
 		
 
@@ -922,13 +894,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			F3 = !F3;
 		}
-		/*if (arg0.getKeyCode() == KeyEvent.VK_F6)
-		{
-			String error =Engine.startServer(); 
-			if(error != null) {
-				disconnect(error);
-			}
-		}*/
 
 		if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
 		{
@@ -946,7 +911,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_B)
 		{
-			//key[8] = true;
 			benchmarkMode=!benchmarkMode;
 			PE.move(20, 20, 15, true);
 			PE.ViewAngle.set(-135, -27);
@@ -957,11 +921,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			customfly = key[7];
 			if (customfly)
 			{
-				speed = 8f;
+				speed = Globals.FLY_SPEED;
 				
 			} else
 			{
-				speed = 4.7f;
+				speed = Globals.WALK_SPEED;
 			}
 		}
 
@@ -1212,7 +1176,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 	
-	void pauseTo(String UiName) {
+	private void pauseTo(String UiName) {
 		renderThread.kill();
 
 		if(Config.renderMethod == RenderMethod.DIRECT) {
@@ -1245,7 +1209,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Main.SwitchWindow(UiName);
 	}
 	
-	public void notifyDeath() {
+	void notifyDeath() {
 		new Thread() {
 			@Override
 			public void run() {
@@ -1284,7 +1248,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		addMouseListener(this);
 		addMouseWheelListener(this);
 		currentTime=System.nanoTime();
-		//Main.SwitchWindow("game");
 		renderThread.start();
 		centerMouse();
 	}
@@ -1316,8 +1279,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		centerY = h / 2;
 		Main.log("FOV:"+Config.FOV+",Zoom:"+Config.FOVToZoom(Config.FOV));
 
-		ViewFrustum.hratio = centerX / Config.getZoom();
-		ViewFrustum.vratio = centerY / Config.getZoom();
+		ViewFrustum.setRatios(centerX / Config.getZoom(), centerY / Config.getZoom());
 
 		ratio = (w * 1f / Main.Width
 				+ h * 1f / Main.Height) / 2;
@@ -1325,7 +1287,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 
-	void CalcAverageTick()
+	private void CalcAverageTick()
 	{
 		 totalframes++;
 		 long thisTime = System.currentTimeMillis();
@@ -1335,6 +1297,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			 totalframes=0;
 		 }
 		
+	}
+	
+	boolean insideBlock(Polygon3D polygon) {
+		return ViewBlock.Polygons.contains(polygon);
 	}
 
 	private void SwitchInventory(boolean local)
@@ -1382,11 +1348,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 
 
-
-	
-
-
-
 	@Override
 	public void keyTyped(KeyEvent arg0)
 	{
@@ -1405,7 +1366,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 
-	 boolean placeBlock(String className)
+	private boolean placeBlock(String className)
 	{
 		int nextX = SelectedBlock.x + SelectedFace.direction[0];
 		int nextY = SelectedBlock.y + SelectedFace.direction[1];
@@ -1432,7 +1393,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 
-	 void SwapItems(boolean addToLocal, String itemName)
+	private void SwapItems(boolean addToLocal, String itemName)
 	{
 		if (Engine.client == null)
 		{
@@ -1462,7 +1423,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 	}
 
-	 void teleportToSpawn()
+	private void teleportToSpawn()
 	{
 		Block SpawnBlock = Engine.world.getSpawnBlock();
 		PE.move(SpawnBlock.x + 0.5f, SpawnBlock.y + 0.5f, SpawnBlock.z + 2.7f, false);

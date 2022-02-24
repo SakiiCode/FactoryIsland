@@ -54,7 +54,7 @@ public abstract class SignalPropagator extends Block implements SignalListener, 
 		return powersSorted().lastEntry().getKey();
 	}
 	
-	TreeMap<Integer, BlockFace> powersSorted()
+	private TreeMap<Integer, BlockFace> powersSorted()
 	{
 		TreeMap<Integer, BlockFace> result = new TreeMap<>();
 		for (Entry<BlockFace, Integer> entry : powers.entrySet())

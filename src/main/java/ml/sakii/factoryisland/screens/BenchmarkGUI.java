@@ -21,15 +21,15 @@ import ml.sakii.factoryisland.Main;
 
 public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = -2653478459245096044L;
-	MainMenuButton submitButton, deleteButton;
-	private JLabel joinLabel;
-	JLabel statusLabel;
+	
+	private MainMenuButton submitButton, deleteButton;
+	private JLabel joinLabel, statusLabel;
 	private JList<String> worldsList;
 	
 	private int SPACING = 16;
 	private int MARGIN = 10;
 	
-	String mapName;
+	private String mapName;
 	
 	public BenchmarkGUI(){
 		super(Main.GUIBG);
@@ -51,8 +51,6 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 
 	            	
 	            }
-	         //   worldsList.requestFocus();
-	            
 
 	        }
 	    });
@@ -170,11 +168,10 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		
 	}
 	
-	static String[] getWorlds() {
+	private static String[] getWorlds() {
 		
 		File folder = new File("saves/");
 		File[] listOfFiles = folder.listFiles();
-		//String[] worlds = new String[listOfFiles.length];
 		ArrayList<String> worlds = new ArrayList<>(listOfFiles.length);
 	    for (int i = 0; i < listOfFiles.length; i++) {
 	      if (listOfFiles[i].isDirectory()) {
@@ -184,16 +181,6 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 	        }
 	      }
 	    }
-		
-		/*String[] worlds = new String[10];
-		for(int i=0;i<worlds.length;i++){
-			if(new File("saves/"+i+".xml").exists()){
-				worlds[i] = "World "+i;
-			}else{
-				worlds[i] = "World "+i+" - Empty";
-			}
-			
-		}*/
 		
 		return worlds.toArray(new String[] {});
 		
@@ -223,7 +210,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 	    }
 	}
 
-	public void join() {
+	private void join() {
     	if(getWorldsList().isSelectionEmpty()){
     		return;
     	}
@@ -275,15 +262,12 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		refreshList();
 	}
 	
-	String[] refreshList() {
+	private String[] refreshList() {
 		
 		String[] worlds = getWorlds();
 		getWorldsList().setListData(worlds);
 		getWorldsList().setSelectedValue(Config.selectedMap, true);
-		//worldsList.setSelectedIndex(Math.min(Config.selectedMap, worlds.length));
 		getWorldsList().requestFocusInWindow();
-		//worldsList..requestFocusInWindow();
-		//worldsList.grabFocus();
 		return worlds;
 
 	}

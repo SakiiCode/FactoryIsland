@@ -12,7 +12,6 @@ import ml.sakii.factoryisland.items.ItemStack;
 public abstract class Fluid extends Block implements TickListener, LoadListener, MetadataListener, BreakListener{
 
 
-	//private int tmpHeight;
 	private Surface[] textures; //szintenkent
 	private int maxHeight;
 	public Fluid(String name, int x, int y, int z, Surface[] textures, GameEngine engine) {
@@ -21,7 +20,6 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	
 	public Fluid(String name, int x, int y, int z, int height, Surface[] textures, GameEngine engine) {
 		super(name,x, y, z,engine);
-		//tmpHeight=height;
 		this.textures=textures;
 		maxHeight=textures.length-1;
 		BlockMeta.put("height", height+"");

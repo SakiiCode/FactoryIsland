@@ -24,9 +24,8 @@ import ml.sakii.factoryisland.blocks.GradientCalculator;
 
 public class Polygon3D extends Object3D{
 	Polygon polygon = new Polygon();
-	//float AvgDist;
 	boolean adjecentFilter = true;
-	boolean faceFilter = true;
+	private boolean faceFilter = true;
 	public boolean selected;
 	private Vector normal=new Vector();
 	Vector centroid=new Vector();
@@ -37,50 +36,44 @@ public class Polygon3D extends Object3D{
 	private final Vertex[] clip = new Vertex[20];
 	private final Vertex[] clip2 = new Vertex[20];
 	private int clipSize, clip2Size;
-	final HashMap<Vertex, UVZ> TextureMap = new HashMap<>();
 	
-	HashMap<Integer, Integer> bufferXmin = new HashMap<>(Config.getHeight());
-	HashMap<Integer, Integer> bufferXmax = new HashMap<>(Config.getHeight());
+	private HashMap<Integer, Integer> bufferXmin = new HashMap<>(Config.getHeight());
+	private HashMap<Integer, Integer> bufferXmax = new HashMap<>(Config.getHeight());
 	
-	HashMap<Integer, UVZ> bufferUVZmin = new HashMap<>(Config.getHeight());
-	HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.getHeight());
+	private HashMap<Integer, UVZ> bufferUVZmin = new HashMap<>(Config.getHeight());
+	private HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.getHeight());
 	
 	private Plane tmpnear=new Plane();
 	private Vector RadiusVector=new Vector();
 	private Vector CameraToTriangle = new Vector();
 	private Vector tmp=new Vector();
-	int ymax, ymin;
+	private int ymax, ymin;
 	private int light=0;
 	
 	private final ConcurrentHashMap<Point3D, Integer> lightSources = new ConcurrentHashMap<>();
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
-	Color4 pixel = new Color4();
-	//Vector spawnpoint=new Vector();
-	Point2D.Double centroid2D = new Point2D.Double();
+	private Point2D.Double centroid2D = new Point2D.Double();
 	private float[] fractions = new float[]{0.5f,1.0f};
 	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
-	//public static final HashMap<Vertex, Point> Cache = new HashMap<>();
-	int[][] UVMap;
-	int[][] clipUV,clipUV2;
-	//UVZ[] uvz;
+	private int[][] UVMap;
+	private int[][] clipUV,clipUV2;
 	
-	float physicalRadius;
+	private float physicalRadius;
 	
-	static final long TICKS_PER_DAY = 72000;
 	
 	Model model;
 
 	public CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
 	public CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
-	public CopyOnWriteArrayList<GradientPaint> OcclusionPaints = new CopyOnWriteArrayList<>();
+	private CopyOnWriteArrayList<GradientPaint> OcclusionPaints = new CopyOnWriteArrayList<>();
 	
-	Vector lineVec = new Vector();
-	Vector pointVec = new Vector();
+	private Vector lineVec = new Vector();
+	private Vector pointVec = new Vector();
 	
-	Point2D.Float begin1=new Point2D.Float();
-	Point2D.Float begin2=new Point2D.Float();
-	Point2D.Float end=new Point2D.Float();
+	private Point2D.Float begin1=new Point2D.Float();
+	private Point2D.Float begin2=new Point2D.Float();
+	private Point2D.Float end=new Point2D.Float();
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
@@ -89,10 +82,6 @@ public class Polygon3D extends Object3D{
 		this.model=model;
 
 		
-		/*this.uvz = new UVZ[vertices.length];
-		for(int i=0;i<uvz.length;i++) {
-			uvz[i]=new UVZ(); 
-		}*/
 		clipUV=new int[20][2];
 		clipUV2=new int[20][2];
 
@@ -119,7 +108,7 @@ public class Polygon3D extends Object3D{
 		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
 				if(!Main.GAME.locked) {
-					if(Main.GAME.ViewBlock.Polygons.contains(this)) {
+					if(Main.GAME.insideBlock(this)) {
 						faceFilter=true;
 					}else {
 						CameraToTriangle.set(Vertices[0]).substract(Main.GAME.PE.getPos());
@@ -129,12 +118,8 @@ public class Polygon3D extends Object3D{
 				
 				
 				if(faceFilter) {
-					//if(!Main.GAME.locked) {
-						AvgDist = GetDist();
-					//}
+					AvgDist = GetDist();
 					if(AvgDist<=Config.renderDistance && !isAllBehind(RadiusVector)) {
-						//clearClip();
-						//clip(Main.GAME.ViewFrustum.znear);
 						resetClipsTo(Vertices, UVMap, Vertices.length);
 						clip(Main.GAME.ViewFrustum.sides[0]);
 						clip(Main.GAME.ViewFrustum.sides[1]);
@@ -160,7 +145,6 @@ public class Polygon3D extends Object3D{
 								
 
 								v.update();
-								//v.getUVZ(clipUV[i],uvz[i]);
 								polygon.addPoint(v.proj.x, v.proj.y);
 
 								
@@ -202,7 +186,7 @@ public class Polygon3D extends Object3D{
 			return false;
 		}
 	
-	public void addSource(Point3D b, int intensity) {
+	void addSource(Point3D b, int intensity) {
 		
 		lightSources.put(b, intensity);
 		
@@ -213,10 +197,6 @@ public class Polygon3D extends Object3D{
 		
 		lightSources.remove(b);
 		recalcLightedColor();
-	}
-	
-	Integer checkSource(Point3D b) {
-		return lightSources.get(b);
 	}
 	
 	Set<Point3D> getSources(){
@@ -263,11 +243,10 @@ public class Polygon3D extends Object3D{
 
 	}
 	
-	public static double getTimePercent(long Tick) {
+	static double getTimePercent(long Tick) {
 		
-		//long day=Tick/ticksPerDay;
-		long hours=Tick%TICKS_PER_DAY;
-		double skyLightF=(hours*1f/TICKS_PER_DAY);
+		long hours=Tick%Globals.TICKS_PER_DAY;
+		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
 		return skyLightF;
 	}
 	
@@ -285,7 +264,7 @@ public class Polygon3D extends Object3D{
 	}
 		
 
-	public void drawToBuffer(PixelData[][] ZBuffer) {
+	void drawToBuffer(PixelData[][] ZBuffer) {
 		
 		// buffer init
 		bufferXmin.clear();
@@ -346,11 +325,7 @@ public class Polygon3D extends Object3D{
 
 		}
 	
-		//int imgx = Collections.min(bufferXmin.values());
 		int imgw = Collections.max(bufferXmax.values()) -  Collections.min(bufferXmin.values());
-		//int imgy = ymin;
-		//int imgh = ymax-ymin;
-		
 		
 		if(imgw>0) { //ha merőlegesen állunk ne rajzoljon
 			
@@ -453,7 +428,6 @@ public class Polygon3D extends Object3D{
 			for(GradientPaint p : OcclusionPaints) {
 				g2d.setPaint(p);
 				g2d.fillPolygon(polygon);
-				//g2d.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 			}
 		}
 		
@@ -490,7 +464,7 @@ public class Polygon3D extends Object3D{
 	}
 	
 	
-	public void renderSelectOutline(Graphics fb){
+	void renderSelectOutline(Graphics fb){
 		if(!Main.GAME.showHUD) return;
 		
 		Graphics2D g2d=((Graphics2D)fb);
@@ -508,7 +482,7 @@ public class Polygon3D extends Object3D{
 		}
 	}
 	
-	public void recalcOcclusionPaints() {
+	private void recalcOcclusionPaints() {
 		if(!(model instanceof Block)){
 			return;
 		}
@@ -572,8 +546,6 @@ public class Polygon3D extends Object3D{
 			Vector v1 = Vertices[1];
 			Vector v2 = Vertices[2];
 			normal.set(v2).substract(v0).CrossProduct(tmpVector.set(v1).substract(v0));
-			//Plane p = new Plane(Vertices[0], Vertices[1], Vertices[2]);
-			//normal.set(p.normal);
 		}
 		
 		float dx=0, dy=0, dz=0;
@@ -588,7 +560,6 @@ public class Polygon3D extends Object3D{
 	    }
 
 	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
-	    //this.spawnpoint.set(centroid);
 	}
 	
 	
@@ -606,8 +577,6 @@ public class Polygon3D extends Object3D{
 			}
 		
 		return result;
-		//centroid+radius*ViewVector-ViewFrom . ViewVector <0 akkor mogotte
-			
 	}
 	
 	
@@ -646,25 +615,8 @@ public class Polygon3D extends Object3D{
 		clipSize=size;
 	}
 	
-	/*private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
-		for(int i=0;i<size;i++) {
-			clip[i].set(vertexArr[i]);
-			if(Config.useTextures) {
-				clipUV[i][0] = uvArr[i][0];
-				clipUV[i][1] = uvArr[i][1];
-			}
-		}
-		clipSize=size;
-	}*/
-	
-	
-	
-	
-	
-		
 	private void clip(Plane P){
 		
-		//ArrayList<Vertex> tmp = new ArrayList<>(Arrays.asList(clip)); 
 		clip2Size=0;
 		for(int i=0;i<clipSize;i++){
 
@@ -702,7 +654,7 @@ public class Polygon3D extends Object3D{
 					
 					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
 					if(Config.useTextures)
-						clipUV2[clip2Size] = Vertex.getUVInterp(a, tmp, b, uv1,uv2);
+						clipUV2[clip2Size] = getUVInterp(a, tmp, b, uv1,uv2);
 					clip2Size++;
 					
 				}else if(da >0 && db < 0){ // elölről vágja félbe
@@ -714,7 +666,7 @@ public class Polygon3D extends Object3D{
 					
 					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
 					if(Config.useTextures)
-						clipUV2[clip2Size] = Vertex.getUVInterp(a, tmp, b, uv1,uv2);
+						clipUV2[clip2Size] = getUVInterp(a, tmp, b, uv1,uv2);
 					clip2Size++;
 					
 				}
@@ -723,7 +675,12 @@ public class Polygon3D extends Object3D{
 		resetClipsTo(clip2,clipUV2,clip2Size);
 	}
 	
-
+	private static int[] getUVInterp(Vector p1, Vector pos, Vector p2, int[]uv1, int[] uv2) {
+		double distanceratio = p1.distance(pos) / p1.distance(p2);
+		int u = (int) Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
+		int v = (int) Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
+		return new int[] {u,v};
+	}
 
 
 
@@ -733,54 +690,13 @@ public class Polygon3D extends Object3D{
 			return Main.GAME.PE.getPos().distance(centroid);
 	}
 	
-	/*public void recalcCentroid() {
-		float dx=0, dy=0, dz=0;
-		
-	    int pointCount = Vertices.length;
-		for(Vertex v : Vertices) {
-
-	    
-	        dx += v.x;
-	        dy += v.y;
-	        dz += v.z;
-	    }
-
-	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
-	    this.spawnpoint.set(centroid).add(Vector.PLAYER);
-	}*/
-
-	
-
-
 
 	@Override
 	public String toString() {
-		/*return "Polygon3D [adjecentFilter=" + adjecentFilter + ", faceFilter=" + faceFilter + ", s=" + s + ", Vertices="
-				+ Arrays.toString(Vertices) + ", ymax=" + ymax + ", ymin=" + ymin + ", lights="+lightSources+"]";*/
 		return s+",light:"+getLight()+",simple:"+SimpleOcclusions+",corner:"+CornerOcclusions+",paints:"
 				+", "+OcclusionPaints;
 	}
 
 
-
-
-	
-	
-	
-	/*double interpolate(Point2D point){
-		double sum=0, weightsum = 0;
-		for(int i=0; i<x.length;i++){
-			double proximity =1d/point.distance(polygon.xpoints[i], polygon.ypoints[i]); 
-			sum+=proximity*(Math.sqrt((x[i]-Main.GAME.PE.ViewFrom.x)*(x[i]-Main.GAME.PE.ViewFrom.x)+ (y[i]-Main.GAME.PE.ViewFrom.y)*(y[i]-Main.GAME.PE.ViewFrom.y)+ (z[i]-Main.GAME.PE.ViewFrom.z)*(z[i]-Main.GAME.PE.ViewFrom.z)));
-			weightsum += proximity;
-			
-			
-		}
-		return sum / weightsum;
-		
-	}*/
-
-
-	
 	
 }

@@ -8,11 +8,9 @@ import java.util.ArrayList;
 
 public class MaskManager {
 	private ArrayList<BufferedImage> buffers;
-	public int threads;
-	public int tileWidth;
+	int threads;
+	int tileWidth;
 	private int tileHeight;
-	
-	public Object lock = new Object();
 	
 	private AlphaComposite transparency = AlphaComposite.getInstance(AlphaComposite.CLEAR);
 	
@@ -21,7 +19,7 @@ public class MaskManager {
 	}
 	
 	
-	public void resizeScreen(int w, int h) {
+	void resizeScreen(int w, int h) {
 		threads = Math.max(1, Runtime.getRuntime().availableProcessors()-1);
 		buffers.clear();
 		tileWidth = (int) Math.ceil(w*1f/threads);
@@ -31,7 +29,7 @@ public class MaskManager {
 		}
 	}
 	
-	public void setRGB(int x, int y, int color) {
+	void setRGB(int x, int y, int color) {
 		
 		
 		int mask = x/tileWidth;
@@ -42,16 +40,16 @@ public class MaskManager {
 		}
 	}
 	
-	public void render(Graphics g) {
+	void render(Graphics g) {
 		int x=0;
-		int diff = tileWidth;//(int)(Main.Width*Config.resolutionScaling/threads);
+		int diff = tileWidth;
 		for(BufferedImage im : buffers) {
 			g.drawImage(im, x, 0, diff, (int)(Main.Height*Config.resolutionScaling),  null);
 			x+=diff;
 		}
 	}
 	
-	public void clear() {
+	void clear() {
 		for(BufferedImage im : buffers) {
 			Graphics g = im.getGraphics();
 			((Graphics2D) g).setComposite(transparency);

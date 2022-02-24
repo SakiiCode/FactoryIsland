@@ -12,7 +12,7 @@ public class TexturedScreen extends Screen {
 	private BufferedImage Background;
 	
 	@SuppressWarnings("hiding")
-	protected int EntrySpacing = (int) (Main.Frame.getHeight()*0.011f)/*+EntryHeight*/;
+	protected int EntrySpacing = (int) (Main.Frame.getHeight()*0.011f);
 	
 	public TexturedScreen(BufferedImage bg) {
 		this.Background=bg;

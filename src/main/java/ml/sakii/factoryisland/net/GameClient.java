@@ -27,7 +27,6 @@ import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
 
-
 public class GameClient extends Thread{
 
 	static final Set<String> ALLCODES = new HashSet<>(Arrays.asList(

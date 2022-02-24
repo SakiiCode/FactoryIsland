@@ -6,8 +6,6 @@ import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.Vector;
 
 public class GradientCalculator {
-
-
 	
 	public static Point2D.Float[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector tmp, Game game){
 		
@@ -54,12 +52,7 @@ public class GradientCalculator {
 	}
 	
 	private static float[][] calculate(BlockFace nearby, BlockFace target){
-		//if(nearby.id / 2 == 2){
-		//	nearby = nearby.getOpposite();
-		//}
-		/*if(target.id / 2 == 2){
-			target = target.getOpposite();
-		}*/
+		
 		
 		int begin1x = 0;
 
@@ -160,8 +153,6 @@ public class GradientCalculator {
 		float[] end = new float[]{endx, endy, endz};
 		
 		return new float[][]{begin1, begin, end};
-		
-		
 		
 		
 	}

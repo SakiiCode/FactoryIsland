@@ -16,12 +16,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +43,24 @@ import javax.swing.JPanel;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import ml.sakii.factoryisland.api.API;
+import ml.sakii.factoryisland.blocks.ChestModuleBlock;
+import ml.sakii.factoryisland.blocks.DrillBlock;
+import ml.sakii.factoryisland.blocks.GrassBlock;
+import ml.sakii.factoryisland.blocks.LampBlock;
+import ml.sakii.factoryisland.blocks.LeafBlock;
 import ml.sakii.factoryisland.blocks.ModBlock;
+import ml.sakii.factoryisland.blocks.OilBlock;
+import ml.sakii.factoryisland.blocks.OldBlock;
+import ml.sakii.factoryisland.blocks.SandBlock;
+import ml.sakii.factoryisland.blocks.SaplingBlock;
+import ml.sakii.factoryisland.blocks.SiliconBlock;
+import ml.sakii.factoryisland.blocks.StoneBlock;
+import ml.sakii.factoryisland.blocks.TankModuleBlock;
+import ml.sakii.factoryisland.blocks.TestPowerConsumerBlock;
+import ml.sakii.factoryisland.blocks.TestPowerWireBlock;
+import ml.sakii.factoryisland.blocks.WaterBlock;
+import ml.sakii.factoryisland.blocks.WaterMillBlock;
+import ml.sakii.factoryisland.blocks.WoodBlock;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 import ml.sakii.factoryisland.screens.BenchmarkGUI;
@@ -62,7 +77,8 @@ public class Main
 	public static byte MAJOR, MINOR, REVISION;
 
 	
-	public static boolean verbose = false, nopause = false, headless=false, small=false;
+	public static boolean verbose = false, headless=false;
+	static boolean nopause=false, small=false;
 	public static BufferedImage drillSide;
 	public static Color4 drillGradientBeginColor, drillSideColor, chestModule, tankModule;
 	public static Surface fire;
@@ -74,7 +90,7 @@ public class Main
 
 
 	public static Surface lamp;
-	public static final ArrayList<String> ModRegistry = new ArrayList<>();
+	static final ArrayList<String> ModRegistry = new ArrayList<>();
 
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
 			alienFront, alienSide;
@@ -87,18 +103,14 @@ public class Main
 	public static Clip BGMusic;
 
 	public static BufferedImage GUIBG;
-	//static BufferedImage Logo;
 	public static BufferedImage StandardBG, FreezeBG;
 
 
 	public static BufferedImage PausedBG, PausedTitle;
 
 
-	public static BufferedImage SettingsBG,SettingsTitle;
+	public static BufferedImage SettingsTitle;
 
-
-	static BufferedImage MenuButtonTexture;
-	//static ArrayList<String> Mods = new ArrayList<>();
 
 	public static String PreviousCLCard = "";
 	public static long seed;
@@ -109,7 +121,7 @@ public class Main
 	private static AudioInputStream BGAudioStream;
 
 	private static String CurrentCLCard = "";
-	public static GraphicsConfiguration graphicsconfig;
+	static GraphicsConfiguration graphicsconfig;
 	
 	
 	private static MultiplayerGUI MPGui;
@@ -117,7 +129,7 @@ public class Main
 
 	
 
-	static int screen;
+	private static int screen;
 	public static int Width;
 	public static int Height;
 	public static GameEngine Engine; //csak a headless server hasznalja
@@ -224,7 +236,7 @@ public class Main
 
 
 
-	public static void setupWindow(String username)
+	private static void setupWindow(String username)
 	{
 		
 		GraphicsDevice[] gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
@@ -279,7 +291,6 @@ public class Main
 		
     	LoadResources();
 
-		//Frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		Frame.setTitle("FactoryIsland " + MAJOR + "." + MINOR + "." + REVISION);
 
 
@@ -483,11 +494,9 @@ public class Main
 		GUIBG = loadTexture("textures/guibg.png");
 		PausedBG = loadTexture("textures/paused.png");
 
-		SettingsBG = loadTexture("textures/settings.png");
 		SettingsTitle = loadTexture("textures/settings_title.png");
 		PausedTitle = loadTexture("textures/paused_title.png");
 		StandardBG = loadTexture("textures/BG.png");
-		MenuButtonTexture = loadTexture("textures/button.png");
 
 		stone = new Surface(loadTexture("textures/blocks/stone.png"));
 		waters = new Surface[]
@@ -514,7 +523,6 @@ public class Main
 		drillSide = loadTexture("textures/blocks/drill_side5.png");
 		drillSideColor = Surface.averageColor(drillSide);
 		drillGradientBeginColor = new Color4(200, 70, 60, 255);
-		//drillFrontColor = new Color4().set(drillSideColor).darker().darker();
 
 		lamp = new Surface(new Color(240, 220, 170));
 
@@ -523,32 +531,29 @@ public class Main
 		fire = new Surface(new Color(255, 153, 0));
 		wmPoweredColor = new Color4().set(fire.c).brighter();
 
-		BufferedReader reader = new BufferedReader(
-				new InputStreamReader(Main.class.getResourceAsStream("blocks/BlockRegistry.txt")));
-
 		
-		try
-		{
-			String name;
-			while ((name = reader.readLine()) != null)
-			{
+		initBlockClass("Water",  WaterBlock.surfaces);
+		initBlockClass("Stone",  StoneBlock.surfaces);
+		initBlockClass("Old",    OldBlock.surfaces);
+		initBlockClass("Grass",  GrassBlock.surfaces);
+		initBlockClass("Sand",   SandBlock.surfaces);
+		initBlockClass("Oil",    OilBlock.surfaces);
+		initBlockClass("Drill",  DrillBlock.surfaces);
+		initBlockClass("Wood",   WoodBlock.surfaces);
+		initBlockClass("Sapling",SaplingBlock.surfaces);
+		initBlockClass("Leaf",   LeafBlock.surfaces);
+		initBlockClass("WaterMill",WaterMillBlock.surfaces);
+		
+		initBlockClass("ChestModule",ChestModuleBlock.surfaces);
+		initBlockClass("TankModule",TankModuleBlock.surfaces);
 
-					String className = "ml.sakii.factoryisland.blocks." + name + "Block";
-					Class<?> blockClass = Class.forName(className);
-					Surface[] surfaces = (Surface[]) blockClass.getField("surfaces").get(new Surface[] {});
-					
-					ItemType item=new ItemType(name, className,
-							generateIcon(surfaces[0], surfaces[3], surfaces[4]),
-							generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
-					
-					Main.Items.put(name, item);
-					
-					PlayerInventory.Creative.add(item, 1, false);
-			}
-		} catch (IOException | ClassNotFoundException | IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e1)
-		{
-			e1.printStackTrace();
-		}
+		initBlockClass("Lamp",    LampBlock.surfaces);
+		initBlockClass("Silicon", SiliconBlock.surfaces);
+
+		initBlockClass("TestPowerConsumer", TestPowerConsumerBlock.surfaces);
+		initBlockClass("TestPowerWire", TestPowerWireBlock.surfaces);
+
+
 
 		File mods = new File("mods");
 		if (!mods.exists())
@@ -627,7 +632,18 @@ public class Main
 		}
 	}
 	
-	public static BufferedImage generateIcon(Surface topS, Surface southS, Surface eastS)
+	private static void initBlockClass(String name, Surface[] surfaces) {
+		String className = "ml.sakii.factoryisland.blocks." + name + "Block";
+		ItemType item=new ItemType(name, className,
+				generateIcon(surfaces[0], surfaces[3], surfaces[4]),
+				generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
+		
+		Main.Items.put(name, item);
+		
+		PlayerInventory.Creative.add(item, 1, false);
+	}
+	
+	private static BufferedImage generateIcon(Surface topS, Surface southS, Surface eastS)
 	{
 		int size, s16;
 		if(Main.headless) {
@@ -695,7 +711,7 @@ public class Main
 		return icon;
 	}
 
-	public static BufferedImage generateViewmodel(Surface topS, Surface southS, Surface eastS)
+	private static BufferedImage generateViewmodel(Surface topS, Surface southS, Surface eastS)
 	{
 
 		float res;
@@ -799,9 +815,6 @@ public class Main
 			return image;
 		}
 	    // obtain the current system graphical settings
-	    /*GraphicsConfiguration gfxConfig = GraphicsEnvironment.
-	        getLocalGraphicsEnvironment().getDefaultScreenDevice().
-	        getDefaultConfiguration();*/
 		GraphicsConfiguration gfxConfig = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen].getDefaultConfiguration();
 
 	    /*

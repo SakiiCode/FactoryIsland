@@ -37,37 +37,23 @@ public class GameEngine{
 	
 	
 	public World world;
-	//public Set<Point3D> TickableBlocks =  Collections.newSetFromMap(new ConcurrentHashMap<Point3D, Boolean>());
-	public CopyOnWriteArraySet<Point3D> TickableBlocks = new CopyOnWriteArraySet<>();
-	public CopyOnWriteArraySet<DayNightListener> DayNightBlocks = new CopyOnWriteArraySet<>();
-	public long Tick;//, day, hours;
-	//public static double skyLightF;
-	
-	//public CopyOnWriteArrayList<Entity> Entities = new CopyOnWriteArrayList<>();
+	public final CopyOnWriteArraySet<Point3D> TickableBlocks = new CopyOnWriteArraySet<>();
+	final CopyOnWriteArraySet<DayNightListener> DayNightBlocks = new CopyOnWriteArraySet<>();
+	public long Tick;
 	Timer ticker;
 	
-	//PhysicsThread physics=null;
-	
 	private Timer physics;
-	int physicsFPS=30;
 	
 	
 	public GameClient client;
 	public GameServer server;
 	
-	//float[] previousPos = new float[5];
-	//float[] currentPos = new float[5];
-	Vector previousPos=new Vector();
-	EAngle previousAim=new EAngle();
+	private final Vector previousPos=new Vector();
+	private final EAngle previousAim=new EAngle();
 
-	int aliens=0;
-
-	long physics1, physics2;
-	float actualphysicsfps;
-	long lastupdate;
-
+	private float actualphysicsfps;
 	
-	
+
 	String error="OK";
 
 	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) throws Exception {
@@ -115,7 +101,6 @@ public class GameEngine{
 		if(label!=null) {
 			label.setText(text);
 		}
-//		Main.log(text);
 	}
 
 	
@@ -239,26 +224,26 @@ public class GameEngine{
 					//ezek előre ki lettek számolva: sin(x/TICKS_PER_DAY*2*PI)=3/14 és -3/14
 					for(DayNightListener dnl : DayNightBlocks) {
 						Block b =(Block)dnl; 
-						if(b.z>=0 && Tick % Polygon3D.TICKS_PER_DAY == 2475) {
+						if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 2475) {
 							dnl.onDay();
-						}else if(b.z>=0 && Tick % Polygon3D.TICKS_PER_DAY == 33525) {
+						}else if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 33525) {
 							dnl.onNight();
-						}else if(b.z<0 && Tick % Polygon3D.TICKS_PER_DAY == 38745) {
+						}else if(b.z<0 && Tick % Globals.TICKS_PER_DAY == 38745) {
 							dnl.onDay();
-						}else if(b.z<0 && Tick % Polygon3D.TICKS_PER_DAY == 69525) {
+						}else if(b.z<0 && Tick % Globals.TICKS_PER_DAY == 69525) {
 							dnl.onNight();
 						}
 	
 						
 					}
 					
-					if(Tick % Polygon3D.TICKS_PER_DAY == 2475) {
+					if(Tick % Globals.TICKS_PER_DAY == 2475) {
 						Main.log("Day on top");
-					}else if(Tick % Polygon3D.TICKS_PER_DAY == 33525) {
+					}else if(Tick % Globals.TICKS_PER_DAY == 33525) {
 						Main.log("Night on top");
-					}else if(Tick % Polygon3D.TICKS_PER_DAY == 38745) {
+					}else if(Tick % Globals.TICKS_PER_DAY == 38745) {
 						Main.log("Day on bottom");
-					}else if(Tick % Polygon3D.TICKS_PER_DAY == 69525) {
+					}else if(Tick % Globals.TICKS_PER_DAY == 69525) {
 						Main.log("Night on bottom");
 					}
 
@@ -292,11 +277,11 @@ public class GameEngine{
 
         ticker = new Timer(1000/Globals.TICKSPEED , tickPerformer);
 
-        //physics = new Timer((int) (1000f/Main.PHYSICS_FPS) , serverMain);
-
         ActionListener physicsPerformer = new ActionListener() {
+        	long physics1, physics2;
 
-
+        	
+        	
     		@Override
     		public void actionPerformed(ActionEvent event)
 
@@ -306,15 +291,12 @@ public class GameEngine{
 
 				if (physics1 == 0L)
 				{
-					actualphysicsfps = 60;
-					//measurement = (float) CalcAverageTick(FPS);
+					actualphysicsfps = 1f/Globals.PHYSICS_FPS;
 				} else
 				{
 					actualphysicsfps = 1000f / (physics2 - physics1);
-					//measurement = (float) CalcAverageTick(FPS);
 				}
-				world.getAllEntities().parallelStream().forEach(entity-> /*);
-				for(Entity entity : world.getAllEntities()) */{
+				world.getAllEntities().parallelStream().forEach(entity-> {
 					if(entity instanceof Alien) {
 						Alien alien = (Alien)entity;
 						Vector closest = null;
@@ -352,7 +334,7 @@ public class GameEngine{
 						Vector aim = alien.aim.set(alien.target).substract(alienPos);
 						if(aim.getLength()>0.2f) {
 							aim.normalize();
-								if(!world.walk(aim, 2, alien, physicsFPS, false)){ // false mert a sync mashol van
+								if(!world.walk(aim, 2, alien, actualphysicsfps, false)){ // false mert a sync mashol van
 									alien.jump();
 								}
 							alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
@@ -373,7 +355,7 @@ public class GameEngine{
 						if (!entity.flying)
 						{
 					
-							doGravity(entity, world, physicsFPS);
+							doGravity(entity, world, actualphysicsfps);
 							entity.update();
 						
 						}
@@ -390,15 +372,15 @@ public class GameEngine{
     	
     	
         
-        physics = new Timer(1000/physicsFPS, physicsPerformer);
+        physics = new Timer(1000/Globals.PHYSICS_FPS, physicsPerformer);
 
 
         
 	}
 	
 	public boolean isDay(int z) {
-		long realTime = Tick % Polygon3D.TICKS_PER_DAY;
-		float timePercent = (realTime*1f/Polygon3D.TICKS_PER_DAY);
+		long realTime = Tick % Globals.TICKS_PER_DAY;
+		float timePercent = (realTime*1f/Globals.TICKS_PER_DAY);
 		double light = Math.sin(2*Math.PI*timePercent);
 		
 		
@@ -409,15 +391,15 @@ public class GameEngine{
 		}
 	}
 
-	static void doGravity(Entity entity, World world, int physicsFPS) {//, Point3D feetPoint, Point3D tmpPoint,TreeSet<Point3D> playerColumn) {
+	static void doGravity(Entity entity, World world, float physicsFPS) {
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
 		Point3D tmpPoint=entity.tmpPoint;
 
-		tmpPoint.set(entityPos.x, entityPos.y, entityPos.z - ((1.7f + World.GravityAcceleration / physicsFPS) * VerticalVector.z));
+		tmpPoint.set(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * VerticalVector.z));
 		if (!world.getBlockAtP(tmpPoint).solid)
 		{
-			entity.GravityVelocity -= World.GravityAcceleration / physicsFPS;
+			entity.GravityVelocity -= Globals.GravityAcceleration / physicsFPS;
 		}
 	
 		float resultant = (entity.JumpVelocity + entity.GravityVelocity);
@@ -487,7 +469,7 @@ public class GameEngine{
 	
 		if (entity.JumpVelocity > 0)
 		{
-			entity.JumpVelocity = Math.max(0, entity.JumpVelocity - World.GravityAcceleration / physicsFPS);
+			entity.JumpVelocity = Math.max(0, entity.JumpVelocity - Globals.GravityAcceleration / physicsFPS);
 		}
 	}
 	
@@ -504,7 +486,7 @@ public class GameEngine{
 
 		
 		
-		int sealevel = 0;//world.CHUNK_HEIGHT/2;
+		int sealevel = 0;
 		
 		
 		
@@ -685,14 +667,6 @@ public class GameEngine{
 		return false;
 	}
 	
-
-
-	
-	static float r(float number, int decimals) {
-		int pow = (int)Math.pow(10, decimals);
-		return Math.round(number * pow) * 1f / pow;
-	}
-	
 	public Block createBlockByName(String name, int x, int y, int z) {
 
 		if(Main.ModRegistry.contains(name)) {
@@ -726,7 +700,7 @@ public class GameEngine{
 		
 	}
 	
-	public Block createBlockByClass(String className, int x, int y, int z) {
+	Block createBlockByClass(String className, int x, int y, int z) {
 		if(Main.ModRegistry.contains(className)) {
 			return createApiBlock(className, x, y, z);
 		}
@@ -762,11 +736,7 @@ public class GameEngine{
 		return new ModBlock(name, x, y, z, this);
 	}
 	
-	public static Block nullBlock(String className) {
-		return createBlock(className, 0, 0, 0, null);
-	}
-	
-	public String startServer() {
+	String startServer() {
 		String error=null;
 		if (client == null && server == null)
 		{
@@ -792,7 +762,7 @@ public class GameEngine{
 		return error;
 	}
 	
-	public String startClient(String IP, int port, Game game)
+	String startClient(String IP, int port, Game game)
 	{
 		client = new GameClient(game, this);	
 		String error = client.connect(IP, port);
@@ -840,8 +810,7 @@ public class GameEngine{
 	
 	
 
-	public void startPhysics() {
-		physics2=System.currentTimeMillis();
+	void startPhysics() {
 		physics.start();
 	}
 	
@@ -849,8 +818,11 @@ public class GameEngine{
 		return physics.isRunning();
 	}
 	
+	public int getActualphysicsfps() {
+		return (int)actualphysicsfps;
+	}
 	
-	public void stopPhysics() {
+	void stopPhysics() {
 		physics.stop();
 	}
 	

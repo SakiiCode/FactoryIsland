@@ -7,7 +7,7 @@ import ml.sakii.factoryisland.Surface;
 
 public class WoodBlock extends SignalPropagator{
 
-	public static Surface[] surfaces = Block.generateSurfacesNoCopy(Main.wood);//new Surface[] {Main.wood,Main.wood,Main.wood,Main.wood,Main.wood,Main.wood};
+	public static Surface[] surfaces = Block.generateSurfacesNoCopy(Main.wood);
 	
 	public WoodBlock(int x, int y, int z, GameEngine engine) {
 		super("Wood", x, y, z,engine);
@@ -18,12 +18,6 @@ public class WoodBlock extends SignalPropagator{
 	@Override
 	public Surface[] getSurfaces() {
 		return Block.generateSurfacesCopy(new Surface(Main.wood.Texture,Color4.TRANSPARENT));
-		/*return new Surface[] {new Surface(Main.wood.c, Main.TRANSPARENT),
-				new Surface(Main.wood.c, Main.TRANSPARENT),
-				new Surface(Main.wood.c, Main.TRANSPARENT),
-				new Surface(Main.wood.c, Main.TRANSPARENT),
-				new Surface(Main.wood.c, Main.TRANSPARENT),
-				new Surface(Main.wood.c, Main.TRANSPARENT)};*/
 	}
 	
 

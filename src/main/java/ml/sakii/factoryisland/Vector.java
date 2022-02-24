@@ -1,6 +1,5 @@
 package ml.sakii.factoryisland;
 
-
 public class Vector {
 	public float x, y, z;
 	
@@ -58,8 +57,6 @@ public class Vector {
 				v.z * x - v.x * z,
 				v.x * y - v.y * x);
 		normalize();
-		//CrossVector.normalize();
-		//return CrossVector;
 		return this;
 	}
 	
@@ -68,7 +65,6 @@ public class Vector {
 		y *=value;
 		z *=value;
 		return this;
-		//return new Vector(x*value,y*value,z*value);
 	}
 	
 	public float distance(Vector V) {
@@ -76,20 +72,11 @@ public class Vector {
 		float y2 = V.y-y;
 		float z2 = V.z-z;
 		return (float) Math.sqrt(x2*x2+y2*y2+z2*z2);
-		//return  V.cpy().multiply(-1).add(this).getLength();
 	}
-	
-	/*public Vector cpy() {
-		return new Vector(x, y, z);
-	}*/
 	
 	public Vector to(Vector v) {
 		return new Vector(v.x-x, v.y-y, v.z-z);
 	}
-	
-	/*public float DotProduct(float x, float y, float z){
-		return this.x*x+this.y*y+this.z*z;
-	}*/
 	
 	public float[] toFloatArray() {
 		return new float[] {x, y, z};
@@ -146,11 +133,7 @@ public class Vector {
 
 		return this;
 	}
-
-	/*public Vector opposite(){
-		return new Vector(-x, -y, -z);
-	}*/
-
+	
 	public Vector set(float x, float y, float z){
 		this.x=x;
 		this.y=y;

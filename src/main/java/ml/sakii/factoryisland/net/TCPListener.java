@@ -57,7 +57,7 @@ public class TCPListener extends Thread {
 	}
 	
 	
-	public Packet read(){
+	Packet read(){
 		if(packets.size()>0){
 			return packets.remove();
 		}
@@ -65,10 +65,8 @@ public class TCPListener extends Thread {
 	}
 	
 	
-	public void kill(){
+	void kill(){
 		running=false;
-		
-
 	}
 
 }

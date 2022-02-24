@@ -58,12 +58,11 @@ public class World {
 
 	final int CHUNK_WIDTH = 10;
 	int MAP_RADIUS = 5;
-	static final int MAP_VERSION=1;
+	private static final int MAP_VERSION=1;
 	public String worldName=""; //""=REMOTE MAP
 	long seed;
-	int loadedVersion=MAP_VERSION;
-	static final float BLOCK_RANGE = 0.2f;
-	static final float GravityAcceleration=9.81f;
+	private int loadedVersion=MAP_VERSION;
+	private static final float BLOCK_RANGE = 0.2f;
 	
 	private GameEngine Engine;
 	private ConcurrentHashMap<Point3D, Block> Blocks = new ConcurrentHashMap<>(10000);
@@ -337,7 +336,7 @@ public class World {
 
 
 	
-	public void parsePE(String username, PlayerMP result) {
+	void parsePE(String username, PlayerMP result) {
 		result.getPos().set(loadVector(username, new String[] {"x","y","z"}));
 		float[] other = loadVector(username, new String[] {"yaw", "pitch", "health"});
 		result.ViewAngle.set(other[0],other[1]);
@@ -404,28 +403,6 @@ public class World {
 		return (b == null) ? Block.NOTHING : b ;
  	}
 
-	public Block getBlockAtF(float x, float y, float z) {
-
-		return getBlockAt((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
-	}
-	
-	/*public boolean addBlockNoReplace(Block b, boolean resend) {
-		if(getBlockAt(b.x, b.y, b.z) == Block.NOTHING) {
-			if(resend && Engine.client != null) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("05,"+b.name+","+b.x+","+b.y+","+b.z);
-				for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
-					sb.append(",");
-					sb.append(entry.getKey()+","+entry.getValue());
-				}
-				Engine.client.sendData(sb.toString());
-			}else {
-				ReplaceBlock(b);
-			}
-			return true;
-		}
-		return false;
-	}*/
 	
 	
 	public boolean addBlockNoReplace(Block b, boolean resend) {
@@ -440,26 +417,6 @@ public class World {
 		return false;
 	}
 	
-	/*public void addBlockReplace(Block b, boolean resend) {
-		Block existing =getBlockAt(b.x, b.y, b.z); 
-		if(existing != Block.NOTHING) {
-			destroyBlock(existing, resend);
-		}
-		if(resend && Engine.client != null) {
-			//Engine.client.sendData("05,"+b.name+","+b.x+","+b.y+","+b.z);
-			StringBuilder sb = new StringBuilder();
-			sb.append("05,"+b.name+","+b.x+","+b.y+","+b.z);
-			for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
-				sb.append(",");
-				sb.append(entry.getKey()+","+entry.getValue());
-			}
-			Engine.client.sendData(sb.toString());
-		}else {
-			ReplaceBlock(b);
-		}
-
-	}*/
-	
 	private void ReplaceBlock(Block b) {
 		HashSet<Point3D> sources=new HashSet<>();
 		HashMap<Point3D,HashMap<Polygon3D,Integer>> removeResults=new HashMap<>();
@@ -467,7 +424,7 @@ public class World {
 			
 			for(Block nearby : get6Blocks(b, false).values()) {
 				for(Polygon3D poly : nearby.Polygons) {
-					for(Point3D source : new HashSet<>(poly.getSources())) {//concurrentmodificationexception
+					for(Point3D source : new HashSet<>(poly.getSources())) {// TODO concurrentmodificationexception?
 						HashMap<Polygon3D,Integer> removeResult = new HashMap<>();
 						sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
 						removeLightIntoMap(source,removeResult);
@@ -534,8 +491,6 @@ public class World {
 		if(b.z<worldBottom) {
 			worldBottom=b.z;
 		}
-		
-		//return true;
 	}
 
 
@@ -565,14 +520,7 @@ public class World {
 			
 
 			if (b instanceof TickListener) {
-				//while(Engine.TickableBlocks.remove(b.pos));
 				Engine.TickableBlocks.remove(b.pos);
-				/*ListIterator<Point3D> iter = Engine.TickableBlocks.listIterator();
-				while(iter.hasNext()) {
-					if(iter.next().equals(b.pos)) {
-						iter.remove();
-					}
-				}*/
 			}
 			
 			
@@ -695,16 +643,16 @@ public class World {
 		float targetX, targetY;
 		float nextX = entity.getPos().x + direction.x * coefficient / FPS;
 		float nextY = entity.getPos().y + direction.y * coefficient / FPS;
-		Point3D coords = entity.tmpPoint;//new Point3D();
+		Point3D coords = entity.tmpPoint;
 		Block[] blocks6X = getCollidingBlocks(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, entity, coords);
 		Block[] blocks6Y = getCollidingBlocks(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, entity, coords);
-		Block nextBlockX1 = blocks6X[0];//.get(BlockFace.TOP);
-		Block nextBlockX2 = blocks6X[1];//.get(BlockFace.NONE);
-		Block nextBlockX3 = blocks6X[2];//.get(BlockFace.BOTTOM);
+		Block nextBlockX1 = blocks6X[0];// TOP
+		Block nextBlockX2 = blocks6X[1];// NONE
+		Block nextBlockX3 = blocks6X[2];// BOTTOM
 
-		Block nextBlockY1 = blocks6Y[0];//.get(BlockFace.TOP);
-		Block nextBlockY2 = blocks6Y[1];//.get(BlockFace.NONE);
-		Block nextBlockY3 = blocks6Y[2];//.get(BlockFace.BOTTOM);
+		Block nextBlockY1 = blocks6Y[0];// TOP
+		Block nextBlockY2 = blocks6Y[1];// NONE
+		Block nextBlockY3 = blocks6Y[2];// BOTTOM
 
 		if (!nextBlockX1.solid && !nextBlockX2.solid && !nextBlockX3.solid)
 		{
@@ -713,13 +661,10 @@ public class World {
 			int bx;
 			if(nextBlockX1.solid) {
 				bx=nextBlockX1.x;
-			//	by=nextBlockX1.y;
 			}else if(nextBlockX2.solid) {
 				bx=nextBlockX2.x;
-			//	by=nextBlockX2.y;
 			}else{
 				bx=nextBlockX3.x;
-			//	by=nextBlockX3.y;
 			}
 			
 			
@@ -740,13 +685,10 @@ public class World {
 			
 			int by;
 			if(nextBlockY1.solid) {
-			//	bx=nextBlockX1.x;
 				by=nextBlockY1.y;
 			}else if(nextBlockY2.solid) {
-			//	bx=nextBlockX2.x;
 				by=nextBlockY2.y;
 			}else{
-			//	bx=nextBlockX3.x;
 				by=nextBlockY3.y;
 			}
 			
@@ -768,9 +710,8 @@ public class World {
 
 	}
 	
-	 Block[] getCollidingBlocks(float x, float y, float z, Entity entity, Point3D p)
+	private Block[] getCollidingBlocks(float x, float y, float z, Entity entity, Point3D p)
 	{
-		//HashMap<BlockFace, Block> result = new HashMap<>();
 		Block[] result = new Block[3];
 		int dx = (int) Math.floor(x);
 		int dy = (int) Math.floor(y);
@@ -778,9 +719,6 @@ public class World {
 		int dz2 = (int) Math.floor(z - 1f * entity.VerticalVector.z);
 		int dz3 = (int) Math.floor(z - 1.699f * entity.VerticalVector.z);
 
-		/*result.put(BlockFace.TOP, world.getBlockAt(dx, dy, dz1));
-		result.put(BlockFace.NONE, world.getBlockAt(dx, dy, dz2));
-		result.put(BlockFace.BOTTOM, world.getBlockAt(dx, dy, dz3));*/
 		p.set(dx, dy, dz1);
 		result[0]=getBlockAtP(p);
 		
@@ -931,12 +869,11 @@ public class World {
 		//TODO memoriaoptimalizalas
 
 		Point3D coord = new Point3D().set(queue.keySet().toArray(new Point3D[0])[0]);
-		int intensity = queue.get(coord);//queue.values().toArray(new Integer[0])[0];
+		int intensity = queue.get(coord);
 		queue.remove(coord);
 		
 		if(intensity <= 0) return;
 		
-		//Main.log(coord+":"+intensity);
 		applyIntensityToNearby(new Point3D().set(coord),intensity, add, result);
 		
 		for(Entry<BlockFace, Block> entry : get6Blocks(new Point3D().set(coord), true).entrySet()) {
@@ -989,7 +926,7 @@ public class World {
 	}
 	
 	
-	public void reAddLight(Point3D source, HashMap<Polygon3D,Integer> removedResults) {
+	private void reAddLight(Point3D source, HashMap<Polygon3D,Integer> removedResults) {
 
 		
 		//add
@@ -1024,7 +961,7 @@ public class World {
 		}
 	}
 	
-	public void addLight(Point3D source) {
+	void addLight(Point3D source) {
 		lightCalcRuns=0;
 		Block sourceBlock = getBlockAt(source.x, source.y, source.z);
 		int intensity = sourceBlock.lightLevel;
@@ -1066,7 +1003,7 @@ public class World {
 	}
 	
 	
-	public void removeLight(Point3D source) {
+	private void removeLight(Point3D source) {
 		lightCalcRuns=0;
 
 		
@@ -1086,7 +1023,7 @@ public class World {
 	}
 	
 
-	public int getTop(int x, int y) {
+	int getTop(int x, int y) {
 		TreeSet<Block> blockColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
 
 		for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
@@ -1098,7 +1035,7 @@ public class World {
 			}
 		}
 		if(blockColumn.isEmpty()) {
-			return 0;//Block.NOTHING;
+			return 0;
 		}
 		return blockColumn.last().z;
 	}
@@ -1148,22 +1085,7 @@ public class World {
 		return Blocks.size();
 	}
 
-	public Block[] getColumn(int x, int y) {
-		TreeSet<Block> blockColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
-
-		for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
-			Point3D pos = entry.getKey();
-			Block b = entry.getValue();
-
-			if (pos.x == x && pos.y == y) {
-				blockColumn.add(b);
-			}
-		}
-		
-		return blockColumn.toArray(new Block[0]);
-	}
-
-	public Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {//, Point3D feetPoint, Point3D tmpPoint, TreeSet<Point3D> playerColumn) {
+	Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {
 		
 		Point3D feetPoint=entity.feetPoint;
 		Point3D tmpPoint=entity.tmpPoint;
@@ -1180,9 +1102,6 @@ public class World {
 			for(int j=y-1;j<=y+1;j++) {
 				for(int k=worldBottom;k<=worldTop;k++) {
 					
-					//Point3D pos = new Point3D(i,j,k);
-					
-					//Block b = Blocks.get(pos);
 					tmpPoint.set(i,j,k);
 					Block b = getBlockAtP(tmpPoint);
 					if(b == Block.NOTHING) {
@@ -1216,11 +1135,7 @@ public class World {
 		}
 		
 		Point3D result;
-		//Integer result;
-		//Comparator<Block> comp = ((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
-		//playerColumn0.sort(comp);
-		//TreeSet<Block> playerColumn = new TreeSet<>(comp);
-		//playerColumn.addAll(playerColumn0);
+		
 		
 		if(under) {
 			if ((entity.VerticalVector.z == 1 && !inverse) || (entity.VerticalVector.z == -1 && inverse)) {
@@ -1251,7 +1166,7 @@ public class World {
 		
 	}
 
-	public static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {
+	private static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {
 		File saves = new File("saves");
 		File mods = new File("mods");
 		File wname = new File("saves/" + worldName);
@@ -1288,8 +1203,6 @@ public class World {
 		versionE.setTextContent(loadedVersion+"");
 		root.appendChild(versionE);
 		
-		//root.setAttribute("height", "" + height);
-
 		Element blocks = document.createElement("blocks");
 		for (Block b : Blocks) {
 			if(b==Block.NOTHING) {
@@ -1428,8 +1341,6 @@ public class World {
 
 		Element root = document.createElement(username);
 		
-		//Element players = document.createElement("players");
-		//Element localPlayer = document.createElement(Config.username);
 		for (Entry<ItemType, Integer> is : inventory.items.entrySet()) {
 			Element stack = document.createElement(is.getKey().name);
 			stack.setTextContent(is.getValue() + "");
@@ -1441,9 +1352,6 @@ public class World {
 		root.setAttribute("yaw", ""+direction.yaw);
 		root.setAttribute("pitch", ""+direction.pitch);
 		root.setAttribute("health", health+"");
-		//players.appendChild(localPlayer);
-
-		//root.appendChild(players);
 
 		
 		document.appendChild(root);
@@ -1476,7 +1384,7 @@ public class World {
 		return count;
 	}
 	
-	void filterAdjecentBlocks(Block bl) {
+	private void filterAdjecentBlocks(Block bl) {
 		filterBlock(bl);
 		for (Block b : get6Blocks(bl, false).values()) {
 			filterBlock(b);

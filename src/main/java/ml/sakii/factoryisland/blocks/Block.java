@@ -24,8 +24,6 @@ public abstract class Block extends Model implements BlockInterface
 	public boolean solid;
 
 	public boolean transparent;
-	//public Surface[] surfaces = new Surface[6];//top,bottom,north,south,east,west
-
 
 	GameEngine Engine;
 	
@@ -75,7 +73,7 @@ public abstract class Block extends Model implements BlockInterface
 
 
 
-	public void generate(float xscale, float yscale, float zscale)
+	void generate(float xscale, float yscale, float zscale)
 	{
 		Surface[] surfaces=getSurfaces();
 		Surface top = surfaces[0];
@@ -156,15 +154,15 @@ public abstract class Block extends Model implements BlockInterface
 		return selectedFace;
 	}
 
-	public static Surface[] generateSurfacesNoCopy(Surface s) {
+	static Surface[] generateSurfacesNoCopy(Surface s) {
 		return new Surface[] {s,s,s,s,s,s};
 	}
 	
-	public static Surface[] generateSurfacesCopy(Surface s) {
+	static Surface[] generateSurfacesCopy(Surface s) {
 		return new Surface[] {s.copy(),s.copy(),s.copy(),s.copy(),s.copy(),s.copy()};
 	}
 	
-	public static Surface[] generateSurfaces(Color4 c) {
+	static Surface[] generateSurfaces(Color4 c) {
 		return new Surface[] {new Surface(c),new Surface(c),new Surface(c),new Surface(c),new Surface(c),new Surface(c)};
 	}
 

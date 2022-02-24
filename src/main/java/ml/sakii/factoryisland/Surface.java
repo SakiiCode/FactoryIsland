@@ -10,7 +10,6 @@ public class Surface {
 	
 	@Override
 	public String toString() {
-		//return "Surface [Texture=" + Texture + ", c=" + c + ", p=" + p + ", color=" + color + ", paint=" + paint + "]";
 		return c+""+p+",paint:"+paint;
 	}
 
@@ -45,25 +44,6 @@ public class Surface {
 			}
 		}
 	}
-	
-	/*public Surface(Color c){
-		this.c = new Color4(c);
-		color = true;
-		paint = false;
-	}
-	
-	public Surface(Color4 c){
-		this.c = c;
-		color = true;
-		paint = false;
-	}
-	
-	public Surface(BufferedImage img){
-		this.Texture = img;
-		this.c = averageColor(img);
-		color = false;
-		paint = false;
-	}*/
 	
 	public Surface(Color4 c, Paint p){
 		this.c.set(c);

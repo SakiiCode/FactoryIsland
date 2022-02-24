@@ -29,8 +29,6 @@ public class GameServer extends Thread{
 	
 	private GameEngine Engine;
 	
-	public long tickCount = 0;
-
 	public TCPListener Listener;
 	
 	

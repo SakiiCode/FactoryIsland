@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.RenderMethod;
 
@@ -63,11 +64,9 @@ public class PauseGUI extends TexturedScreen implements ActionListener, KeyListe
 		add(exitButton);
 		
 		
-		infoLabel = new JLabel(MainMenuGUI.CONTROLS_TEXT + "</body></html>");
+		infoLabel = new JLabel(Globals.CONTROLS_TEXT + "</body></html>");
 		infoLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
 		infoLabel.setForeground(Color.WHITE);
-		//infoLabel.setBackground(infoBgColor);
-		//infoLabel.setOpaque(true);
 		infoLabel.setLocation(Main.Frame.getWidth()/2-infoLabel.getPreferredSize().width/2, exitButton.getY()+exitButton.getHeight()+Main.Frame.getHeight()/10);
 		infoLabel.setSize(infoLabel.getPreferredSize());
 		add(infoLabel);
@@ -78,8 +77,6 @@ public class PauseGUI extends TexturedScreen implements ActionListener, KeyListe
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-	    
-	    //.paintComponent(g);
 	    if(Config.renderMethod==RenderMethod.DIRECT || Main.FreezeBG == Main.StandardBG) { //utobbi akkor ha most valtott at directrol masra
 	    	super.paintComponent(g);
 	    }else{

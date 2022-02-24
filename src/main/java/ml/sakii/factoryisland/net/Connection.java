@@ -9,21 +9,15 @@ public class Connection {
 	BufferedReader inputStream;
 	static final int PROTOCOL_VERSION = 1;
 
-	//private Socket socket;
-	//public LinkedList<String> lines = new LinkedList<>();
-	//public String message="";
-	
 	public Connection(BufferedReader inputStream ,  BufferedWriter outputStream) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		//this.socket = socket;
 	}
 	
-	public void close() {
+	void close() {
 		try {
 			inputStream.close();
 			outputStream.close();
-			//socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

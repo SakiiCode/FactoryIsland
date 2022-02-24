@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SpringLayout;
 
+import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 
 public class MainMenuGUI extends TexturedScreen implements ActionListener{
@@ -24,25 +25,8 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	private int menuL = (int) (Main.Frame.getWidth()*0.1f);
 	private int menuT = (int) (Main.Frame.getHeight()*0.4f);
 
-	public static String CONTROLS_TEXT = """
-			<html><body><center>Controls</center><ul>
-			<li>WASD - move</li>
-			<li>Mouse Move - look around</li>
-			<li>Left Click - break block / attack</li>
-			<li>Right Click - place block</li>
-			<li>Space - jump / fly up</li>
-			<li>Shift - fly down</li>
-			<li>Ctrl - toggle fly</li>
-			<li>Escape - pause</li>
-			<li>Shift + Right Click - interact</li>
-			<li>Q - switch cursor between inventories</li>
-			<li>Middle Mouse - swap 1 item between inventories</li>
-			<li>Mouse Scroll - select item in inventory</li>
-			<li>F1 - hide HUD</li>
-			<li>F2 - take screenshot</li>
-			<li>F3 - debug info</li>
-			</ul>""";
-	ArrayList<JButton> Menu = new ArrayList<>();
+	
+	private ArrayList<JButton> Menu = new ArrayList<>();
 	
 	private BufferedImage Logo;
 		
@@ -120,7 +104,7 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 			
 		}
 		
-		String data = CONTROLS_TEXT+"""
+		String data = Globals.CONTROLS_TEXT+"""
 				&nbsp;&nbsp; Early Access Alpha v"""+Main.MAJOR+"."+Main.MINOR+"."+Main.REVISION+"""
 				<br>
 		&nbsp;&nbsp;&nbsp;&nbsp;Created by Sakii <br>
@@ -131,7 +115,6 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 				+ "&nbsp;&nbsp;"+System.getProperty("java.version")+" "+System.getProperty("sun.arch.data.model") +" bits JVM<br>"
 				+ "&nbsp;&nbsp;"+Runtime.getRuntime().totalMemory()/1000/1000+"/"+Runtime.getRuntime().maxMemory()/1000/1000+" MB of memory<br>"
 				+ "</body></html>";
-		//Main.log("---------------------------------------------------");
 		String[] logged =data2.replaceAll("<br>","\n").replaceAll("<\\/?\\w+>", "").replaceAll("&nbsp;"," ").split("\n"); 
 		for(String line : logged) {Main.log("    "+line);}
 		Main.log("      Early Access Alpha v"+Main.MAJOR+"."+Main.MINOR+"."+Main.REVISION);
@@ -177,8 +160,6 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	    }
 	    
 	    if (c.equals("exit")) {
-	    	
-	    	//Main.Frame.dispatchEvent(new WindowEvent(Main.Frame, WindowEvent.WINDOW_CLOSING));
 	    	System.exit(0);
 	    }
 	} 

@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import ml.sakii.factoryisland.EAngle;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Model;
 import ml.sakii.factoryisland.Object3D;
@@ -14,22 +15,20 @@ import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Text3D;
+import ml.sakii.factoryisland.Util;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
 public class Entity extends Model{
 	
 	
-	int health;
+	private int health;
 	public final int maxHealth;
 	public ArrayList<Object3D> Objects = new ArrayList<>();
-	public ArrayList<Vertex> Vertices = new ArrayList<>();
-	public boolean showName = false;
+	private ArrayList<Vertex> Vertices = new ArrayList<>();
 	public Vector ViewFrom;
 	public EAngle ViewAngle;
-	public final float GravityAcceleration = 9.81f; // m/s^2
 	public float GravityVelocity = 0f; // m/s
-	public final float JumpForce = 7f;
 	public float JumpVelocity = 0f; // m/s
 	public final Vector VerticalVector = new Vector(0, 0, 1);
 	public boolean flying;
@@ -37,7 +36,7 @@ public class Entity extends Model{
 	public String name;
 	public long ID;
 	private GameEngine engine;
-	Vector tmpVector = new Vector();
+	private Vector tmpVector = new Vector();
 	
 	//többszálasítás miatt ide kellett áthozni a getBlockUnderPlayer átmeneti értékeit 
 	public Point3D tmpPoint = new Point3D();
@@ -104,7 +103,7 @@ public class Entity extends Model{
 	public void jump() {
 		if (JumpVelocity == 0 && GravityVelocity == 0)
 		{
-			JumpVelocity = JumpForce;
+			JumpVelocity = Globals.JumpForce;
 		}
 	}
 	
@@ -147,29 +146,18 @@ public class Entity extends Model{
 
 	public void move(float x, float y, float z, boolean resend) {
 		if(resend && engine.client != null) { // PlayerEntity-NÉL MINDIG FALSE A RESEND
-			//if(!(this instanceof PlayerEntity)) {// && engine.client != null && engine.server != null) {
-				engine.client.sendEntityMove(ID, x, y, z, ViewAngle.yaw, ViewAngle.pitch);
-			//}
-			
+			engine.client.sendEntityMove(ID, x, y, z, ViewAngle.yaw, ViewAngle.pitch);
 		}else {
 			ViewFrom.set(x, y, z);
 		}
 		
 	}
 	
-	public void move(Vector v, boolean resend) {
-		move(v.x, v.y, v.z, resend);
-	}
-	
 	public Vector getPos() {
 		return ViewFrom;
 	}
 	
-	static float[] rotateCoordinates(float x, float y,float centerX, float centerY, float angle){
-		float newX = (float)(   ((x-centerX)*Math.cos(angle) - (y-centerY)*Math.sin(angle)) + centerX   );
-		float newY = (float)(   ((x-centerX)*Math.sin(angle) + (y-centerY)*Math.cos(angle)) + centerY   );
-		return new float[]{newX, newY};
-	}
+	
 	
 	private void init() {
 		float yaw2 = (float) Math.toRadians(ViewAngle.yaw);
@@ -190,10 +178,10 @@ public class Entity extends Model{
 
 		
 		
-		fxy = rotateCoordinates(x-1f, y-0.5f, x, y, yaw2);
-		fxy1 = rotateCoordinates(x-1f, y+0.5f, x, y, yaw2);
-		fx1y1 = rotateCoordinates(x, y+0.5f, x, y, yaw2);
-		fx1y = rotateCoordinates(x,y-0.5f, x, y, yaw2);
+		fxy = Util.rotateCoordinates(x-1f, y-0.5f, x, y, yaw2);
+		fxy1 = Util.rotateCoordinates(x-1f, y+0.5f, x, y, yaw2);
+		fx1y1 = Util.rotateCoordinates(x, y+0.5f, x, y, yaw2);
+		fx1y = Util.rotateCoordinates(x,y-0.5f, x, y, yaw2);
 		
 	}
 	
@@ -217,7 +205,7 @@ public class Entity extends Model{
 
 				((Polygon3D) p).recalc(tmpVector);
 			}else {
-				((Text3D)p).location.set(ViewFrom);				
+				((Text3D)p).setLocation(ViewFrom);				
 			}
 		}
 
@@ -237,7 +225,6 @@ public class Entity extends Model{
 	@Override
 	public String toString()
 	{
-		//return "[" + ViewFrom + "," + className + "]\r\n";
 		return ID+","+ViewFrom+","+ViewAngle;
 	}
 	

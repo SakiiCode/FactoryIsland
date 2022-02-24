@@ -15,10 +15,10 @@ import ml.sakii.factoryisland.Main;
 
 public class MultiplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = 2915856336542984790L;
-	JTextField seedField;
-	public MainMenuButton submitButton;
+	private JTextField seedField;
+	private MainMenuButton submitButton;
 	private JLabel seedLabel;
-	public JLabel statusLabel;
+	private JLabel statusLabel;
 	
 	
 	public MultiplayerGUI(){
@@ -48,7 +48,6 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 		submitButton = new MainMenuButton("Join server",Main.Frame.getWidth()/3, Main.Frame.getHeight()/3*2, 400, 50);
 		submitButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		submitButton.setVerticalTextPosition(SwingConstants.CENTER);
-		//submitButton.setMnemonic(KeyEvent.VK_ENTER);
 		submitButton.setActionCommand("submit");
 		submitButton.addActionListener(this);
 		submitButton.setVisible(true);

@@ -61,7 +61,7 @@ public class SocketListener extends Thread {
 
     }
 	
-	public void kill() {
+	void kill() {
 		running=false;
 		try {
 			socket.close();

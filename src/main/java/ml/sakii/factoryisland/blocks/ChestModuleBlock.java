@@ -14,7 +14,7 @@ import ml.sakii.factoryisland.items.PlayerInventory;
 
 public class ChestModuleBlock extends Block implements InteractListener, BlockInventoryInterface, BreakListener{
 	
-	BlockInventory inv;
+	private BlockInventory inv;
 	
 	public static Surface[] surfaces = new Surface[] {
 			new Surface(Main.chestModule),
@@ -27,9 +27,7 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	
 	public ChestModuleBlock(int x, int y, int z, GameEngine engine){
 		super("ChestModule", x, y, z, engine);
-		inv = new BlockInventory(this,engine);
-		//returnOnBreak=false;
-
+		inv = new BlockInventory(engine);
 	}
 
 	@Override

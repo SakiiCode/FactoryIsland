@@ -3,14 +3,14 @@ package ml.sakii.factoryisland;
 import java.awt.Color;
 
 public class Color4 {
-	//private static final long serialVersionUID = -4015148584668646478L;
-
+	
 	private int r, g, b, a;
 	private Color cache;
     private static final double FACTOR = 0.7;
     
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 	public static final Color AO_MAX = new Color(0, 0, 0, 0.4f);
+	public static final Color CROSSHAIR_COLOR = new Color(1.0f, 1.0f, 1.0f, 0.2f);
 
 	
 	public Color4(float r, float g, float b) {
@@ -41,17 +41,6 @@ public class Color4 {
 		construct(c.getRed(),c.getGreen(), c.getBlue(), c.getAlpha());
 
 	}
-
-	
-	/*public Color4(Color c, float alpha){
-		construct(c.getRed(),c.getGreen(), c.getBlue(), (int) (alpha*255));
-		
-	}
-	
-	public Color4(Color c, int alpha){
-		construct(c.getRed(),c.getGreen(), c.getBlue(), alpha);
-
-	}*/
 	
 	public int getAlpha() {
 		return a;
@@ -107,7 +96,6 @@ public class Color4 {
 	    int blue = ((int)(b01*255)) & 0x000000FF; //Mask out anything not blue.
 	    int alpha = ((int)(a01*255)<<24) & 0xFF000000; 
 		
-		//return ((int)(r01*255)<<16+ (int)(g01*255)<<8+ (int)(b01*255)+ (int)(a01*255)<<24);
 		return alpha | red | green | blue;
 		
 
@@ -146,7 +134,6 @@ public class Color4 {
 	public Color4 set(Color4 c) {
 		construct(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
 		return this;
-		//this.buffer = new Color(this)
 	}
 	
 	public Color4 set(Color c) {

@@ -19,7 +19,7 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 
     public Surface[] surfaces;
 	
-    Invocable invocable;
+    private Invocable invocable;
     
 	
 	public ModBlock(String name, int x, int y, int z, GameEngine gengine) {
@@ -59,9 +59,6 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
         	float xscale = Float.parseFloat(engine.eval("xscale").toString());
         	float yscale = Float.parseFloat(engine.eval("yscale").toString());
         	float zscale = Float.parseFloat(engine.eval("zscale").toString());
-        	/*if(!Main.ModRegistry.contains(name)) {
-        		Main.ModRegistry.add(name);
-        	}*/
         	this.name=name;
         	this.solid=Boolean.parseBoolean(engine.eval("solid").toString());
         	this.transparent=Boolean.parseBoolean(engine.eval("transparent").toString());
@@ -69,7 +66,6 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 			generate(xscale, yscale, zscale);
 		} catch (ScriptException e) {
 			Main.err("Problem loading " + name + " textures: " + e.getMessage());
-			//e.printStackTrace();
 		}
 		
 		
@@ -150,11 +146,5 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 	public HashMap<BlockFace, Integer> getSignals() {
 		return signals;
 	}
-
-
-	
-	
-	
-	
 
 }

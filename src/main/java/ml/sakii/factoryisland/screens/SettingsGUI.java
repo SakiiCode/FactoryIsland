@@ -27,30 +27,30 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 
 	private JButton okButton;
 
-	JButton textureButton;
+	private JButton textureButton;
 
-	JButton fogButton;
-	JButton creativeButton, renderMethodButton, markerTypeButton, ambientOcclusionButton;
-	JButton resetButton;
-	JSlider sensitivitySlider;
-	JSlider brightnessSlider;
+	private JButton fogButton;
+	private JButton creativeButton, renderMethodButton, markerTypeButton, ambientOcclusionButton;
+	private JButton resetButton;
+	private JSlider sensitivitySlider;
+	private JSlider brightnessSlider;
 
-	JSlider renderDistanceSlider, resolutionScalingSlider;
+	private JSlider renderDistanceSlider, resolutionScalingSlider;
 
-	JSlider fovSlider;
-	JTextField NameTextField;
+	private JSlider fovSlider;
+	private JTextField NameTextField;
 
 	
 	@SuppressWarnings("hiding")
-	protected int EntryHeight  = (int)(Main.Frame.getHeight()*0.05f/4*3);
+	private int EntryHeight  = (int)(Main.Frame.getHeight()*0.05f/4*3);
 
-	boolean useTextures=Config.useTextures;
+	private boolean useTextures=Config.useTextures;
 
-	boolean fogEnabled = Config.fogEnabled;
-	boolean creative = Config.creative;
-	RenderMethod renderMethod = Config.renderMethod;
-	TargetMarkerType targetMarkerType = Config.targetMarkerType;
-	boolean ambientOcclusion = Config.ambientOcclusion;
+	private boolean fogEnabled = Config.fogEnabled;
+	private boolean creative = Config.creative;
+	private RenderMethod renderMethod = Config.renderMethod;
+	private TargetMarkerType targetMarkerType = Config.targetMarkerType;
+	private boolean ambientOcclusion = Config.ambientOcclusion;
 	
 
 	public SettingsGUI(){
@@ -341,7 +341,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		
 	}
 	
-	void updateButtons() {
+	private void updateButtons() {
 		if(renderMethod == RenderMethod.DIRECT) {
 			resolutionScalingSlider.setValue(100);
 			resolutionScalingSlider.setEnabled(false);

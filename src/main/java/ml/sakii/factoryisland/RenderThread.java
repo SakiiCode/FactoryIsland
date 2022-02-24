@@ -13,20 +13,17 @@ import javax.swing.SwingUtilities;
 
 public class RenderThread extends Thread
 {
-	
-	Game game;
-	//BufferedImage secondaryBuffer=new BufferedImage(Main.Frame.getWidth(), Main.Frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
-	private boolean running=true;
 	boolean screenshot=false;
-	boolean screenshotstarted=false;
-	BufferedImage tmpBuffer;
+	
+	private Game game;
+	private boolean running=true;
+	private boolean screenshotstarted=false;
 	private BufferStrategy strategy; 
 	
 	
 	public RenderThread(Game game) {
 		this.game=game;
 		this.setName("Render Thread");
-		//this.secondaryBuffer=secondaryBuffer;
 		this.setPriority(MAX_PRIORITY);
 		Main.Frame.createBufferStrategy(2);
 		strategy = Main.Frame.getBufferStrategy();
@@ -110,7 +107,7 @@ public class RenderThread extends Thread
 		}
 	}
 	
-	public void kill() {
+	void kill() {
 		running=false;
 		try {
 			this.join();
@@ -118,44 +115,4 @@ public class RenderThread extends Thread
 			e.printStackTrace();
 		}
 	}
-	
-	
-	/*public class ScreenCapture      implements Composite, CompositeContext
-	{
-	      private BufferedImage screenShot;
-	      private ColorModel screenColorModel;
-
-	      public ScreenCapture()
-	      {
-	      }
-
-	      @Override
-		public CompositeContext      createContext(ColorModel srcColorModel, ColorModel      dstColorModel,      RenderingHints      hints)
-	      {
-	            screenColorModel = dstColorModel;
-	            return this;
-	      }
-	      
-	      @Override
-		public void compose(Raster      src, Raster      dstIn, WritableRaster dstOut)
-	      {
-	            screenShot = new BufferedImage(screenColorModel,dstOut,false,(Hashtable)null);
-	      }
-	      
-	      @Override
-		public void dispose()
-	      {
-	      }
-
-	      public BufferedImage screenShot(Graphics2D g2d, Rectangle bounds)
-	      {
-	            Composite oldComposite = g2d.getComposite();
-	            ScreenCapture ssc      = new      ScreenCapture();
-	            g2d.setComposite(ssc);
-	            g2d.fillRect(bounds.x,bounds.y,bounds.width,bounds.height);
-	            g2d.setComposite(oldComposite);
-	            return ssc.screenShot;
-	      }
-	      
-	}*/
 }

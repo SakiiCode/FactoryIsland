@@ -1,7 +1,5 @@
 package ml.sakii.factoryisland.blocks;
 
-//import ml.sakii.factoryisland.Vector;
-
 public enum BlockFace {
 	TOP(new byte[]{0,0,1}, 0, 1),
 	BOTTOM(new byte[]{0,0,-1}, 1, 0),
@@ -15,13 +13,11 @@ public enum BlockFace {
 	public int id;
 	public int opposite;
 	public static BlockFace[] values = new BlockFace[7];
-	//public Vector directionVector;
 	
 	private BlockFace(byte[] direction, int id, int opposite){
 		this.direction = direction;
 		this.id = id;
 		this.opposite=opposite;
-		//this.directionVector = new Vector(direction);
 	}
 	
 	public BlockFace[] getNearby(){
@@ -39,16 +35,7 @@ public enum BlockFace {
 	}
 	
 	public BlockFace getOpposite(){
-		/*if(id == 6){
-			return BlockFace.NONE;
-		}
-		if(id % 2 == 1){
-			return values()[id-1];
-		}else{
-			return values()[id+1];
-		}*/
 		return values[opposite];
-		
 	}
 	
 

@@ -44,7 +44,6 @@ public class Block{
 	}
 	
 	public void setMetadata(String key, String value) {
-		//b.BlockMeta.put(key, value);
 		b.setMetadata(key, value, true);
 	}
 	
@@ -57,16 +56,6 @@ public class Block{
 			}
 		}
 	}
-	
-	/*public int getX() {
-		return x;
-	}
-	public int getY() {
-		return y;
-	}
-	public int getZ() {
-		return z;
-	}*/
 	
 	
 	

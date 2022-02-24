@@ -11,10 +11,9 @@ public class PlayerInventory {
 	public static final PlayerInventory Creative = new CreativeInventory();
 	private final ItemStack SelectedStack = new ItemStack(null,0);
 	private int hotbarIndex = -1;
-	GameEngine engine;
+	private GameEngine engine;
 	boolean activateOnFirst=true;
-	String SelectedName="";
-	String playerName;
+	private String playerName;
 	
 	
 	public PlayerInventory(String playerName, GameEngine engine) {
@@ -62,7 +61,6 @@ public class PlayerInventory {
 				
 				
 				if(items.size()==0){ //nem volt üres, üres lett
-					//setHotbarIndex(-1);
 					if(!Main.headless) {
 						if(Main.GAME.remoteInventory != null) {
 							Main.GAME.SwapInv();
@@ -70,10 +68,7 @@ public class PlayerInventory {
 					}
 				}
 				
-				
-				
 			}
-			
 			
 		}
 		return kind;
@@ -114,13 +109,6 @@ public class PlayerInventory {
 		}else {
 			SelectedStack.set(null,0);
 		}
-	}
-	
-
-	public void clear() {
-		items.clear();
-
-		setHotbarIndex(-1);
 	}
 	
 	public void wheelUp(){

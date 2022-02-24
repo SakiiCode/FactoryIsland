@@ -24,7 +24,6 @@ public class PlayerMP extends Entity {
 		super("PlayerMP", pos, new EAngle(yaw, pitch),username,health,20,ID,engine,Main.playerFront, Main.playerSide);
 		this.inventory=inventory;
 		this.socket=socket;
-		showName=true;
 		Objects.add(new Text3D(name, ViewFrom.x, ViewFrom.y, ViewFrom.z));
 	}
 	

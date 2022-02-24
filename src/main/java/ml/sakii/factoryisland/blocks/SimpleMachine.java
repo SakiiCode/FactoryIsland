@@ -13,7 +13,7 @@ import ml.sakii.factoryisland.Vertex;
 
 public abstract class SimpleMachine extends Block implements InteractListener, TextureListener, PlaceListener, MetadataListener, LoadListener{
 
-	public Polygon3D TargetPolygon;
+	private Polygon3D TargetPolygon;
 	private Color4 side;
 	private Color4 front;
 	private Color4 active;
@@ -197,74 +197,6 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		updateActiveColors();
 		updateTexture(new Vector(),game);
 	}
-	
-	
-	/*
-	public abstract static class AsSignalGenerator extends SimpleMachine implements SignalGenerator, TickListener{
-		
-		
-		public AsSignalGenerator(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active,
-				Color4 hole, GameEngine engine) {
-			super(name, x, y, z, side, front, active, hole, engine);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		public boolean tick(long tickCount) {
-				refresh();
-				return false;
-			
-		}
-		
-		abstract void refresh();
-
-
-	}
-	
-	public abstract static class AsSignalConsumer extends SimpleMachine implements SignalConsumer{
-
-		public AsSignalConsumer(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole,
-				GameEngine engine) {
-			super(name, x, y, z, side, front, active, hole, engine);
-		}
-		
-
-	}
-	
-	public abstract static class AsPowerGenerator extends SimpleMachine implements PowerGenerator{
-
-		public AsPowerGenerator(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole,
-				GameEngine engine) {
-			super(name, x, y, z, side, front, active, hole, engine);
-		}
-
-		private HashSet<PowerConsumer> consumerCache=new HashSet<>();
-
-		@Override
-		public HashSet<PowerConsumer> getConsumerCache() {
-			return consumerCache;
-		}
-		
-		
-		
-	}
-	
-	public abstract static class AsPowerConsumer extends SimpleMachine implements PowerConsumer{
-
-		public AsPowerConsumer(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole,
-				GameEngine engine) {
-			super(name, x, y, z, side, front, active, hole, engine);
-		}
-		private HashMap<PowerGenerator, Float> generators = new HashMap<>();
-		
-		@Override
-		public HashMap<PowerGenerator, Float> getGenerators() {
-			return generators;
-		}
-		
-
-
-	}*/
 	
 	
 

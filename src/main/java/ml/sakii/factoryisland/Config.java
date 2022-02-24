@@ -8,14 +8,13 @@ import java.util.prefs.Preferences;
 public class Config {
 
 	private static Preferences Prefs = Preferences.userRoot().node("FactoryIsland");//.userNodeForPackage(ml.sakii.factoryisland.Main.class);
-	public static int renderDistance = Prefs.getInt("renderDistance", 32);
 	
+	public static int renderDistance = Prefs.getInt("renderDistance", 32);
 	public static int sensitivity = Prefs.getInt("sensitivity", 5);
 	public static boolean useTextures = Prefs.getBoolean("useTextures", false);
 	public static boolean fogEnabled = Prefs.getBoolean("fogEnabled", false);
 	public static String username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
 	public static String multiAddr = Prefs.get("multiAddr", "");
-	//public static int zoom = Prefs.getInt("zoom", FOVToZoom(90));
 	public static int FOV = Prefs.getInt("FOV", 90);
 	public static float resolutionScaling = Prefs.getFloat("resolutionScaling", 1f);
 	public static boolean creative=Prefs.getBoolean("creative", true);
@@ -74,14 +73,8 @@ public class Config {
 		}
 	}
 	
-	public static int zoomToFOV(double zoom) {
-		return (int) Math.toDegrees(Math.atan((Config.getHeight()/2f/zoom)))*2;
-		
-	}
-	
 	public static int FOVToZoom(double FOV) {
 		return (int)(Config.getHeight()/2f/Math.tan(Math.toRadians(FOV/2)));
-		
 	}
 	
 	public static int getZoom() {

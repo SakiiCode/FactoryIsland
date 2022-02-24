@@ -10,9 +10,9 @@ import java.awt.image.BufferedImage;
 
 public class Text3D extends Object3D
 {
-	public String text;
-	public Vector location;
-	public int x, y;
+	private String text;
+	private Vector location;
+	private int x, y;
 	private final Vector ViewToPoint = new Vector();
 	private final Point2D.Float proj = new Point2D.Float();
 
@@ -59,6 +59,10 @@ public class Text3D extends Object3D
 		g.drawOval(x, y, 5, 5);
 		g.setColor(Color.WHITE);
 		g.drawString(text, x - w0, y);
+	}
+	
+	public void setLocation(Vector v) {
+		location.set(v);
 	}
 
 
