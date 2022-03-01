@@ -6,6 +6,8 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
@@ -140,16 +142,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	String error;
 	private Vector tmp = new Vector();
 	private boolean benchmarkMode = false;
+	private GUIManager guiManager;
 	
 	
-	
-	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel) {
+	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel, GUIManager guiManager) {
 		this.setBackground(new Color(20,20,20)); // csak igy lehet a feher villanast elkerulni valtaskor cardlayout miatt
+		this.guiManager=guiManager;
 		try {
 
 			Engine = new GameEngine(location, this, seed, loadmethod, statusLabel);
-			API.Engine=Engine;
 			
+			API.Engine=Engine;
+			ml.sakii.factoryisland.api.Block.Engine=Engine;
 
 			if(!Engine.error.equals("OK")) {
 				System.gc();
@@ -252,8 +256,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		setCursor(invisibleCursor);
 
-		McenterX = Main.Frame.getX() + Main.Width / 2;
-		McenterY = Main.Frame.getY() + Main.Height / 2;
+		McenterX = guiManager.getX() + Main.Width / 2;
+		McenterY = guiManager.getY() + Main.Height / 2;
 
 		ViewVector.set(PE.ViewAngle.toVector());
 
@@ -291,7 +295,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 
 		Stars[Stars.length-1] = new Star(this,100);
-		renderThread = new RenderThread(this);
+		renderThread = new RenderThread(this, guiManager);
 	}
 	
 
@@ -314,7 +318,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				CalcAverageTick();
 			}
 
-			if (Main.Frame.isActive())
+			if (guiManager.isActive())
 			{
 				
 				if(centered) {
@@ -394,12 +398,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			VisibleCount = 0;
 
 			Graphics fb = g;
-			fb.setColor(Main.skyColor);
+			fb.setColor(AssetLibrary.skyColor);
 			fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 
 			fb.setColor(Color.WHITE);
 			
-			double timeFraction = Polygon3D.getTimePercent(Engine.Tick);
+			double timeFraction = Engine.getTimePercent();
 			Stars[Stars.length-1].pos.set((float)Math.cos(timeFraction*2*Math.PI), 0f, (float)Math.sin(timeFraction*2*Math.PI));
 			
 			for (int i = 0; i < Stars.length; i++)
@@ -428,10 +432,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			if(Config.useTextures) {
 				VisibleCounter.set(0);
-				Objects.parallelStream().filter(o -> {return o.update() && o instanceof Polygon3D;}).forEach(o ->{
+				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof Polygon3D;}).forEach(o ->{
 
 					Polygon3D p = (Polygon3D)o;
-					p.drawToBuffer(ZBuffer);
+					p.drawToBuffer(ZBuffer, this);
 					if (p.polygon.contains(centerX, centerY) &&
 							((SelectedPolygon == null && p.AvgDist<5) || (SelectedPolygon!=null && p.AvgDist<SelectedPolygon.AvgDist)))
 					{
@@ -469,14 +473,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 					
 				Objects.parallelStream().filter(o->o instanceof Text3D).sorted().forEachOrdered(t ->{
-					t.draw(null, fb); //nem kell image-t megadni text3d-hez
+					t.draw(null, fb, this); //nem kell image-t megadni text3d-hez
 				});
 				
 				
 			}else {
-				Objects.parallelStream().filter(o -> o.update()).sorted().forEachOrdered(o->
+				Objects.parallelStream().filter(o -> o.update(this)).sorted().forEachOrdered(o->
 				{
-					o.draw(FrameBuffer, fb);
+					o.draw(FrameBuffer, fb, this);
 					
 					if(o instanceof Polygon3D poly) {
 						
@@ -514,7 +518,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						SelectedFace=b.HitboxPolygons.get(SelectedPolygon);
 						SelectedBlock.select(SelectedFace);
 					}
-					if(Config.useTextures) {
+					if(Config.useTextures && showHUD) {
 						SelectedPolygon.renderSelectOutline(fb);
 					}
 				
@@ -664,7 +668,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 				}
 				
-				int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
+				int icon = (int) (Main.Width * 64f / 1440f*viewportscale);
 				int centerY = Config.getHeight()-icon-icon/2;
 				int halfBarHeight = icon/6;
 				int halfBgHeight = icon/4;
@@ -689,7 +693,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		int halfTextHeight=-g.getFontMetrics().getAscent()+g.getFontMetrics().getHeight()/2;
 		
 		int i = -1;
-		int icon = (int) (Main.Frame.getWidth() * 64f / 1440f*viewportscale);
+		int icon = (int) (Main.Width * 64f / 1440f*viewportscale);
 		int iconTextOffset = icon / 3;
 		int iconY=Config.getHeight() - icon - (local?0:2*icon);
 		int textY = iconY- halfTextHeight;
@@ -1163,9 +1167,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				renderThread.kill();
 				Engine.disconnect(error);
 				Objects.clear();
-				Main.SwitchWindow("mainmenu");
-				Main.Base.remove(Game.this);
-				Main.GAME = null;
+				guiManager.SwitchWindow("mainmenu");
+				guiManager.Base.remove(Game.this);
+				guiManager.GAME = null;
 				System.gc();
 				
 			}
@@ -1180,14 +1184,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		renderThread.kill();
 
 		if(Config.renderMethod == RenderMethod.DIRECT) {
-			Main.FreezeBG = Main.StandardBG;
+			AssetLibrary.FreezeBG = AssetLibrary.StandardBG;
 		}else if(Config.renderMethod == RenderMethod.VOLATILE){
 			BufferedImage tmp = new BufferedImage(VolatileFrameBuffer.getWidth(),VolatileFrameBuffer.getHeight(),BufferedImage.TYPE_INT_ARGB);
 			tmp.getGraphics().drawImage(VolatileFrameBuffer, 0,0,tmp.getWidth(), tmp.getHeight(), null);
-			Main.FreezeBG = op.filter(tmp, null);
+			AssetLibrary.FreezeBG = op.filter(tmp, null);
 		}else {
 			
-			Main.FreezeBG = op.filter(Main.deepCopy(FrameBuffer), null);//TODO kell a deepcopy?
+			AssetLibrary.FreezeBG = op.filter(Main.deepCopy(FrameBuffer), null);//TODO kell a deepcopy?
 		}
 		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
 			Engine.ticker.stop();
@@ -1206,7 +1210,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				key[i] = false;
 		}
 
-		Main.SwitchWindow(UiName);
+		guiManager.SwitchWindow(UiName);
 	}
 	
 	void notifyDeath() {
@@ -1230,7 +1234,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public void resume()
 	{
 		if(PE.getHealth()==0) {
-			Main.SwitchWindow("died");
+			guiManager.SwitchWindow("died");
 			return;
 		}
 		setCursor(invisibleCursor);
@@ -1241,7 +1245,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			Engine.startPhysics();
 		}
 		firstframe = true;
-		renderThread = new RenderThread(this);
+		renderThread = new RenderThread(this, guiManager);
 		
 		
 		addKeyListener(this);
@@ -1263,12 +1267,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 	}
 
-	void resizeScreen(int w, int h)
+	public void resizeScreen(int w, int h)
 	{
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
 		maskManager.resizeScreen(w, h);
-		VolatileFrameBuffer = Main.graphicsconfig.createCompatibleVolatileImage(w, h);
+		GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[Main.screen].getDefaultConfiguration();
+		VolatileFrameBuffer = config.createCompatibleVolatileImage(w, h);
 		ZBuffer=new PixelData[w][h];
 		for(int x =0;x<w;x++) {
 			for(int y=0;y<h;y++) {

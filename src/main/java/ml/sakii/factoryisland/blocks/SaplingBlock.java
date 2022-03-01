@@ -3,15 +3,20 @@ package ml.sakii.factoryisland.blocks;
 import java.util.ArrayList;
 import java.util.Random;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.Main;
-//import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 
 public class SaplingBlock extends Block implements TickListener{
 	
 
-	public static Surface[] surfaces = new Surface[] {Main.saplingTop, Main.sapling, Main.sapling, Main.sapling, Main.sapling, Main.sapling};
+	public static Surface[] surfaces = new Surface[] {
+			AssetLibrary.saplingTop,
+			AssetLibrary.sapling,
+			AssetLibrary.sapling,
+			AssetLibrary.sapling,
+			AssetLibrary.sapling,
+			AssetLibrary.sapling};
 	
 	
 	public SaplingBlock(int x, int y, int z, GameEngine engine) {

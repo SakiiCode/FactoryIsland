@@ -13,21 +13,18 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vertex;
 import ml.sakii.factoryisland.World;
 
-public abstract class Block extends Model implements BlockInterface
+public abstract class Block extends Model.Int implements BlockInterface
 {
 
 	public static final Block NOTHING = new Nothing();
 	public final HashMap<String, String> BlockMeta = new HashMap<>();
 	public final ArrayList<String> canBePlacedOn = new ArrayList<>();
-	public String name;
 	public int refreshRate = 1;
-	public boolean solid;
+	public boolean solid=true;
 
-	public boolean transparent;
+	public boolean transparent=false;
 
-	GameEngine Engine;
-	
-	
+
 	public final HashMap<Polygon3D, BlockFace> HitboxPolygons = new HashMap<>();
 	public ArrayList<Polygon3D> Polygons = new ArrayList<>(6);
 	public boolean fullblock = true;
@@ -38,7 +35,7 @@ public abstract class Block extends Model implements BlockInterface
 	/** ModBlock és Nothing miatt */
 	public Block(int x, int y, int z, GameEngine engine)
 	{
-		init("",x, y, z, engine);
+		super("",x,y,z,engine);
 	}
 
 	public Block(String name, int x, int y, int z, GameEngine engine)
@@ -49,25 +46,9 @@ public abstract class Block extends Model implements BlockInterface
 	
 	public Block(String name, int x, int y, int z, float xscale, float yscale, float zscale, GameEngine engine)
 	{
-		init(name, x, y, z, engine);
-
+		super(name,x,y,z,engine);
 		generate( xscale, yscale, zscale);
 	}
-	
-
-	
-	
-	private void init(String name, int x, int y, int z, GameEngine engine) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.pos = new Point3D(x, y, z);
-		this.name = name;
-		this.Engine = engine;
-		solid = true;
-		transparent = false;
-	}
-
 
 
 
@@ -273,7 +254,7 @@ public abstract class Block extends Model implements BlockInterface
 
 	BlockFace getTarget()
 	{
-		return BlockFace.values[Integer.parseInt(this.BlockMeta.get("target"))];
+		return BlockFace.values[java.lang.Integer.parseInt(this.BlockMeta.get("target"))];
 	}
 
 	long getTick()

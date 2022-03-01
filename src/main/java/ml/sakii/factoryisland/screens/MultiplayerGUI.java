@@ -10,7 +10,9 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
 
 public class MultiplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
@@ -21,8 +23,8 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 	private JLabel statusLabel;
 	
 	
-	public MultiplayerGUI(){
-		super(Main.GUIBG);
+	public MultiplayerGUI(GUIManager guiManager){
+		super(AssetLibrary.GUIBG, guiManager);
 		this.setLayout(null);
 		addKeyListener(this);
 		this.addComponentListener( new ComponentAdapter() {
@@ -33,8 +35,8 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 	    });
 		
 		seedField = new JTextField(Config.multiAddr);
-		seedField.setLocation(Main.Frame.getWidth()/6, Main.Frame.getHeight()/5);
-		seedField.setSize(Main.Frame.getWidth()/5, Main.Frame.getHeight()/18);
+		seedField.setLocation(Main.Width/6, Main.Height/5);
+		seedField.setSize(Main.Width/5, Main.Height/18);
 		seedField.addActionListener(this);
 		seedField.addKeyListener(this);
 		seedField.setActionCommand("submit");
@@ -45,7 +47,7 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 		seedLabel.setSize(seedLabel.getPreferredSize());
 		seedLabel.setVisible(true);
 		
-		submitButton = new MainMenuButton("Join server",Main.Frame.getWidth()/3, Main.Frame.getHeight()/3*2, 400, 50);
+		submitButton = new MainMenuButton("Join server",Main.Width/3, Main.Height/3*2, 400, 50);
 		submitButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		submitButton.setVerticalTextPosition(SwingConstants.CENTER);
 		submitButton.setActionCommand("submit");
@@ -81,7 +83,7 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
     		(new Thread() {
     			@Override
     			public void run() {
-    				if(!Main.joinServer(seedField.getText(), statusLabel)) {
+    				if(!guiManager.joinServer(seedField.getText(), statusLabel)) {
     					MultiplayerGUI.this.requestFocusInWindow();
     				}
     				statusLabel.setText("");
@@ -96,7 +98,7 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
-			Main.SwitchWindow("mainmenu");
+			guiManager.SwitchWindow("mainmenu");
 		}
 	}
 

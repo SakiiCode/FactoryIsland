@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -125,7 +125,10 @@ public abstract class SignalPropagator extends Block implements SignalListener, 
 			if(charge == 0){
 				p.s.paint = false;
 			}else{
-				p.s.p = new Color(Main.fire.c.getRed()/255f,Main.fire.c.getGreen()/255f,Main.fire.c.getBlue()/255f, Math.max(0,Math.min(10, charge))/10f);
+				p.s.p = new Color(AssetLibrary.fire.c.getRed()/255f,
+						AssetLibrary.fire.c.getGreen()/255f,
+						AssetLibrary.fire.c.getBlue()/255f,
+						Math.max(0,Math.min(10, charge))/10f);
 				p.s.paint = true;
 			}
 		}

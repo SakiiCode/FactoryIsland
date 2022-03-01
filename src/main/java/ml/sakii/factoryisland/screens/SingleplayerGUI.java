@@ -21,7 +21,9 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
 
 public class SingleplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
@@ -37,8 +39,8 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	
 	private String mapName;
 	
-	public SingleplayerGUI(){
-		super(Main.GUIBG);
+	public SingleplayerGUI(GUIManager guiManager){
+		super(AssetLibrary.GUIBG, guiManager);
 		this.setLayout(null);
 		addKeyListener(this);
 
@@ -63,13 +65,13 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 		nameLabel = new JLabel("Enter world name:");
 		nameLabel.setSize(nameLabel.getPreferredSize());
-		nameLabel.setLocation(Main.Frame.getWidth()/4-Main.Frame.getWidth()/10, Main.Frame.getHeight()/7);
+		nameLabel.setLocation(Main.Width/4-Main.Width/10, Main.Height/7);
 		nameLabel.setForeground(Color.white);
 		nameLabel.setVisible(true);
 		
 		
 		nameField = new JTextField("");
-		nameField.setSize(Main.Frame.getWidth()/5, nameField.getPreferredSize().height+2*MARGIN);
+		nameField.setSize(Main.Width/5, nameField.getPreferredSize().height+2*MARGIN);
 		nameField.setLocation(nameLabel.getX(), nameLabel.getY()+nameLabel.getHeight()+SPACING);
 		nameField.addKeyListener(this);
 		nameField.setVisible(true);
@@ -83,7 +85,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 		
 		seedField = new JTextField("");
-		seedField.setSize(Main.Frame.getWidth()/5, seedField.getPreferredSize().height+MARGIN);
+		seedField.setSize(Main.Width/5, seedField.getPreferredSize().height+MARGIN);
 		seedField.setLocation(seedLabel.getX(), seedLabel.getY()+seedLabel.getHeight()+SPACING);
 		seedField.addKeyListener(this);
 		seedField.setVisible(true);
@@ -101,13 +103,13 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 		joinLabel = new JLabel("Or select a world to load:");
 		joinLabel.setSize(joinLabel.getPreferredSize());
-		joinLabel.setLocation(Main.Frame.getWidth()/4*3-seedField.getWidth()/2, nameLabel.getY());
+		joinLabel.setLocation(Main.Width/4*3-seedField.getWidth()/2, nameLabel.getY());
 		joinLabel.setForeground(Color.white);
 		joinLabel.setVisible(true);
 		
 		setWorldsList(new JList<>(getWorlds()));
 		getWorldsList().setSelectedValue(Config.selectedMap, true);
-		getWorldsList().setSize(seedField.getWidth(), Main.Frame.getHeight()/4);
+		getWorldsList().setSize(seedField.getWidth(), Main.Height/4);
 		getWorldsList().setLocation(joinLabel.getX(), nameField.getY());
 		getWorldsList().addKeyListener(new KeyListener() {
 			
@@ -115,7 +117,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
-			    	Main.SwitchWindow("mainmenu");
+					guiManager.SwitchWindow("mainmenu");
 				}
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER){
 			    	join(false);
@@ -277,7 +279,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
     		Config.save();
     		
     	}else if(generate) {
-    		JOptionPane.showMessageDialog(Main.Frame, "Invalid map name!", "Error!", JOptionPane.ERROR_MESSAGE);
+    		GUIManager.showMessageDialog("Invalid map name!", "Error!", JOptionPane.ERROR_MESSAGE);
     		return;
     	}else if(!generate && !getWorldsList().isSelectionEmpty()){
     		statusLabel.setText("Loading...");
@@ -297,7 +299,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		(new Thread() {
 			  @Override
 				public void run() {
-				  if(!Main.launchWorld(mapName, generate, statusLabel)) {
+				  if(!guiManager.launchWorld(mapName, generate, statusLabel)) {
 					  SingleplayerGUI.this.requestFocusInWindow();
 					  
 				  }else {
@@ -354,7 +356,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
-	    	Main.SwitchWindow("mainmenu");
+			guiManager.SwitchWindow("mainmenu");
 		}
 		
 	}

@@ -36,10 +36,10 @@ public class PlayerInventory {
 			
 			if(!Main.headless) {
 				if(originalSize==0 && items.size()==1){ //üres volt, nem lett üres
-					if(activateOnFirst && Main.GAME != null) {
-						if(Main.GAME.remoteInventory != null && Main.GAME.remoteInventory.getInv().items.size()==0) {
+					if(activateOnFirst && engine != null) {
+						if(engine.game.remoteInventory != null && engine.game.remoteInventory.getInv().items.size()==0) {
 							setHotbarIndex(0);
-						}else if(Main.GAME.remoteInventory==null) {
+						}else if(engine.game.remoteInventory==null) {
 							setHotbarIndex(0);	
 						}
 					}
@@ -62,8 +62,8 @@ public class PlayerInventory {
 				
 				if(items.size()==0){ //nem volt üres, üres lett
 					if(!Main.headless) {
-						if(Main.GAME.remoteInventory != null) {
-							Main.GAME.SwapInv();
+						if(engine.game.remoteInventory != null) {
+							engine.game.SwapInv();
 						}
 					}
 				}

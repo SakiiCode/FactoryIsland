@@ -1,6 +1,5 @@
 package ml.sakii.factoryisland;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,16 +9,11 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,16 +24,8 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
-import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import ml.sakii.factoryisland.api.API;
@@ -63,85 +49,42 @@ import ml.sakii.factoryisland.blocks.WaterMillBlock;
 import ml.sakii.factoryisland.blocks.WoodBlock;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
-import ml.sakii.factoryisland.screens.BenchmarkGUI;
-import ml.sakii.factoryisland.screens.DeadGUI;
-import ml.sakii.factoryisland.screens.MainMenuGUI;
-import ml.sakii.factoryisland.screens.MultiplayerGUI;
-import ml.sakii.factoryisland.screens.PauseGUI;
-import ml.sakii.factoryisland.screens.SettingsGUI;
-import ml.sakii.factoryisland.screens.SingleplayerGUI;
 
 public class Main
 {
-
+	// ARGUMENTS
+	
 	public static byte MAJOR, MINOR, REVISION;
+	public static boolean verbose = false, headless=false, small = false, nopause=false;
+	public static boolean sound = true;
 
+	private static String map, name;
 	
-	public static boolean verbose = false, headless=false;
-	static boolean nopause=false, small=false;
-	public static BufferedImage drillSide;
-	public static Color4 drillGradientBeginColor, drillSideColor, chestModule, tankModule;
-	public static Surface fire;
+	// BLOCKS, ITEMS
 
-	public static JFrame Frame;
-	public static Game GAME;
-
-	public static final HashMap<String, ItemType> Items = new HashMap<>(20);
-
-
-	public static Surface lamp;
-	static final ArrayList<String> ModRegistry = new ArrayList<>();
-
-	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
-			alienFront, alienSide;
-
-
-	public static Surface[] waters, oils;
-	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;
-	static final JPanel Base = new JPanel(new CardLayout());
+	public final static HashMap<String, ItemType> Items = new HashMap<>(20);
+	final static ArrayList<String> ModRegistry = new ArrayList<>();
 	
-	public static Clip BGMusic;
-
-	public static BufferedImage GUIBG;
-	public static BufferedImage StandardBG, FreezeBG;
-
-
-	public static BufferedImage PausedBG, PausedTitle;
-
-
-	public static BufferedImage SettingsTitle;
-
-
-	public static String PreviousCLCard = "";
 	public static long seed;
 
-
-	static Color skyColor = Color.BLACK;
-	public static boolean sound = true;
-	private static AudioInputStream BGAudioStream;
-
-	private static String CurrentCLCard = "";
-	static GraphicsConfiguration graphicsconfig;
-	
-	
-	private static MultiplayerGUI MPGui;
-	private static PauseGUI pauseGui;
-
-	
-
-	private static int screen;
+	static int screen;
 	public static int Width;
 	public static int Height;
-	public static GameEngine Engine; //csak a headless server hasznalja
+	
+	private GUIManager guiManager;
 
 	
-	@SuppressWarnings("resource")
-	public static void main(String[] args) throws Exception
+	public static void main(String[] args)
 	{
 
 		System.setOut(new ProxyPrintStream(System.out, "log.txt"));
         System.setErr(new ProxyPrintStream(System.err, "log.txt"));
         Main.log("---------------------------------------------------");
+        
+       
+		
+
+        
 		try(java.io.InputStream is = Main.class.getResourceAsStream("version.properties")){
 	        java.util.Properties p = new Properties();
 			p.load(is);
@@ -157,11 +100,8 @@ public class Main
 	        Main.err(e.getMessage());
 	        
 		}
-        
-        
-        
-        List<String> params = Arrays.asList(args);
-        String name=null,map=null;
+		
+		List<String> params = Arrays.asList(args);
         for(int i=0;i<params.size();i++) {
         	switch(params.get(i)) {
         	case "-name":name=params.get(i+1);
@@ -177,8 +117,15 @@ public class Main
         	default: Main.err("Unknown launch parameter: "+params.get(i));
         	}
         }
-        
-
+		
+		try {
+			new Main().start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void start() throws Exception{
         
         if(headless) {
         	Config.username="SERVER";
@@ -189,6 +136,7 @@ public class Main
         		map="server";
         	}
         	File mapFile = new File("saves/"+map+"/map.xml");
+        	GameEngine Engine;
         	if(mapFile.exists()) {
         		Engine = new GameEngine(map,null,0,LoadMethod.EXISTING,null);
         	}else {
@@ -196,6 +144,7 @@ public class Main
             	Engine.afterGen();
         	}
         	API.Engine=Engine;
+        	ml.sakii.factoryisland.api.Block.Engine=Engine;
         	Engine.startPhysics();
         	Engine.ticker.start();
         	Main.log("Timers started");
@@ -204,7 +153,7 @@ public class Main
         		Engine.disconnect(error);
         	}else {
 	        	Main.log("Setup done");
-	        	Scanner s = new Scanner(System.in);
+	        	try(Scanner s = new Scanner(System.in)){
 	        	while(s.hasNextLine()) {
 	        		String line = s.nextLine();
 	        		if(line.trim().equalsIgnoreCase("stop")) {
@@ -214,17 +163,21 @@ public class Main
 	        		}
 					Main.err("Unknown command: "+line);
 	        	}
-	        	s.close();
+	        	}catch(Exception e) {
+	        		e.printStackTrace();
+	        	}
         	}
         }else {
         
 	        setupWindow(name);
 	   
-	        if(map !=null) {
-				SwitchWindow("generate");
-				SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
-				sp.getWorldsList().setSelectedValue(map, true);
-				sp.join(false);
+	        if(map != null) {
+	        	guiManager.launchWorld(map,false,new JLabel());
+				//SwitchWindow("generate");
+				
+				//SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
+				//sp.getWorldsList().setSelectedValue(map, true);
+				//sp.join(false);
 				
 			}
         
@@ -236,7 +189,7 @@ public class Main
 
 
 
-	private static void setupWindow(String username)
+	private void setupWindow(String username)
 	{
 		
 		GraphicsDevice[] gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
@@ -256,8 +209,8 @@ public class Main
 			screen = 0;
 
 		GraphicsDevice d = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen];
-		graphicsconfig = d.getDefaultConfiguration();
-		Rectangle bounds = graphicsconfig.getBounds();
+		GraphicsConfiguration config = d.getDefaultConfiguration();
+		Rectangle bounds = config.getBounds();
 		Width=bounds.width;
 		Height=bounds.height;
 		
@@ -273,263 +226,22 @@ public class Main
 			Config.username = username;
 		}
 
-		
-		Frame= new JFrame();
-		Frame.setUndecorated(true);
-
-		
-		if (System.getProperty("os.name").toLowerCase().contains("win"))
-		{
-			Frame.setBounds(bounds);
-
-			
-		} else // linuxon a talcat es stb nem lehet eltakarni
-		{
-			d.setFullScreenWindow(Frame);
-		}
-
-		
+		AssetLibrary.load();
     	LoadResources();
-
-		Frame.setTitle("FactoryIsland " + MAJOR + "." + MINOR + "." + REVISION);
-
-
-		MPGui = new MultiplayerGUI();
-		Base.add(new SingleplayerGUI(), "generate");
-		Base.add(new BenchmarkGUI(), "benchmark");
-		Base.add(MPGui, "connect");
-		Base.add(new MainMenuGUI(loadTexture("textures/logo.png"), loadTexture("textures/mainmenu.png")), "mainmenu");
-		Base.add(new SettingsGUI(), "settings");
-		pauseGui= new PauseGUI();
-		Base.add(pauseGui, "pause");
-		Base.add(new DeadGUI(),"died");
-
-		Frame.add(Base);
+    	
+    	guiManager = new GUIManager(bounds);
 		
-		Frame.addWindowListener(new WindowListener()
-		{
-
-			@Override
-			public void windowActivated(WindowEvent e)
-			{
-				if (GAME != null)
-				{
-					GAME.centered = false;
-				}
-			}
-
-			@Override
-			public void windowClosed(WindowEvent e)
-			{
-				
-			}
-
-			@Override
-			public void windowClosing(WindowEvent e)
-			{
-				if (GAME != null)
-				{
-					GAME.disconnect(null);
-				}
-				Frame.dispose();
-
-			}
-
-			@Override
-			public void windowDeactivated(WindowEvent e)
-			{
-			}
-
-			@Override
-			public void windowDeiconified(WindowEvent e)
-			{
-			}
-
-			@Override
-			public void windowIconified(WindowEvent e)
-			{
-	
-			}
-
-			@Override
-			public void windowOpened(WindowEvent e)
-			{
-			}
-
-		});
-
-
-
-		SwitchWindow("mainmenu");
 		
-		Frame.setVisible(true);
-		Main.log(Config.username + " @ "+ Frame.getBounds().toString());
+		Main.log(Config.username + " @ "+ bounds.toString());
 	}
 
-	public static boolean joinServer(String IP, JLabel statusLabel)
-	{
-		if (sound)
-			BGMusic.stop();
-		GAME = new Game(IP, 0, LoadMethod.MULTIPLAYER, statusLabel);
-
-		if (GAME.error == null)
-		{
-			statusLabel.setText("Opening game screen...");			
-
-			openGame();
-			return true;
-		}
-		
-		Main.err(GAME.error);
-		statusLabel.setText("<html>Error: "+GAME.error+"</html>");
-		JOptionPane.showMessageDialog(Frame, GAME.error);
-		return false;
-		
-	}
-
-	public static boolean launchWorld(String mapName, boolean generate, JLabel statusLabel)
-	{
-		if (sound)
-			BGMusic.stop();
-		if (generate)
-		{
-			GAME = new Game(mapName, seed, LoadMethod.GENERATE, statusLabel);
-			if(GAME.error==null) {
-				statusLabel.setText("Executing post-worldgen instructions...");
-				GAME.Engine.afterGen();
-			}else {
-				Main.err(GAME.error);
-				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
-				GAME=null;
-				return false;
-			}
-		} else
-		{
-			GAME = new Game(mapName, 0, LoadMethod.EXISTING, statusLabel);
-			if(GAME.error != null) {
-				Main.err(GAME.error);
-				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
-				GAME=null;
-				return false;
-			}
-		}
-		statusLabel.setText("Opening game screen...");
-
-		openGame();
-		return true;
-	}
 	
 	
-	public static boolean runBenchmark(String mapName, JLabel statusLabel) {
-		if (sound)  BGMusic.stop();
-		if(GAME != null) {
-			Main.err("Already joined a game");
-			return false;
-		}
-		
-		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK,statusLabel);
-		
-		if(GAME.error != null) {
-			Main.err(GAME.error);
-			statusLabel.setText("<html>Error: "+GAME.error+"</html>");
-			GAME=null;
-			return false;
-		}
-		
-		statusLabel.setText("Opening game screen...");
-
-		openGame();
-		return true;
-		
-	}
-
-	private static void openGame() {
-		Main.log("Game setup done.");
-		GAME.Engine.ticker.start();
-		if(GAME.Engine.isSingleplayer())
-			GAME.Engine.startPhysics();
-		
-		
-		
-		Main.log("Switching to game window...");
-		
-		
-		Base.add(GAME, "game");
-		
-		
-		GAME.renderThread.start();
-		GAME.centerMouse();
-		
-		if(GAME.PE.getHealth()==0) {
-			GAME.Engine.world.hurtEntity(GAME.PE.ID, 0, false);
-		}
-	}
 	
-	public static void SwitchWindow(String To)
+
+	private void LoadResources()
 	{
-
-		if (CurrentCLCard.equals("pause") && To.equals("mainmenu") && sound)
-		{
-			try
-			{
-				if (!BGMusic.isOpen())
-				{
-					BGMusic.open(BGAudioStream);
-					BGMusic.start();
-				}
-			} catch (LineUnavailableException | IOException e)
-			{
-				Main.log("Could not load main menu music: " + e.getMessage());
-			}
-
-		}
-		((CardLayout) (Main.Base.getLayout())).show(Base, To);
-		PreviousCLCard = CurrentCLCard;
-		CurrentCLCard = To;
-
-	}
-
-	private static void LoadResources()
-	{
-		GUIBG = loadTexture("textures/guibg.png");
-		PausedBG = loadTexture("textures/paused.png");
-
-		SettingsTitle = loadTexture("textures/settings_title.png");
-		PausedTitle = loadTexture("textures/paused_title.png");
-		StandardBG = loadTexture("textures/BG.png");
-
-		stone = new Surface(loadTexture("textures/blocks/stone.png"));
-		waters = new Surface[]
-		{ null, new Surface(loadTexture("textures/blocks/water_1.png")),
-				new Surface(loadTexture("textures/blocks/water_2.png")),
-				new Surface(loadTexture("textures/blocks/water_3.png")),
-				new Surface(loadTexture("textures/blocks/water_4.png")) };
-		oils = new Surface[]
-		{ null, new Surface(new Color(80, 80, 80)), new Surface(new Color(60, 60, 60)),
-				new Surface(new Color(35, 35, 35)) };
-		grass = new Surface(loadTexture("textures/blocks/grass.png"));
-		dirt = new Surface(loadTexture("textures/blocks/dirt.png"));
-		sand = new Surface(loadTexture("textures/blocks/sand.png"));
-		wood = new Surface(loadTexture("textures/blocks/wood2.png"));
-		leaf = new Surface(loadTexture("textures/blocks/leaf3.png"));
-		sapling = new Surface(new Color(150, 100, 50).darker());
-		saplingTop = new Surface(Color.GREEN);
-		chestModule = new Color4(85, 85, 85);
-		tankModule = new Color4(255, 153, 0);
-		playerSide = new Surface(Color.BLUE);
-		playerFront = new Surface(Color.RED);
-		alienSide = new Surface(Color.GREEN.brighter());
-		alienFront = new Surface(Color.GREEN.darker().darker());
-		drillSide = loadTexture("textures/blocks/drill_side5.png");
-		drillSideColor = Surface.averageColor(drillSide);
-		drillGradientBeginColor = new Color4(200, 70, 60, 255);
-
-		lamp = new Surface(new Color(240, 220, 170));
-
-		wmSideColor = new Color4(200, 200, 255);
-		wmGradientBeginColor = new Color4(20, 20, 70);
-		fire = new Surface(new Color(255, 153, 0));
-		wmPoweredColor = new Color4().set(fire.c).brighter();
+		
 
 		
 		initBlockClass("Water",  WaterBlock.surfaces);
@@ -612,21 +324,8 @@ public class Main
 
 		
 		if(!headless) {
-			try
-			{
-		
-				BufferedInputStream inputStream = new BufferedInputStream(
-						Main.class.getResourceAsStream("sounds/Zongora.wav"));
-				BGAudioStream = AudioSystem.getAudioInputStream(inputStream);
-		
-				BGMusic = AudioSystem.getClip();
-				BGMusic.open(BGAudioStream);
-				sound = true;
-			} catch (Exception e)
-			{
-				Main.log("Could not load sounds: " + e.getMessage());
-				sound = false;
-			}
+			
+			AssetLibrary.loadAudio();
 		}else {
 			sound=false;
 		}
@@ -650,8 +349,8 @@ public class Main
 			size=1;
 			s16=1;
 		}else {
-			size = (int) (Main.Frame.getWidth() * 64f / 1440f);
-			s16 = (int) (Main.Frame.getWidth() * 16f / 1440f);
+			size = (int) (Main.Width * 64f / 1440f);
+			s16 = (int) (Main.Width * 16f / 1440f);
 		}
 		BufferedImage icon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = icon.createGraphics();
@@ -718,7 +417,7 @@ public class Main
 		if(Main.headless) {
 			res=1;
 		}else {
-			res = Main.Frame.getHeight() / 900f;
+			res = Main.Height / 900f;
 		}
 		int size = (int) (res * 250);
 		BufferedImage icon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
@@ -781,33 +480,9 @@ public class Main
 		return icon;
 	}
 
-	private static BufferedImage loadTexture(String path)
-	{
-		if(headless) {
-			return newEmptyImage();
-		}
-		BufferedImage image;
-		try(InputStream imageStream = Main.class.getResourceAsStream(path))
-		{
-			image = ImageIO.read(imageStream);
 
-		} catch (Exception e)
-		{
-			image = newEmptyImage();
-			Main.log("Could not load texture from '" + path + "': " + e.getMessage());
-
-		}
-		return toCompatibleImage(image);
-	}
 	
-	private static BufferedImage newEmptyImage() {
-		BufferedImage i = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-		Graphics ig = i.createGraphics();
-		ig.setColor(Color.WHITE);
-		ig.fillRect(0, 0, 1, 1);
-		ig.dispose();
-		return i;
-	}
+	
 	
 	static BufferedImage toCompatibleImage(BufferedImage image)
 	{

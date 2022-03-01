@@ -95,7 +95,9 @@ public class Polygon3D extends Object3D{
 		}
 		
 		recalc(new Vector());
-		recalcLightedColor();
+		if(model.Engine != null) { //inditaskor
+			recalcLightedColor();
+		}
 		
 		physicalRadius=new Vector().set(centroid).substract(Vertices[1]).getLength(); //feltetelezve h csak teglalap van
 	}
@@ -103,35 +105,35 @@ public class Polygon3D extends Object3D{
 
 
 	@Override
-	protected boolean update(){
+	protected boolean update(Game game){
 			
 		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
-				if(!Main.GAME.locked) {
-					if(Main.GAME.insideBlock(this)) {
+				if(!game.locked) {
+					if(game.insideBlock(this)) {
 						faceFilter=true;
 					}else {
-						CameraToTriangle.set(Vertices[0]).substract(Main.GAME.PE.getPos());
+						CameraToTriangle.set(Vertices[0]).substract(game.PE.getPos());
 						faceFilter = CameraToTriangle.DotProduct(normal) < 0;
 					}
 				}
 				
 				
 				if(faceFilter) {
-					AvgDist = GetDist();
-					if(AvgDist<=Config.renderDistance && !isAllBehind(RadiusVector)) {
+					AvgDist = game.PE.getPos().distance(centroid);
+					if(AvgDist<=Config.renderDistance && !isAllBehind(RadiusVector, game)) {
 						resetClipsTo(Vertices, UVMap, Vertices.length);
-						clip(Main.GAME.ViewFrustum.sides[0]);
-						clip(Main.GAME.ViewFrustum.sides[1]);
-						clip(Main.GAME.ViewFrustum.sides[3]);
-						clip(Main.GAME.ViewFrustum.sides[2]);
+						clip(game.ViewFrustum.sides[0]);
+						clip(game.ViewFrustum.sides[1]);
+						clip(game.ViewFrustum.sides[3]);
+						clip(game.ViewFrustum.sides[2]);
 							
-						if(Main.GAME.locked){
-							tmpnear.normal.set(Main.GAME.ViewVector);
+						if(game.locked){
+							tmpnear.normal.set(game.ViewVector);
 							tmpnear.normal.multiply(0.01f);
-							tmpnear.normal.add(Main.GAME.PE.getPos());
-							tmpnear.distance = Main.GAME.ViewVector.DotProduct(tmpnear.normal);
-							tmpnear.normal.set(Main.GAME.ViewVector);
+							tmpnear.normal.add(game.PE.getPos());
+							tmpnear.distance = game.ViewVector.DotProduct(tmpnear.normal);
+							tmpnear.normal.set(game.ViewVector);
 							clip(tmpnear);
 						}
 						
@@ -144,7 +146,7 @@ public class Polygon3D extends Object3D{
 								Vertex v=clip[i];
 								
 
-								v.update();
+								v.update(game);
 								polygon.addPoint(v.proj.x, v.proj.y);
 
 								
@@ -162,8 +164,8 @@ public class Polygon3D extends Object3D{
 								
 								ymin=Math.max(ymin, 0);
 								ymax=Math.max(ymax, 0);
-								ymin=Math.min(ymin, Main.GAME.FrameBuffer.getHeight());
-								ymax=Math.min(ymax, Main.GAME.FrameBuffer.getHeight());
+								ymin=Math.min(ymin, game.FrameBuffer.getHeight());
+								ymax=Math.min(ymax, game.FrameBuffer.getHeight());
 								
 								if(ymin==ymax) {
 									return false;
@@ -172,7 +174,7 @@ public class Polygon3D extends Object3D{
 							}
 							
 							if(!Config.useTextures) {
-								recalcOcclusionPaints();
+								recalcOcclusionPaints(game);
 							}
 							
 							return true;
@@ -219,7 +221,7 @@ public class Polygon3D extends Object3D{
 				light=intensity;
 			}
 		}
-		int skylight = Main.GAME == null ? 0: getLightLevel(getTimePercent(Main.GAME.Engine.Tick));
+		int skylight = getLightLevel(model.Engine.getTimePercent());
 		light = Math.max(light, skylight);
 		return overlay.setAlpha((int)(Math.pow(0.8, light+1)*255));
 	}
@@ -243,13 +245,6 @@ public class Polygon3D extends Object3D{
 
 	}
 	
-	static double getTimePercent(long Tick) {
-		
-		long hours=Tick%Globals.TICKS_PER_DAY;
-		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
-		return skyLightF;
-	}
-	
 	
 	public Color4 getLightedColor() {
 		return lightedcolor;
@@ -264,7 +259,7 @@ public class Polygon3D extends Object3D{
 	}
 		
 
-	void drawToBuffer(PixelData[][] ZBuffer) {
+	void drawToBuffer(PixelData[][] ZBuffer, Game game) {
 		
 		// buffer init
 		bufferXmin.clear();
@@ -282,8 +277,8 @@ public class Polygon3D extends Object3D{
 			Vertex v1 = clip[index1]; 
 			Vertex v2 = clip[index2];
 			
-			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1]);
-			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2]);
+			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
+			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
 			
 			final Point p1 = v1.proj;
 			final Point p2 = v2.proj;
@@ -356,7 +351,7 @@ public class Polygon3D extends Object3D{
 			 		synchronized(ZBuffer[x][y]) {
 					 	if(ZBuffer[x][y].depth>iz) continue;
 					 	ZBuffer[x][y].depth=iz;
-					 	if(!Main.GAME.key[6]) {//depthmap-nál ne mutassa a kereteket
+					 	if(!game.key[6]) {//depthmap-nál ne mutassa a kereteket
 						 	if(y>ymin && y<ymax-1 &&
 						 			(
 							 			(x<bufferXmin.get(y+1) || x>bufferXmax.get(y+1) || x<bufferXmin.get(y-1) || x>bufferXmax.get(y-1)) || 
@@ -374,7 +369,7 @@ public class Polygon3D extends Object3D{
 					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
 					 	
 					 	int rgb;
-					 	if(Main.GAME.key[6]) {
+					 	if(game.key[6]) {
 					 		int px=Math.round(255*(float)(0.03/iz));
 					 		rgb = (255 << 24) | (px << 16) | (px << 8) | px;
 					 		
@@ -410,7 +405,7 @@ public class Polygon3D extends Object3D{
 	}
 
 	@Override
-	protected void draw(BufferedImage FrameBuffer, Graphics g){
+	protected void draw(BufferedImage FrameBuffer, Graphics g, Game game){
 		Graphics2D g2d=(Graphics2D)g;
 		
 		g2d.setColor(s.paint ? s.c.getColor() : lightedcolor.getColor());
@@ -442,7 +437,7 @@ public class Polygon3D extends Object3D{
 				ratio = 0;
 			}
 
-			Color customColor = new Color(Main.skyColor.getRed(), Main.skyColor.getGreen(), Main.skyColor.getBlue(), 255-ratio);
+			Color customColor = new Color(AssetLibrary.skyColor.getRed(), AssetLibrary.skyColor.getGreen(), AssetLibrary.skyColor.getBlue(), 255-ratio);
 			g2d.setColor(customColor);
 
 			g2d.fillPolygon(polygon);
@@ -457,7 +452,7 @@ public class Polygon3D extends Object3D{
 		}
 		
 		
-		if(selected) {
+		if(selected && game.showHUD) {
 			renderSelectOutline(g);
 		}
 		
@@ -465,8 +460,6 @@ public class Polygon3D extends Object3D{
 	
 	
 	void renderSelectOutline(Graphics fb){
-		if(!Main.GAME.showHUD) return;
-		
 		Graphics2D g2d=((Graphics2D)fb);
 		if(Config.targetMarkerType == TargetMarkerType.SHADE) {
 			g2d.setPaint(new RadialGradientPaint(
@@ -482,7 +475,7 @@ public class Polygon3D extends Object3D{
 		}
 	}
 	
-	private void recalcOcclusionPaints() {
+	private void recalcOcclusionPaints(Game game) {
 		if(!(model instanceof Block)){
 			return;
 		}
@@ -491,7 +484,7 @@ public class Polygon3D extends Object3D{
 		OcclusionPaints.clear();
 		
 		for(BlockFace nearbyFace : SimpleOcclusions) {
-			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, lineVec, Main.GAME);
+			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, lineVec, game);
 			begin1 = values[0];
 			begin2 = values[1];
 			end = values[2];					
@@ -520,9 +513,9 @@ public class Polygon3D extends Object3D{
 			int corner = c.toInt();
 			
 			
-			Main.GAME.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner-1, 4)]), begin1);
-			Main.GAME.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner+1, 4)]), begin2);
-			Main.GAME.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner, 4)]), end);
+			game.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner-1, 4)]), begin1);
+			game.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner+1, 4)]), begin2);
+			game.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner, 4)]), end);
 			
 			
 			
@@ -565,12 +558,12 @@ public class Polygon3D extends Object3D{
 	
 	
 	
-	private boolean isAllBehind(Vector tmp2) { //7.1% -> 4.9%
+	private boolean isAllBehind(Vector tmp2, Game game) { //7.1% -> 4.9%
 		boolean result=true;
 
-			tmp2.set(Main.GAME.ViewVector).multiply(physicalRadius); //radius vector
+			tmp2.set(game.ViewVector).multiply(physicalRadius); //radius vector
 		
-			if(tmp2.add(centroid).substract(Main.GAME.PE.getPos()).DotProduct(Main.GAME.ViewVector)<0) {
+			if(tmp2.add(centroid).substract(game.PE.getPos()).DotProduct(game.ViewVector)<0) {
 				result= true;
 			}else {
 				result=false;
@@ -680,14 +673,6 @@ public class Polygon3D extends Object3D{
 		int u = (int) Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
 		int v = (int) Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
 		return new int[] {u,v};
-	}
-
-
-
-	private float GetDist()
-	{
-			
-			return Main.GAME.PE.getPos().distance(centroid);
 	}
 	
 

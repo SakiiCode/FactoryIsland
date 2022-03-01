@@ -9,9 +9,9 @@ public abstract class Object3D implements Comparable<Object3D> {
 	/**
 	 * @return true ha lathato
 	 */
-	protected abstract boolean update();
+	protected abstract boolean update(Game game);
 	
-	protected abstract void draw(BufferedImage FrameBuffer, Graphics g);
+	protected abstract void draw(BufferedImage FrameBuffer, Graphics g, Game game);
 	
 	@Override
 	public int compareTo(Object3D o) {

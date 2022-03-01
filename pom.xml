@@ -6,8 +6,9 @@
   <name>FactoryIsland</name>
   <description></description>
   <properties>
-  <maven.compiler.source>16</maven.compiler.source>
-  <maven.compiler.target>16</maven.compiler.target>
+    <maven.compiler.source>16</maven.compiler.source>
+    <maven.compiler.target>16</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
     <dependency>
@@ -20,7 +21,7 @@
   <resources>
 	<resource>
    	  <directory>src/main/resources</directory>
-      <filtering>true</filtering>
+      <filtering>false</filtering>
     </resource>
   </resources>
   <plugins>

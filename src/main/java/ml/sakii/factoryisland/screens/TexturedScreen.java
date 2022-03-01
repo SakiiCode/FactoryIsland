@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
 
 public class TexturedScreen extends Screen {
@@ -12,9 +13,11 @@ public class TexturedScreen extends Screen {
 	private BufferedImage Background;
 	
 	@SuppressWarnings("hiding")
-	protected int EntrySpacing = (int) (Main.Frame.getHeight()*0.011f);
+	protected int EntrySpacing = (int) (Main.Height*0.011f);
 	
-	public TexturedScreen(BufferedImage bg) {
+	
+	public TexturedScreen(BufferedImage bg, GUIManager guiManager) {
+		super(guiManager);
 		this.Background=bg;
 	}
 	
@@ -22,7 +25,7 @@ public class TexturedScreen extends Screen {
 	  protected void paintComponent(Graphics g) {
 	    
 	    super.paintComponent(g);
-		Rectangle2D area = centerImage(Main.Frame.getWidth(), Main.Frame.getHeight(), Background.getWidth(), Background.getHeight());
+		Rectangle2D area = centerImage(Main.Width, Main.Height, Background.getWidth(), Background.getHeight());
 		g.drawImage(Background, (int)area.getX(), (int)area.getY(), (int)area.getWidth(), (int)area.getHeight(), null);
 
 	}

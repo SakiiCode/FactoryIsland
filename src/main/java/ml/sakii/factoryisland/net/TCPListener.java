@@ -3,6 +3,7 @@ package ml.sakii.factoryisland.net;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Deprecated
 public class TCPListener extends Thread {
 	
 	private ConcurrentLinkedQueue<Packet> packets = new ConcurrentLinkedQueue<>();

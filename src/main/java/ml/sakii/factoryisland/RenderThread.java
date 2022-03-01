@@ -19,21 +19,21 @@ public class RenderThread extends Thread
 	private boolean running=true;
 	private boolean screenshotstarted=false;
 	private BufferStrategy strategy; 
+	private GUIManager guiManager;
 	
-	
-	public RenderThread(Game game) {
+	public RenderThread(Game game, GUIManager guiManager) {
 		this.game=game;
+		this.guiManager=guiManager;
 		this.setName("Render Thread");
 		this.setPriority(MAX_PRIORITY);
-		Main.Frame.createBufferStrategy(2);
-		strategy = Main.Frame.getBufferStrategy();
+		strategy = guiManager.createBufferStrategy();
 	}
 	
 	@Override
 	public void run()
 	{
 		Graphics graphics = strategy.getDrawGraphics();
-		Main.SwitchWindow("game");
+		guiManager.SwitchWindow("game");
 		while(running) {
 			
 				

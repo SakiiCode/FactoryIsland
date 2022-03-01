@@ -39,7 +39,7 @@ public class GameEngine{
 	public World world;
 	public final CopyOnWriteArraySet<Point3D> TickableBlocks = new CopyOnWriteArraySet<>();
 	final CopyOnWriteArraySet<DayNightListener> DayNightBlocks = new CopyOnWriteArraySet<>();
-	public long Tick;
+	public long Tick=0;
 	Timer ticker;
 	
 	private Timer physics;
@@ -52,11 +52,13 @@ public class GameEngine{
 	private final EAngle previousAim=new EAngle();
 
 	private float actualphysicsfps;
+	public Game game;
 	
 
 	String error="OK";
 
 	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) throws Exception {
+		this.game=game;
 		initTimers();
 		
 		switch(loadmethod) {
@@ -256,13 +258,13 @@ public class GameEngine{
 
 				if(Tick % Globals.ENTITYSYNCRATE == 0) {
 					
-					if(Main.GAME != null && client != null){
+					if(game != null && client != null){
 
-							if( Main.GAME.PE.getPos().distance(previousPos)>0 || Math.abs(previousAim.yaw-Main.GAME.PE.ViewAngle.yaw)>0) {
+							if( game.PE.getPos().distance(previousPos)>0 || Math.abs(previousAim.yaw-game.PE.ViewAngle.yaw)>0) {
 								client.sendPlayerPos();
 
-								previousPos.set(Main.GAME.PE.getPos());
-								previousAim.set(Main.GAME.PE.ViewAngle);
+								previousPos.set(game.PE.getPos());
+								previousAim.set(game.PE.ViewAngle);
 							}
 						
 					}
@@ -406,7 +408,6 @@ public class GameEngine{
 		if (Math.abs(entity.JumpVelocity) + Math.abs(entity.GravityVelocity) != 0f)
 		{
 			float JumpDistance = resultant / physicsFPS * VerticalVector.z;
-			//Block tmpNothing = new Nothing();
 			if (resultant < 0)
 			{// lefelé esik önmagához képest
 				Block under = world.getBlockUnderEntity(false, true, entity);
@@ -736,6 +737,13 @@ public class GameEngine{
 		return new ModBlock(name, x, y, z, this);
 	}
 	
+	double getTimePercent() {
+		
+		long hours=Tick%Globals.TICKS_PER_DAY;
+		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
+		return skyLightF;
+	}
+	
 	String startServer() {
 		String error=null;
 		if (client == null && server == null)
@@ -746,11 +754,11 @@ public class GameEngine{
 				
 				Main.log("Server started");
 
-				error = startClient("localhost", server.Listener.acceptThread.port, Main.GAME);
+				error = startClient("localhost", server.Listener.acceptThread.port, game);
 				if (error == null)
 				{
 					if(!Main.headless) {
-						JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Server opened to LAN at port " + server.Listener.acceptThread.port, "Press SPACE to continue", JOptionPane.INFORMATION_MESSAGE);
+						GUIManager.showMessageDialog("Server opened to LAN at port " + server.Listener.acceptThread.port, "Press SPACE to continue", JOptionPane.INFORMATION_MESSAGE);
 					}
 				}
 				
@@ -780,8 +788,9 @@ public class GameEngine{
 	public void disconnect(String error) {
 		if(error !=null) {
 			Main.err(error);
-			if(!Main.headless)
-			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), error, "Disconnected", JOptionPane.ERROR_MESSAGE);
+			if(!Main.headless) {
+				GUIManager.showMessageDialog(error, "Disconnected", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 		ticker.stop();
 		stopPhysics();

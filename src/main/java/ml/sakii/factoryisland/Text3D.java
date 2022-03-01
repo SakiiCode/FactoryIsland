@@ -23,18 +23,18 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	protected boolean update()
+	protected boolean update(Game game)
 	{
 		
 		ViewToPoint.set(location);
-		ViewToPoint.substract(Main.GAME.PE.getPos());
+		ViewToPoint.substract(game.PE.getPos());
 		
 		AvgDist = ViewToPoint.getLength();
 		
-		if (ViewToPoint.DotProduct(Main.GAME.ViewVector) > 0)
+		if (ViewToPoint.DotProduct(game.ViewVector) > 0)
 		{
 			ViewToPoint.set(location);
-			Main.GAME.convert3Dto2D(ViewToPoint, proj);
+			game.convert3Dto2D(ViewToPoint, proj);
 			x = (int) proj.getX();
 			y = (int) proj.getY();
 			return true;
@@ -43,17 +43,17 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	public void draw(BufferedImage fb, Graphics g)
+	public void draw(BufferedImage fb, Graphics g, Game game)
 	{
 
-		g.setFont(new Font("Helvetica", Font.BOLD, (int) (20 * Main.GAME.ratio)));
+		g.setFont(new Font("Helvetica", Font.BOLD, (int) (20 * game.ratio)));
 		FontMetrics fm = g.getFontMetrics();
 		Rectangle rect = fm.getStringBounds(text, g).getBounds();
 
 		int w0 = (int) (rect.getWidth() / 2);
-		rect.grow(Main.GAME.margin, Main.GAME.margin);
+		rect.grow(game.margin, game.margin);
 		g.setColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
-		g.fillRect(x - w0 - Main.GAME.margin, y - fm.getAscent() - Main.GAME.margin, (int) rect.getWidth(),
+		g.fillRect(x - w0 - game.margin, y - fm.getAscent() - game.margin, (int) rect.getWidth(),
 				(int) rect.getHeight());
 		g.setColor(Color.RED);
 		g.drawOval(x, y, 5, 5);

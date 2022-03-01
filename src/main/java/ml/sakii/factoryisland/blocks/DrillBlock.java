@@ -4,33 +4,28 @@ package ml.sakii.factoryisland.blocks;
 import java.awt.Color;
 import java.util.HashMap;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 
 public class DrillBlock extends SimpleMachine implements SignalConsumer{
 	
-	public static Surface[] surfaces = Block.generateSurfaces(Main.drillSideColor);
+	public static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.drillSideColor);
 	private HashMap<BlockFace, Integer> signals = new HashMap<>();
 	
 	
 	public DrillBlock(int x, int y, int z, GameEngine engine) {
 		super("Drill", x, y, z, 
-				Main.drillSideColor,
-				Main.drillGradientBeginColor,Main.drillSideColor, new Color4(Color.RED), engine);
+				AssetLibrary.drillSideColor,
+				AssetLibrary.drillGradientBeginColor,AssetLibrary.drillSideColor, new Color4(Color.RED), engine);
 				
 	}
 
 
 	@Override
 	public Surface[] getSurfaces() {
-		return new Surface[] {new Surface(Main.drillSide, Main.drillGradientBeginColor.getColor()),
-				new Surface(Main.drillSide, Main.drillGradientBeginColor.getColor()),
-				new Surface(Main.drillSide, Main.drillGradientBeginColor.getColor()),
-				new Surface(Main.drillSide, Main.drillGradientBeginColor.getColor()),
-				new Surface(Main.drillSide, Main.drillGradientBeginColor.getColor()),
-				new Surface(Main.drillSide, Main.drillGradientBeginColor.getColor())};
+		return Block.generateSurfacesCopy(new Surface(AssetLibrary.drillSide, AssetLibrary.drillGradientBeginColor.getColor()));
 	}
 
 

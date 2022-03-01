@@ -16,7 +16,9 @@ import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
 
 public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyListener{
@@ -31,8 +33,8 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 	
 	private String mapName;
 	
-	public BenchmarkGUI(){
-		super(Main.GUIBG);
+	public BenchmarkGUI(GUIManager guiManager){
+		super(AssetLibrary.GUIBG, guiManager);
 		this.setLayout(null);
 		addKeyListener(this);
 
@@ -61,12 +63,12 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		
 		joinLabel = new JLabel("Select a world to load:");
 		joinLabel.setSize(joinLabel.getPreferredSize());
-		joinLabel.setLocation(Main.Frame.getWidth()/4*3,  Main.Frame.getHeight()/7);
+		joinLabel.setLocation(Main.Width/4*3,  Main.Height/7);
 		joinLabel.setVisible(true);
 		
 		setWorldsList(new JList<>(getWorlds()));
 		getWorldsList().setSelectedValue(Config.selectedMap, true);
-		getWorldsList().setSize(WIDTH, Main.Frame.getHeight()/4);
+		getWorldsList().setSize(WIDTH, Main.Height/4);
 		getWorldsList().setLocation(joinLabel.getX(), joinLabel.getY()+MARGIN);
 		getWorldsList().addKeyListener(new KeyListener() {
 			
@@ -74,7 +76,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
-			    	Main.SwitchWindow("mainmenu");
+					guiManager.SwitchWindow("mainmenu");
 				}
 				if(arg0.getKeyCode() == KeyEvent.VK_ENTER){
 			    	join();
@@ -133,7 +135,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 
 		
 		deleteButton= new MainMenuButton("Delete", getWorldsList().getX(), getWorldsList().getY()+getWorldsList().getHeight()+SPACING,
-				getWorldsList().getHeight(), Main.Frame.getHeight()/7);
+				getWorldsList().getHeight(), Main.Height/7);
 		deleteButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		deleteButton.setVerticalTextPosition(SwingConstants.CENTER);
 		deleteButton.setActionCommand("delete");
@@ -227,7 +229,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		(new Thread() {
 			  @Override
 				public void run() {
-				  if(!Main.runBenchmark(mapName, statusLabel)) {
+				  if(!guiManager.runBenchmark(mapName, statusLabel)) {
 					  BenchmarkGUI.this.requestFocusInWindow();
 					  
 				  }else {
@@ -274,7 +276,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 	@Override
 	public void keyPressed(KeyEvent arg0) {
 		if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
-	    	Main.SwitchWindow("mainmenu");
+			guiManager.SwitchWindow("mainmenu");
 		}
 		
 	}

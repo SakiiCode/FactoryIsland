@@ -8,6 +8,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
+
+import ml.sakii.factoryisland.AssetLibrary;
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
 
 public class DeadGUI extends PaintedScreen implements ActionListener, KeyListener {
@@ -16,8 +19,8 @@ public class DeadGUI extends PaintedScreen implements ActionListener, KeyListene
 	private JButton respawnButton, exitButton;
 	
 	
-	public DeadGUI(){
-		super(Main.PausedBG);
+	public DeadGUI(GUIManager guiManager){
+		super(AssetLibrary.PausedBG, guiManager);
 		
 		setLayout(null);
 		addKeyListener(this);
@@ -29,14 +32,14 @@ public class DeadGUI extends PaintedScreen implements ActionListener, KeyListene
 	    });
 		
 
-		respawnButton = new MainMenuButton("Respawn",Main.Frame.getWidth()/2-EntryWidth/2, (int)(Main.Frame.getHeight()/3.4-EntryHeight/2), EntryWidth, EntryHeight);
+		respawnButton = new MainMenuButton("Respawn",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4-EntryHeight/2), EntryWidth, EntryHeight);
 		respawnButton.setActionCommand("respawn");
 		respawnButton.setVisible(true);
 		respawnButton.addActionListener(this);
 		add(respawnButton);
 		
 		
-		exitButton = new MainMenuButton("Save & Exit to Main Menu",Main.Frame.getWidth()/2-EntryWidth/2, (int)(Main.Frame.getHeight()/3.4+EntrySpacing-EntryHeight/2), EntryWidth, EntryHeight);
+		exitButton = new MainMenuButton("Save & Exit to Main Menu",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing-EntryHeight/2), EntryWidth, EntryHeight);
 		exitButton.setActionCommand("exit");
 		exitButton.setVisible(true);
 		exitButton.addActionListener(this);
@@ -53,12 +56,12 @@ public class DeadGUI extends PaintedScreen implements ActionListener, KeyListene
 	public void actionPerformed(ActionEvent e) {
 
 		if(e.getActionCommand().equals("respawn")){
-			Main.GAME.respawn();
-			Main.GAME.resume();
+			guiManager.GAME.respawn();
+			guiManager.GAME.resume();
 		}
 		if(e.getActionCommand().equals("exit")) {
 			//TODO ilyenkor mpben nem menti a poziciot es inventoryt
-			Main.GAME.disconnect(null);
+			guiManager.GAME.disconnect(null);
 		}
 	}
 	

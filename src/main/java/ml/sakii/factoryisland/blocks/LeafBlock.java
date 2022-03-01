@@ -2,6 +2,7 @@ package ml.sakii.factoryisland.blocks;
 
 import java.util.Random;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
@@ -9,7 +10,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public class LeafBlock extends Block implements BreakListener{
 	
-	public static Surface[] surfaces = new Surface[] { Main.leaf,Main.leaf,Main.leaf,Main.leaf,	Main.leaf, Main.leaf};
+	public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.leaf);
 	@Override
 	public Surface[] getSurfaces() {
 		return surfaces;

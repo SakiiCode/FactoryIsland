@@ -14,6 +14,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SpringLayout;
 
+import ml.sakii.factoryisland.AssetLibrary;
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 
@@ -22,17 +24,17 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 
 	private JButton sp, mp, opt, benchmark, exit;
 	
-	private int menuL = (int) (Main.Frame.getWidth()*0.1f);
-	private int menuT = (int) (Main.Frame.getHeight()*0.4f);
+	private int menuL = (int) (Main.Width*0.1f);
+	private int menuT = (int) (Main.Height*0.4f);
 
 	
 	private ArrayList<JButton> Menu = new ArrayList<>();
 	
 	private BufferedImage Logo;
 		
-	public MainMenuGUI(BufferedImage Logo, BufferedImage MainMenuBG){
-		super(MainMenuBG);
-		this.Logo=Logo;
+	public MainMenuGUI(GUIManager guiManager){
+		super(AssetLibrary.MainMenuBG, guiManager);
+		this.Logo=AssetLibrary.Logo;
 
 
 		this.addComponentListener( new ComponentAdapter() {
@@ -130,8 +132,8 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 		this.setLayout(layout);
 		
 		
-		if(Main.sound)
-			Main.BGMusic.start();
+		/*if(Main.sound)
+			AssetLibrary.BGMusic.start();*/
 
 
 	}
@@ -141,26 +143,27 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String c = e.getActionCommand();
 	    if (c.equals("singleplayer")) {
-	    	Main.SwitchWindow("generate");
+	    	guiManager.SwitchWindow("generate");
 
 	    }
 	    
 	    if(c.equals("multiplayer")){
-	    	Main.SwitchWindow("connect");
+	    	guiManager.SwitchWindow("connect");
 	    }
 	    
 	    if(c.equals("settings")){
-	    	Main.SwitchWindow("settings");
+	    	guiManager.SwitchWindow("settings");
 	    	
 	    }
 	    
 	    if(c.equals("benchmark")){
-	    	Main.SwitchWindow("benchmark");
+	    	guiManager.SwitchWindow("benchmark");
 	    	
 	    }
 	    
 	    if (c.equals("exit")) {
-	    	System.exit(0);
+	    	//System.exit(0);
+	    	guiManager.exit();
 	    }
 	} 
 	
@@ -169,10 +172,10 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
     public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		float ratio = ((float)Logo.getHeight()/Logo.getWidth());
-		int x = Main.Frame.getWidth()/15;
-		int y = Main.Frame.getHeight()/15;
+		int x = Main.Width/15;
+		int y = Main.Height/15;
 		
-		int h = Main.Frame.getHeight()/4;
+		int h = Main.Height/4;
 		int w = (int)(h/ratio);
 		g.drawImage(Logo, x, y,  w, h, null);
 		

@@ -40,11 +40,6 @@ public class Config {
 		Prefs.put("selectedMap", selectedMap);
 		Prefs.putBoolean("ambientOcclusion", ambientOcclusion);
 		
-
-		if(Main.GAME != null) {
-			Main.GAME.resizeScreen(Config.getWidth(), Config.getHeight());
-		}
-
 	}
 
 	public static void reset()

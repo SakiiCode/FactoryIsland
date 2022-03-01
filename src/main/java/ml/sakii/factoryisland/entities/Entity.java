@@ -19,21 +19,19 @@ import ml.sakii.factoryisland.Util;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vertex;
 
-public class Entity extends Model{
+public class Entity extends Model.FP {
 	
 	
 	private int health;
 	public final int maxHealth;
 	public ArrayList<Object3D> Objects = new ArrayList<>();
 	private ArrayList<Vertex> Vertices = new ArrayList<>();
-	public Vector ViewFrom;
 	public EAngle ViewAngle;
 	public float GravityVelocity = 0f; // m/s
 	public float JumpVelocity = 0f; // m/s
 	public final Vector VerticalVector = new Vector(0, 0, 1);
 	public boolean flying;
 	public String className;
-	public String name;
 	public long ID;
 	private GameEngine engine;
 	private Vector tmpVector = new Vector();
@@ -47,10 +45,9 @@ public class Entity extends Model{
 	private float z0,z;
 	private float[] fxy, fxy1, fx1y1, fx1y;
 	
-	Entity(String className, Vector pos, EAngle aim, String name,int health, int maxHealth,long ID, GameEngine engine, Surface front, Surface side) {
-		
+	public Entity(String className, Vector pos, EAngle aim, String name,int health, int maxHealth,long ID, GameEngine engine, Surface front, Surface side) {
+		super(name, pos, engine);
 		this.className=className;
-		ViewFrom=pos;
 		ViewAngle=aim;
 		this.name = name;
 		this.ID = ID;

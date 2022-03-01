@@ -1,0 +1,276 @@
+package ml.sakii.factoryisland;
+
+import java.awt.CardLayout;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.image.BufferStrategy;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import ml.sakii.factoryisland.screens.BenchmarkGUI;
+import ml.sakii.factoryisland.screens.DeadGUI;
+import ml.sakii.factoryisland.screens.MainMenuGUI;
+import ml.sakii.factoryisland.screens.MultiplayerGUI;
+import ml.sakii.factoryisland.screens.PauseGUI;
+import ml.sakii.factoryisland.screens.SettingsGUI;
+import ml.sakii.factoryisland.screens.SingleplayerGUI;
+
+public class GUIManager {
+	private JFrame Frame;
+	public Game GAME;
+	final JPanel Base = new JPanel(new CardLayout());
+	
+
+	private MultiplayerGUI MPGui;
+	private PauseGUI pauseGui;
+	
+	private String CurrentCLCard = "";
+	private String PreviousCLCard = "";
+	
+	public GUIManager(Rectangle bounds) {
+		Frame= new JFrame();
+		Frame.setUndecorated(true);
+		
+
+
+		
+		if (System.getProperty("os.name").toLowerCase().contains("win"))
+		{
+			Frame.setBounds(bounds);
+
+			
+		} else // linuxon a talcat es stb nem lehet eltakarni
+		{
+			GraphicsDevice d = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[Main.screen];
+			d.setFullScreenWindow(Frame);
+		}
+
+		
+
+		Frame.setTitle("FactoryIsland " + Main.MAJOR + "." + Main.MINOR + "." + Main.REVISION);
+
+		MPGui = new MultiplayerGUI(this);
+		Base.add(new SingleplayerGUI(this), "generate");
+		Base.add(new BenchmarkGUI(this), "benchmark");
+		Base.add(MPGui, "connect");
+		Base.add(new MainMenuGUI(this), "mainmenu");
+		Base.add(new SettingsGUI(this), "settings");
+		pauseGui= new PauseGUI(this);
+		Base.add(pauseGui, "pause");
+		Base.add(new DeadGUI(this),"died");
+
+		Frame.add(Base);
+		
+		Frame.addWindowListener(new WindowListener()
+		{
+
+			@Override
+			public void windowActivated(WindowEvent e)
+			{
+				if (GAME != null)
+				{
+					GAME.centered = false;
+				}
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e)
+			{
+				
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				if (GAME != null)
+				{
+					GAME.disconnect(null);
+				}
+				AssetLibrary.BGMusic.stop();
+				AssetLibrary.BGMusic.close();
+				Frame.dispose();
+
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e)
+			{
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e)
+			{
+	
+			}
+
+			@Override
+			public void windowOpened(WindowEvent e)
+			{
+			}
+
+		});
+
+
+
+		SwitchWindow("mainmenu");
+		
+		Frame.setVisible(true);
+	}
+	
+	public void SwitchWindow(String To)
+	{
+
+		/*if (CurrentCLCard.equals("pause") && To.equals("mainmenu") && Main.sound)
+		{
+
+				if (!AssetLibrary.BGMusic.isRunning())
+				{
+					//AssetLibrary.BGMusic.open(Main.BGAudioStream); TODO ez kellhet
+					AssetLibrary.BGMusic.start();
+				}
+
+
+		}*/
+		((CardLayout) (Base.getLayout())).show(Base, To);
+		PreviousCLCard = CurrentCLCard;
+		CurrentCLCard = To;
+
+	}
+	
+	public void SwitchBack() {
+		SwitchWindow(PreviousCLCard);
+	}
+	
+	public boolean joinServer(String IP, JLabel statusLabel)
+	{
+		GAME = new Game(IP, 0, LoadMethod.MULTIPLAYER, statusLabel, this);
+
+		if (GAME.error == null)
+		{
+			statusLabel.setText("Opening game screen...");			
+
+			openGame();
+			return true;
+		}
+		
+		Main.err(GAME.error);
+		statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+		JOptionPane.showMessageDialog(Frame, GAME.error);
+		return false;
+		
+	}
+
+	public boolean launchWorld(String mapName, boolean generate, JLabel statusLabel)
+	{
+		if (generate)
+		{
+			GAME = new Game(mapName, Main.seed, LoadMethod.GENERATE, statusLabel, this);
+			if(GAME.error==null) {
+				statusLabel.setText("Executing post-worldgen instructions...");
+				GAME.Engine.afterGen();
+			}else {
+				Main.err(GAME.error);
+				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+				GAME=null;
+				return false;
+			}
+		} else
+		{
+			GAME = new Game(mapName, 0, LoadMethod.EXISTING, statusLabel, this);
+			if(GAME.error != null) {
+				Main.err(GAME.error);
+				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+				GAME=null;
+				return false;
+			}
+		}
+		statusLabel.setText("Opening game screen...");
+
+		openGame();
+		return true;
+	}
+	
+	
+	public boolean runBenchmark(String mapName, JLabel statusLabel) {
+		if(GAME != null) {
+			Main.err("Already joined a game");
+			return false;
+		}
+		
+		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK,statusLabel, this);
+		
+		if(GAME.error != null) {
+			Main.err(GAME.error);
+			statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+			GAME=null;
+			return false;
+		}
+		
+		statusLabel.setText("Opening game screen...");
+
+		openGame();
+		return true;
+		
+	}
+
+	private void openGame() {
+		Main.log("Game setup done.");
+		GAME.Engine.ticker.start();
+		if(GAME.Engine.isSingleplayer())
+			GAME.Engine.startPhysics();
+		
+		
+		
+		Main.log("Switching to game window...");
+		
+		
+		Base.add(GAME, "game");
+		
+		GAME.renderThread.start();
+		GAME.centerMouse();
+		
+		if(GAME.PE.getHealth()==0) {
+			GAME.Engine.world.hurtEntity(GAME.PE.ID, 0, false);
+		}
+	}
+	
+	public static void showMessageDialog(String title, String message, int icon) {
+		JOptionPane.showMessageDialog(null, title, message, icon);
+	}
+	
+	public static int showConfirmDialog(String title, String message, int optionType) {
+		return JOptionPane.showConfirmDialog(null, title, message, optionType);
+	}
+	
+	public int getX() {
+		return Frame.getX();
+	}
+	public int getY() {
+		return Frame.getY();
+	}
+	
+	public boolean isActive() {
+		return Frame.isActive();
+	}
+	
+	public BufferStrategy createBufferStrategy() {
+		Frame.createBufferStrategy(2);
+		return Frame.getBufferStrategy();
+	}
+	
+	public void exit() {
+		Frame.dispatchEvent(new WindowEvent(Frame, WindowEvent.WINDOW_CLOSING));
+	}
+
+}

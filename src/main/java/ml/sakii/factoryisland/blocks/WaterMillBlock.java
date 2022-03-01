@@ -3,28 +3,28 @@ package ml.sakii.factoryisland.blocks;
 
 import java.awt.GradientPaint;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 
 public class WaterMillBlock extends SimpleMachine implements SignalGenerator {
 	
-	public static Surface[] surfaces = Block.generateSurfaces(Main.wmSideColor);
+	public static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.wmSideColor);
 
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
-		super("WaterMill", x, y, z,Main.wmSideColor,Main.wmGradientBeginColor,Main.wmPoweredColor,Main.waters[4].c, engine);
+		super("WaterMill", x, y, z,AssetLibrary.wmSideColor,AssetLibrary.wmGradientBeginColor,AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
 
 	}
 
 	@Override
 	public Surface[] getSurfaces() {
-		return new Surface[] {new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
-				new Surface(Main.wmSideColor, new GradientPaint(0, 0, Main.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT))};
+		return new Surface[] {new Surface(AssetLibrary.wmSideColor, new GradientPaint(0, 0, AssetLibrary.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(AssetLibrary.wmSideColor, new GradientPaint(0, 0, AssetLibrary.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(AssetLibrary.wmSideColor, new GradientPaint(0, 0, AssetLibrary.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(AssetLibrary.wmSideColor, new GradientPaint(0, 0, AssetLibrary.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(AssetLibrary.wmSideColor, new GradientPaint(0, 0, AssetLibrary.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT)),
+				new Surface(AssetLibrary.wmSideColor, new GradientPaint(0, 0, AssetLibrary.wmGradientBeginColor.getColor(), 0, 0, Color4.TRANSPARENT))};
 	}
 	
 	@Override

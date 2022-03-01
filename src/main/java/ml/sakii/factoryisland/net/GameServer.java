@@ -21,6 +21,7 @@ import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemType;
 import ml.sakii.factoryisland.items.PlayerInventory;
 
+@Deprecated
 public class GameServer extends Thread{
 
 	public HashMap<String,PlayerMP> clients = new HashMap<>(); //ugyanaz mint az Entities csak kizarolag PlayerMP-kre
@@ -206,7 +207,7 @@ public class GameServer extends Thread{
 					if(Main.headless) {
 						playerE=PlayerMP.ServerPerson;
 					}else {
-						playerE=Main.GAME.PE;
+						playerE=Engine.game.PE;
 					}
 					playerE.socket=conn;
 				}

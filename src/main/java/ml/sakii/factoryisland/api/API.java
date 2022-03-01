@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
+@Deprecated
 public class API {
 	
 	public static GameEngine Engine;
@@ -19,7 +20,7 @@ public class API {
 	}
 	
 	public static void deleteBlock(int x, int y, int z) {
-		ml.sakii.factoryisland.blocks.Block b = Main.GAME.Engine.world.getBlockAt(x, y, z);
+		ml.sakii.factoryisland.blocks.Block b = Engine.world.getBlockAt(x, y, z);
 		if(b!=ml.sakii.factoryisland.blocks.Block.NOTHING) {
 				Engine.world.destroyBlock(b, true);
 		}
@@ -31,8 +32,8 @@ public class API {
 	
 	public static void teleport(float x, float y, float z) {
 		if(!Main.headless) {
-			Main.GAME.PE.move(x, y, z, true);
-			Main.GAME.moved = true;
+			Engine.game.PE.move(x, y, z, true);
+			Engine.game.moved = true;
 		}
 	}
 	
@@ -49,7 +50,7 @@ public class API {
 	
 	public static void addOne(String name) {
 		if(!Main.headless) {
-			Main.GAME.PE.inventory.add(Main.Items.get(name), 1, true);
+			Engine.game.PE.inventory.add(Main.Items.get(name), 1, true);
 		}
 	}
 	

@@ -11,9 +11,11 @@ import java.net.SocketException;
 
 import javax.swing.JOptionPane;
 
+import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 
+@Deprecated
 public class SocketListener extends Thread {
 
 	private boolean running=true;
@@ -32,7 +34,7 @@ public class SocketListener extends Thread {
 			this.port = socket.getLocalPort();
 		} catch (IOException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(Main.Frame.getContentPane(), "Could not start server: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			GUIManager.showMessageDialog("Could not start server: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			success = e.getMessage();
 		}
 		try {

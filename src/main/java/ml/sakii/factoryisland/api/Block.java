@@ -1,13 +1,15 @@
 package ml.sakii.factoryisland.api;
 
-import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.blocks.TickListener;
 
+@Deprecated
 public class Block{
 
 	public int x, y, z;
 	public String name;
 	ml.sakii.factoryisland.blocks.Block b;
+	public static GameEngine Engine;
 	
 	Block(ml.sakii.factoryisland.blocks.Block b) {
 		x=b.x;
@@ -22,12 +24,7 @@ public class Block{
 		this.y=y;
 		this.z=z;
 		this.name = name;
-		if(Main.headless) {
-			b = Main.Engine.createBlockByName(name, x, y, z);
-		}else {
-			b = Main.GAME.Engine.createBlockByName(name, x, y, z);
-		}
-		
+		this.b = Engine.createBlockByName(name, x, y, z);
 	}
 	
 	@Override
@@ -49,11 +46,7 @@ public class Block{
 	
 	public void update() {
 		if(b instanceof TickListener) {
-			if(Main.headless) {
-				Main.Engine.TickableBlocks.add(b.pos);
-			}else {
-				Main.GAME.Engine.TickableBlocks.add(b.pos);
-			}
+			Engine.TickableBlocks.add(b.pos);
 		}
 	}
 	

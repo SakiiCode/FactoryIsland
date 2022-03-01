@@ -4,6 +4,7 @@ package ml.sakii.factoryisland.blocks;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
+import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
@@ -16,14 +17,7 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	
 	private BlockInventory inv;
 	
-	public static Surface[] surfaces = new Surface[] {
-			new Surface(Main.chestModule),
-			new Surface(Main.chestModule),
-			new Surface(Main.chestModule),
-			new Surface(Main.chestModule),
-			new Surface(Main.chestModule),
-			new Surface(Main.chestModule)};
-	
+	public static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.chestModule);
 	
 	public ChestModuleBlock(int x, int y, int z, GameEngine engine){
 		super("ChestModule", x, y, z, engine);
@@ -32,7 +26,7 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 
 	@Override
 	public void interact(BlockFace target) {
-		Main.GAME.openInventory(this);
+		Engine.game.openInventory(this);
 	}
 
 
