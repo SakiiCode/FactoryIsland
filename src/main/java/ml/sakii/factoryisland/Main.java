@@ -56,7 +56,6 @@ public class Main
 	
 	public static byte MAJOR, MINOR, REVISION;
 	public static boolean verbose = false, headless=false, small = false, nopause=false;
-	public static boolean sound = true;
 
 	private static String map, name;
 	
@@ -239,7 +238,7 @@ public class Main
 	
 	
 
-	private void LoadResources()
+	private static void LoadResources()
 	{
 		
 
@@ -320,14 +319,6 @@ public class Main
 		if (!saves.exists())
 		{
 			saves.mkdir();
-		}
-
-		
-		if(!headless) {
-			
-			AssetLibrary.loadAudio();
-		}else {
-			sound=false;
 		}
 	}
 	

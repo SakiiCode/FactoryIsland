@@ -34,7 +34,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -60,7 +59,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	static final long serialVersionUID = 2515747642091598425L;
 
 	// ENGINE
-	public GameEngine Engine;
+	GameEngine Engine;
 	public PlayerMP PE;
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
 	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
@@ -72,8 +71,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private final Vector ViewTo = new Vector();
 	private final Vector FrontViewVector = new Vector();
 	private final Vector BackViewVector = new Vector();
-	RenderThread renderThread;
-	
+	private RenderThread renderThread;
+
 	Frustum ViewFrustum;
 	Vector ViewVector = new Vector();
 	
@@ -1154,7 +1153,24 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	}
 
 
-	
+	void start() {
+		Engine.ticker.start();
+		if(Engine.isSingleplayer())
+			Engine.startPhysics();
+
+
+
+
+		if(PE.getHealth()==0) {
+			Engine.world.hurtEntity(PE.ID, 0, false);
+		}
+
+
+		centerMouse();
+		renderThread.start();
+
+
+	}
 
 	public void disconnect(String error)
 	{
@@ -1167,9 +1183,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				renderThread.kill();
 				Engine.disconnect(error);
 				Objects.clear();
-				guiManager.SwitchWindow("mainmenu");
-				guiManager.Base.remove(Game.this);
-				guiManager.GAME = null;
+				guiManager.closeGame();
 				System.gc();
 				
 			}
@@ -1255,8 +1269,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		renderThread.start();
 		centerMouse();
 	}
-	
-	void centerMouse() {
+
+	private void centerMouse() {
 		try
 		{
 			rob.mouseMove((int) McenterX, (int) McenterY);

@@ -24,7 +24,7 @@ import ml.sakii.factoryisland.screens.SingleplayerGUI;
 public class GUIManager {
 	private JFrame Frame;
 	public Game GAME;
-	final JPanel Base = new JPanel(new CardLayout());
+	private JPanel Base;
 	
 
 	private MultiplayerGUI MPGui;
@@ -55,6 +55,7 @@ public class GUIManager {
 
 		Frame.setTitle("FactoryIsland " + Main.MAJOR + "." + Main.MINOR + "." + Main.REVISION);
 
+		Base = new JPanel(new CardLayout());
 		MPGui = new MultiplayerGUI(this);
 		Base.add(new SingleplayerGUI(this), "generate");
 		Base.add(new BenchmarkGUI(this), "benchmark");
@@ -92,8 +93,7 @@ public class GUIManager {
 				{
 					GAME.disconnect(null);
 				}
-				AssetLibrary.BGMusic.stop();
-				AssetLibrary.BGMusic.close();
+				AssetLibrary.stopBgMusic();
 				Frame.dispose();
 
 			}
@@ -131,17 +131,12 @@ public class GUIManager {
 	public void SwitchWindow(String To)
 	{
 
-		/*if (CurrentCLCard.equals("pause") && To.equals("mainmenu") && Main.sound)
+		if (CurrentCLCard.equals("pause") && To.equals("mainmenu"))
 		{
-
-				if (!AssetLibrary.BGMusic.isRunning())
-				{
-					//AssetLibrary.BGMusic.open(Main.BGAudioStream); TODO ez kellhet
-					AssetLibrary.BGMusic.start();
-				}
-
-
-		}*/
+			AssetLibrary.playBgMusic();
+		}else if(To.equals("game")) {
+			AssetLibrary.stopBgMusic();
+		}
 		((CardLayout) (Base.getLayout())).show(Base, To);
 		PreviousCLCard = CurrentCLCard;
 		CurrentCLCard = To;
@@ -225,24 +220,15 @@ public class GUIManager {
 	}
 
 	private void openGame() {
-		Main.log("Game setup done.");
-		GAME.Engine.ticker.start();
-		if(GAME.Engine.isSingleplayer())
-			GAME.Engine.startPhysics();
-		
-		
-		
-		Main.log("Switching to game window...");
-		
-		
 		Base.add(GAME, "game");
+		GAME.start();
 		
-		GAME.renderThread.start();
-		GAME.centerMouse();
-		
-		if(GAME.PE.getHealth()==0) {
-			GAME.Engine.world.hurtEntity(GAME.PE.ID, 0, false);
-		}
+	}
+	
+	public void closeGame() {
+		SwitchWindow("mainmenu");
+		Base.remove(GAME);
+		GAME = null;
 	}
 	
 	public static void showMessageDialog(String title, String message, int icon) {

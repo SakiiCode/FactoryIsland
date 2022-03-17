@@ -42,11 +42,11 @@ public class GameClient extends Thread{
 	
 	private GameEngine Engine;
 	private Game game;
-	Socket socket; // headles servernek tudnia kell
+	private Socket socket; // headles servernek tudnia kell
 	private BufferedWriter outputStream;
 	private BufferedReader inputStream;
 
-	long pingTime;
+	private long pingTime;
 	private boolean terrainLoaded=false;
 	
 	

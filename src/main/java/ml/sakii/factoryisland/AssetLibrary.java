@@ -3,15 +3,10 @@ package ml.sakii.factoryisland;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
+import javazoom.jl.player.Player;
 
 public class AssetLibrary {
 	public static BufferedImage drillSide;
@@ -24,8 +19,7 @@ public class AssetLibrary {
 
 	public static Surface[] waters, oils;
 	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;
-	public AudioInputStream BGAudioStream;
-	public static Clip BGMusic;
+	private static Player BGMusic;
 	
 	static Color skyColor = Color.BLACK;
 	
@@ -81,32 +75,24 @@ public class AssetLibrary {
 		
 	}
 	
-	public static void loadAudio() {
-		try(BufferedInputStream inputStream = new BufferedInputStream(
-				Main.class.getResourceAsStream("sounds/Zongora.wav"));
-			AudioInputStream BGAudioStream = AudioSystem.getAudioInputStream(inputStream);
-		){
-
-		
-		
-
-			AssetLibrary.BGMusic = AudioSystem.getClip();
-			AssetLibrary.BGMusic.addLineListener(new LineListener(){
-			    @Override
-				public void update(LineEvent e){
-			        if(e.getType() == LineEvent.Type.STOP){
-			            e.getLine().close();
-			        }
-			    }
-			});
-			AssetLibrary.BGMusic.open(BGAudioStream);
-			AssetLibrary.BGMusic.start();
-			Main.sound = true;
-		} catch (Exception e)
-		{
-			Main.log("Could not load sounds: " + e.getMessage());
-			e.printStackTrace();
-			Main.sound = false;
+	public static void playBgMusic() {
+		new Thread(()->{
+			try(InputStream inputStream = Main.class.getResourceAsStream("sounds/Zongora.mp3")){
+				BGMusic = new Player(inputStream);
+				BGMusic.play();
+			} catch (Exception e)
+			{
+				Main.log("Could not load sounds: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}).start();
+	}
+	
+	public static void stopBgMusic() {
+		if(BGMusic != null) {
+			new Thread(()->{
+				BGMusic.close();
+			}).start();
 		}
 	}
 	
