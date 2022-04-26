@@ -117,7 +117,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	private float centerX, centerY, McenterX, McenterY;
 	private float difX, difY;
-	
+	private float prevX, prevY;
 	
 	private final Cursor invisibleCursor = Toolkit.getDefaultToolkit()
 			.createCustomCursor(new BufferedImage(1, 1, Transparency.TRANSLUCENT), new Point(0, 0), "InvisibleCursor");
@@ -322,14 +322,17 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 				if(centered) {
 					Point arg0 = MouseInfo.getPointerInfo().getLocation();
-					difX = McenterX - (float) (arg0.getX());
-					difY = McenterY - (float) (arg0.getY());
+					difX=prevX-arg0.x;
+					difY=prevY-arg0.y;
+					if(Math.abs(arg0.x-McenterX)>Main.Width/5 || Math.abs(arg0.y-McenterY)>Main.Height/5) {
+						centerMouse();
+					}else {
+						prevX=arg0.x;
+						prevY=arg0.y;
+					}
 				}else {
 					difX=0;
 					difY=0;
-				}
-				
-				if(difX != 0 || difY != 0) {
 					centerMouse();
 				}
 			}else if(!Main.nopause){
@@ -564,6 +567,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 					debugInfo.clear();
 					debugInfo.add("Eye:" + PEPos+", yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch) +", difX: "+ difX + ", difY: "+ difY);
+					debugInfo.add("McenterX:" + McenterX + ", McenterY:" + McenterY);
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
@@ -1274,6 +1278,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		try
 		{
 			rob.mouseMove((int) McenterX, (int) McenterY);
+			prevX=McenterX;
+			prevY=McenterY;
 			centered = true;
 		} catch (Exception e)
 		{
