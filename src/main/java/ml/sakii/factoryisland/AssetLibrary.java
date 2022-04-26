@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-
 import javax.imageio.ImageIO;
-import javazoom.jl.player.Player;
 
 public class AssetLibrary {
 	public static BufferedImage drillSide;
@@ -19,7 +17,7 @@ public class AssetLibrary {
 
 	public static Surface[] waters, oils;
 	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;
-	private static Player BGMusic;
+	private static AudioThread BGMusic;
 	
 	static Color skyColor = Color.BLACK;
 	
@@ -75,25 +73,15 @@ public class AssetLibrary {
 		
 	}
 	
+	
 	public static void playBgMusic() {
-		new Thread(()->{
-			try(InputStream inputStream = Main.class.getResourceAsStream("sounds/Zongora.mp3")){
-				BGMusic = new Player(inputStream);
-				BGMusic.play();
-			} catch (Exception e)
-			{
-				Main.log("Could not load sounds: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}).start();
+		BGMusic = new AudioThread();
+		BGMusic.start();
 	}
+
 	
 	public static void stopBgMusic() {
-		if(BGMusic != null) {
-			new Thread(()->{
-				BGMusic.close();
-			}).start();
-		}
+		BGMusic.kill();
 	}
 	
 	private static BufferedImage loadTexture(String path)

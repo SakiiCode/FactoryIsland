@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ml.sakii</groupId>
   <artifactId>factoryisland</artifactId>
-  <version>0.11.0</version>
+  <version>0.12.-1</version>
   <name>FactoryIsland</name>
   <description></description>
   <properties>
@@ -16,10 +16,10 @@
 	  <artifactId>nashorn-core</artifactId>
 	  <version>15.3</version>
 	</dependency>
-	<dependency>
-      <groupId>javazoom</groupId>
-      <artifactId>jlayer</artifactId>
-      <version>1.0.1</version>
+    <dependency>
+      <groupId>com.tagtraum</groupId>
+      <artifactId>ffsampledsp-complete</artifactId>
+      <version>0.9.46</version>
     </dependency>
   </dependencies>
   <build>
