@@ -489,11 +489,7 @@ public class Polygon3D extends Object3D{
 			begin2 = values[1];
 			end = values[2];					
 			
-			pointVec.set(end.x-begin2.x,end.y-begin2.y,0);
-			lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y,0)
-				.normalize()
-				.multiply(lineVec.DotProduct(pointVec))
-				.add(begin2.x, begin2.y, 0);
+			GradientCalculator.getPerpendicular(begin1, begin2, end, pointVec, lineVec);
 
 			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX, end.x, end.y, Color4.TRANSPARENT));
 		}

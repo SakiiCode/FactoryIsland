@@ -18,6 +18,9 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 	private Color4 front;
 	private Color4 active;
 	
+	private Vector lineVec = new Vector();
+	private Vector pointVec = new Vector();
+	
 	
 	public SimpleMachine(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole, GameEngine engine)
 	{
@@ -89,14 +92,14 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		
 		for(BlockFace nearby : target.getNearby()){
 			 	
-			Point2D[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, new Vector(), game);
-			Point2D begin1 = values[0];
-			Point2D begin = values[1];
-			Point2D end = values[2];
+			Point2D.Float[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, lineVec, game);
+			Point2D.Float begin1 = values[0];
+			Point2D.Float begin2 = values[1];
+			Point2D.Float end = values[2];
 			
-			Point2D endPerp = GradientCalculator.getPerpendicular(begin1, begin, begin, begin.distance(end));
+			GradientCalculator.getPerpendicular(begin1, begin2, end, pointVec, lineVec);
 				
-			Polygons.get(nearby.id).s.p = new GradientPaint(begin, this.front.getColor(), endPerp,Color4.TRANSPARENT);
+			Polygons.get(nearby.id).s.p = new GradientPaint(lineVec.x, lineVec.y, this.front.getColor(), end.x, end.y, Color4.TRANSPARENT);
 		 }
 		
 	}

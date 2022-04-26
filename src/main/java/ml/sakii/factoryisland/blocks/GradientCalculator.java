@@ -157,7 +157,7 @@ public class GradientCalculator {
 		
 	}
 	
-	public static Point2D getPerpendicular(Point2D p1, Point2D p2, Point2D interceptPt, double d) {
+	public static Point2D getPerpendicularOld(Point2D p1, Point2D p2, Point2D interceptPt, double d) {
 	    double xdiff = p1.getX() - p2.getX();
 	    double ydiff = p1.getY() - p2.getY();
 	    double atan = Math.atan2(ydiff, xdiff);
@@ -167,6 +167,13 @@ public class GradientCalculator {
 	    return new Point2D.Double(x, y);
 	}
 	
+	public static void getPerpendicular(Point2D.Float begin1, Point2D.Float begin2, Point2D.Float end, Vector pointVec, Vector lineVec) {
+		pointVec.set(end.x-begin2.x,end.y-begin2.y,0);
+		lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y,0)
+			.normalize()
+			.multiply(lineVec.DotProduct(pointVec))
+			.add(begin2.x, begin2.y, 0);
+	}
 	
 	
 
