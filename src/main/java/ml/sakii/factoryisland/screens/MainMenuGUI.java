@@ -132,7 +132,6 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 		this.setLayout(layout);
 		
 
-		AssetLibrary.playBgMusic();
 
 
 	}

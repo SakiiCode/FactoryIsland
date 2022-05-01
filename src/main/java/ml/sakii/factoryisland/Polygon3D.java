@@ -370,7 +370,7 @@ public class Polygon3D extends Object3D{
 					 	
 					 	int rgb;
 					 	if(game.key[6]) {
-					 		int px=Math.round(255*(float)(0.03/iz));
+					 		int px=(int) Math.round(255*(Math.pow(1-iz, 6)));
 					 		rgb = (255 << 24) | (px << 16) | (px << 8) | px;
 					 		
 					 	}else {
@@ -390,7 +390,7 @@ public class Polygon3D extends Object3D{
 	
 						 	}catch(Exception e) {
 						 		e.printStackTrace();
-						 		rgb=0;
+						 		rgb=0xFF000000;
 						 	}
 					 	}
 					 	ZBuffer[x][y].color=rgb;

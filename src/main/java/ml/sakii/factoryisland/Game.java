@@ -461,7 +461,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 								
 								int color =ZBuffer[x][y].color; 
 								
-								if(color != 0) {
+								if(color != 0) { //color not set => transparent. Black is 0xFF000000
 									maskManager.setRGB(x, y, color);
 								}
 								ZBuffer[x][y].reset();
