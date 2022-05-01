@@ -451,11 +451,6 @@ public class Polygon3D extends Object3D{
 			g2d.drawPolygon(polygon);
 		}
 		
-		
-		if(selected && game.showHUD) {
-			renderSelectOutline(g);
-		}
-		
 	}
 	
 	

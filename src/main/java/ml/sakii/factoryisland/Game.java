@@ -520,7 +520,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						SelectedFace=b.HitboxPolygons.get(SelectedPolygon);
 						SelectedBlock.select(SelectedFace);
 					}
-					if(Config.useTextures && showHUD) {
+					if(showHUD) {
 						SelectedPolygon.renderSelectOutline(fb);
 					}
 				
