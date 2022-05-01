@@ -9,4 +9,9 @@ public class PixelData {
 		color=0;
 	}
 
+	@Override
+	public String toString() {
+		return depth+", 0x"+Integer.toHexString(color).toUpperCase();//Integer.toString(color,16);
+	}
+	
 }

@@ -431,7 +431,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 			
 			
-			
+			String crosshairPixel=null;
 			if(Config.useTextures) {
 				VisibleCounter.set(0);
 				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof Polygon3D;}).forEach(o ->{
@@ -450,7 +450,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 				VisibleCount=VisibleCounter.get();
 				maskManager.clear();
-				
+				crosshairPixel = ZBuffer[FrameBuffer.getWidth()/2-1][FrameBuffer.getHeight()/2-1].toString();
 				IntStream.range(0, maskManager.threads).parallel()
 					.forEach(id -> {
 						int start = id*maskManager.tileWidth;
@@ -586,6 +586,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("SelectedEntity: "+SelectedEntity + ", health:" + SelectedEntity.getHealth());
 					}else {
 						debugInfo.add("SelectedEntity: null");
+					}
+					if(Config.useTextures) {
+						debugInfo.add("Selected Pixel: "+crosshairPixel);
 					}
 					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 					debugInfo.add("testing:"+key[6]);
