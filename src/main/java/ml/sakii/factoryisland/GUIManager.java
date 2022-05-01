@@ -29,6 +29,7 @@ public class GUIManager {
 
 	private MultiplayerGUI MPGui;
 	private PauseGUI pauseGui;
+	SingleplayerGUI SPGui;
 	
 	private String CurrentCLCard = "";
 	private String PreviousCLCard = "";
@@ -57,7 +58,8 @@ public class GUIManager {
 
 		Base = new JPanel(new CardLayout());
 		MPGui = new MultiplayerGUI(this);
-		Base.add(new SingleplayerGUI(this), "generate");
+		SPGui = new SingleplayerGUI(this);
+		Base.add(SPGui, "generate");
 		Base.add(new BenchmarkGUI(this), "benchmark");
 		Base.add(MPGui, "connect");
 		Base.add(new MainMenuGUI(this), "mainmenu");
@@ -131,7 +133,7 @@ public class GUIManager {
 	public void SwitchWindow(String To)
 	{
 
-		if (CurrentCLCard.equals("pause") && To.equals("mainmenu"))
+		if ((CurrentCLCard.equals("pause") && To.equals("mainmenu")) || CurrentCLCard.equals(""))
 		{
 			AssetLibrary.playBgMusic();
 		}else if(To.equals("game")) {

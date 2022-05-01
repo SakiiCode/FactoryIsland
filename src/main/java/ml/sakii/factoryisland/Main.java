@@ -24,7 +24,6 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
@@ -103,9 +102,9 @@ public class Main
 		List<String> params = Arrays.asList(args);
         for(int i=0;i<params.size();i++) {
         	switch(params.get(i)) {
-        	case "-name":name=params.get(i+1);
+        	case "-name":name=params.get(i+1); i++;
         		break;
-        	case "-map":map=params.get(i+1);
+        	case "-map":map=params.get(i+1); i++;
         		break;
         	case "-server":headless=true;
         		break;
@@ -168,16 +167,16 @@ public class Main
         	}
         }else {
         
-	        setupWindow(name);
-	   
+	        
 	        if(map != null) {
-	        	guiManager.launchWorld(map,false,new JLabel());
-				//SwitchWindow("generate");
+	        	Config.selectedMap=map;
+		        setupWindow(name);
+
+	        	guiManager.SwitchWindow("generate");
+	        	guiManager.SPGui.join(false);
 				
-				//SingleplayerGUI sp = ((SingleplayerGUI)Base.getComponents()[0]);
-				//sp.getWorldsList().setSelectedValue(map, true);
-				//sp.join(false);
-				
+			}else {
+		        setupWindow(name);
 			}
         
         }
