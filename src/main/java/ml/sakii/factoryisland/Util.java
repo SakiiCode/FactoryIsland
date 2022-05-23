@@ -25,6 +25,15 @@ public class Util {
 		return new float[]{newX, newY};
 	}
 
+	public static int limit(int value, int min, int max) {
+		if(value>max) {
+			return max;
+		}
+		if(value<min) {
+			return min;
+		}
+		return value;
+	}
 	
 
 }

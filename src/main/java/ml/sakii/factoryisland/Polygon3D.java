@@ -451,6 +451,23 @@ public class Polygon3D extends Object3D{
 			g2d.drawPolygon(polygon);
 		}
 		
+		for(Sphere3D sphere : game.Spheres) {
+			//player is in the sphere
+			if(game.PE.ViewFrom.distance(sphere.getPos())<sphere.getRadius()) {
+				// polygon is outside the sphere
+				if(centroid.distance(sphere.getPos())>sphere.getRadius()){
+					g2d.setColor(sphere.getColor().getColor());
+					g2d.fillPolygon(polygon);
+				}
+			}else { // player is outside the sphere
+				//polygon is inside the sphere but closer than the center
+				if(centroid.distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()){
+					g2d.setColor(sphere.getColor().getColor());
+					g2d.fillPolygon(polygon);
+				}
+			}
+		}
+		
 	}
 	
 	
