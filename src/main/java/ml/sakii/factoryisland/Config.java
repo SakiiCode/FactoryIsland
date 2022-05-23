@@ -24,6 +24,8 @@ public class Config {
 	public static TargetMarkerType targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
 	public static boolean ambientOcclusion = Prefs.getBoolean("ambientOcclusion", true);
 	
+	private static int zoom;
+	
 	public static void save(){
 		Prefs.putInt("renderDistance",	renderDistance);
 		Prefs.putInt("sensitivity", sensitivity);
@@ -39,6 +41,7 @@ public class Config {
 		Prefs.put("multiAddr", multiAddr);
 		Prefs.put("selectedMap", selectedMap);
 		Prefs.putBoolean("ambientOcclusion", ambientOcclusion);
+		zoom=FOVToZoom(FOV);
 		
 	}
 
@@ -73,7 +76,7 @@ public class Config {
 	}
 	
 	public static int getZoom() {
-		return FOVToZoom(FOV);
+		return zoom;
 	}
 	
 	public static int getWidth() {
