@@ -69,7 +69,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	// RENDERING
 	final Vector BottomViewVector = new Vector(), TopViewVector = new Vector(), RightViewVector = new Vector(),
 			LeftViewVector = new Vector();
-	private final Vector ViewTo = new Vector();
 	private final Vector FrontViewVector = new Vector();
 	private final Vector BackViewVector = new Vector();
 	private RenderThread renderThread;
@@ -81,8 +80,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	int margin;
 	
 	boolean showHUD=true;
-	private Point2D.Float dP=new Point2D.Float();
-	private float dx, dy;
 	private boolean F3 = false;
 	private float FPS = 30f;
 	private LinkedList<String> debugInfo = new LinkedList<>();
@@ -269,16 +266,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		ViewFrustum = new Frustum(this);
 
 		resizeScreen(Config.getWidth(), Config.getHeight());
-		ViewTo.set(PE.getPos()).add(ViewVector);
-		setP(ViewTo,dP);
-		dx = -Config.getZoom() * dP.x + centerX;
-		dy = -Config.getZoom() * dP.y + centerY;
 
 
-		    op = new RescaleOp(
-		            new float[]{0.2f, 0.2f, 0.2f, 1f}, // scale factors for red, green, blue, alpha
-		            new float[]{0, 0, 0, 0}, // offsets for red, green, blue, alpha
-		            null);
+	    op = new RescaleOp(
+	            new float[]{0.2f, 0.2f, 0.2f, 1f}, // scale factors for red, green, blue, alpha
+	            new float[]{0, 0, 0, 0}, // offsets for red, green, blue, alpha
+	            null);
 		
 		try
 		{
@@ -377,12 +370,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 				if (!locked) ViewFrustum.update();
 
-				ViewTo.set(PEPos).add(ViewVector);
-				setP(ViewTo,dP);
-
-				dx = -Config.getZoom() * dP.x + centerX;
-				dy = -Config.getZoom() * dP.y + centerY;
-
 				firstframe = false;
 			}
 
@@ -411,6 +398,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			fb.setColor(AssetLibrary.skyColor);
 			fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 
+			
 			fb.setColor(Color.WHITE);
 			
 			double timeFraction = Engine.getTimePercent();
@@ -1114,22 +1102,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	public Point2D.Float convert3Dto2D(Vector tmp, Point2D.Float point)
 	{
-		setP(tmp, point);
-		float x2d = dx + Config.getZoom() * point.x;
-		float y2d = dy + Config.getZoom() * point.y;
+		
+		tmp.substract(PE.getPos());
+		
+		float t = tmp.DotProduct(ViewVector);
+		tmp.multiply(1 / t);
+
+		float x2d = centerX + Config.getZoom() * tmp.DotProduct(RightViewVector);
+		float y2d = centerY + Config.getZoom() * tmp.DotProduct(BottomViewVector);
+		
 
 		point.setLocation(x2d, y2d);
 		return point;
 
-	}
-	
-	 private void setP(Vector tmp, Point2D.Float point)
-	{
-		Vector PEPos = PE.getPos();
-		float t = tmp.substract(PEPos).DotProduct(ViewVector);
-		tmp.multiply(1 / t).add(PEPos);
-
-		point.setLocation(RightViewVector.DotProduct(tmp), BottomViewVector.DotProduct(tmp));
 	}
 
 	@Override
