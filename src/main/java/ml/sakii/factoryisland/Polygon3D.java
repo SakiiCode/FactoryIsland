@@ -11,7 +11,6 @@ import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +21,7 @@ import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.Corner;
 import ml.sakii.factoryisland.blocks.GradientCalculator;
 
-public class Polygon3D extends Object3D{
+public class Polygon3D extends Object3D implements BufferDrawer{
 	Polygon polygon = new Polygon();
 	boolean adjecentFilter = true;
 	private boolean faceFilter = true;
@@ -56,8 +55,8 @@ public class Polygon3D extends Object3D{
 	private Point2D.Double centroid2D = new Point2D.Double();
 	private float[] fractions = new float[]{0.5f,1.0f};
 	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
-	private int[][] UVMap;
-	private int[][] clipUV,clipUV2;
+	private double[][] UVMap;
+	private double[][] clipUV,clipUV2;
 	
 	private float physicalRadius;
 	
@@ -74,16 +73,23 @@ public class Polygon3D extends Object3D{
 	private Point2D.Float begin1=new Point2D.Float();
 	private Point2D.Float begin2=new Point2D.Float();
 	private Point2D.Float end=new Point2D.Float();
+
 	
 	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
 		this.Vertices = vertices;
-		this.UVMap = UVMapOfVertices;
+		
+		this.UVMap = new double[UVMapOfVertices.length][UVMapOfVertices[0].length+1];
+		for(int i=0;i<UVMapOfVertices.length;i++) {
+			for(int j=0;j<UVMapOfVertices[0].length;j++) {
+				UVMap[i][j]=UVMapOfVertices[i][j];
+			}
+		}
 		this.model=model;
 
 		
-		clipUV=new int[20][2];
-		clipUV2=new int[20][2];
+		clipUV=new double[20][3];
+		clipUV2=new double[20][3];
 
 		
 		this.s = s;
@@ -258,8 +264,8 @@ public class Polygon3D extends Object3D{
 		return light;
 	}
 		
-
-	void drawToBuffer(PixelData[][] ZBuffer, Game game) {
+	@Override
+	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
 		
 		// buffer init
 		bufferXmin.clear();
@@ -267,6 +273,7 @@ public class Polygon3D extends Object3D{
 		bufferUVZmin.clear();
 		bufferUVZmax.clear();
 		
+
 
 		//vertexről vertexre körbemegyünk
 		for(int i=0;i<clipSize;i++) {
@@ -279,6 +286,7 @@ public class Polygon3D extends Object3D{
 			
 			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
 			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
+			
 			
 			final Point p1 = v1.proj;
 			final Point p2 = v2.proj;
@@ -320,87 +328,123 @@ public class Polygon3D extends Object3D{
 
 		}
 	
-		int imgw = Collections.max(bufferXmax.values()) -  Collections.min(bufferXmin.values());
 		
-		if(imgw>0) { //ha merőlegesen állunk ne rajzoljon
-			
-			// átmeneti kép, erre rajzoljuk a polygont, és ezt rajzoljuk az ablakra
+		// átmeneti kép, erre rajzoljuk a polygont, és ezt rajzoljuk az ablakra
 
-			
-			//a polygon minden során végigmegyünk
-			for(int y=ymin;y<ymax;y++)
-			{
-				//a polygon adott sorának két szélének adatai
-				int xmin=bufferXmin.get(y);
-				int xmax=bufferXmax.get(y);
-				UVZ uvzmin = bufferUVZmin.get(y);
-				UVZ uvzmax = bufferUVZmax.get(y);
-			 
+		
+		//a polygon minden során végigmegyünk
+		for(int y=ymin;y<ymax;y++)
+		{
+			//a polygon adott sorának két szélének adatai
+			int xmin=bufferXmin.get(y);
+			int xmax=bufferXmax.get(y);
+			UVZ uvzmin = bufferUVZmin.get(y);
+			UVZ uvzmax = bufferUVZmax.get(y);
+		 
 
 
-				double Siz = Util.getSlope(xmin, xmax, uvzmin.iz, uvzmax.iz);
-				double Suz = Util.getSlope(xmin, xmax, uvzmin.uz, uvzmax.uz);
-				double Svz = Util.getSlope(xmin, xmax, uvzmin.vz, uvzmax.vz);
-
-				int xmin2=Math.max(xmin, 0);
-				int xmax2=Math.min(xmax, Config.getWidth());
-				for(int x=xmin2;x<xmax2;x++)
-				{
-				 
-			 		double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
-			 		synchronized(ZBuffer[x][y]) {
-					 	if(ZBuffer[x][y].depth>iz) continue;
-					 	ZBuffer[x][y].depth=iz;
-					 	if(!game.key[6]) {//depthmap-nál ne mutassa a kereteket
-						 	if(y>ymin && y<ymax-1 &&
-						 			(
-							 			(x<bufferXmin.get(y+1) || x>bufferXmax.get(y+1) || x<bufferXmin.get(y-1) || x>bufferXmax.get(y-1)) || 
-							 			x==xmin2 || x==xmax2-1
-						 			)
-						 		) {
-						 		ZBuffer[x][y].color=0xFF000000;
-						 		continue;
-						 	}else if(y==ymax-1 || y==ymin) {
-						 		ZBuffer[x][y].color=0xFF000000;
-						 		continue;
-						 	}
-					 	}
-					 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
-					 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
-					 	
-					 	int rgb;
-					 	if(game.key[6]) {
-					 		int px=(int) Math.round(255*(Math.pow(1-iz, 6)));
-					 		rgb = (255 << 24) | (px << 16) | (px << 8) | px;
-					 		
-					 	}else {
-						 	double u=uz/iz;
-						 	double v=vz/iz;
-						 	
-						 	try {
-						 		int px;
-						 		if(s.color) {
-						 			px=s.c.getRGB();
-						 		}else {
-						 			px=s.Texture.getRGB((int)u, (int)v);
-						 		}
-						 		px=px|0xFF000000;
-				 				rgb=Color4.blend(px, overlay.getRGB());
-
-	
-						 	}catch(Exception e) {
-						 		e.printStackTrace();
-						 		rgb=0xFF000000;
-						 	}
-					 	}
-					 	ZBuffer[x][y].color=rgb;
-				 		
-			 		}
-				}
-				
+			double Siz = Util.getSlope(xmin, xmax, uvzmin.iz, uvzmax.iz);
+			double Suz = Util.getSlope(xmin, xmax, uvzmin.uz, uvzmax.uz);
+			double Svz = Util.getSlope(xmin, xmax, uvzmin.vz, uvzmax.vz);
+			double Sao=0;
+			if(Config.ambientOcclusion) {
+				Sao = Util.getSlope(xmin, xmax, uvzmin.ao, uvzmax.ao);
 			}
 			
+			
 
+			int xmin2=Math.max(xmin, 0);
+			int xmax2=Math.min(xmax, Config.getWidth());
+					
+			for(int x=xmin2;x<xmax2;x++)
+			{
+			 
+		 		double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
+		 		synchronized(ZBuffer[x+1][y]) {
+				 	if(ZBuffer[x+1][y].depth>iz) continue;
+				 	ZBuffer[x+1][y].depth=iz;
+				 	
+				 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
+				 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
+				 	double aoz=0;
+				 	if(Config.ambientOcclusion) {
+				 		aoz=Util.interpSlope(xmin, x, uvzmin.ao, Sao);
+				 	}
+				 	
+				 	int rgb;
+				 	
+				 	double u=uz/iz;
+				 	double v=vz/iz;
+				 	double ao=0;
+				 	if(Config.ambientOcclusion) {
+				 		ao=Util.limit(aoz/iz,0,1);
+				 	}
+				 	
+				 	int u2=0,v2=0;
+				 	
+				 	try {
+				 		int px;
+				 		if(s.color) {
+				 			px=s.c.getRGB();
+				 		}else {
+				 			u2 = Util.limit((int)u, 0, s.Texture.getWidth()-1);
+				 			v2 = Util.limit((int)v, 0, s.Texture.getHeight()-1);
+				 			px=s.Texture.getRGB(u2, v2);
+				 		}
+				 		px=px|0xFF000000;
+				 		if(Config.ambientOcclusion) {
+				 			rgb=Color4.blend(Color4.blend(px, overlay.getRGB()),new Color(0f,0f,0f,(float)ao).getRGB());
+				 		}else {
+				 			rgb=Color4.blend(px, overlay.getRGB());
+				 		}
+
+
+				 	}catch(Exception e) {
+				 		System.out.println(e.getMessage()+" (u:"+u+",v:"+v+",ao:"+ao+" -> u2:"+u2+",v2:"+v2+")");
+				 		rgb=0xFF000000;
+				 	}
+				 	
+				 	ZBuffer[x+1][y].color=rgb; //TODO megnezni miert van eltolva
+			 		
+		 		}
+			}
+				
+		}
+		
+		for(int i=0;i<clipSize;i++) {
+			
+			int index1= i;
+			int index2= i != clipSize-1 ? i+1 : 0;
+			
+			Vertex v1 = clip[index1]; 
+			Vertex v2 = clip[index2];
+			
+			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
+			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
+			
+			final Point p1 = v1.proj;
+			final Point p2 = v2.proj;
+			
+			Bresenham.plotLine(p1.x, p1.y, p2.x, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
+		}
+		
+		if(Config.getHeight()>=1440) {
+			for(int i=0;i<clipSize;i++) {
+				
+				int index1= i;
+				int index2= i != clipSize-1 ? i+1 : 0;
+				
+				Vertex v1 = clip[index1]; 
+				Vertex v2 = clip[index2];
+				
+				UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
+				UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
+				
+				final Point p1 = v1.proj;
+				final Point p2 = v2.proj;
+				
+				Bresenham.plotLine(p1.x+1, p1.y, p2.x+1, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
+			}	
 		}
 	}
 
@@ -451,7 +495,7 @@ public class Polygon3D extends Object3D{
 			g2d.drawPolygon(polygon);
 		}
 		
-		for(Sphere3D sphere : game.Spheres) {
+		for(SphereWeird3D sphere : game.Spheres) {
 			//player is in the sphere
 			if(game.PE.ViewFrom.distance(sphere.getPos())<sphere.getRadius()) {
 				// polygon is outside the sphere
@@ -461,7 +505,11 @@ public class Polygon3D extends Object3D{
 				}
 			}else { // player is outside the sphere
 				//polygon is inside the sphere but closer than the center
-				if(centroid.distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()){
+				/*if(centroid.distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()){
+					g2d.setColor(sphere.getColor().getColor());
+					g2d.fillPolygon(polygon);
+				}*/
+				if(model.getPos().distance(sphere.getPos())<=sphere.getRadius()-1 && AvgDist < sphere.getCenterDist()) {
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
 				}
@@ -584,7 +632,7 @@ public class Polygon3D extends Object3D{
 				.add(begin2.x, begin2.y, 0);
 			
 
-			OcclusionPaints.add((new GradientPaint(lineVec.x, lineVec.y, Color4.TRANSPARENT, end.x, end.y, Color4.AO_MAX)));
+			OcclusionPaints.add((new GradientPaint(lineVec.x, lineVec.y, Color4.TRANSPARENT, end.x, end.y, Color4.AO_MAX_FLAT)));
 			
 		}
 
@@ -658,7 +706,7 @@ public class Polygon3D extends Object3D{
 	    return point;
 	}
 
-	private void resetClipsTo(Vertex[] vertexArr, int[][] uvArr, int size) {
+	private void resetClipsTo(Vertex[] vertexArr, double[][] uvArr, int size) {
 		for(int i=0;i<size;i++) {
 			clip[i].set(vertexArr[i]);
 			clipUV[i]=uvArr[i];
@@ -677,8 +725,8 @@ public class Polygon3D extends Object3D{
 				Vertex v1 = clip[index1];
 				Vertex v2 = clip[index2];
 				
-				int[] uv1 = clipUV[index1];
-				int[] uv2 = clipUV[index2];
+				double[] uv1 = clipUV[index1];
+				double[] uv2 = clipUV[index2];
 				
 				Vector a = v1;
 				Vector b = v2;
@@ -726,11 +774,12 @@ public class Polygon3D extends Object3D{
 		resetClipsTo(clip2,clipUV2,clip2Size);
 	}
 	
-	private static int[] getUVInterp(Vector p1, Vector pos, Vector p2, int[]uv1, int[] uv2) {
+	private static double[] getUVInterp(Vector p1, Vector pos, Vector p2, double[] uv1, double[] uv2) {
 		double distanceratio = p1.distance(pos) / p1.distance(p2);
-		int u = (int) Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
-		int v = (int) Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
-		return new int[] {u,v};
+		double u = Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
+		double v = Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
+		double ao = Util.interp(0, 1, distanceratio, uv1[2], uv2[2]);
+		return new double[] {u,v,ao};
 	}
 	
 
@@ -743,3 +792,4 @@ public class Polygon3D extends Object3D{
 
 	
 }
+

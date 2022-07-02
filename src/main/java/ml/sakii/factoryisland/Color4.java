@@ -9,7 +9,8 @@ public class Color4 {
     private static final double FACTOR = 0.7;
     
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
-	public static final Color AO_MAX = new Color(0, 0, 0, 0.4f);
+	public static final Color AO_MAX_FLAT = new Color(0, 0, 0, 0.4f);
+	public static final Color AO_MAX_TEXTURED = new Color(0, 0, 0, 0.6f);
 	public static final Color CROSSHAIR_COLOR = new Color(1.0f, 1.0f, 1.0f, 0.2f);
 
 	

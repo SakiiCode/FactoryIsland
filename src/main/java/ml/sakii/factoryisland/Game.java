@@ -1301,8 +1301,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		maskManager.resizeScreen(w, h);
 		GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[Main.screen].getDefaultConfiguration();
 		VolatileFrameBuffer = config.createCompatibleVolatileImage(w, h);
-		ZBuffer=new PixelData[w][h];
-		for(int x =0;x<w;x++) {
+		ZBuffer=new PixelData[w+1][h];
+		for(int x =0;x<w+1;x++) {
 			for(int y=0;y<h;y++) {
 				ZBuffer[x][y]=new PixelData();
 			}
