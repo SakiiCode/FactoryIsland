@@ -63,7 +63,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public PlayerMP PE;
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
 	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
-	final CopyOnWriteArrayList<Sphere3D> Spheres = new CopyOnWriteArrayList<>();
+	final CopyOnWriteArrayList<SphereWeird3D> Spheres = new CopyOnWriteArrayList<>();
 	
 	
 	// RENDERING
@@ -289,13 +289,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		Stars[Stars.length-1] = new Star(this,100);
 		//sphere = new Sphere3D(0,0,0,10,new Color4(60f/255f,19f/255f,97f/255f,0.3f));
-		/*Sphere3D sphere1 = new Sphere3D(0,0,0,10,new Color4(1,0,1,0.3f));
+		/*SphereWeird3D sphere1 = new SphereWeird3D(0,0,0,10,new Color4(1,0,1,0.3f));
 		Objects.add(sphere1);
-		Spheres.add(sphere1);
-		Sphere3D sphere2 = new Sphere3D(10,10,10,3,new Color4(0,1,0,0.3f));
+		Spheres.add(sphere1);*/
+		/*Sphere3D sphere2 = new Sphere3D(10,10,10,3,new Color4(0,1,0,0.3f));
 		Objects.add(sphere2);
 		Spheres.add(sphere2);*/
 		renderThread = new RenderThread(this, guiManager);
+
 	}
 	
 
@@ -395,6 +396,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			VisibleCount = 0;
 
 			Graphics fb = g;
+
 			fb.setColor(AssetLibrary.skyColor);
 			fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
 
@@ -412,7 +414,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			Spheres.sort((s1,s2)->Float.compare(s1.AvgDist,s2.AvgDist));
 			
-			for(Sphere3D sphere : Spheres) {
+			for(SphereWeird3D sphere : Spheres) {
 				if(PE.ViewFrom.distance(sphere.getPos())<=sphere.getRadius()){
 					fb.setColor(sphere.getColor().getColor());
 					fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
@@ -487,7 +489,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 					
-				Objects.parallelStream().filter(o->!(o instanceof BufferDrawer)).sorted().forEachOrdered(t ->{
+				Objects.parallelStream().filter(o->!(o instanceof Polygon3D)).sorted().forEachOrdered(t ->{
 					t.draw(null, fb, this); //nem kell image-t megadni text3d-hez
 				});
 				

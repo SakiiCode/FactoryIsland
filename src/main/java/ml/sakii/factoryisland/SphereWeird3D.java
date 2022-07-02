@@ -6,7 +6,8 @@ import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
-public class Sphere3D extends Object3D{
+@Deprecated
+public class SphereWeird3D extends Object3D{
 
 	private float radius=0, centerDist=0;
 	private final Vector pos=new Vector();
@@ -29,7 +30,7 @@ public class Sphere3D extends Object3D{
 	private Vector viewToPos = new Vector(), posRight = new Vector();
 	
 	
-	public Sphere3D(float x, float y, float z, float radius, Color4 color) {
+	public SphereWeird3D(float x, float y, float z, float radius, Color4 color) {
 		this.pos.set(x, y, z);
 		this.radius=radius;
 		this.getColor().set(color);
@@ -151,83 +152,103 @@ public class Sphere3D extends Object3D{
 
 	@Override
 	protected void draw(BufferedImage FrameBuffer, Graphics g, Game game) {
-		g.setColor(getColor().getColor());
+		render(null, g, game);
+		
+	}
+	
+	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
+		render(ZBuffer, null, game);
+		
+	}
+	
+	private void render(PixelData[][] ZBuffer, Graphics g, Game game) {
+		if(!Config.useTextures) {
+			g.setColor(color.getColor());
+		}
+		
 		int[][] points = getClipPoints();
 		int[] xPoints = points[0];
 		int[] yPoints = points[1];
 		
-
-		if(drawTopLeft) {
-			Rectangle clipBoundsTopLeft = getClipBoundsTopLeft(xPoints, yPoints);
-			if(game.key[8]) {
-				
-				g.setColor(getColor().getColor());
-				g.fillRect(clipBoundsTopLeft.x,clipBoundsTopLeft.y,clipBoundsTopLeft.width,clipBoundsTopLeft.height);
-			}else {
-				g.setClip(clipBoundsTopLeft);
-				g.fillOval(clipBoundsTopLeft.x,
+		
+		if(game.key[8]) { // DEBUG MODE
+			if(drawTopLeft) {
+				drawDebugRect(getClipBoundsTopLeft(xPoints, yPoints), color.getColor(), ZBuffer, g, game);
+			}
+			
+			if(drawTopRight) {
+				drawDebugRect(getClipBoundsTopRight(xPoints, yPoints), new Color(0,1,0,0.25f), ZBuffer, g, game);
+			}
+			
+			if(drawBottomLeft) {
+				drawDebugRect(getClipBoundsBottomLeft(xPoints, yPoints), new Color(1,1,1,0.25f), ZBuffer, g, game);
+			}
+			
+			if(drawBottomRight) {
+				drawDebugRect(getClipBoundsBottomRight(xPoints, yPoints), new Color(1,0,0,0.25f), ZBuffer, g, game);
+			}
+			
+			if(drawCenter) {
+				setClip(null, g);
+				drawDebugRect(getClipBoundsCenter(xPoints, yPoints), new Color(0,1,1,0.25f), ZBuffer, g, game);
+			}
+		}else {
+			int rgb = color.getRGB();
+			if(drawTopLeft) {
+				Rectangle clipBoundsTopLeft = getClipBoundsTopLeft(xPoints, yPoints);
+				setClip(clipBoundsTopLeft, g);
+				fillOval(clipBoundsTopLeft.x,
 						clipBoundsTopLeft.y,
 						clipBoundsTopLeft.width*2,
-						clipBoundsTopLeft.height*2);
+						clipBoundsTopLeft.height*2, rgb, ZBuffer, g, game);
 			}
-		}
-		
-		
-		if(drawTopRight) {
-			Rectangle clipBoundsTopRight = getClipBoundsTopRight(xPoints, yPoints);
-			if(game.key[8]) {
-				g.setColor(new Color(0,1,0,0.25f));
-				g.fillRect(clipBoundsTopRight.x,clipBoundsTopRight.y,clipBoundsTopRight.width,clipBoundsTopRight.height);
-			}else {
-				g.setClip(clipBoundsTopRight);
-				g.fillOval(clipBoundsTopRight.x-clipBoundsTopRight.width,
+			
+			if(drawTopRight) {
+				Rectangle clipBoundsTopRight = getClipBoundsTopRight(xPoints, yPoints);
+				setClip(clipBoundsTopRight, g);
+				fillOval(clipBoundsTopRight.x-clipBoundsTopRight.width,
 						clipBoundsTopRight.y,
 						clipBoundsTopRight.width*2,
-						clipBoundsTopRight.height*2);
+						clipBoundsTopRight.height*2, rgb, ZBuffer, g, game);
 			}
-		}
-		
-		if(drawBottomLeft) {
-		
-			Rectangle clipBoundsBottomLeft = getClipBoundsBottomLeft(xPoints, yPoints);
-			if(game.key[8]) {
-				g.setColor(new Color(1,1,1,0.25f));
-				g.fillRect(clipBoundsBottomLeft.x,clipBoundsBottomLeft.y,clipBoundsBottomLeft.width,clipBoundsBottomLeft.height);
-			}else {
-				g.setClip(clipBoundsBottomLeft);
-				g.fillOval(clipBoundsBottomLeft.x,
+			
+			if(drawBottomLeft) {
+				Rectangle clipBoundsBottomLeft = getClipBoundsBottomLeft(xPoints, yPoints);
+				setClip(clipBoundsBottomLeft, g);
+				fillOval(clipBoundsBottomLeft.x,
 						clipBoundsBottomLeft.y-clipBoundsBottomLeft.height,
 						clipBoundsBottomLeft.width*2,
-						clipBoundsBottomLeft.height*2);
+						clipBoundsBottomLeft.height*2, rgb, ZBuffer, g, game);
 			}
-		}
-		
-		if(drawBottomRight) {
-		
-			Rectangle clipBoundsBottomRight = getClipBoundsBottomRight(xPoints, yPoints);
-			if(game.key[8]) {
-				g.setColor(new Color(1,0,0,0.25f));
-				g.fillRect(clipBoundsBottomRight.x,clipBoundsBottomRight.y,clipBoundsBottomRight.width,clipBoundsBottomRight.height);
-			}else {
-				g.setClip(clipBoundsBottomRight);
-				g.fillOval(clipBoundsBottomRight.x-clipBoundsBottomRight.width,
+			
+			if(drawBottomRight) {
+				Rectangle clipBoundsBottomRight = getClipBoundsBottomRight(xPoints, yPoints);
+				setClip(clipBoundsBottomRight, g);
+				fillOval(clipBoundsBottomRight.x-clipBoundsBottomRight.width,
 						clipBoundsBottomRight.y-clipBoundsBottomRight.height,
 						clipBoundsBottomRight.width*2,
-						clipBoundsBottomRight.height*2);
+						clipBoundsBottomRight.height*2, rgb, ZBuffer, g, game);
 			}
+			
+			if(drawCenter) {
+				setClip(null, g);
+				Rectangle clipBoundsCenter = getClipBoundsCenter(xPoints, yPoints);
+				fillRect(clipBoundsCenter.x,clipBoundsCenter.y,clipBoundsCenter.width, clipBoundsCenter.height, rgb, ZBuffer, g, game);
+			}
+
 		}
 		
-		if(drawCenter) {
-			g.setClip(null);
-			Rectangle clipBoundsCenter = getClipBoundsCenter(xPoints, yPoints);
-			if(game.key[8]) {
-				g.setColor(new Color(0,1,1,0.25f));
-			}
-			g.fillRect(clipBoundsCenter.x,clipBoundsCenter.y,clipBoundsCenter.width,clipBoundsCenter.height);
+		setClip(null, g);
+		
+	}
+	
+	private void drawDebugRect(Rectangle rect, Color color, PixelData[][] ZBuffer, Graphics g, Game game) {
+		if(!Config.useTextures) {
+			g.setColor(color);
+			g.fillRect(rect.x,rect.y,rect.width,rect.height);
+		}else {
+			fillRect(rect.x,rect.y,rect.width,rect.height, color.getRGB(), ZBuffer, g, game);
 		}
-		
-		g.setClip(null);
-		
 	}
 	
 	public Rectangle getClipBounds() {
@@ -286,6 +307,146 @@ public class Sphere3D extends Object3D{
 	private Rectangle getRectangle(int x, int y, int w, int h) {
 		return new Rectangle((int)resultLeft.x+x, (int)resultTop.y+y, w, h);
 	}
+	
+	private Rectangle clip;
+	
+	private void setClip(Rectangle clip, Graphics g) {
+		if(clip==null) {
+			this.clip=new Rectangle(0,0,Config.getWidth(),Config.getHeight());
+		}else {
+			this.clip=clip;
+		}
+		if(!Config.useTextures) {
+			g.setClip(clip);
+		}
+	}
+		
+	
+	private void fillOval(int xA, int yA, int widthA, int heightA, int color, PixelData[][] ZBuffer, Graphics g, Game game) {
+		
+		if(widthA == 0 || heightA == 0) {
+			return;
+		}
+		
+		if(Config.useTextures) {
+			
+			
+			
+			int originX = xA+widthA/2;
+			int originY = yA+heightA/2;
+			
+			int width = widthA/2;
+			int height = heightA/2;
+			
+			int hh = height * height;
+			int ww = width * width;
+			int hhww = hh * ww;
+			int x0 = width;
+			int dx = 0;
+
+			
+			
+			
+			
+			// do the horizontal diameter
+			for (int x = -width; x <= width; x++) {
+				double dst = Math.sqrt(x*x+y*y);
+				double depth = 1/(AvgDist-radius*(1-Math.pow(dst/height,2)));
+			    setpixel(originX + x, originY, depth, ZBuffer);
+			}
+
+			// now do both halves at the same time, away from the diameter
+			for (int y = 1; y <= height; y++)
+			{
+			    int x1 = x0 - (dx - 1);  // try slopes of dx - 1 or more
+			    for ( ; x1 > 0; x1--)
+			        if (x1*x1*hh + y*y*ww <= hhww)
+			            break;
+			    dx = x0 - x1;  // current approximation of the slope
+			    x0 = x1;
+
+			    for (int x = -x0; x <= x0; x++)
+			    {
+			    	double dst = Math.sqrt(x*x+y*y);
+					double depth = 1/(AvgDist-radius*(1-Math.pow(dst/height,2)));
+			        setpixel(originX + x, originY - y, depth,  ZBuffer);
+			        setpixel(originX + x, originY + y, depth, ZBuffer);
+			    }
+			}
+			
+			
+			/*int originX = x+width/2;
+			int originY = y+height/2;
+			height /= 2;
+			width /= 2;
+			
+			for(int y2=-height; y2<=height; y2++) {
+			    for(int x2=-width; x2<=width; x2++) {
+			        if(x2*x2*height*height+y2*y2*width*width <= height*height*width*width) {
+			        	int x3 = originX+x2;
+			        	int y3 = originY+y2;
+			        	if(x3<0 || x3>=Config.getWidth() || y3<0 || y3>=Config.getHeight()) {
+			        		continue;
+			        	}
+			        	double iz=1;
+			        	//double iz=1.0/AvgDist;
+			        	PixelData pixel =ZBuffer[x3][y3]; 
+			        	//synchronized(pixel) {
+			        		if(pixel.depth<iz) {
+			        			pixel.color=color;
+			        			pixel.depth=iz;
+			        		}
+			        	//}
+			        }
+			    }
+			}*/
+		}else {
+			g.fillOval(xA, yA, widthA, heightA);
+		}
+	}
+	
+	private void setpixel(int x3, int y3, double depth, PixelData[][] ZBuffer) {
+		if(x3<0 || x3>=Config.getWidth() || y3<0 || y3>=Config.getHeight() || !clip.contains(x3, y3)) {
+    		return;
+    	}
+    	PixelData pixel =ZBuffer[x3][y3]; 
+    	synchronized(pixel) {
+    		if(pixel.depth<depth) {
+    			pixel.color=color.getRGB();
+    			pixel.depth=depth;
+    		}
+    	}
+	}
+	
+	private void fillRect(int x, int y, int width, int height, int color, PixelData[][] ZBuffer, Graphics g, Game game) {
+		if(Config.useTextures) {
+			int x1 = Util.limit(x, 0, Config.getWidth()-1);
+			int y1= Util.limit(y, 0, Config.getHeight()-1);
+			int x2 = Util.limit(x+width, 0, Config.getWidth()-1);
+			int y2= Util.limit(y+height, 0, Config.getHeight()-1);
+			
+			for(int i=x1;i<=x2;i++) {
+				for(int j=y1;j<=y2;j++) {
+					//if(i<0 || i>=Config.getWidth() || j<0 || j>=Config.getHeight()) {
+		        	//	continue;
+		        	//}
+					//double iz=1;
+		        	double iz=1.0/(AvgDist-radius);
+					PixelData pixel = ZBuffer[i][j]; 
+					synchronized(pixel) {
+		        		if(pixel.depth<iz) {
+		        			pixel.color=color;
+		        			pixel.depth=iz;
+		        		}
+		        	}
+				}
+			}
+		}else {
+			g.fillRect(x, y, width, height);
+		}
+	}
+	
+	
 	
 	@Override
 	public String toString() {
