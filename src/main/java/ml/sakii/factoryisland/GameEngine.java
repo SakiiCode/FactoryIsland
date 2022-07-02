@@ -481,6 +481,38 @@ public class GameEngine{
 		world.seed = seed;
 
 		
+		Main.log("Seed:" + seed);
+		int radius = 10;
+		int diameter = radius*2;
+		double total = diameter*diameter*diameter;
+		for(int x=-radius;x<radius;x++) {
+			for(int y=-radius;y<radius;y++) {
+				for(int z=-radius;z<radius;z++) {
+					if(x*x+y*y+z*z<=radius*radius) {
+						world.addBlockNoReplace(new StoneBlock(x,y,z,this), false);
+					}
+					
+				}
+				
+				double x2 = (x+radius)*diameter*diameter;
+				double y2 = (y+radius)*diameter;
+				//double z2 = z+radius;
+				
+				double percent =Math.round((x2+y2)/total*100); 
+				updateLabel(statusLabel, "Generating sphere - "+percent+"%");
+				
+				
+			}
+		}
+		Tick=3000;
+	}
+	
+	@SuppressWarnings("unused")
+	private void generateTerrainOld(long seed, JLabel statusLabel) {
+		
+		world.seed = seed;
+
+		
 		Random RandomGen = new Random(seed);
 		Main.log("Seed:" + seed);
 		
