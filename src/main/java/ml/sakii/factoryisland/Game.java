@@ -564,7 +564,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				g.drawLine(cX - crosshairSize, cY, cX + crosshairSize, cY);
 				
 				
-				int fontSize = (int) (Math.cbrt(Config.getHeight())*2)-2;
+				//int fontSize = (int) (Math.cbrt(Config.getHeight())*2)-2;
+				//TODO cache
+				int fontSize;
+				if(Config.getHeight()<1080) {
+					fontSize = (int) Util.interp(0,1080,Config.getHeight(),5,19);
+				}else {
+					fontSize = (int) Util.interp(0,1080,Config.getHeight(),0,19);
+				}
 				g.setFont(new Font("SANS", Font.BOLD, fontSize));
 				g.setColor(Color.GRAY);
 				float viewportscale=(float) Math.sqrt(Config.getWidth()*Config.getHeight()*1f/Main.Width/Main.Height);

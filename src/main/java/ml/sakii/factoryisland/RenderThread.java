@@ -1,6 +1,8 @@
 package ml.sakii.factoryisland;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,6 +22,13 @@ public class RenderThread extends Thread
 	private boolean screenshotstarted=false;
 	private BufferStrategy strategy; 
 	private GUIManager guiManager;
+	public static RenderingHints rh;
+	static {
+		rh = new RenderingHints(null);
+		rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	}
 	
 	public RenderThread(Game game, GUIManager guiManager) {
 		this.game=game;
@@ -27,19 +36,29 @@ public class RenderThread extends Thread
 		this.setName("Render Thread");
 		this.setPriority(MAX_PRIORITY);
 		strategy = guiManager.createBufferStrategy();
+		
 	}
 	
 	@Override
 	public void run()
 	{
 		Graphics graphics = strategy.getDrawGraphics();
+		
+		
+		
+		
+
 		guiManager.SwitchWindow("game");
 		while(running) {
-			
+			Graphics2D g = (Graphics2D)game.getGraphics();
+			if(Config.resolutionScaling>0.5f) {
+				g.setRenderingHints(rh);
+			}
+ 
 				
 			if(screenshot) {
 				game.render(game.FrameBuffer.getGraphics());
-				game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
+				g.drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
 				game.prevFrame = Main.deepCopy(game.FrameBuffer);
 				saveScreenshot(game.prevFrame);
 				screenshot=false;
@@ -51,11 +70,11 @@ public class RenderThread extends Thread
 					break;
 				case VOLATILE:
 					game.render(game.VolatileFrameBuffer.getGraphics());
-					game.getGraphics().drawImage(game.VolatileFrameBuffer, 0, 0,Main.Width, Main.Height, null);
+					g.drawImage(game.VolatileFrameBuffer, 0, 0,Main.Width, Main.Height, null);
 					break;
 				case BUFFERED:
 					game.render(game.FrameBuffer.getGraphics());
-					game.getGraphics().drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
+					g.drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
 					break;
 				}
 			}
@@ -69,6 +88,8 @@ public class RenderThread extends Thread
 		
 
 	}
+	
+
 
 	
 	 private void saveScreenshot(BufferedImage img) {
