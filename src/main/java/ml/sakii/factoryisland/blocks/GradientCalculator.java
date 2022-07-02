@@ -51,7 +51,7 @@ public class GradientCalculator {
 		
 	}
 	
-	private static float[][] calculate(BlockFace nearby, BlockFace target){
+	public static float[][] calculate(BlockFace nearby, BlockFace target){
 		
 		
 		int begin1x = 0;

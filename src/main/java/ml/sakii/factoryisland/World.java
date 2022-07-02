@@ -569,14 +569,12 @@ public class World {
 			for(Point3D point2 : get6BlocksP(point1)) {
 				Block b1 = getBlockAtP(point2);
 				if(b1 != Block.NOTHING) {
-					b1.recalcSimpleOcclusions(this);
-					b1.recalcCornerOcclusions(this, tmp);
+					b1.recalcOcclusions(this, tmp);
 				}
 				for(Point3D point3 : get6BlocksP(point2)) {
 					Block b2 = getBlockAtP(point3);
 					if(b2 != Block.NOTHING) {
-						b2.recalcSimpleOcclusions(this);
-						b2.recalcCornerOcclusions(this, tmp);
+						b2.recalcOcclusions(this, tmp);
 					}
 					
 					

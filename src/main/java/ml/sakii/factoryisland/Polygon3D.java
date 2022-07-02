@@ -64,8 +64,8 @@ public class Polygon3D extends Object3D{
 	
 	Model model;
 
-	public CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
-	public CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
+	private CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
+	private CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
 	private CopyOnWriteArrayList<GradientPaint> OcclusionPaints = new CopyOnWriteArrayList<>();
 	
 	private Vector lineVec = new Vector();
@@ -487,6 +487,56 @@ public class Polygon3D extends Object3D{
 		}
 	}
 	
+	public void clearOcclusions() {
+		SimpleOcclusions.clear();
+		CornerOcclusions.clear();
+	}
+	
+	public void addSimpleOcclusion(BlockFace face) {
+		SimpleOcclusions.add(face);
+	}
+	
+	public void addCornerOcclusion(Point3D p) {
+		CornerOcclusions.add(p);
+	}
+	
+	public void recalcTexturedOcclusions() {
+		for(int i=0;i<Vertices.length;i++) {
+			UVMap[i][2]=0;
+		}
+		if(model instanceof Block) {
+			BlockFace currentFace = ((Block)model).HitboxPolygons.get(this);
+			for(Point3D p : CornerOcclusions) {
+				Corner c = Corner.fromDelta(currentFace, p);
+				UVMap[c.id][2]=Color4.AO_MAX_TEXTURED.getAlpha()/255.0;
+			}
+			
+			int x = ((Block) model).x;
+			int y = ((Block) model).y;
+			int z = ((Block) model).z;
+			
+			for(BlockFace nearbyFace : SimpleOcclusions) {
+				float[][] values = GradientCalculator.calculate(currentFace, nearbyFace);
+				float[] begin1 = values[0];
+				float[] begin = values[1];
+
+				if(begin[0] ==0.5) begin[0]=1-begin1[0];
+				if(begin[1] ==0.5) begin[1]=1-begin1[1];
+				if(begin[2] ==0.5) begin[2]=1-begin1[2];
+				
+				
+				for(int i=0;i<Vertices.length;i++) {
+					if(Vertices[i].equals(x+begin1[0], y+begin1[1], z+begin1[2])) {
+						UVMap[i][2]=Color4.AO_MAX_TEXTURED.getAlpha()/255.0;
+					}
+					if(Vertices[i].equals(x+begin[0], y+begin[1], z+begin[2])) {
+						UVMap[i][2]=Color4.AO_MAX_TEXTURED.getAlpha()/255.0;
+					}
+				}
+			}
+		}
+	}
+	
 	private void recalcOcclusionPaints(Game game) {
 		if(!(model instanceof Block)){
 			return;
@@ -503,7 +553,7 @@ public class Polygon3D extends Object3D{
 			
 			GradientCalculator.getPerpendicular(begin1, begin2, end, pointVec, lineVec);
 
-			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX, end.x, end.y, Color4.TRANSPARENT));
+			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX_FLAT, end.x, end.y, Color4.TRANSPARENT));
 		}
 		
 

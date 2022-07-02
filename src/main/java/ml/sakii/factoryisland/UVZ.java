@@ -3,7 +3,7 @@ package ml.sakii.factoryisland;
 import java.awt.Point;
 
 public class UVZ {
-	double iz, uz, vz;
+	double iz, uz, vz, ao;
 	
 	static UVZ interp(Point p1, Point p2, Point pos, UVZ uvz1, UVZ uvz2) {
 		UVZ result = new UVZ();
@@ -11,13 +11,13 @@ public class UVZ {
 		result.iz = Util.interp(0, 1, distanceratio, uvz1.iz, uvz2.iz);
 		result.uz = Util.interp(0, 1, distanceratio, uvz1.uz, uvz2.uz);
 		result.vz = Util.interp(0, 1, distanceratio, uvz1.vz, uvz2.vz);
-				
+		result.ao = Util.interp(0, 1, distanceratio, uvz1.ao, uvz2.ao);
 		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return "UVZ [invZ=" + iz + ", uz=" + uz + ", vz=" + vz + "]";
+		return "UVZ [invZ=" + iz + ", uz=" + uz + ", vz=" + vz + ", ao=" + ao + "]";
 	}
 	
 	
