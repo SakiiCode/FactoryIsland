@@ -11,7 +11,7 @@ public class PixelData {
 
 	@Override
 	public String toString() {
-		return depth+", 0x"+Integer.toHexString(color).toUpperCase();//Integer.toString(color,16);
+		return Math.round(depth*100)/100f+", 0x"+Integer.toHexString(color).toUpperCase()+",dst:"+Math.round(1/depth*100)/100f;//Integer.toString(color,16);
 	}
 	
 }

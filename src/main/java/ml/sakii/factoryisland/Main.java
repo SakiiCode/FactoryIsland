@@ -66,8 +66,8 @@ public class Main
 	public static long seed;
 
 	static int screen;
-	public static int Width;
-	public static int Height;
+	public static int Width=1920;
+	public static int Height=1080;
 	
 	private GUIManager guiManager;
 

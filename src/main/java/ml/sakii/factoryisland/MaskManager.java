@@ -43,8 +43,9 @@ public class MaskManager {
 	void render(Graphics g) {
 		int x=0;
 		int diff = tileWidth;
+		
 		for(BufferedImage im : buffers) {
-			g.drawImage(im, x, 0, diff, (int)(Main.Height*Config.resolutionScaling),  null);
+			g.drawImage(im, x, 0, diff, Config.getHeight(),  null);
 			x+=diff;
 		}
 	}

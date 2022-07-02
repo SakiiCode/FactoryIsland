@@ -10,12 +10,19 @@ public abstract class Model {
 		this.Engine = engine;
 	}
 	
+	public abstract Vector getPos();
+	
 	public static class FP extends Model{
 		public Vector ViewFrom;
 		
 		public FP(String name, Vector viewFrom, GameEngine engine) {
 			super(name, engine);
 			this.ViewFrom = viewFrom;
+		}
+		
+		@Override
+		public Vector getPos() {
+			return ViewFrom;
 		}
 	}
 	
@@ -29,6 +36,11 @@ public abstract class Model {
 			this.y = y;
 			this.z = z;
 			pos = new Point3D(x,y,z);
+		}
+		
+		@Override
+		public Vector getPos() {
+			return new Vector(pos.x,pos.y,pos.z);
 		}
 	}
 	

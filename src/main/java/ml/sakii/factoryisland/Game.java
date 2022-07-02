@@ -465,11 +465,17 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						for(int x=start;x<end;x++) {
 							
 							for(int y=0;y<ZBuffer[x].length;y++) {
-								
-								int color =ZBuffer[x][y].color; 
-								
-								if(color != 0) { //color not set => transparent. Black is 0xFF000000
-									maskManager.setRGB(x, y, color);
+								if(key[6]) {
+									int px=(int) Math.round(255*(Math.pow(1-ZBuffer[x][y].depth, 6)));
+								 	int rgb = (255 << 24) | (px << 16) | (px << 8) | px;
+									maskManager.setRGB(x, y, rgb);
+								}else {
+									int color =ZBuffer[x][y].color; 
+									
+									if(color != 0) { //color not set => transparent. Black is 0xFF000000
+										maskManager.setRGB(x, y, color);
+									}
+									
 								}
 								ZBuffer[x][y].reset();
 				
@@ -481,7 +487,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 					
-				Objects.parallelStream().filter(o->o instanceof Text3D).sorted().forEachOrdered(t ->{
+				Objects.parallelStream().filter(o->!(o instanceof BufferDrawer)).sorted().forEachOrdered(t ->{
 					t.draw(null, fb, this); //nem kell image-t megadni text3d-hez
 				});
 				
@@ -929,9 +935,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			key[6] = true;
 		}
 		
-		if (arg0.getKeyCode() == KeyEvent.VK_Z) //TESZT: árnyékok kikapcsolása textúrás módban
+		if (arg0.getKeyCode() == KeyEvent.VK_Z) //TESZT: gömb határok
 		{
 			key[8] = true;
+		}
+		
+		if (arg0.getKeyCode() == KeyEvent.VK_U) //TESZT: xmax-xmin fps
+		{
+			key[9] = true;
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_B)
 		{
@@ -1000,6 +1011,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (arg0.getKeyCode() == KeyEvent.VK_Z)
 		{
 			key[8] = false;
+		}
+		if (arg0.getKeyCode() == KeyEvent.VK_U) //TESZT: xmax-xmin fps
+		{
+			key[9] = false;
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F2)
 		{
