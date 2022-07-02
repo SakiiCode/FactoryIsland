@@ -14,11 +14,12 @@ import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.screens.components.Button;
 
 public class MultiplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = 2915856336542984790L;
 	private JTextField seedField;
-	private MainMenuButton submitButton;
+	private Button submitButton;
 	private JLabel seedLabel;
 	private JLabel statusLabel;
 	
@@ -47,7 +48,7 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 		seedLabel.setSize(seedLabel.getPreferredSize());
 		seedLabel.setVisible(true);
 		
-		submitButton = new MainMenuButton("Join server",Main.Width/3, Main.Height/3*2, 400, 50);
+		submitButton = new Button("Join server",Main.Width/3, Main.Height/3*2, 400, 50);
 		submitButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		submitButton.setVerticalTextPosition(SwingConstants.CENTER);
 		submitButton.setActionCommand("submit");

@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.screens.components.Button;
 
 public class DeadGUI extends PaintedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
@@ -32,14 +33,14 @@ public class DeadGUI extends PaintedScreen implements ActionListener, KeyListene
 	    });
 		
 
-		respawnButton = new MainMenuButton("Respawn",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4-EntryHeight/2), EntryWidth, EntryHeight);
+		respawnButton = new Button("Respawn",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4-EntryHeight/2), EntryWidth, EntryHeight);
 		respawnButton.setActionCommand("respawn");
 		respawnButton.setVisible(true);
 		respawnButton.addActionListener(this);
 		add(respawnButton);
 		
 		
-		exitButton = new MainMenuButton("Save & Exit to Main Menu",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing-EntryHeight/2), EntryWidth, EntryHeight);
+		exitButton = new Button("Save & Exit to Main Menu",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing-EntryHeight/2), EntryWidth, EntryHeight);
 		exitButton.setActionCommand("exit");
 		exitButton.setVisible(true);
 		exitButton.addActionListener(this);

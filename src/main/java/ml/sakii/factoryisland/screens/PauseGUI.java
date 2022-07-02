@@ -19,6 +19,7 @@ import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.RenderMethod;
+import ml.sakii.factoryisland.screens.components.Button;
 
 public class PauseGUI extends TexturedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
@@ -47,19 +48,19 @@ public class PauseGUI extends TexturedScreen implements ActionListener, KeyListe
 		
 		
 		
-		resumeButton = new MainMenuButton("Resume Game",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4-EntryHeight/2), EntryWidth, EntryHeight);
+		resumeButton = new Button("Resume Game",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4-EntryHeight/2), EntryWidth, EntryHeight);
 		resumeButton.setActionCommand("resume");
 		resumeButton.setVisible(true);
 		resumeButton.addActionListener(this);
 		add(resumeButton);
 		
-		settingsButton = new MainMenuButton("Settings",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing+EntryHeight-EntryHeight/2), EntryWidth, EntryHeight);
+		settingsButton = new Button("Settings",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing+EntryHeight-EntryHeight/2), EntryWidth, EntryHeight);
 		settingsButton.setActionCommand("settings");
 		settingsButton.setVisible(true);
 		settingsButton.addActionListener(this);
 		add(settingsButton);
 		
-		exitButton = new MainMenuButton("Save & Exit to Main Menu",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing*2+EntryHeight*2-EntryHeight/2), EntryWidth, EntryHeight);
+		exitButton = new Button("Save & Exit to Main Menu",Main.Width/2-EntryWidth/2, (int)(Main.Height/3.4+EntrySpacing*2+EntryHeight*2-EntryHeight/2), EntryWidth, EntryHeight);
 		exitButton.setActionCommand("exit");
 		exitButton.setVisible(true);
 		exitButton.addActionListener(this);

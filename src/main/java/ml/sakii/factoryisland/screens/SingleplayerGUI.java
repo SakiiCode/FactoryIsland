@@ -1,10 +1,12 @@
 package ml.sakii.factoryisland.screens;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -14,204 +16,171 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import javax.swing.JLabel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-
 import ml.sakii.factoryisland.AssetLibrary;
+import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.screens.components.Button;
 
-public class SingleplayerGUI extends PaintedScreen implements ActionListener, KeyListener{
+import javax.swing.SpringLayout;
+import ml.sakii.factoryisland.screens.components.Label;
+import ml.sakii.factoryisland.screens.components.TextField;
+
+public class SingleplayerGUI extends PaintedScreen implements ActionListener, KeyListener, ComponentListener{
 	private static final long serialVersionUID = -2653478459245096044L;
-	private JTextField seedField, nameField;
-	private MainMenuButton submitButton, generateButton, deleteButton;
-	private JLabel seedLabel, nameLabel, joinLabel;
-	private JLabel statusLabel;
+	private TextField seedField, nameField;
+	private Button submitButton, generateButton, deleteButton;
+	private Label seedLabel, nameLabel, joinLabel;
+	private Label statusLabel;
 	private JList<String> worldsList;
-	
-	private int SPACING = 16;
-	private int MARGIN = 10;
 	
 	private String mapName;
 	
 	public SingleplayerGUI(GUIManager guiManager){
 		super(AssetLibrary.GUIBG, guiManager);
-		this.setLayout(null);
-		addKeyListener(this);
-
-		this.addComponentListener( new ComponentAdapter() {
-	        @Override
-	        public void componentShown( ComponentEvent e ) {
-	            if(refreshList().length>0) {
-	            	deleteButton.setEnabled(true);
-	            	getWorldsList().setEnabled(true);
-	            	submitButton.setEnabled(true);
-	            }else {
-	            	deleteButton.setEnabled(false);
-	            	getWorldsList().setEnabled(false);
-	            	submitButton.setEnabled(false);
-		            SingleplayerGUI.this.requestFocusInWindow();
-
-	            	
-	            }
-	        }
-	    });
 		
 		
-		nameLabel = new JLabel("Enter world name:");
-		nameLabel.setSize(nameLabel.getPreferredSize());
-		nameLabel.setLocation(Main.Width/4-Main.Width/10, Main.Height/7);
-		nameLabel.setForeground(Color.white);
-		nameLabel.setVisible(true);
+		nameLabel = new Label("Enter world name:");
 		
-		
-		nameField = new JTextField("");
-		nameField.setSize(Main.Width/5, nameField.getPreferredSize().height+2*MARGIN);
-		nameField.setLocation(nameLabel.getX(), nameLabel.getY()+nameLabel.getHeight()+SPACING);
-		nameField.addKeyListener(this);
-		nameField.setVisible(true);
-		
+		nameField = new TextField((KeyListener)null);
 				
-		seedLabel = new JLabel("Seed (optional):");
-		seedLabel.setSize(seedLabel.getPreferredSize());
-		seedLabel.setLocation(nameField.getX(), nameField.getY()+nameField.getHeight()+SPACING);
-		seedLabel.setForeground(Color.white);
-		seedLabel.setVisible(true);
+		seedLabel = new Label("Seed (optional):");
 		
+		seedField = new TextField((KeyListener)null);
 		
-		seedField = new JTextField("");
-		seedField.setSize(Main.Width/5, seedField.getPreferredSize().height+MARGIN);
-		seedField.setLocation(seedLabel.getX(), seedLabel.getY()+seedLabel.getHeight()+SPACING);
-		seedField.addKeyListener(this);
-		seedField.setVisible(true);
-		
-		
-		generateButton = new MainMenuButton("Generate World", seedField.getX(), seedField.getY()+seedField.getHeight()+SPACING, nameField.getWidth(), nameField.getHeight());
-		generateButton.setHorizontalTextPosition(SwingConstants.CENTER);
-		generateButton.setVerticalTextPosition(SwingConstants.CENTER);
-		generateButton.setActionCommand("generate");
+		generateButton = new Button("Generate World", "generate");
 		generateButton.addActionListener(this);
 		generateButton.addKeyListener(this);
-		generateButton.setVisible(true);
+		
+		JPanel generatePanel = new JPanel();
+		generatePanel.setBackground(Color4.TRANSPARENT);
+		generatePanel.setLayout(new BoxLayout(generatePanel, BoxLayout.PAGE_AXIS));
+		generatePanel.setOpaque(true);
+		generatePanel.add(nameLabel);
+		generatePanel.add(Box.createVerticalStrut(10));
+		generatePanel.add(nameField);
+		generatePanel.add(Box.createVerticalStrut(10));
+		generatePanel.add(seedLabel);
+		generatePanel.add(Box.createVerticalStrut(10));
+		generatePanel.add(seedField);
+		generatePanel.add(Box.createVerticalStrut(10));
+		generatePanel.add(generateButton);
+				SpringLayout springLayout = new SpringLayout();
+				springLayout.putConstraint(SpringLayout.NORTH, generatePanel, 200, SpringLayout.NORTH, this);
+				springLayout.putConstraint(SpringLayout.WEST, generatePanel, 300, SpringLayout.WEST, this);
+				setLayout(springLayout);
+				add(generatePanel);
+		
+		
+		joinLabel = new Label("Or select a world to load:");
+		joinLabel.setForeground(Color.white);
+		
 
 		
+		worldsList = new JList<>();
 		
-		joinLabel = new JLabel("Or select a world to load:");
-		joinLabel.setSize(joinLabel.getPreferredSize());
-		joinLabel.setLocation(Main.Width/4*3-seedField.getWidth()/2, nameLabel.getY());
-		joinLabel.setForeground(Color.white);
-		joinLabel.setVisible(true);
+
 		
-		setWorldsList(new JList<>(getWorlds()));
-		getWorldsList().setSelectedValue(Config.selectedMap, true);
-		getWorldsList().setSize(seedField.getWidth(), Main.Height/4);
-		getWorldsList().setLocation(joinLabel.getX(), nameField.getY());
-		getWorldsList().addKeyListener(new KeyListener() {
-			
+		worldsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		worldsList.addKeyListener(this);
+		worldsList.addKeyListener(new KeyListener() {
 			
 			@Override
-			public void keyPressed(KeyEvent arg0) {
-				if(arg0.getKeyCode() == KeyEvent.VK_ESCAPE){
-					guiManager.SwitchWindow("mainmenu");
-				}
-				if(arg0.getKeyCode() == KeyEvent.VK_ENTER){
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER){
 			    	join(false);
 				}
-				
 			}
 
 			@Override
-			public void keyReleased(KeyEvent arg0)
-			{
-				
-			}
-
-			@Override
-			public void keyTyped(KeyEvent arg0)
-			{
-				
+			public void keyTyped(KeyEvent e) {
 			}
 			
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
 		});
-		getWorldsList().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		getWorldsList().addMouseListener(new MouseListener() {
-
+		worldsList.addMouseListener(new MouseListener() {
+			
 			@Override
-			public void mouseClicked(MouseEvent evt) {
-			        if (evt.getClickCount() == 2 && !getWorldsList().isSelectionEmpty()) {
-			        	join(false);
-			        }
-			        Config.selectedMap=getWorldsList().getSelectedValue();
-			        Config.save();
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				
-			}
-
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-				
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2 && !worldsList.isSelectionEmpty()) {
+		        	join(false);
+		        }
+		        Config.selectedMap=worldsList.getSelectedValue();
+		        Config.save();
 			}
 			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
 			
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
 		});
-		getWorldsList().setVisible(true);
-
 		
-		deleteButton= new MainMenuButton("Delete", getWorldsList().getX(), getWorldsList().getY()+getWorldsList().getHeight()+SPACING, getWorldsList().getHeight(), generateButton.getHeight());
-		deleteButton.setHorizontalTextPosition(SwingConstants.CENTER);
-		deleteButton.setVerticalTextPosition(SwingConstants.CENTER);
-		deleteButton.setActionCommand("delete");
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportView(worldsList);
+		scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		Dimension wld=scrollPane.getPreferredSize();
+		wld.height=Main.Height/3;
+		scrollPane.setPreferredSize(wld);
+		scrollPane.revalidate();
+		scrollPane.setVisible(true);
+		
+				
+		deleteButton= new Button("Delete", "delete");
 		deleteButton.addActionListener(this);
 		deleteButton.addKeyListener(this);
-		deleteButton.setVisible(true);
 		
-		submitButton = new MainMenuButton("Load World",deleteButton.getX(), deleteButton.getY()+deleteButton.getHeight()+SPACING, deleteButton.getWidth(), deleteButton.getHeight());
-		submitButton.setHorizontalTextPosition(SwingConstants.CENTER);
-		submitButton.setVerticalTextPosition(SwingConstants.CENTER);
-		submitButton.setActionCommand("submit");
+		submitButton = new Button("Load World","submit");
 		submitButton.addActionListener(this);
 		submitButton.addKeyListener(this);
-		submitButton.setVisible(true);
+				
+		
+		statusLabel = new Label("");
 		
 		
+		JPanel joinPanel = new JPanel();
+		springLayout.putConstraint(SpringLayout.NORTH, joinPanel, 0, SpringLayout.NORTH, generatePanel);
+		joinPanel.setOpaque(true);
+		joinPanel.setBackground(Color4.TRANSPARENT);
+		springLayout.putConstraint(SpringLayout.EAST, joinPanel, -400, SpringLayout.EAST, this);
+		joinPanel.setLayout(new BoxLayout(joinPanel, BoxLayout.PAGE_AXIS));
 		
+				joinPanel.add(joinLabel);
+				joinPanel.add(Box.createVerticalStrut(10));
+				joinPanel.add(scrollPane);
+				joinPanel.add(Box.createVerticalStrut(10));
+				joinPanel.add(deleteButton);
+				joinPanel.add(Box.createVerticalStrut(10));
+				joinPanel.add(submitButton);
+				joinPanel.add(Box.createVerticalStrut(10));
+				joinPanel.add(statusLabel);
+				add(joinPanel);
+
+
 		
-		statusLabel = new JLabel("");
-		statusLabel.setLocation(submitButton.getX(), submitButton.getY()+70);
-		statusLabel.setSize(submitButton.getWidth(),submitButton.getHeight()*2);
-		statusLabel.setVisible(true);
-		
-		
-		add(nameLabel);
-		add(nameField);
-		add(seedLabel);
-		add(seedField);
-		add(generateButton);
-		add(joinLabel);
-		add(getWorldsList());
-		add(deleteButton);
-		add(submitButton);
-		
-		add(statusLabel);
-		
+		this.addComponentListener(this);
+		this.addKeyListener(this);
 		
 	}
 	
@@ -240,7 +209,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		String c = e.getActionCommand();
 	    
 	    if(c.equals("submit")){
-	    	if(!getWorldsList().isSelectionEmpty()) {
+	    	if(!worldsList.isSelectionEmpty()) {
 	    	   join(false);
 	    	}
 	    		
@@ -281,15 +250,15 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
     	}else if(generate) {
     		GUIManager.showMessageDialog("Invalid map name!", "Error!", JOptionPane.ERROR_MESSAGE);
     		return;
-    	}else if(!generate && !getWorldsList().isSelectionEmpty()){
+    	}else if(!generate && !worldsList.isSelectionEmpty()){
     		statusLabel.setText("Loading...");
-    		mapName=getWorldsList().getSelectedValue();
+    		mapName=worldsList.getSelectedValue();
     		Config.selectedMap=mapName;
     		Config.save();
     		
     	}
 		
-    	getWorldsList().setEnabled(false);
+    	worldsList.setEnabled(false);
 		submitButton.setEnabled(false);
 		nameField.setEnabled(false);
 		seedField.setEnabled(false);
@@ -308,7 +277,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 			    	seedField.setText("");
 			    	nameField.setText("");
 			    	submitButton.setEnabled(true);
-			    	getWorldsList().setEnabled(true);
+			    	worldsList.setEnabled(true);
 			    	nameField.setEnabled(true);
 					seedField.setEnabled(true);
 					generateButton.setEnabled(true);
@@ -322,8 +291,8 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	}
 	
 	private void delete() {
-		if(getWorldsList().isSelectionEmpty()) return;
-		String name = getWorldsList().getSelectedValue();
+		if(worldsList.isSelectionEmpty()) return;
+		String name = worldsList.getSelectedValue();
 		
 		File index = new File("saves/"+name+"/");
 		
@@ -342,14 +311,14 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	private String[] refreshList() {
 		
 		String[] worlds = getWorlds();
-		getWorldsList().setListData(worlds);
+		worldsList.setListData(worlds);
 		
 		if(!Arrays.asList(worlds).contains(Config.selectedMap)) {
-			getWorldsList().setSelectedIndex(0);
+			worldsList.setSelectedIndex(0);
 		}else {
-			getWorldsList().setSelectedValue(Config.selectedMap, true);
+			worldsList.setSelectedValue(Config.selectedMap, true);
 		}
-		getWorldsList().requestFocusInWindow();
+		worldsList.requestFocusInWindow();
 		return worlds;
 
 	}
@@ -371,13 +340,39 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 	}
 
-	public JList<String> getWorldsList() {
-		return worldsList;
+	@Override
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
-	public void setWorldsList(JList<String> worldsList) {
-		this.worldsList = worldsList;
-	} 
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+		if(refreshList().length>0) {
+        	deleteButton.setEnabled(true);
+        	worldsList.setEnabled(true);
+        	submitButton.setEnabled(true);
+        }else {
+        	deleteButton.setEnabled(false);
+        	worldsList.setEnabled(false);
+        	submitButton.setEnabled(false);
+            SingleplayerGUI.this.requestFocusInWindow();
+
+        	
+        }
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }

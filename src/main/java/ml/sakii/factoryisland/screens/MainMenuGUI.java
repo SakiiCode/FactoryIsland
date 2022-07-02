@@ -18,6 +18,7 @@ import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.screens.components.Button;
 
 public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	private static final long serialVersionUID = 894581305065092909L;
@@ -44,14 +45,14 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 	        }
 	    });
 		
-		sp = new MainMenuButton("Singleplayer", menuL, menuT, EntryWidth, EntryHeight);
+		sp = new Button("Singleplayer", menuL, menuT, EntryWidth, EntryHeight);
 		sp.setActionCommand("singleplayer");
 		sp.addActionListener(this);
 		Menu.add(sp);
 
 		
 		
-		mp = new MainMenuButton("Multiplayer", menuL, menuT+EntrySpacing, EntryWidth, EntryHeight);
+		mp = new Button("Multiplayer", menuL, menuT+EntrySpacing, EntryWidth, EntryHeight);
 		mp.setActionCommand("multiplayer");
 		mp.addActionListener(this);
 		mp.setEnabled(false);
@@ -59,12 +60,12 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 
 		
 		
-		opt = new MainMenuButton("Settings", menuL, menuT+EntrySpacing*1, EntryWidth, EntryHeight);
+		opt = new Button("Settings", menuL, menuT+EntrySpacing*1, EntryWidth, EntryHeight);
 		opt.setActionCommand("settings");
 		opt.addActionListener(this);
 		Menu.add(opt);
 		
-		benchmark = new MainMenuButton("Run Benchmark", menuL, menuT+EntrySpacing*2, EntryWidth, EntryHeight);
+		benchmark = new Button("Run Benchmark", menuL, menuT+EntrySpacing*2, EntryWidth, EntryHeight);
 		benchmark.setActionCommand("benchmark");
 		benchmark.addActionListener(this);
 		benchmark.setEnabled(false);
@@ -72,7 +73,7 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 		
 		
 		
-		exit = new MainMenuButton("Exit Game", menuL, menuT+EntrySpacing*3, EntryWidth, EntryHeight);
+		exit = new Button("Exit Game", menuL, menuT+EntrySpacing*3, EntryWidth, EntryHeight);
 		exit.setActionCommand("exit");
 		exit.addActionListener(this);
 		Menu.add(exit);

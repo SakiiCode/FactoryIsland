@@ -23,6 +23,7 @@ import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.RenderMethod;
 import ml.sakii.factoryisland.TargetMarkerType;
+import ml.sakii.factoryisland.screens.components.Button;
 
 public class SettingsGUI extends TexturedScreen implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 334783618749307739L;
@@ -150,50 +151,50 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		
 		String[] labels = getButtonLabels();
 		
-		textureButton = new MainMenuButton(labels[0] ,Main.Width/2-EntryWidth/2, resolutionScalingSlider.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
+		textureButton = new Button(labels[0] ,Main.Width/2-EntryWidth/2, resolutionScalingSlider.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
 		textureButton.setActionCommand("switchtexture");
 		textureButton.addActionListener(this);
 		textureButton.addKeyListener(this);
 		add(textureButton);
 		
-		fogButton = new MainMenuButton(labels[1] ,Main.Width/2-EntryWidth/2, textureButton.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
+		fogButton = new Button(labels[1] ,Main.Width/2-EntryWidth/2, textureButton.getY()+EntryHeight+EntrySpacing/3*2, EntryWidth, EntryHeight);
 		fogButton.setActionCommand("switchfog");
 		fogButton.addActionListener(this);
 		fogButton.addKeyListener(this);
 		add(fogButton);
 		
-		creativeButton = new MainMenuButton(labels[2] ,Main.Width/2-EntryWidth/2, fogButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		creativeButton = new Button(labels[2] ,Main.Width/2-EntryWidth/2, fogButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		creativeButton.setActionCommand("switchcreative");
 		creativeButton.addActionListener(this);
 		creativeButton.addKeyListener(this);
 		add(creativeButton);
 		
 		
-		markerTypeButton = new MainMenuButton(labels[3] ,Main.Width/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		markerTypeButton = new Button(labels[3] ,Main.Width/2-EntryWidth/2, creativeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		markerTypeButton.setActionCommand("switchmarkertype");
 		markerTypeButton.addActionListener(this);
 		markerTypeButton.addKeyListener(this);
 		add(markerTypeButton);
 		
-		ambientOcclusionButton = new MainMenuButton(labels[4] ,Main.Width/2-EntryWidth/2, markerTypeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		ambientOcclusionButton = new Button(labels[4] ,Main.Width/2-EntryWidth/2, markerTypeButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		ambientOcclusionButton.setActionCommand("switchambientocclusion");
 		ambientOcclusionButton.addActionListener(this);
 		ambientOcclusionButton.addKeyListener(this);
 		add(ambientOcclusionButton);
 		
-		renderMethodButton = new MainMenuButton(labels[5] ,Main.Width/2-EntryWidth/2, ambientOcclusionButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
+		renderMethodButton = new Button(labels[5] ,Main.Width/2-EntryWidth/2, ambientOcclusionButton.getY()+EntryHeight+EntrySpacing, EntryWidth, EntryHeight);
 		renderMethodButton.setActionCommand("switchrendermethod");
 		renderMethodButton.addActionListener(this);
 		renderMethodButton.addKeyListener(this);
 		add(renderMethodButton);
 		
-		okButton = new MainMenuButton("Save",Main.Width/2-EntryWidth/2, renderMethodButton.getY()+EntryHeight + EntrySpacing*5, EntryWidth, EntryHeight);
+		okButton = new Button("Save",Main.Width/2-EntryWidth/2, renderMethodButton.getY()+EntryHeight + EntrySpacing*5, EntryWidth, EntryHeight);
 		okButton.setActionCommand("ok");
 		okButton.addActionListener(this);
 		okButton.addKeyListener(this);
 		add(okButton);
 		
-		resetButton = new MainMenuButton("Reset",Main.Width/2, okButton.getY()+EntryHeight + EntrySpacing, EntryWidth/2, EntryHeight);
+		resetButton = new Button("Reset",Main.Width/2, okButton.getY()+EntryHeight + EntrySpacing, EntryWidth/2, EntryHeight);
 		resetButton.setActionCommand("reset");
 		resetButton.addActionListener(this);
 		resetButton.addKeyListener(this);
@@ -248,9 +249,9 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		l7.setForeground(Color.WHITE);
 		add(l7);
 		
-		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended<br>only for textured mode</body></html>");
-		l8.setLocation(textureButton.getX()-300-EntrySpacing, renderMethodButton.getY());
-		l8.setSize(300, EntryHeight);
+		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended for small resolutions.<br>Volatile should be good for everything else</body></html>");
+		l8.setLocation(textureButton.getX()-500-EntrySpacing, renderMethodButton.getY());
+		l8.setSize(500, EntryHeight);
 		l8.setHorizontalAlignment(SwingConstants.RIGHT);
 		l8.setForeground(Color.WHITE);
 		add(l8);
@@ -376,7 +377,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 				case OUTLINE -> "White Square";
 				},
 				"Ambient Occlusion: " + (ambientOcclusion?"ON":"OFF"),
-				"Rendering Method : " + switch(renderMethod) {
+				"Rendering Method: " + switch(renderMethod) {
 				case BUFFERED -> "BUFFERED";
 				case VOLATILE -> "VOLATILE (default)";
 				case DIRECT -> "DIRECT";

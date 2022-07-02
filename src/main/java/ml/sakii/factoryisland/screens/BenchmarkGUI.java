@@ -20,11 +20,12 @@ import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.screens.components.Button;
 
 public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyListener{
 	private static final long serialVersionUID = -2653478459245096044L;
 	
-	private MainMenuButton submitButton, deleteButton;
+	private Button submitButton, deleteButton;
 	private JLabel joinLabel, statusLabel;
 	private JList<String> worldsList;
 	
@@ -134,7 +135,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		getWorldsList().setVisible(true);
 
 		
-		deleteButton= new MainMenuButton("Delete", getWorldsList().getX(), getWorldsList().getY()+getWorldsList().getHeight()+SPACING,
+		deleteButton= new Button("Delete", getWorldsList().getX(), getWorldsList().getY()+getWorldsList().getHeight()+SPACING,
 				getWorldsList().getHeight(), Main.Height/7);
 		deleteButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		deleteButton.setVerticalTextPosition(SwingConstants.CENTER);
@@ -143,7 +144,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		deleteButton.addKeyListener(this);
 		deleteButton.setVisible(true);
 		
-		submitButton = new MainMenuButton("Load World",deleteButton.getX(), deleteButton.getY()+deleteButton.getHeight()+SPACING, deleteButton.getWidth(), deleteButton.getHeight());
+		submitButton = new Button("Load World",deleteButton.getX(), deleteButton.getY()+deleteButton.getHeight()+SPACING, deleteButton.getWidth(), deleteButton.getHeight());
 		submitButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		submitButton.setVerticalTextPosition(SwingConstants.CENTER);
 		submitButton.setActionCommand("submit");
