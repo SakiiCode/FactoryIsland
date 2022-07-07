@@ -69,10 +69,10 @@ public class Bresenham {
 	private static void plot(int x, int y, PixelData[][] ZBuffer, double depth) {
 		if(x<0 || x>=ZBuffer.length || y < 0 || y>=ZBuffer[0].length) return;
 		synchronized(ZBuffer[x][y]) {
-			depth = 1/(1/depth-0.1);
-			if(ZBuffer[x][y].depth<=depth) {
+			double depth2 = 1/(1/depth-0.1);
+			if(ZBuffer[x][y].depth<=depth2) {
 				ZBuffer[x][y].color=0xFF000000;
-				ZBuffer[x][y].depth=depth;
+				ZBuffer[x][y].depth=depth2;
 			}
 		}
 	}

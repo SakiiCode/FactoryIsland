@@ -150,6 +150,7 @@ public class Entity extends Model.FP {
 		
 	}
 	
+	@Override
 	public Vector getPos() {
 		return ViewFrom;
 	}

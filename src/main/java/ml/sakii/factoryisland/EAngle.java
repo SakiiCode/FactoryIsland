@@ -28,10 +28,7 @@ public class EAngle {
 	}
 	
 	public void normalize(){
-		if(pitch>89.999f)
-			pitch = 89.999f;
-		if(pitch<-89.999)
-			pitch = -89.999f;
+		pitch=(float) Util.limit(pitch, -89.999f, 89.999f);
 		
 		if(yaw <-180)
 			yaw += 360;
