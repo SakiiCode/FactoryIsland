@@ -63,7 +63,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public PlayerMP PE;
 	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
 	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
-	final CopyOnWriteArrayList<SphereWeird3D> Spheres = new CopyOnWriteArrayList<>();
+	final CopyOnWriteArrayList<Sphere3D> Spheres = new CopyOnWriteArrayList<>();
 	
 	
 	// RENDERING
@@ -295,6 +295,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		/*Sphere3D sphere2 = new Sphere3D(10,10,10,3,new Color4(0,1,0,0.3f));
 		Objects.add(sphere2);
 		Spheres.add(sphere2);*/
+		//Sphere3D Sphere3 = new Sphere3D("Gömb", new Vector(0,0,0), 10, 50, new Surface(new Color4(1f,0f,1f,0.5f)), Engine);
+		//Spheres.add(Sphere3);
+		//Objects.addAll(Sphere3.Polygons);
 		renderThread = new RenderThread(this, guiManager);
 
 	}
@@ -411,10 +414,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Stars[i].draw(fb);
 			}
 			
-			
-			Spheres.sort((s1,s2)->Float.compare(s1.AvgDist,s2.AvgDist));
-			
-			for(SphereWeird3D sphere : Spheres) {
+			for(Sphere3D sphere : Spheres) {
 				if(PE.ViewFrom.distance(sphere.getPos())<=sphere.getRadius()){
 					fb.setColor(sphere.getColor().getColor());
 					fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());

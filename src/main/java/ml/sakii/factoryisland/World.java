@@ -44,6 +44,7 @@ import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.SignalConsumer;
 import ml.sakii.factoryisland.blocks.SignalPropagator;
+import ml.sakii.factoryisland.blocks.SphereBlock;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.DayNightListener;
@@ -465,6 +466,11 @@ public class World {
 			game.TextureBlocks.add((TextureListener)b);
 		}
 		
+		//TODO dinamikusan
+		if(b instanceof SphereBlock sb) {
+			game.Spheres.add(sb.getSphere());
+		}
+		
 		filterAdjecentBlocks(b);
 		
 		recalcAO(b.pos);
@@ -534,6 +540,13 @@ public class World {
 				Engine.DayNightBlocks.remove(dnl);
 			}
 	
+			
+			//TODO dinamikusan
+			if(b instanceof SphereBlock sb) {
+				game.Spheres.remove(sb.getSphere());
+			}
+			
+			
 			filterAdjecentBlocks(b);
 	
 			recalcAO(b.pos);

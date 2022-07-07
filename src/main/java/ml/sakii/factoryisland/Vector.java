@@ -186,10 +186,12 @@ public class Vector {
 		return new Vector(x,y,z);
 	}
 
-	public void add(float x2, float y2, float z2) {
+	public Vector add(float x2, float y2, float z2) {
 		this.x += x2;
 		this.y += y2;
 		this.z += z2;
+		
+		return this;
 	}
 	
 	

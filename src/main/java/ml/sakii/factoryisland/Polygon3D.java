@@ -494,7 +494,7 @@ public class Polygon3D extends Object3D{
 			g2d.drawPolygon(polygon);
 		}
 		
-		for(SphereWeird3D sphere : game.Spheres) {
+		for(Sphere3D sphere : game.Spheres) {
 			//player is in the sphere
 			if(game.PE.ViewFrom.distance(sphere.getPos())<sphere.getRadius()) {
 				// polygon is outside the sphere
@@ -503,12 +503,12 @@ public class Polygon3D extends Object3D{
 					g2d.fillPolygon(polygon);
 				}
 			}else { // player is outside the sphere
-				//polygon is inside the sphere but closer than the center
+				//polygon is inside the sphere but closer to the player than the center
 				/*if(centroid.distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()){
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
 				}*/
-				if(model.getPos().distance(sphere.getPos())<=sphere.getRadius()-1 && AvgDist < sphere.getCenterDist()) {
+				if(model.getPos().distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()) {
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
 				}

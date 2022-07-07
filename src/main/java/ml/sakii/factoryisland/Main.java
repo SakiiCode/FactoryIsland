@@ -39,6 +39,7 @@ import ml.sakii.factoryisland.blocks.OldBlock;
 import ml.sakii.factoryisland.blocks.SandBlock;
 import ml.sakii.factoryisland.blocks.SaplingBlock;
 import ml.sakii.factoryisland.blocks.SiliconBlock;
+import ml.sakii.factoryisland.blocks.SphereBlock;
 import ml.sakii.factoryisland.blocks.StoneBlock;
 import ml.sakii.factoryisland.blocks.TankModuleBlock;
 import ml.sakii.factoryisland.blocks.TestPowerConsumerBlock;
@@ -262,6 +263,8 @@ public class Main
 
 		initBlockClass("TestPowerConsumer", TestPowerConsumerBlock.surfaces);
 		initBlockClass("TestPowerWire", TestPowerWireBlock.surfaces);
+		
+		initBlockClass("Sphere", SphereBlock.surfaces);
 
 
 
