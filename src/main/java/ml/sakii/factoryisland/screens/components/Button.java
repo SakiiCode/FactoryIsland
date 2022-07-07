@@ -34,7 +34,7 @@ public class Button extends JButton{
 		super(text);
 		this.setBounds(x, y, width, height);
 		this.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
-		this.setBackground(new Color4().set(AssetLibrary.stone.c).darker().darker().getColor());
+		this.setBackground(new Color(53,53,53));
 		this.setForeground(Color.WHITE);
 		this.setHorizontalAlignment(SwingConstants.LEFT);
 		this.setVerticalAlignment(SwingConstants.CENTER);

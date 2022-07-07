@@ -68,7 +68,7 @@ public class AssetLibrary {
 		wmSideColor = new Color4(200, 200, 255);
 		wmGradientBeginColor = new Color4(20, 20, 70);
 		fire = new Surface(new Color(255, 153, 0));
-		wmPoweredColor = new Color4().set(fire.c).brighter();
+		wmPoweredColor = new Color4(255,218,0);
 		
 		
 	}
