@@ -5,6 +5,7 @@ import java.util.HashSet;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
@@ -55,10 +56,12 @@ public class SiliconBlock extends Block implements DayNightListener, PowerGenera
 	@Override
 	public void updateTexture(Vector tmp, Game game) {
 		PlayerMP PE = game.PE;
-		for(Polygon3D p : Polygons) {
-			float brightness = Math.abs(tmp.set(p.getCentroid()).substract(PE.ViewFrom).normalize().DotProduct(p.getNormal()));
-			p.s.c.set(brightness,brightness,brightness,1f);//) = new Surface(new Color4(brightness,brightness,brightness,1f));
-			p.recalcLightedColor();
+		for(Object3D o : Objects) {
+			if(o instanceof Polygon3D p) {
+				float brightness = Math.abs(tmp.set(p.getCentroid()).substract(PE.ViewFrom).normalize().DotProduct(p.getNormal()));
+				p.s.c.set(brightness,brightness,brightness,1f);//) = new Surface(new Color4(brightness,brightness,brightness,1f));
+				p.recalcLightedColor();
+			}
 		}
 		
 	}

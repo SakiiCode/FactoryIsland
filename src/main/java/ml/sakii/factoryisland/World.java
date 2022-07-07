@@ -423,12 +423,14 @@ public class World {
 		if(!loading) {
 			
 			for(Block nearby : get6Blocks(b, false).values()) {
-				for(Polygon3D poly : nearby.Polygons) {
-					for(Point3D source : new HashSet<>(poly.getSources())) {// TODO concurrentmodificationexception?
-						HashMap<Polygon3D,Integer> removeResult = new HashMap<>();
-						sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
-						removeLightIntoMap(source,removeResult);
-						removeResults.put(source, removeResult);
+				for(Object3D obj : nearby.Objects) {
+					if(obj instanceof Polygon3D poly) {
+						for(Point3D source : new HashSet<>(poly.getSources())) {// TODO concurrentmodificationexception?
+							HashMap<Polygon3D,Integer> removeResult = new HashMap<>();
+							sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
+							removeLightIntoMap(source,removeResult);
+							removeResults.put(source, removeResult);
+						}
 					}
 				}
 			}
@@ -469,7 +471,7 @@ public class World {
 		
 		
 		if(game != null) {
-			game.Objects.addAll(b.Polygons);
+			game.Objects.addAll(b.Objects);
 		}
 		
 
@@ -537,17 +539,19 @@ public class World {
 			recalcAO(b.pos);
 			
 			if(game != null) {
-				game.Objects.removeAll(b.Polygons);
+				game.Objects.removeAll(b.Objects);
 			}
 			
 
 			
 			
 			HashSet<Point3D> sources = new HashSet<>();
-			for(Polygon3D poly : b.Polygons) { // kiuteskor eleg ujraszamolni az erintett forrasokat
-				for(Point3D source : poly.getSources()) {
-					if(!source.equals(b.pos))
-						sources.add(source);
+			for(Object3D obj : b.Objects) { // kiuteskor eleg ujraszamolni az erintett forrasokat
+				if(obj instanceof Polygon3D poly) {
+					for(Point3D source : poly.getSources()) {
+						if(!source.equals(b.pos))
+							sources.add(source);
+					}
 				}
 			}
 			
@@ -1045,8 +1049,8 @@ public class World {
 			Blocks.addAll(this.Blocks.values());
 		} else {
 			for (Block b : this.Blocks.values()) {
-				for (Polygon3D poly : b.Polygons) {
-					if (poly.adjecentFilter) {
+				for (Object3D obj : b.Objects) {
+					if (obj instanceof Polygon3D poly && poly.adjecentFilter) {
 						Blocks.add(b);
 						break;
 					}

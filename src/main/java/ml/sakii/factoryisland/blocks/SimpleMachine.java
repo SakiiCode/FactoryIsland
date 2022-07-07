@@ -32,7 +32,7 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		TargetPolygon = new Polygon3D(new Vertex[]
 				{ new Vertex(new Vector()), new Vertex(new Vector()), new Vertex(new Vector()),
 						new Vertex(new Vector()) },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole),this);
-		Polygons.add(TargetPolygon);
+		Objects.add(TargetPolygon);
 		HitboxPolygons.put(TargetPolygon, BlockFace.TOP);
 		BlockMeta.put("target", BlockFace.TOP.id + "");
 		BlockMeta.put("active", "0");
@@ -48,19 +48,26 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 
 
 	private void updateTargetColors(BlockFace prevTarget, BlockFace newTarget){ //mindenkepp inaktiv lesz, mert nem lehet ugy kattintani h viz fele alljon
-		Polygons.get(prevTarget.id).s.c = side;
-		Polygons.get(prevTarget.id).s.paint=true;
-		Polygons.get(prevTarget.id).recalcLightedColor();
-		Polygons.get(prevTarget.opposite).s.paint = true;
-		Polygons.get(prevTarget.opposite).s.c = side;
-		Polygons.get(prevTarget.opposite).recalcLightedColor();
+		
+		Polygon3D prevTargetPoly = (Polygon3D)Objects.get(prevTarget.id);
+		Polygon3D prevTargetOppositePoly = (Polygon3D)Objects.get(prevTarget.opposite);
+		Polygon3D newTargetPoly = (Polygon3D)Objects.get(newTarget.id);
+		Polygon3D newTargetOppositePoly = (Polygon3D)Objects.get(newTarget.opposite);
+		
+		
+		prevTargetPoly.s.c = side;
+		prevTargetPoly.s.paint=true;
+		prevTargetPoly.recalcLightedColor();
+		prevTargetOppositePoly.s.paint = true;
+		prevTargetOppositePoly.s.c = side;
+		prevTargetOppositePoly.recalcLightedColor();
 
-		Polygons.get(newTarget.id).s.paint = false;
-		Polygons.get(newTarget.id).s.c = front;
-		Polygons.get(newTarget.id).recalcLightedColor();
-		Polygons.get(newTarget.opposite).s.paint = false;
-		Polygons.get(newTarget.opposite).s.c = side;
-		Polygons.get(newTarget.opposite).recalcLightedColor();
+		newTargetPoly.s.paint = false;
+		newTargetPoly.s.c = front;
+		newTargetPoly.recalcLightedColor();
+		newTargetOppositePoly.s.paint = false;
+		newTargetOppositePoly.s.c = side;
+		newTargetOppositePoly.recalcLightedColor();
 		recalcTargetPolygon(newTarget);
 
 	}
@@ -68,12 +75,14 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 	private void updateActiveColors() {
 		for(int i=0;i<6;i++){
 			if(i != getTarget().id){
-				if(isActive()){
-					Polygons.get(i).s.c = active;
-				}else {
-					Polygons.get(i).s.c = side;
+				if(Objects.get(i) instanceof Polygon3D poly) {
+					if(isActive()){
+						poly.s.c = active;
+					}else {
+						poly.s.c = side;
+					}
+					poly.recalcLightedColor();
 				}
-				Polygons.get(i).recalcLightedColor();
 			}
 		}
 	}
@@ -99,7 +108,7 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 			
 			GradientCalculator.getPerpendicular(begin1, begin2, end, pointVec, lineVec);
 				
-			Polygons.get(nearby.id).s.p = new GradientPaint(lineVec.x, lineVec.y, this.front.getColor(), end.x, end.y, Color4.TRANSPARENT);
+			((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec.x, lineVec.y, this.front.getColor(), end.x, end.y, Color4.TRANSPARENT);
 		 }
 		
 	}

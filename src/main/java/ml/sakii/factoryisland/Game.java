@@ -558,7 +558,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			if (ViewBlock instanceof WaterBlock)
 			{
-				g.setColor(ViewBlock.Polygons.get(0).s.c.getColor());
+				g.setColor(((Polygon3D)ViewBlock.Objects.get(0)).s.c.getColor());
 				g.fillRect(0, 0, Main.Width, Main.Height);
 			}
 
@@ -1356,7 +1356,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	}
 	
 	boolean insideBlock(Polygon3D polygon) {
-		return ViewBlock.Polygons.contains(polygon);
+		return ViewBlock.Objects.contains(polygon);
 	}
 
 	private void SwitchInventory(boolean local)

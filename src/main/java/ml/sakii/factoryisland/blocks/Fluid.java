@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -39,9 +40,11 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	
 
 	private void heightMap() {
-		for(Polygon3D polygon : Polygons){
-			polygon.s = textures[getHeight()];
-			polygon.recalcLightedColor();
+		for(Object3D obj : Objects){
+			if(obj instanceof Polygon3D polygon) {
+				polygon.s = textures[getHeight()];
+				polygon.recalcLightedColor();
+			}
 		}
 	}
 

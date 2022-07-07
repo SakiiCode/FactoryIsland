@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -121,15 +122,17 @@ public abstract class SignalPropagator extends Block implements SignalListener, 
 	private void recalcPaints() {
 		int charge = Integer.parseInt(BlockMeta.get("signalLevel"));
 
-		for(Polygon3D p : Polygons){
-			if(charge == 0){
-				p.s.paint = false;
-			}else{
-				p.s.p = new Color(AssetLibrary.fire.c.getRed()/255f,
-						AssetLibrary.fire.c.getGreen()/255f,
-						AssetLibrary.fire.c.getBlue()/255f,
-						Math.max(0,Math.min(10, charge))/10f);
-				p.s.paint = true;
+		for(Object3D obj : Objects){
+			if(obj instanceof Polygon3D p) {
+				if(charge == 0){
+					p.s.paint = false;
+				}else{
+					p.s.p = new Color(AssetLibrary.fire.c.getRed()/255f,
+							AssetLibrary.fire.c.getGreen()/255f,
+							AssetLibrary.fire.c.getBlue()/255f,
+							Math.max(0,Math.min(10, charge))/10f);
+					p.s.paint = true;
+				}
 			}
 		}
 	}
