@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-public class Sphere3D extends Object3D{
+public class Sphere3D extends Object3D implements BufferRenderable{
 
 	public ArrayList<SpherePolygon3D> Polygons = new ArrayList<>();
 	
@@ -87,11 +87,11 @@ public class Sphere3D extends Object3D{
 			p.update(game);
 		}
 		centerDist = game.PE.getPos().distance(pos); 
-		if(game.key[8]) {
+		/*if(game.key[8]) {
 			AvgDist = 4;
 		}else {
 			AvgDist = centerDist;
-		}
+		}*/
 		return true;
 	}
 	
@@ -120,6 +120,14 @@ public class Sphere3D extends Object3D{
 		return pos;
 	}
 	
+	@Override
+	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
+		for(SpherePolygon3D p : Polygons) {
+			if(p.isVisible()) {
+				p.drawToBuffer(ZBuffer, game);
+			}
+		}
+	}
 	
 	class SpherePolygon3D extends Polygon3D {
 

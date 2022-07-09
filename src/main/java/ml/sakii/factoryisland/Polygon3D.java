@@ -21,7 +21,7 @@ import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.Corner;
 import ml.sakii.factoryisland.blocks.GradientCalculator;
 
-public class Polygon3D extends Object3D{
+public class Polygon3D extends Object3D implements BufferRenderable{
 	Polygon polygon = new Polygon();
 	boolean adjecentFilter = true;
 	private boolean faceFilter = true;
@@ -264,6 +264,7 @@ public class Polygon3D extends Object3D{
 		return light;
 	}
 		
+	@Override
 	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
 		
 		// buffer init

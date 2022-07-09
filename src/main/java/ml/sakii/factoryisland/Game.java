@@ -414,6 +414,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Stars[i].draw(fb);
 			}
 			
+			Spheres.sort((s1,s2)->Float.compare(s2.getCenterDist(),s1.getCenterDist()));
+			
 			for(Sphere3D sphere : Spheres) {
 				if(PE.ViewFrom.distance(sphere.getPos())<=sphere.getRadius()){
 					fb.setColor(sphere.getColor().getColor());
@@ -443,17 +445,20 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			String crosshairPixel=null;
 			if(Config.useTextures) {
 				VisibleCounter.set(0);
-				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof Polygon3D;}).forEach(o ->{
+				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof BufferRenderable br;}).forEach(o ->{
 
-					Polygon3D p = (Polygon3D)o;
-					p.drawToBuffer(ZBuffer, this);
-					if (p.polygon.contains(centerX, centerY) &&
-							((SelectedPolygon == null && p.AvgDist<5) || (SelectedPolygon!=null && p.AvgDist<SelectedPolygon.AvgDist)))
-					{
-						SelectedPolygon = p;
-					}
-					if(F3) {
-						VisibleCounter.incrementAndGet();
+					((BufferRenderable)o).drawToBuffer(ZBuffer, this);
+					
+					if(o instanceof Polygon3D p) {
+						
+						if (p.polygon.contains(centerX, centerY) &&
+								((SelectedPolygon == null && p.AvgDist<5) || (SelectedPolygon!=null && p.AvgDist<SelectedPolygon.AvgDist)))
+						{
+							SelectedPolygon = p;
+						}
+						if(F3) {
+							VisibleCounter.incrementAndGet();
+						}
 					}
 				});
 
@@ -489,7 +494,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 					
-				Objects.parallelStream().filter(o->!(o instanceof Polygon3D)).sorted().forEachOrdered(t ->{
+				Objects.parallelStream().filter(o->!(o instanceof BufferRenderable)).sorted().forEachOrdered(t ->{
 					t.draw(null, fb, this); //nem kell image-t megadni text3d-hez
 				});
 				
