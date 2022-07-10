@@ -351,8 +351,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				return;
 			}
 
-			BackViewVector.set(ViewVector).CrossProduct(PE.VerticalVector).CrossProduct(PE.VerticalVector);
-			FrontViewVector.set(BackViewVector).multiply(-1);
+			
 			Controls();
 			Vector PEPos = PE.getPos();
 			moved = !previousPos.equals(PEPos) || !previousAim.equals(PE.ViewAngle);
@@ -440,9 +439,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				}.start();
 				
 			}
-			
-			
-			String crosshairPixel=null;
+		
 			if(Config.useTextures) {
 				VisibleCounter.set(0);
 				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof BufferRenderable br;}).forEach(o ->{
@@ -464,7 +461,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 				VisibleCount=VisibleCounter.get();
 				maskManager.clear();
-				crosshairPixel = ZBuffer[FrameBuffer.getWidth()/2-1][FrameBuffer.getHeight()/2-1].toString();
 				IntStream.range(0, maskManager.threads).parallel()
 					.forEach(id -> {
 						int start = id*maskManager.tileWidth;
@@ -615,7 +611,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("SelectedEntity: null");
 					}
 					if(Config.useTextures) {
-						debugInfo.add("Selected Pixel: "+crosshairPixel);
+						debugInfo.add("Selected Pixel: "+ZBuffer[FrameBuffer.getWidth()/2-1][FrameBuffer.getHeight()/2-1].toString());
 					}
 					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 					debugInfo.add("testing:"+key[6]);
@@ -648,7 +644,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					int y= (int) Math.floor(PEPos.y);
 					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + Globals.GravityAcceleration / FPS) * PE.VerticalVector.z));
 					PE.tmpPoint.set(x, y, feetZ);
-					debugInfo.add("Physics FPS: " + Engine.getActualphysicsfps() +", skyLight:"+timeFraction+", cached:"+previousSkyLight+"level:"+Polygon3D.testLightLevel(timeFraction));
+					debugInfo.add("Physics FPS: " + Engine.getActualphysicsfps() +", skyLight:"+Engine.getTimePercent()+", cached:"+previousSkyLight+"level:"+Polygon3D.testLightLevel(Engine.getTimePercent()));
 					// DEBUG SZÖVEG
 					g.setColor(Color.BLACK);
 					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
@@ -783,6 +779,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	private void Controls()
 	{
+		BackViewVector.set(ViewVector).CrossProduct(PE.VerticalVector).CrossProduct(PE.VerticalVector);
+		FrontViewVector.set(BackViewVector).multiply(-1);
+		
 		if(benchmarkMode) {
 			Engine.world.walk(LeftViewVector, speed/2, PE, FPS, false);
 			PE.ViewAngle.yaw -= 10 / FPS * PE.VerticalVector.z;

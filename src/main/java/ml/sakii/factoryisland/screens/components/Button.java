@@ -8,8 +8,6 @@ import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
-import ml.sakii.factoryisland.AssetLibrary;
-import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.Main;
 
 public class Button extends JButton{

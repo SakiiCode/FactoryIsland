@@ -15,6 +15,14 @@ public class UVZ {
 		return result;
 	}
 	
+	static double[] interpUV(Vector p1, Vector pos, Vector p2, double[] uv1, double[] uv2) {
+		double distanceratio = p1.distance(pos) / p1.distance(p2);
+		double u = Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
+		double v = Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
+		double ao = Util.interp(0, 1, distanceratio, uv1[2], uv2[2]);
+		return new double[] {u,v,ao};
+	}
+	
 	@Override
 	public String toString() {
 		return "UVZ [invZ=" + iz + ", uz=" + uz + ", vz=" + vz + ", ao=" + ao + "]";

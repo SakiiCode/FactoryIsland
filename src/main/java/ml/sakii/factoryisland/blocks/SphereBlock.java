@@ -16,7 +16,7 @@ public class SphereBlock extends Block{
 		
 		public SphereBlock(int x, int y, int z, GameEngine engine){
 			super("Sphere",x, y, z,engine);
-			sphere=new Sphere3D("Gömb", new Vector(x,y,z), 8, 20, new Surface(new Color4(1f,0f,1f,0.5f)), this, engine);
+			sphere = new Sphere3D(new Vector(x,y,z), 8, 20, new Surface(new Color4(1f,0f,1f,0.5f)), this);
 			
 			Objects.add(sphere);
 		}

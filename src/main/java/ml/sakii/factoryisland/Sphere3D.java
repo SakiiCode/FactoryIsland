@@ -10,16 +10,13 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	
 	private Surface surface;
 	private float radius;
-	private GameEngine engine;
 	private Vector pos;
 	private float centerDist;
 	
-	public Sphere3D(String name, Vector pos, float radius, int resolution, Surface s, Model m, GameEngine engine) {
-		
+	public Sphere3D(Vector pos, float radius, int resolution, Surface s, Model m) {
 		
 		this.surface=s;
 		this.pos=pos;
-		this.engine=engine;
 		this.radius=radius;
 		
 		Vertex top = new Vertex(pos.cpy().add(Vector.Z.cpy().multiply(radius)));
@@ -52,7 +49,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 								bottom,
 							},
 							s,
-							m, pos));
+							m));
 				}else if(i == resolution-1) {
 					Polygons.add(new SpherePolygon3D(
 							new Vertex[] {
@@ -61,7 +58,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 								points[i-1][j]
 							},
 							s,
-							m, pos));
+							m));
 				}else {
 					Polygons.add(new SpherePolygon3D(
 							new Vertex[] {
@@ -71,7 +68,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 								points[i-1][j]
 							},
 							s,
-							m, pos));
+							m));
 				}
 			}
 		}
@@ -129,14 +126,12 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		}
 	}
 	
-	class SpherePolygon3D extends Polygon3D {
-
-		private Vector pos;
+	private class SpherePolygon3D extends Polygon3D {
+		
 		private boolean visible;
 		
-		public SpherePolygon3D(Vertex[] vertices, Surface s, Model model, Vector pos) {
+		public SpherePolygon3D(Vertex[] vertices, Surface s, Model model) {
 			super(vertices, new int[vertices.length][2], s, model);
-			this.pos=pos;
 		}
 		
 		@Override

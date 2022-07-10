@@ -6,7 +6,6 @@ public class Color4 {
 	
 	private int r, g, b, a;
 	private Color cache;
-    private static final double FACTOR = 0.7;
     
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 	public static final Color AO_MAX_FLAT = new Color(0, 0, 0, 0.4f);

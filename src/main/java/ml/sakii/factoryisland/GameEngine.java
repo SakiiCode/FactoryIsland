@@ -303,9 +303,9 @@ public class GameEngine{
 				{
 					actualphysicsfps = 1000f / (physics2 - physics1);
 				}
-				world.getAllEntities().parallelStream().forEach(entity-> {
-					if(entity instanceof Alien) {
-						Alien alien = (Alien)entity;
+				for(Entity entity : world.getAllEntities()) {
+				//world.getAllEntities().parallelStream().forEach(entity-> {
+					if(entity instanceof Alien alien) {
 						Vector closest = null;
 						
 						
@@ -369,7 +369,7 @@ public class GameEngine{
 					}
 				
 				
-				}); // minden entity kód vége
+				} // minden entity kód vége
         	
 			}
 

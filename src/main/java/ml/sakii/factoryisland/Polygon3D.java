@@ -12,6 +12,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -53,8 +54,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
 	private Point2D.Double centroid2D = new Point2D.Double();
-	private float[] fractions = new float[]{0.5f,1.0f};
-	private Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
+	private static final float[] fractions = new float[]{0.5f,1.0f};
+	private static final Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
 	private double[][] UVMap;
 	private double[][] clipUV,clipUV2;
 	
@@ -65,7 +66,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 	private CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
 	private CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
-	private CopyOnWriteArrayList<GradientPaint> OcclusionPaints = new CopyOnWriteArrayList<>();
+	private ArrayList<GradientPaint> OcclusionPaints = new ArrayList<>();
 	
 	private Vector lineVec = new Vector();
 	private Vector pointVec = new Vector();
@@ -665,17 +666,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	
 	private boolean isAllBehind(Vector tmp2, Game game) { //7.1% -> 4.9%
-		boolean result=true;
-
-			tmp2.set(game.ViewVector).multiply(physicalRadius); //radius vector
 		
-			if(tmp2.add(centroid).substract(game.PE.getPos()).DotProduct(game.ViewVector)<0) {
-				result= true;
-			}else {
-				result=false;
-			}
+		return tmp2.set(game.ViewVector)
+				.multiply(physicalRadius)
+				.add(centroid)
+				.substract(game.PE.getPos())
+				.DotProduct(game.ViewVector)<0;
 		
-		return result;
 	}
 	
 	
@@ -753,7 +750,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					
 					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
 					if(Config.useTextures)
-						clipUV2[clip2Size] = getUVInterp(a, tmp, b, uv1,uv2);
+						clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
 					clip2Size++;
 					
 				}else if(da >0 && db < 0){ // elölről vágja félbe
@@ -765,7 +762,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					
 					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
 					if(Config.useTextures)
-						clipUV2[clip2Size] = getUVInterp(a, tmp, b, uv1,uv2);
+						clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
 					clip2Size++;
 					
 				}
@@ -774,13 +771,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		resetClipsTo(clip2,clipUV2,clip2Size);
 	}
 	
-	private static double[] getUVInterp(Vector p1, Vector pos, Vector p2, double[] uv1, double[] uv2) {
-		double distanceratio = p1.distance(pos) / p1.distance(p2);
-		double u = Util.interp(0, 1, distanceratio, uv1[0], uv2[0]);
-		double v = Util.interp(0, 1, distanceratio, uv1[1], uv2[1]);
-		double ao = Util.interp(0, 1, distanceratio, uv1[2], uv2[2]);
-		return new double[] {u,v,ao};
-	}
+	
 	
 
 	@Override
