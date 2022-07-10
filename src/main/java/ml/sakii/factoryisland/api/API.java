@@ -40,7 +40,7 @@ public class API {
 	public static Block[] getBlocksByName(String name) {
 		ArrayList<Block> bl = new ArrayList<>();
 		
-		for(ml.sakii.factoryisland.blocks.Block b : Engine.world.getWhole(false)) {
+		for(ml.sakii.factoryisland.blocks.Block b : Engine.world.getWhole()) {
 			if(b.name.equals(name)) {
 				bl.add(new Block(b));
 			}

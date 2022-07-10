@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1055,25 +1054,23 @@ public class World {
 		return blockColumn.last().z;
 	}
 
-	public ArrayList<Block> getWhole(boolean visibleOnly) {
-		ArrayList<Block> Blocks = new ArrayList<>();
-
-		if (!visibleOnly) {
-			Blocks.addAll(this.Blocks.values());
-		} else {
-			for (Block b : this.Blocks.values()) {
-				for (Object3D obj : b.Objects) {
-					if (obj instanceof Polygon3D poly && poly.adjecentFilter) {
-						Blocks.add(b);
-						break;
-					}
+	public Collection<Block> getWhole() {
+		return this.Blocks.values();
+	}
+	
+	//TODO cachelni
+	public void getSurface(Collection<Block> Blocks) {
+		for (Block b : this.Blocks.values()) {
+			for (Object3D obj : b.Objects) {
+				if (obj instanceof Polygon3D poly && poly.adjecentFilter) {
+					Blocks.add(b);
+					break;
 				}
 			}
 		}
-
-		return Blocks;
-
 	}
+	
+	
 
 	public Block getSpawnBlock() {
 
@@ -1177,11 +1174,11 @@ public class World {
 
 	public void saveByShutdown() {
 
-		saveWorld(worldName, getWhole(false), Engine.Tick, seed, getAllEntities(), loadedVersion);
+		saveWorld(worldName, getWhole(), Engine.Tick, seed, getAllEntities(), loadedVersion);
 		
 	}
 
-	private static void saveWorld(String worldName, List<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {
+	private static void saveWorld(String worldName, Collection<Block> Blocks, long tickCount, long seed, Collection<Entity> entities, int loadedVersion) {
 		File saves = new File("saves");
 		File mods = new File("mods");
 		File wname = new File("saves/" + worldName);

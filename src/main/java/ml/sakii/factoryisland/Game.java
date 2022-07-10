@@ -218,7 +218,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		previousPos = new Vector().set(PE.getPos());
 		previousAim = new EAngle(PE.ViewAngle.yaw, PE.ViewAngle.pitch);
 		
-		for(Block b : Engine.world.getWhole(false)) {
+		for(Block b : Engine.world.getWhole()) {
 			if(b instanceof LoadListener ll) {
 				ll.onLoad(this);
 			}

@@ -109,6 +109,9 @@ public class GameEngine{
 	private void initTimers() {
 		
 		ActionListener tickPerformer = new ActionListener() {
+			
+			ArrayList<Block> surface = new ArrayList<>();
+			
             @Override
 			public void actionPerformed(ActionEvent evt) {
         		
@@ -143,7 +146,9 @@ public class GameEngine{
 						}
 						
 					}
-					ArrayList<Block> surface = world.getWhole(true);
+					
+					surface.clear();
+					world.getSurface(surface);
 
 					if(world.getAlienCount() < 6 && Math.random() < 0.004 && surface.size()>0) {
 						int Min = 0;
@@ -591,7 +596,7 @@ public class GameEngine{
 		
 		updateLabel(statusLabel,"- Sprinkling sand and grass...");
 		
-		for(Block b : world.getWhole(false)){
+		for(Block b : world.getWhole()){
 			if(!b.name.equals("Water") && !b.name.equals("Old")){
 				if(isNearWater(b)){
 					world.destroyBlock(b, false);
@@ -609,7 +614,7 @@ public class GameEngine{
 		updateLabel(statusLabel,"- Planting tree ...");
 		
 		ArrayList<Block> grasses = new ArrayList<>();
-		for(Block b : world.getWhole(false)){
+		for(Block b : world.getWhole()){
 			if(b instanceof GrassBlock){
 				grasses.add(b);
 			}
@@ -683,7 +688,7 @@ public class GameEngine{
 				block.generateWorld();
 			}
 		}
-		for(Block b : world.getWhole(false)) {
+		for(Block b : world.getWhole()) {
 			if(b instanceof WorldGenListener wgl) {
 				wgl.generateWorld();
 			}

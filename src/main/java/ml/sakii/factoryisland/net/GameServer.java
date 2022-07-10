@@ -114,7 +114,8 @@ public class GameServer extends Thread{
 
 				if(!senderName.equals(Config.username)) { // ha nem helyi, akkor elküldi a pályát
 				
-					ArrayList<Block> Blocks =Engine.world.getWhole(false); 
+					ArrayList<Block> Blocks = new ArrayList<>();
+					Blocks.addAll(Engine.world.getWhole()); 
 					int size = Blocks.size();
 					for(int i = 0; i<size; i= i+(Globals.MP_PACKET_EACH)){
 						StringBuilder message2=new StringBuilder();
@@ -194,7 +195,7 @@ public class GameServer extends Thread{
 					}
 					
 					//és a blokkok inventoryját
-					for(Block b : Engine.world.getWhole(false)) {
+					for(Block b : Engine.world.getWhole()) {
 						if(b instanceof BlockInventoryInterface bii) {
 							for(Entry<ItemType,Integer> entry : bii.getInv().items.entrySet()) {
 								sendData("13,SERVER,"+b.x+","+b.y+","+b.z+","+entry.getKey().name+","+entry.getValue(), conn);
