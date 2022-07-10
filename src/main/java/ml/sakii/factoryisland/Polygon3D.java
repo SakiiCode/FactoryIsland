@@ -11,7 +11,6 @@ import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,11 +36,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private final Vertex[] clip2 = new Vertex[20];
 	private int clipSize, clip2Size;
 	
-	private HashMap<Integer, Integer> bufferXmin = new HashMap<>(Config.getHeight());
-	private HashMap<Integer, Integer> bufferXmax = new HashMap<>(Config.getHeight());
-	
-	private HashMap<Integer, UVZ> bufferUVZmin = new HashMap<>(Config.getHeight());
-	private HashMap<Integer, UVZ> bufferUVZmax = new HashMap<>(Config.getHeight());
+	private int[] bufferXmin, bufferXmax; 
+	private UVZ[] bufferUVZmin, bufferUVZmax;
 	
 	private Plane tmpnear=new Plane();
 	private Vector RadiusVector=new Vector();
@@ -269,10 +265,17 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
 		
 		// buffer init
-		bufferXmin.clear();
-		bufferXmax.clear();
-		bufferUVZmin.clear();
-		bufferUVZmax.clear();
+		bufferXmin = new int[ymax-ymin+2];
+		for(int i=0;i<bufferXmin.length;i++) {
+			bufferXmin[i]=Config.getWidth()+1;
+		}
+		bufferXmax = new int[ymax-ymin+2];
+		for(int i=0;i<bufferXmin.length;i++) {
+			bufferXmax[i]=-1;
+		}
+		
+		bufferUVZmin = new UVZ[ymax-ymin+2];
+		bufferUVZmax = new UVZ[ymax-ymin+2];
 		
 
 
@@ -305,19 +308,20 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 
 			double x  = xmin; //aktuális x érték
+
+			
 			
 			// megkeressük az adott sor bal és jobb szélét, társítunk a két ponthoz UVZ-t is
 			// y-t 1-gyel, x-et m-mel léptetjük
 			for(int y=ymin;y<ymax;y++) {
-				
-				if(bufferXmin.get(y) == null || x < bufferXmin.get(y)) {
-					bufferXmin.put(y,(int) x);
-					bufferUVZmin.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
+				if(x < bufferXmin[y-this.ymin]) {
+					bufferXmin[y-this.ymin] = (int)x;
+					bufferUVZmin[y-this.ymin] = UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2);
 				}
 				
-				if(bufferXmax.get(y) == null || x > bufferXmax.get(y)) {
-					bufferXmax.put(y,(int) x);
-					bufferUVZmax.put(y, UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2));
+				if(x > bufferXmax[y-this.ymin]) {
+					bufferXmax[y-this.ymin] = (int)x;
+					bufferUVZmax[y-this.ymin] = UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2);
 				}
 				
 				x+=m;
@@ -337,10 +341,11 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		for(int y=ymin;y<ymax;y++)
 		{
 			//a polygon adott sorának két szélének adatai
-			int xmin=bufferXmin.get(y);
-			int xmax=bufferXmax.get(y);
-			UVZ uvzmin = bufferUVZmin.get(y);
-			UVZ uvzmax = bufferUVZmax.get(y);
+			
+			int xmin=bufferXmin[y-ymin];
+			int xmax=bufferXmax[y-ymin];
+			UVZ uvzmin = bufferUVZmin[y-ymin];
+			UVZ uvzmax = bufferUVZmax[y-ymin];
 		 
 
 
