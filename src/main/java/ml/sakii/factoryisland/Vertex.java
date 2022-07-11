@@ -31,12 +31,11 @@ public class Vertex extends Vector{
 		
 	}
 	
-	UVZ getUVZ(double[] uv, Game game) {
+	UVZ getUVZ(double[] uv, Game game, UVZ uvz) {
 		// 1/z , u/z , v/z kiszámítása
 		// z nem a kamera és a pont távolsága, hanem a kamera helyének, és a pontnak a kamera irányára vetített helyének távolsága
 		// (egyszerû skalárszorzat)
 		double z = Copy.set(this).substract(game.PE.getPos()).DotProduct(game.ViewVector);
-		UVZ uvz=new UVZ();
 		uvz.iz=1/z;
 		uvz.uz=uv[0]/z;
 		uvz.vz=uv[1]/z;

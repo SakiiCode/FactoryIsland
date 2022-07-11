@@ -10,7 +10,6 @@ import java.awt.RadialGradientPaint;
 import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -277,7 +276,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		bufferUVZmin = new UVZ[ymax-ymin+2];
 		bufferUVZmax = new UVZ[ymax-ymin+2];
 		
-
+		UVZ tmpUVZ1 = new UVZ();
+		UVZ tmpUVZ2 = new UVZ();
 
 		//vertexről vertexre körbemegyünk
 		for(int i=0;i<clipSize;i++) {
@@ -288,8 +288,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			Vertex v1 = clip[index1]; 
 			Vertex v2 = clip[index2];
 			
-			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
-			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
+			v1.getUVZ(clipUV[index1], game, tmpUVZ1);
+			v2.getUVZ(clipUV[index2], game, tmpUVZ2);
 			
 			
 			final Point p1 = v1.proj;
@@ -372,29 +372,26 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				 	
 				 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
 				 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
-				 	double aoz=0;
-				 	if(Config.ambientOcclusion) {
-				 		aoz=Util.interpSlope(xmin, x, uvzmin.ao, Sao);
-				 	}
-				 	
-				 	int rgb;
 				 	
 				 	double u=uz/iz;
 				 	double v=vz/iz;
-				 	double ao=0;
+				 	
+				 	
+				 	double aoz=0, ao=0;
 				 	if(Config.ambientOcclusion) {
+				 		aoz=Util.interpSlope(xmin, x, uvzmin.ao, Sao);
 				 		ao=Util.limit(aoz/iz,0,1);
 				 	}
 				 	
-				 	int u2=0,v2=0;
+				 	int rgb;
 				 	
 				 	try {
 				 		int px;
 				 		if(s.color) {
 				 			px=s.c.getRGB();
 				 		}else {
-				 			u2 = Util.limit((int)u, 0, s.Texture.getWidth()-1);
-				 			v2 = Util.limit((int)v, 0, s.Texture.getHeight()-1);
+				 			int u2 = Util.limit((int)u, 0, s.Texture.getWidth()-1);
+				 			int v2 = Util.limit((int)v, 0, s.Texture.getHeight()-1);
 				 			px=s.Texture.getRGB(u2, v2);
 				 		}
 				 		px=px|0xFF000000;
@@ -406,7 +403,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 
 				 	}catch(Exception e) {
-				 		System.out.println(e.getMessage()+" (u:"+u+",v:"+v+",ao:"+ao+" -> u2:"+u2+",v2:"+v2+")");
+				 		System.out.println(e.getMessage()+" (u:"+u+",v:"+v+",ao:"+ao);
 				 		rgb=0xFF000000;
 				 	}
 				 	
@@ -425,8 +422,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			Vertex v1 = clip[index1]; 
 			Vertex v2 = clip[index2];
 			
-			UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
-			UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
+			v1.getUVZ(clipUV[index1], game, tmpUVZ1);
+			v2.getUVZ(clipUV[index2], game, tmpUVZ2);
 			
 			final Point p1 = v1.proj;
 			final Point p2 = v2.proj;
@@ -443,8 +440,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				Vertex v1 = clip[index1]; 
 				Vertex v2 = clip[index2];
 				
-				UVZ tmpUVZ1 = v1.getUVZ(clipUV[index1], game);
-				UVZ tmpUVZ2 = v2.getUVZ(clipUV[index2], game);
+				v1.getUVZ(clipUV[index1], game, tmpUVZ1);
+				v2.getUVZ(clipUV[index2], game, tmpUVZ2);
 				
 				final Point p1 = v1.proj;
 				final Point p2 = v2.proj;
