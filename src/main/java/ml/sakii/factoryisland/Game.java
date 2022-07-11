@@ -33,7 +33,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -460,32 +459,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				});
 
 				VisibleCount=VisibleCounter.get();
-				maskManager.clear();
-				IntStream.range(0, maskManager.threads).parallel()
-					.forEach(id -> {
-						int start = id*maskManager.tileWidth;
-						int end = Math.min(ZBuffer.length, start+maskManager.tileWidth);
-						for(int x=start;x<end;x++) {
-							
-							for(int y=0;y<ZBuffer[x].length;y++) {
-								if(key[6]) {
-									int px=(int) Math.round(255*(Math.pow(1-ZBuffer[x][y].depth, 6)));
-								 	int rgb = (255 << 24) | (px << 16) | (px << 8) | px;
-									maskManager.setRGB(x, y, rgb);
-								}else {
-									int color =ZBuffer[x][y].color; 
-									
-									if(color != 0) { //color not set => transparent. Black is 0xFF000000
-										maskManager.setRGB(x, y, color);
-									}
-									
-								}
-								ZBuffer[x][y].reset();
 				
-							}
-						}
-					});
-
+				maskManager.clear();
+				maskManager.copyParallel(ZBuffer, key[6]);
 				maskManager.render(fb);
 
 
