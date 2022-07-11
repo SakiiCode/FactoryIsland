@@ -624,6 +624,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					// DEBUG SZÖVEG
 					g.setColor(Color.BLACK);
 					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
+					
+					
 					for (int j = 1; j > -1; j--)
 					{
 	
@@ -714,45 +716,46 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			if (kind != Inv.getSelectedKind() || (local != localInvActive))
 			{ //alap
-				g.setColor(Color.WHITE);
-				g.drawString(amount + "", textX, textY);
-
-				g.setColor(Color.BLACK);
-				g.drawString(amount + "", textX - 1, textY - 1);
+				drawOutlinedString(amount + "", textX, textY, Color.BLACK, Color.WHITE, g);
+				
 
 			} else
 			{ //kiemelt
-				g.setColor(Color.BLACK);
-				g.drawString(amount + "", textX, textY);
-
-				g.setColor(Color.WHITE);
-				g.drawString(amount + "", textX - 1, textY - 1);
+				drawOutlinedString(amount + "", textX, textY, Color.WHITE, Color.BLACK, g);
 			}
 		}
 		
 		// KIJELÖLT FELIRAT
 		if (Inv.hasSelected()) 
 		{
-			g.setColor(Color.BLACK);
-			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale), Config.getHeight() - icon-icon/2-halfTextHeight);
-			g.setColor(Color.WHITE);
-			g.drawString(Inv.getSelectedKind().name, (int) (25*viewportscale - 1), Config.getHeight() - icon-icon/2-halfTextHeight - 1);
+			drawOutlinedString(Inv.getSelectedKind().name, (int) (25*viewportscale), Config.getHeight() - icon-icon/2-halfTextHeight, Color.WHITE, Color.BLACK, g);
 		
 		}
 		
 		// TÁVOLI BLOKK
 		if(!local) {
 			
-			
-			g.setColor(Color.BLACK);
-			g.drawString(remoteBlock.toString(), 25, Config.getHeight() - 3*icon-icon/2-halfTextHeight);
-			g.setColor(Color.WHITE);
-			g.drawString(remoteBlock.toString(), 25 - 1, Config.getHeight() - 3*icon-icon/2-halfTextHeight - 1);
+			drawOutlinedString(remoteBlock.toString(), 25, Config.getHeight() - 3*icon-icon/2-halfTextHeight, Color.WHITE, Color.BLACK, g);
 			
 		}
 		
 	}
 
+	private static void drawOutlinedString(String text, int x, int y, Color mainColor, Color outlineColor, Graphics g) {
+		g.setColor(outlineColor);
+		g.drawString(text, x - 1, y - 1);
+		g.drawString(text, x - 1, y);
+		g.drawString(text, x - 1, y + 1);
+		g.drawString(text, x, y - 1);
+		g.drawString(text, x, y + 1);
+		g.drawString(text, x + 1, y - 1);
+		g.drawString(text, x + 1, y);
+		g.drawString(text, x + 1, y + 1);
+
+		g.setColor(mainColor);
+		g.drawString(text, x, y);
+	}
+	
 	private void Controls()
 	{
 		BackViewVector.set(ViewVector).CrossProduct(PE.VerticalVector).CrossProduct(PE.VerticalVector);
