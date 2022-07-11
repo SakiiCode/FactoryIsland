@@ -491,14 +491,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 					
 				Objects.parallelStream().filter(o->!(o instanceof BufferRenderable)).sorted().forEachOrdered(t ->{
-					t.draw(null, fb, this); //nem kell image-t megadni text3d-hez
+					t.draw(fb, this); //nem kell image-t megadni text3d-hez
 				});
 				
 				
 			}else {
 				Objects.parallelStream().filter(o -> o.update(this)).sorted().forEachOrdered(o->
 				{
-					o.draw(FrameBuffer, fb, this);
+					o.draw(fb, this);
 					
 					if(o instanceof Polygon3D poly) {
 						

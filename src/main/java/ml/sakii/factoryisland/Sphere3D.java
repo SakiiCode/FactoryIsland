@@ -1,7 +1,6 @@
 package ml.sakii.factoryisland;
 
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Sphere3D extends Object3D implements BufferRenderable{
@@ -93,10 +92,10 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	}
 	
 	@Override
-	protected void draw(BufferedImage FrameBuffer, Graphics g, Game game) {
+	protected void draw(Graphics g, Game game) {
 		for(SpherePolygon3D p : Polygons) {
 			if(p.isVisible()) {
-				p.draw(FrameBuffer, g, game);
+				p.draw(g, game);
 			}
 		}
 	}
@@ -149,7 +148,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		}
 		
 		@Override
-		protected void draw(BufferedImage FrameBuffer, Graphics g, Game game) {
+		protected void draw(Graphics g, Game game) {
 			g.setColor(s.c.getColor());
 			g.fillPolygon(polygon);
 		}

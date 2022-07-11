@@ -455,7 +455,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 
 	@Override
-	protected void draw(BufferedImage FrameBuffer, Graphics g, Game game){
+	protected void draw(Graphics g, Game game){
 		Graphics2D g2d=(Graphics2D)g;
 		
 		g2d.setColor(s.paint ? s.c.getColor() : lightedcolor.getColor());

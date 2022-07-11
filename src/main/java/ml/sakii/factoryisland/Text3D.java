@@ -6,7 +6,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 public class Text3D extends Object3D
 {
@@ -43,7 +42,7 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	public void draw(BufferedImage fb, Graphics g, Game game)
+	public void draw(Graphics g, Game game)
 	{
 
 		g.setFont(new Font("Helvetica", Font.BOLD, (int) (20 * game.ratio)));
