@@ -111,6 +111,35 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 	}
 	
+	//TODO add polygonIterator
+	/*
+	public Iterator<Polygon3D> polygonIterator(){
+		return new Iterator<>() {
+			Iterator<Object3D> iter = Objects.iterator();
+			Object3D next = null;
+			
+			
+			@Override
+			public boolean hasNext() {
+				do{
+					next = iter.next();
+				}while(next != null && !(next instanceof Polygon3D));
+				return next == null;
+			}
+			
+			@Override
+			public Polygon3D next() {
+				if(next==null) {
+					hasNext();
+				}
+				return (Polygon3D)next;
+			}
+			
+			
+			
+		}
+	}*/
+	
 	public void select(BlockFace face)
 	{
 		if (selectedFace != face)
