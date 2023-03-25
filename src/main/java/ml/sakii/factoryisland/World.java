@@ -13,7 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.swing.JLabel;
+import java.util.function.Consumer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLEventReader;
@@ -74,23 +74,21 @@ public class World {
 	int lightCalcRuns=0;
 	public boolean loading=true;
 	
-	public World(String worldName, GameEngine engine, Game game, boolean existing, JLabel statusLabel) {
+	public World(String worldName, GameEngine engine, Game game, boolean existing, Consumer<String> update) {
 		Engine = engine;
 		this.game = game;
 		this.worldName = worldName;
 		
-
-		
 		
 		if(existing) {
-			success = loadWorld(engine, statusLabel);
+			success = loadWorld(engine, update);
 			if(success==null) success="";
 		}
 		
 	}
 
 	@SuppressWarnings({ "null" })
-	private String loadWorld(GameEngine engine, JLabel statusLabel) {
+	private String loadWorld(GameEngine engine, Consumer<String> update) {
 		
 		XMLInputFactory factory = XMLInputFactory.newInstance();
 		XMLEventReader eventReader;
@@ -142,7 +140,7 @@ public class World {
 	                   }else if (qName.equalsIgnoreCase("version")) {
 	                	   bVersion=true;
 	                   }else if (qName.equalsIgnoreCase("blocks")) {
-	                	   GameEngine.updateLabel(statusLabel, "Loading blocks...");
+	                	   update.accept("Loading blocks...");
 	                   }else if (qName.equalsIgnoreCase("block")) {
 	                	   //boolean nem kell mert curBlock van helyette
 	                       Iterator<Attribute> attributes = startElement.getAttributes();
@@ -166,7 +164,7 @@ public class World {
 	                   }else if (qName.equalsIgnoreCase("tick")) {
 	                	   bTick=true;
 	                   }else if(qName.equalsIgnoreCase("entities")) {
-	                	   GameEngine.updateLabel(statusLabel, "Loading entities...");
+	                	   update.accept("Loading entities...");
 	                   }else if (qName.equalsIgnoreCase("entity")) {
 	                	   //boolean nem kell mert sosem lesz leszarmazott tagje
 	                       Iterator<Attribute> attributes = startElement.getAttributes();
@@ -250,7 +248,7 @@ public class World {
 	            		   if(curBlock!=null) {
 	            			   addBlockNoReplace(curBlock,true);
 	            			   curBlock=null;
-	            			   GameEngine.updateLabel(statusLabel, "Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
+	            			   update.accept("Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
 	            		   }else {
 	            			   return "Closing tag of empty block";
 	            		   }

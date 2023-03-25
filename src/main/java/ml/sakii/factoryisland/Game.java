@@ -33,7 +33,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.swing.JLabel;
+import java.util.function.Consumer;
+
 import javax.swing.JPanel;
 
 import ml.sakii.factoryisland.api.API;
@@ -141,12 +142,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private GUIManager guiManager;
 	
 	
-	public Game(String location, long seed, LoadMethod loadmethod, JLabel statusLabel, GUIManager guiManager) {
+	public Game(String location, long seed, LoadMethod loadmethod, GUIManager guiManager, Consumer<String> update) {
 		this.setBackground(new Color(20,20,20)); // csak igy lehet a feher villanast elkerulni valtaskor cardlayout miatt
 		this.guiManager=guiManager;
 		try {
 
-			Engine = new GameEngine(location, this, seed, loadmethod, statusLabel);
+			Engine = new GameEngine(location, this, seed, loadmethod, update);
 			
 			API.Engine=Engine;
 			ml.sakii.factoryisland.api.Block.Engine=Engine;
@@ -205,7 +206,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			teleportToSpawn();
 		}
 		
-		statusLabel.setText("Loading player inventory...");
+		update.accept("Loading player inventory...");
 		if(Config.creative) {
 			PE.inventory=PlayerInventory.Creative;
 		}else {
@@ -221,7 +222,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(b instanceof LoadListener ll) {
 				ll.onLoad(this);
 			}
-			statusLabel.setText("Spreading light...");
+			update.accept("Spreading light...");
 			if(b.lightLevel>1) {
 				Engine.world.addLight(b.pos);
 			}

@@ -6,9 +6,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.function.Consumer;
+
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
@@ -22,6 +25,12 @@ public class MultiplayerGUI extends PaintedScreen implements ActionListener, Key
 	private Button submitButton;
 	private JLabel seedLabel;
 	private JLabel statusLabel;
+	
+	public Consumer<String> updateFunction = (text) -> {
+		SwingUtilities.invokeLater(()->{
+			statusLabel.setText(text);
+		});
+	};
 	
 	
 	public MultiplayerGUI(GUIManager guiManager){

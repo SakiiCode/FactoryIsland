@@ -14,7 +14,9 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -31,6 +33,9 @@ import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.screens.components.Button;
 
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
 import ml.sakii.factoryisland.screens.components.Label;
 import ml.sakii.factoryisland.screens.components.TextField;
 
@@ -43,6 +48,12 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	private JList<String> worldsList;
 	
 	private String mapName;
+	
+	public Consumer<String> updateFunction = (text) -> {
+		SwingUtilities.invokeLater(()->{
+			statusLabel.setText(text);
+		});
+	};
 	
 	public SingleplayerGUI(GUIManager guiManager){
 		super(AssetLibrary.GUIBG, guiManager);
@@ -161,8 +172,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 		JPanel joinPanel = new JPanel();
 		springLayout.putConstraint(SpringLayout.NORTH, joinPanel, 0, SpringLayout.NORTH, generatePanel);
-		joinPanel.setOpaque(true);
-		joinPanel.setBackground(Color4.TRANSPARENT);
+		joinPanel.setOpaque(false);
 		springLayout.putConstraint(SpringLayout.EAST, joinPanel, -400, SpringLayout.EAST, this);
 		joinPanel.setLayout(new BoxLayout(joinPanel, BoxLayout.PAGE_AXIS));
 		
@@ -230,7 +240,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	public void join(boolean generate) {
 		if(generate && !nameField.getText().isBlank()){
 			
-    		statusLabel.setText("Generating...");
+    		updateFunction.accept("Generating...");
 
     		if(seedField.getText().trim().equals("")){
     			Random rnd = new Random();
@@ -251,7 +261,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
     		GUIManager.showMessageDialog("Invalid map name!", "Error!", JOptionPane.ERROR_MESSAGE);
     		return;
     	}else if(!generate && !worldsList.isSelectionEmpty()){
-    		statusLabel.setText("Loading...");
+    		updateFunction.accept("Loading...");
     		mapName=worldsList.getSelectedValue();
     		Config.selectedMap=mapName;
     		Config.save();
@@ -265,16 +275,32 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		generateButton.setEnabled(false);
 		deleteButton.setEnabled(false);
 		
-		(new Thread() {
-			  @Override
-				public void run() {
-				  if(!guiManager.launchWorld(mapName, generate, statusLabel)) {
-					  SingleplayerGUI.this.requestFocusInWindow();
-					  
-				  }else {
-				  statusLabel.setText("");
-				  }
-			    	seedField.setText("");
+		SwingWorker<Boolean, String> launcher = new SwingWorker<>() {
+			
+			@Override
+			protected void process(List<String> chunks) {
+				for(String chunk : chunks) {
+					statusLabel.setText(chunk);
+				}
+			}
+			
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				return guiManager.launchWorld(mapName, generate, (chunk)->publish(chunk));
+			}
+			
+			@Override
+			protected void done() {
+				try {
+					boolean success = get();
+					
+					if(success) {
+						statusLabel.setText("");
+					}else {
+						SingleplayerGUI.this.requestFocusInWindow();
+					}
+					
+					seedField.setText("");
 			    	nameField.setText("");
 			    	submitButton.setEnabled(true);
 			    	worldsList.setEnabled(true);
@@ -283,12 +309,18 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 					generateButton.setEnabled(true);
 					deleteButton.setEnabled(true);
 
-	  }
-	 }).start();
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		launcher.execute();
 		
 	    	
     		 
 	}
+	
 	
 	private void delete() {
 		if(worldsList.isSelectionEmpty()) return;

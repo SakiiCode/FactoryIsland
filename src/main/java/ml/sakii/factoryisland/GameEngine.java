@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Consumer;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
@@ -57,54 +57,47 @@ public class GameEngine{
 
 	String error="OK";
 
-	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, JLabel statusLabel) throws Exception {
+	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, Consumer<String> update) throws Exception {
 		this.game=game;
 		initTimers();
 		
 		switch(loadmethod) {
 		case GENERATE:
-			updateLabel(statusLabel,"Generating world " + location);
+			update.accept( "Generating world " + location);
 			long startTime = System.currentTimeMillis();
 			
-			world = new World(location, this, game, false, statusLabel);
+			world = new World(location, this, game, false, update);
 			if(!world.success.equals("OK")) {
 				throw new Exception(world.success);
 			}
-			generateTerrain(seed, statusLabel);	
+			generateTerrain(seed, update);	
 			
 
 			long finishTime = System.currentTimeMillis();
-			updateLabel(statusLabel,"Worldgen done in " + (finishTime-startTime)/1000.0f + " seconds, loading...");
+			update.accept("Worldgen done in " + (finishTime-startTime)/1000.0f + " seconds, loading...");
 			world.loading=false;
 			break;
 		case MULTIPLAYER:
-			world = new World(location, this, game, false, statusLabel);
+			world = new World(location, this, game, false, update);
 			if(!world.success.equals("OK")) {
 				throw new Exception(world.success);
 			}
 			break;
 		case BENCHMARK:
 		case EXISTING:
-			updateLabel(statusLabel,"Loading world "+location+"...");
-			world = new World(location, this, game, true, statusLabel);
+			update.accept("Loading world "+location+"...");
+			world = new World(location, this, game, true, update);
 			if(!world.success.equals("OK")) {
 				error = (world.success);
 				return;
 			}
-			updateLabel(statusLabel,"Map loading done: " + world.getSize() + " block loaded.");
+			update.accept("Map loading done: " + world.getSize() + " block loaded.");
 			world.loading=false;
 		}
 		
 		
 				
 	}
-
-	static void updateLabel(JLabel label, String text) {
-		if(label!=null) {
-			label.setText(text);
-		}
-	}
-
 	
 	private void initTimers() {
 		
@@ -481,7 +474,7 @@ public class GameEngine{
 	
    
 	
-	private void generateTerrain(long seed, JLabel statusLabel) {
+	private void generateTerrain(long seed, Consumer<String> update) {
 		
 		world.seed = seed;
 
@@ -504,7 +497,7 @@ public class GameEngine{
 				//double z2 = z+radius;
 				
 				double percent =Math.round((x2+y2)/total*100); 
-				updateLabel(statusLabel, "Generating sphere - "+percent+"%");
+				update.accept("Generating sphere - "+percent+"%");
 				
 				
 			}
@@ -513,7 +506,7 @@ public class GameEngine{
 	}
 	
 	@SuppressWarnings("unused")
-	private void generateTerrainOld(long seed, JLabel statusLabel) {
+	private void generateTerrainOld(long seed, Consumer<String> update) {
 		
 		world.seed = seed;
 
@@ -528,7 +521,7 @@ public class GameEngine{
 		
 		
 		
-		updateLabel(statusLabel,"- Adding pond...");
+		update.accept("- Adding pond...");
 		int top = world.getTop(0, 0);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
 
 		for(int i = -1; i <= 1; i++)
@@ -538,7 +531,7 @@ public class GameEngine{
 		
 		
 		
-		updateLabel(statusLabel,"- Creating earth above sea level...");
+		update.accept("- Creating earth above sea level...");
 		System.gc();
 
 		int hillCount = Main.small? RandomGen.nextInt(3)+2 : RandomGen.nextInt(8)+8;
@@ -565,7 +558,7 @@ public class GameEngine{
 				}
 			}
 		}
-		updateLabel(statusLabel,"- Creating earth under sea level...");
+		update.accept("- Creating earth under sea level...");
 		System.gc();
 		hillCount = Main.small? RandomGen.nextInt(3)+2 : RandomGen.nextInt(8)+8;
 
@@ -594,7 +587,7 @@ public class GameEngine{
 		System.gc();
 
 		
-		updateLabel(statusLabel,"- Sprinkling sand and grass...");
+		update.accept("- Sprinkling sand and grass...");
 		
 		for(Block b : world.getWhole()){
 			if(!b.name.equals("Water") && !b.name.equals("Old")){
@@ -611,7 +604,7 @@ public class GameEngine{
 			
 		}
 
-		updateLabel(statusLabel,"- Planting tree ...");
+		update.accept("- Planting tree ...");
 		
 		ArrayList<Block> grasses = new ArrayList<>();
 		for(Block b : world.getWhole()){
@@ -638,7 +631,7 @@ public class GameEngine{
 			world.addBlockNoReplace(new SaplingBlock(0, 0, 1, this), false);
 		}
 		
-		updateLabel(statusLabel,"- Lunar module landing ...");
+		update.accept("- Lunar module landing ...");
 		
 		int lmbx = RandomGen.nextInt(60)-30;
 		int lmby = RandomGen.nextInt(60)-30;

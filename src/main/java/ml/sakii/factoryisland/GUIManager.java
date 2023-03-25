@@ -7,12 +7,12 @@ import java.awt.Rectangle;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferStrategy;
+import java.util.function.Consumer;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
 import ml.sakii.factoryisland.screens.BenchmarkGUI;
 import ml.sakii.factoryisland.screens.DeadGUI;
 import ml.sakii.factoryisland.screens.MainMenuGUI;
@@ -30,9 +30,12 @@ public class GUIManager {
 	private MultiplayerGUI MPGui;
 	private PauseGUI pauseGui;
 	SingleplayerGUI SPGui;
+	private BenchmarkGUI BMGui;
 	
 	private String CurrentCLCard = "";
 	private String PreviousCLCard = "";
+	
+	
 	
 	public GUIManager(Rectangle bounds) {
 		Frame= new JFrame();
@@ -67,6 +70,7 @@ public class GUIManager {
 		pauseGui= new PauseGUI(this);
 		Base.add(pauseGui, "pause");
 		Base.add(new DeadGUI(this),"died");
+		BMGui = new BenchmarkGUI(this);
 
 		Frame.add(Base);
 		
@@ -151,7 +155,7 @@ public class GUIManager {
 	
 	public boolean joinServer(String IP, JLabel statusLabel)
 	{
-		GAME = new Game(IP, 0, LoadMethod.MULTIPLAYER, statusLabel, this);
+		GAME = new Game(IP, 0, LoadMethod.MULTIPLAYER, this, MPGui.updateFunction);
 
 		if (GAME.error == null)
 		{
@@ -168,53 +172,53 @@ public class GUIManager {
 		
 	}
 
-	public boolean launchWorld(String mapName, boolean generate, JLabel statusLabel)
+	public boolean launchWorld(String mapName, boolean generate, Consumer<String> update)
 	{
 		if (generate)
 		{
-			GAME = new Game(mapName, Main.seed, LoadMethod.GENERATE, statusLabel, this);
+			GAME = new Game(mapName, Main.seed, LoadMethod.GENERATE, this, update);
 			if(GAME.error==null) {
-				statusLabel.setText("Executing post-worldgen instructions...");
+				update.accept("Executing post-worldgen instructions...");
 				GAME.Engine.afterGen();
 			}else {
 				Main.err(GAME.error);
-				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+				update.accept("<html>Error: "+GAME.error+"</html>");
 				GAME=null;
 				return false;
 			}
 		} else
 		{
-			GAME = new Game(mapName, 0, LoadMethod.EXISTING, statusLabel, this);
+			GAME = new Game(mapName, 0, LoadMethod.EXISTING, this, update);
 			if(GAME.error != null) {
 				Main.err(GAME.error);
-				statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+				update.accept("<html>Error: "+GAME.error+"</html>");
 				GAME=null;
 				return false;
 			}
 		}
-		statusLabel.setText("Opening game screen...");
+		update.accept("Opening game screen...");
 
 		openGame();
 		return true;
 	}
 	
 	
-	public boolean runBenchmark(String mapName, JLabel statusLabel) {
+	public boolean runBenchmark(String mapName) {
 		if(GAME != null) {
 			Main.err("Already joined a game");
 			return false;
 		}
 		
-		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK,statusLabel, this);
+		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK, this, BMGui.updateFunction);
 		
 		if(GAME.error != null) {
 			Main.err(GAME.error);
-			statusLabel.setText("<html>Error: "+GAME.error+"</html>");
+			BMGui.updateFunction.accept("<html>Error: "+GAME.error+"</html>");
 			GAME=null;
 			return false;
 		}
 		
-		statusLabel.setText("Opening game screen...");
+		BMGui.updateFunction.accept("Opening game screen...");
 
 		openGame();
 		return true;

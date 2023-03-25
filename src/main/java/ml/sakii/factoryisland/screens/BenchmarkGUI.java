@@ -10,11 +10,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.function.Consumer;
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Config;
@@ -33,6 +36,12 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 	private int MARGIN = 10;
 	
 	private String mapName;
+	
+	public Consumer<String> updateFunction = (text) -> {
+		SwingUtilities.invokeLater(()->{
+			statusLabel.setText(text);
+		});
+	};
 	
 	public BenchmarkGUI(GUIManager guiManager){
 		super(AssetLibrary.GUIBG, guiManager);
@@ -230,7 +239,7 @@ public class BenchmarkGUI extends PaintedScreen implements ActionListener, KeyLi
 		(new Thread() {
 			  @Override
 				public void run() {
-				  if(!guiManager.runBenchmark(mapName, statusLabel)) {
+				  if(!guiManager.runBenchmark(mapName)) {
 					  BenchmarkGUI.this.requestFocusInWindow();
 					  
 				  }else {
