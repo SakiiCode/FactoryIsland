@@ -525,5 +525,9 @@ public class Main
 		String msg = "[" + timeStamp + "] Error: "+message;
 			System.err.println(msg);
 	}
+	
+	public static void err(Object[] array) {
+			err(Arrays.toString(array));
+	}
 
 }

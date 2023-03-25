@@ -11,6 +11,7 @@ import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -275,7 +276,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		
 		bufferUVZmin = new UVZ[ymax-ymin+2];
 		bufferUVZmax = new UVZ[ymax-ymin+2];
-		
+
 		UVZ tmpUVZ1 = new UVZ();
 		UVZ tmpUVZ2 = new UVZ();
 
@@ -314,9 +315,28 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			// megkeressük az adott sor bal és jobb szélét, társítunk a két ponthoz UVZ-t is
 			// y-t 1-gyel, x-et m-mel léptetjük
 			for(int y=ymin;y<ymax;y++) {
+				
+				// TODO ezek ki lettek javitva de debuggolashoz jo lehet
+				if(y<this.ymin) {
+					Main.err("y<ymin  "+ y + " < "+this.ymin);
+					return;
+				}
+				
+				
+				if(y-this.ymin>=bufferXmin.length) {
+					Main.err("Invalid bufferXmin - y: "+y+", ymin: "+ this.ymin+", length: "+bufferXmin.length+", index:"+(y-this.ymin));
+					Main.err(Arrays.toString(bufferXmin));
+					return;
+				}
 				if(x < bufferXmin[y-this.ymin]) {
 					bufferXmin[y-this.ymin] = (int)x;
 					bufferUVZmin[y-this.ymin] = UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2);
+				}
+				
+				if(y-this.ymin>=bufferXmax.length) {
+					Main.err("Invalid bufferXmax - y: "+y+", ymin: "+ this.ymin+", length: "+bufferXmax.length+", index:"+(y-this.ymin));
+					Main.err(Arrays.toString(bufferXmax));
+					return;
 				}
 				
 				if(x > bufferXmax[y-this.ymin]) {
@@ -347,7 +367,17 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			UVZ uvzmin = bufferUVZmin[y-ymin];
 			UVZ uvzmax = bufferUVZmax[y-ymin];
 		 
-
+			if(uvzmin == null) {
+				Main.err("uvzmin is null - y: "+y+", ymin: "+ymin+", length: "+bufferUVZmin.length+", index: "+(y-ymin));
+				Main.err(bufferUVZmin);
+				return;
+			}
+			
+			if(uvzmax == null) {
+				Main.err("uvzmax is null - y: "+y+", ymin: "+ymin+", length: "+bufferUVZmax.length+", index: "+(y-ymin));
+				Main.err(bufferUVZmax);
+				return;
+			}
 
 			double Siz = Util.getSlope(xmin, xmax, uvzmin.iz, uvzmax.iz);
 			double Suz = Util.getSlope(xmin, xmax, uvzmin.uz, uvzmax.uz);

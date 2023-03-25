@@ -359,22 +359,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			previousAim.pitch = PE.ViewAngle.pitch;
 			previousAim.yaw = PE.ViewAngle.yaw;
 
-			if (moved || firstframe)
-			{
 
-				PE.ViewAngle.normalize();
+			PE.ViewAngle.normalize();
 
-				ViewVector.set(PE.ViewAngle.toVector());
+			ViewVector.set(PE.ViewAngle.toVector());
 
-				RightViewVector.set(ViewVector).CrossProduct(PE.VerticalVector);
-				TopViewVector.set(RightViewVector).CrossProduct(ViewVector);
-				LeftViewVector.set(RightViewVector).multiply(-1);
-				BottomViewVector.set(TopViewVector).multiply(-1);
+			RightViewVector.set(ViewVector).CrossProduct(PE.VerticalVector);
+			TopViewVector.set(RightViewVector).CrossProduct(ViewVector);
+			LeftViewVector.set(RightViewVector).multiply(-1);
+			BottomViewVector.set(TopViewVector).multiply(-1);
 
-				if (!locked) ViewFrustum.update();
+			if (!locked) ViewFrustum.update();
 
-				firstframe = false;
-			}
+			firstframe = false;
 
 
 
@@ -440,7 +437,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 			}
 		
-			if(Config.useTextures) {
+			if(Config.useTextures && !locked) {
 				VisibleCounter.set(0);
 				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof BufferRenderable br;}).forEach(o ->{
 
@@ -762,9 +759,20 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		BackViewVector.set(ViewVector).CrossProduct(PE.VerticalVector).CrossProduct(PE.VerticalVector);
 		FrontViewVector.set(BackViewVector).multiply(-1);
 		
+		if(key[10] && !benchmarkMode) {
+
+			benchmarkMode=true;
+			PE.move(20, 20, 15, true);
+			PE.ViewAngle.set(-135, -27);
+		}
+		
+		if(!key[10] && benchmarkMode) {
+			benchmarkMode=false;
+		}
+		
 		if(benchmarkMode) {
-			Engine.world.walk(LeftViewVector, speed/2, PE, FPS, false);
-			PE.ViewAngle.yaw -= 10 / FPS * PE.VerticalVector.z;
+			Engine.world.walk(LeftViewVector, speed/4, PE, FPS, false);
+			PE.ViewAngle.yaw -= 5 / FPS * PE.VerticalVector.z;
 			return;
 		}
 
@@ -932,9 +940,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_B)
 		{
-			benchmarkMode=!benchmarkMode;
-			PE.move(20, 20, 15, true);
-			PE.ViewAngle.set(-135, -27);
+			key[10] = true;
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_CONTROL)
 		{
@@ -1001,6 +1007,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		if (arg0.getKeyCode() == KeyEvent.VK_U) //TESZT: xmax-xmin fps
 		{
 			key[9] = false;
+		}
+		if (arg0.getKeyCode() == KeyEvent.VK_B)
+		{
+			key[10] = false;
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F2)
 		{

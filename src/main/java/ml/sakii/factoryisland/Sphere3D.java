@@ -32,7 +32,6 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 			generator.yaw = 0;
 			for(int j=0;j<resolution;j++) {
 				generator.yaw += 2*delta;
-				Main.log(generator);
 				points[i][j] = new Vertex(pos.cpy().add(generator.toVector().multiply(radius)));
 			}
 			generator.pitch += delta;
@@ -82,12 +81,12 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		for(Polygon3D p : Polygons) {
 			p.update(game);
 		}
-		centerDist = game.PE.getPos().distance(pos); 
-		/*if(game.key[8]) {
+		centerDist = game.PE.getPos().distance(pos);
+		if(game.key[8]) {
 			AvgDist = 4;
 		}else {
 			AvgDist = centerDist;
-		}*/
+		}
 		return true;
 	}
 	
@@ -137,11 +136,11 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		protected boolean update(Game game) {
 			visible = super.update(game);
 			if(!Config.useTextures) {
-				if(game.key[8]) {
+				/*if(game.key[8]) {
 					AvgDist = 4;
-				}else {
-					AvgDist = game.PE.getPos().distance(pos);
-				}
+				}else {*/
+					AvgDist = centerDist;//game.PE.getPos().distance(pos);
+				//}
 			}
 			
 			return visible;
