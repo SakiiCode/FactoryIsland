@@ -54,8 +54,11 @@ public class MaskManager {
 					 	int rgb = (255 << 24) | (px << 16) | (px << 8) | px;
 						setRGB(x, y, rgb);
 					}else {
-						int color =ZBuffer[x][y].color; 
 						
+						int color =ZBuffer[x][y].color; 
+						if(ZBuffer[x][y].overlayColor!=0 && ZBuffer[x][y].overlayDepth>ZBuffer[x][y].depth) {
+							color=Color4.blend(color, ZBuffer[x][y].overlayColor);
+						}
 						if(color != 0) { //color not set => transparent. Black is 0xFF000000
 							setRGB(x, y, color);
 						}

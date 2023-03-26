@@ -396,9 +396,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			{
 			 
 		 		double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
+		 		//TODO megnezni miert van eltolva x+1
 		 		synchronized(ZBuffer[x+1][y]) {
-				 	if(ZBuffer[x+1][y].depth>iz) continue;
-				 	ZBuffer[x+1][y].depth=iz;
 				 	
 				 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
 				 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
@@ -424,11 +423,10 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				 			int v2 = Util.limit((int)v, 0, s.Texture.getHeight()-1);
 				 			px=s.Texture.getRGB(u2, v2);
 				 		}
-				 		px=px|0xFF000000;
+				 		//px=px|0xFF000000;
+				 		rgb = Color4.blend(px, overlay.getRGB());
 				 		if(Config.ambientOcclusion) {
-				 			rgb=Color4.blend(Color4.blend(px, overlay.getRGB()),new Color(0f,0f,0f,(float)ao).getRGB());
-				 		}else {
-				 			rgb=Color4.blend(px, overlay.getRGB());
+				 			rgb=Color4.blend(rgb,new Color(0f,0f,0f,(float)ao).getRGB());
 				 		}
 
 
@@ -437,31 +435,25 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				 		rgb=0xFF000000;
 				 	}
 				 	
-				 	ZBuffer[x+1][y].color=rgb; //TODO megnezni miert van eltolva
+				 	if(Color4.getAlpha(rgb)==255) {
+				 		if(ZBuffer[x+1][y].depth<iz) {
+				 			ZBuffer[x+1][y].depth=iz;
+				 			ZBuffer[x+1][y].color=rgb;
+				 		}
+				 	}else {
+				 		if(ZBuffer[x+1][y].overlayDepth<iz) {
+				 			ZBuffer[x+1][y].overlayDepth=iz;
+				 			ZBuffer[x+1][y].overlayColor=rgb;
+				 		}
+				 	}
 			 		
 		 		}
 			}
 				
 		}
 		
-		for(int i=0;i<clipSize;i++) {
+		if(s.c.getAlpha() == 255){
 			
-			int index1= i;
-			int index2= i != clipSize-1 ? i+1 : 0;
-			
-			Vertex v1 = clip[index1]; 
-			Vertex v2 = clip[index2];
-			
-			v1.getUVZ(clipUV[index1], game, tmpUVZ1);
-			v2.getUVZ(clipUV[index2], game, tmpUVZ2);
-			
-			final Point p1 = v1.proj;
-			final Point p2 = v2.proj;
-			
-			Bresenham.plotLine(p1.x, p1.y, p2.x, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
-		}
-		
-		if(Config.getHeight()>=1440) {
 			for(int i=0;i<clipSize;i++) {
 				
 				int index1= i;
@@ -476,8 +468,27 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				final Point p1 = v1.proj;
 				final Point p2 = v2.proj;
 				
-				Bresenham.plotLine(p1.x+1, p1.y, p2.x+1, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
-			}	
+				Bresenham.plotLine(p1.x, p1.y, p2.x, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
+			}
+			
+			if(Config.getHeight()>=1440) {
+				for(int i=0;i<clipSize;i++) {
+					
+					int index1= i;
+					int index2= i != clipSize-1 ? i+1 : 0;
+					
+					Vertex v1 = clip[index1]; 
+					Vertex v2 = clip[index2];
+					
+					v1.getUVZ(clipUV[index1], game, tmpUVZ1);
+					v2.getUVZ(clipUV[index2], game, tmpUVZ2);
+					
+					final Point p1 = v1.proj;
+					final Point p2 = v2.proj;
+					
+					Bresenham.plotLine(p1.x+1, p1.y, p2.x+1, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
+				}	
+			}
 		}
 	}
 

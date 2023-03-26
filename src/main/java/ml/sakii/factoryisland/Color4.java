@@ -163,6 +163,10 @@ public class Color4 {
 		this.cache = Color.BLACK;
 	}
 	
+	public static int getAlpha(int argb) {
+		return (argb>>24)&0xFF;
+	}
+	
 	
 	@Override
 	public String toString(){
