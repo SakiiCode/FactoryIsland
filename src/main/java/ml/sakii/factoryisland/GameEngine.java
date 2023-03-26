@@ -201,6 +201,12 @@ public class GameEngine{
 						}
 					}
 					
+					if(Tick % Globals.AUTOSAVE_INTERVAL == 0) {
+						Main.log("Autosave started...");
+						world.saveByShutdown();
+						Main.log("Autosave finished.");
+					}
+					
 					if(Tick % Globals.ENTITYSYNCRATE == 0 && server != null) {
 						StringBuilder data = new StringBuilder();
 						data.append("16");
