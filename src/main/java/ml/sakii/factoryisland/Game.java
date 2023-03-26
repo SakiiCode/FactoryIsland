@@ -410,12 +410,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				Stars[i].draw(fb);
 			}
 			
-			Spheres.sort((s1,s2)->Float.compare(s2.getCenterDist(),s1.getCenterDist()));
-			
-			for(Sphere3D sphere : Spheres) {
-				if(PE.ViewFrom.distance(sphere.getPos())<=sphere.getRadius()){
-					fb.setColor(sphere.getColor().getColor());
-					fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
+			if(!Config.useTextures) {
+				Spheres.sort((s1,s2)->Float.compare(s2.getCenterDist(),s1.getCenterDist()));
+				for(Sphere3D sphere : Spheres) {
+					if(sphere.isPlayerInside(PE)){
+						fb.setColor(sphere.getColor().getColor());
+						fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
+					}
 				}
 			}
 			
@@ -1351,6 +1352,16 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	boolean insideBlock(Polygon3D polygon) {
 		return ViewBlock.Objects.contains(polygon);
+	}
+	
+	boolean insideSphere(Polygon3D polygon) {
+		for(Sphere3D sphere : Spheres) {
+			
+			if(sphere.Polygons.contains(polygon) && sphere.isPlayerInside(PE)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void SwitchInventory(boolean local)

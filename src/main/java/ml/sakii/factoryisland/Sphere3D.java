@@ -3,6 +3,8 @@ package ml.sakii.factoryisland;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
+import ml.sakii.factoryisland.entities.PlayerMP;
+
 public class Sphere3D extends Object3D implements BufferRenderable{
 
 	public ArrayList<SpherePolygon3D> Polygons = new ArrayList<>();
@@ -93,7 +95,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	@Override
 	protected void draw(Graphics g, Game game) {
 		for(SpherePolygon3D p : Polygons) {
-			if(p.isVisible()) {
+			if(p.isVisible() && !isPlayerInside(game.PE)) {
 				p.draw(g, game);
 			}
 		}
@@ -115,6 +117,14 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		return pos;
 	}
 	
+	public boolean isPlayerInside(PlayerMP PE) {
+		return PE.ViewFrom.distance(getPos())<getRadius();
+	}
+	
+	public boolean isModelInside(Model model) {
+		return model.getPos().distance(getPos())<getRadius();
+	}
+	
 	@Override
 	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
 		for(SpherePolygon3D p : Polygons) {
@@ -130,17 +140,18 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		
 		public SpherePolygon3D(Vertex[] vertices, Surface s, Model model) {
 			super(vertices, new int[vertices.length][2], s, model);
+			addSource(new Point3D((int)model.getPos().x, (int)model.getPos().y, (int)model.getPos().z), 15);
 		}
 		
 		@Override
 		protected boolean update(Game game) {
 			visible = super.update(game);
 			if(!Config.useTextures) {
-				/*if(game.key[8]) {
+				if(game.key[8]) {
 					AvgDist = 4;
-				}else {*/
-					AvgDist = centerDist;//game.PE.getPos().distance(pos);
-				//}
+				}else {
+					AvgDist = game.PE.getPos().distance(pos);
+				}
 			}
 			
 			return visible;

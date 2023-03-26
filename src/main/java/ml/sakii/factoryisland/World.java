@@ -43,7 +43,6 @@ import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.SignalConsumer;
 import ml.sakii.factoryisland.blocks.SignalPropagator;
-import ml.sakii.factoryisland.blocks.SphereBlock;
 import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.DayNightListener;
@@ -463,10 +462,6 @@ public class World {
 			game.TextureBlocks.add((TextureListener)b);
 		}
 		
-		//TODO dinamikusan
-		if(b instanceof SphereBlock sb) {
-			game.Spheres.add(sb.getSphere());
-		}
 		
 		filterAdjecentBlocks(b);
 		
@@ -474,8 +469,16 @@ public class World {
 		
 		
 		if(game != null) {
-			game.Objects.addAll(b.Objects);
+			for(Object3D obj : b.Objects) {
+				if(obj instanceof Sphere3D sphere) {
+					game.Spheres.add(sphere);
+				}
+				game.Objects.add(obj);
+			}
+			
 		}
+		
+		
 		
 
 		
@@ -536,12 +539,6 @@ public class World {
 			if(b instanceof DayNightListener dnl) {
 				Engine.DayNightBlocks.remove(dnl);
 			}
-	
-			
-			//TODO dinamikusan
-			if(b instanceof SphereBlock sb) {
-				game.Spheres.remove(sb.getSphere());
-			}
 			
 			
 			filterAdjecentBlocks(b);
@@ -549,7 +546,12 @@ public class World {
 			recalcAO(b.pos);
 			
 			if(game != null) {
-				game.Objects.removeAll(b.Objects);
+				for(Object3D obj : b.Objects) {
+					if(obj instanceof Sphere3D sphere) {
+						game.Spheres.remove(sphere);
+					}
+					game.Objects.remove(obj);
+				}
 			}
 			
 

@@ -113,7 +113,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
 			if(adjecentFilter) {
 				if(!game.locked) {
-					if(game.insideBlock(this)) {
+					if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
 						faceFilter=true;
 					}else {
 						CameraToTriangle.set(Vertices[0]).substract(game.PE.getPos());
@@ -539,23 +539,22 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			g2d.drawPolygon(polygon);
 		}
 		
+		
+		
 		for(Sphere3D sphere : game.Spheres) {
-			//player is in the sphere
-			if(game.PE.ViewFrom.distance(sphere.getPos())<sphere.getRadius()) {
+			if(sphere.isPlayerInside(game.PE)) { //player is in the sphere
 				// polygon is outside the sphere
-				if(centroid.distance(sphere.getPos())>sphere.getRadius()){
+				if(!sphere.isModelInside(model)){
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
+					g2d.drawPolygon(polygon);
 				}
 			}else { // player is outside the sphere
 				//polygon is inside the sphere but closer to the player than the center
-				/*if(centroid.distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()){
+				if(sphere.isModelInside(model) && AvgDist < sphere.getCenterDist()) {
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
-				}*/
-				if(model.getPos().distance(sphere.getPos())<=sphere.getRadius() && AvgDist < sphere.getCenterDist()) {
-					g2d.setColor(sphere.getColor().getColor());
-					g2d.fillPolygon(polygon);
+					g2d.drawPolygon(polygon);
 				}
 			}
 		}
