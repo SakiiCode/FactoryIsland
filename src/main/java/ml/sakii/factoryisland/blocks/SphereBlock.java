@@ -10,7 +10,7 @@ import ml.sakii.factoryisland.Vector;
 public class SphereBlock extends Block{
 		
 
-		public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.sand);
+		public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.sphere);
 		
 		private Sphere3D sphere;
 		

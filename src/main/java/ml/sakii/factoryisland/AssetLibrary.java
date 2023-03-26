@@ -14,6 +14,7 @@ public class AssetLibrary {
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
 	alienFront, alienSide;
 
+	public static Surface sphere, randomSphere;
 
 	public static Surface[] waters, oils;
 	public static Color4 wmSideColor, wmGradientBeginColor, wmPoweredColor;
@@ -64,6 +65,8 @@ public class AssetLibrary {
 		drillGradientBeginColor = new Color4(200, 70, 60, 255);
 
 		lamp = new Surface(new Color(240, 220, 170));
+		sphere = new Surface(loadTexture("textures/blocks/sphere2.png"));
+		randomSphere = new Surface(loadTexture("textures/blocks/sphere3.png"));
 
 		wmSideColor = new Color4(200, 200, 255);
 		wmGradientBeginColor = new Color4(20, 20, 70);

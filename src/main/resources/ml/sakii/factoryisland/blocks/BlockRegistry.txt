@@ -16,3 +16,4 @@ Silicon
 TestPowerConsumer
 TestPowerWire
 Sphere
+RandomSphere

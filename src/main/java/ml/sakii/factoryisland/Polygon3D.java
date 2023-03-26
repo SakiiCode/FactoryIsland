@@ -547,14 +547,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				if(!sphere.isModelInside(model)){
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
-					g2d.drawPolygon(polygon);
 				}
 			}else { // player is outside the sphere
 				//polygon is inside the sphere but closer to the player than the center
 				if(sphere.isModelInside(model) && AvgDist < sphere.getCenterDist()) {
 					g2d.setColor(sphere.getColor().getColor());
 					g2d.fillPolygon(polygon);
-					g2d.drawPolygon(polygon);
 				}
 			}
 		}

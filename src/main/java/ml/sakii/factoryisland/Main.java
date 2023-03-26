@@ -36,6 +36,7 @@ import ml.sakii.factoryisland.blocks.LeafBlock;
 import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.blocks.OilBlock;
 import ml.sakii.factoryisland.blocks.OldBlock;
+import ml.sakii.factoryisland.blocks.RandomSphereBlock;
 import ml.sakii.factoryisland.blocks.SandBlock;
 import ml.sakii.factoryisland.blocks.SaplingBlock;
 import ml.sakii.factoryisland.blocks.SiliconBlock;
@@ -265,6 +266,7 @@ public class Main
 		initBlockClass("TestPowerWire", TestPowerWireBlock.surfaces);
 		
 		initBlockClass("Sphere", SphereBlock.surfaces);
+		initBlockClass("RandomSphere", RandomSphereBlock.surfaces);
 
 
 
