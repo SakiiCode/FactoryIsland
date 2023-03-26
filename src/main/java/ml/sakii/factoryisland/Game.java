@@ -1204,22 +1204,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	public void disconnect(String error)
 	{
-		
-		Thread t = new Thread() {
-			@Override
-			public void run() {
-				
-			
-				renderThread.kill();
-				Engine.disconnect(error);
-				Objects.clear();
-				guiManager.closeGame();
-				System.gc();
-				
-			}
-		};
-		
-		t.start();
+		renderThread.kill();
+		Engine.disconnect(error);
+		Objects.clear();
+		guiManager.closeGame();
+		System.gc();
 	}
 
 

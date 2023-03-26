@@ -21,6 +21,7 @@ public class AudioThread extends Thread{
 		while(running) {
 			play();
 		}
+        Main.log("Music thread stopped");
 	}
 	
 	private void play() {
@@ -55,12 +56,13 @@ public class AudioThread extends Thread{
 	            while (running && (nBytesRead = stream.read(data, 0, data.length)) != -1) {
 	                line.write(data, 0, nBytesRead);
 	            }
+	            Main.log("Music stopped");
 	            // Stop
 	            line.drain();
 	            line.stop();
 	            //line.close();
 	            //st.close();
-	            System.out.println("stopped");
+	            
 			} catch (LineUnavailableException | IOException e) {
 				e.printStackTrace();
 				running=false;

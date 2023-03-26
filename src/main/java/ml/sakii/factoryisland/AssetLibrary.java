@@ -84,6 +84,7 @@ public class AssetLibrary {
 
 	
 	public static void stopBgMusic() {
+		Main.log("Stopping background music");
 		BGMusic.kill();
 	}
 	

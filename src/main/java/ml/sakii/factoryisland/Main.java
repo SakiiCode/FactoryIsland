@@ -72,6 +72,7 @@ public class Main
 	public static int Height=1080;
 	
 	private GUIManager guiManager;
+	public static boolean fullScreenExclusive = false;
 
 	
 	public static void main(String[] args)
@@ -114,6 +115,8 @@ public class Main
         		break;
         	case "-verbose":verbose=true;
     			break;
+        	case "-fullscreenexclusive":fullScreenExclusive=true;
+				break;
         	default: Main.err("Unknown launch parameter: "+params.get(i));
         	}
         }

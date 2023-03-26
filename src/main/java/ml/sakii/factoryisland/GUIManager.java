@@ -40,19 +40,16 @@ public class GUIManager {
 	public GUIManager(Rectangle bounds) {
 		Frame= new JFrame();
 		Frame.setUndecorated(true);
-		
 
-
-		
-		if (System.getProperty("os.name").toLowerCase().contains("win"))
-		{
-			Frame.setBounds(bounds);
-
+		if (Main.fullScreenExclusive || !System.getProperty("os.name").toLowerCase().contains("win")) {
 			
-		} else // linuxon a talcat es stb nem lehet eltakarni
-		{
+			 // linuxon a talcat es stb nem lehet eltakarni
 			GraphicsDevice d = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[Main.screen];
 			d.setFullScreenWindow(Frame);
+			
+		} else {
+			Frame.setBounds(bounds);
+			
 		}
 
 		
