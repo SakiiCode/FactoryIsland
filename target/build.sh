@@ -8,7 +8,7 @@ java -jar packr.jar \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
-     --vmargs Xmx1G Dsun.java2d.opengl=true \
+     --vmargs Xmx4G Dsun.java2d.opengl=true \
      --useZgcIfSupportedOs \
      --output export/$1/windows64
 
@@ -19,7 +19,7 @@ java -jar packr.jar \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
-     --vmargs Xmx1G Dsun.java2d.opengl=true \
+     --vmargs Xmx4G Dsun.java2d.opengl=true \
      --useZgcIfSupportedOs \
      --output export/$1/linux64
      
@@ -29,6 +29,6 @@ java -jar packr.jar \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
-     --vmargs Xmx1G Dsun.java2d.opengl=true \
+     --vmargs Xmx4G Dsun.java2d.opengl=true \
      --useZgcIfSupportedOs \
      --output export/$1/mac
