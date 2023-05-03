@@ -20,16 +20,20 @@ import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.ListSelectionModel;
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.Config;
 import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Main;
+import ml.sakii.factoryisland.WorldType;
 import ml.sakii.factoryisland.screens.components.Button;
 
 import javax.swing.SpringLayout;
@@ -37,6 +41,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import ml.sakii.factoryisland.screens.components.Label;
+import ml.sakii.factoryisland.screens.components.RadioButton;
+import ml.sakii.factoryisland.screens.components.Slider;
 import ml.sakii.factoryisland.screens.components.TextField;
 
 public class SingleplayerGUI extends PaintedScreen implements ActionListener, KeyListener, ComponentListener{
@@ -46,6 +52,10 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	private Label seedLabel, nameLabel, joinLabel;
 	private Label statusLabel;
 	private JList<String> worldsList;
+	private JRadioButton flatRadio, sphereRadio;
+	private ButtonGroup worldTypeGroup;
+	private WorldType selectedWorldType=WorldType.FLAT;
+	private JSlider worldSizeSlider;
 	
 	private String mapName;
 	
@@ -67,6 +77,32 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		
 		seedField = new TextField((KeyListener)null);
 		
+		worldTypeGroup = new ButtonGroup();
+		flatRadio = new RadioButton("Flat", selectedWorldType==WorldType.FLAT);
+		flatRadio.addActionListener(e -> {
+			if(flatRadio.isSelected()) {
+				selectedWorldType=WorldType.FLAT;
+			}
+			Main.log(selectedWorldType);
+		});
+		sphereRadio = new RadioButton("Sphere",selectedWorldType==WorldType.SPHERE);
+		sphereRadio.addActionListener(e->{
+			if(sphereRadio.isSelected()) {
+				selectedWorldType=WorldType.SPHERE;
+			}
+			Main.log(selectedWorldType);
+		});
+		worldTypeGroup.add(flatRadio);
+		worldTypeGroup.add(sphereRadio);
+		
+		worldSizeSlider = new Slider(1,15,10);
+		worldSizeSlider.setSize(new Dimension(Main.Width/20, Main.Height/20));
+		worldSizeSlider.setPaintTicks(true);
+		worldSizeSlider.setPaintLabels(true);
+		worldSizeSlider.setMajorTickSpacing(7);
+		worldSizeSlider.setMinorTickSpacing(1);
+		
+		
 		generateButton = new Button("Generate World", "generate");
 		generateButton.addActionListener(this);
 		generateButton.addKeyListener(this);
@@ -74,7 +110,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		JPanel generatePanel = new JPanel();
 		generatePanel.setBackground(Color4.TRANSPARENT);
 		generatePanel.setLayout(new BoxLayout(generatePanel, BoxLayout.PAGE_AXIS));
-		generatePanel.setOpaque(true);
+		generatePanel.setOpaque(false);
 		generatePanel.add(nameLabel);
 		generatePanel.add(Box.createVerticalStrut(10));
 		generatePanel.add(nameField);
@@ -83,7 +119,15 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		generatePanel.add(Box.createVerticalStrut(10));
 		generatePanel.add(seedField);
 		generatePanel.add(Box.createVerticalStrut(10));
+		generatePanel.add(new Label("World type:"));
+		generatePanel.add(flatRadio);
+		generatePanel.add(sphereRadio);
+		generatePanel.add(Box.createVerticalStrut(10));
+		generatePanel.add(new Label("World size:"));
+		generatePanel.add(worldSizeSlider);
+		generatePanel.add(Box.createVerticalStrut(10));
 		generatePanel.add(generateButton);
+		
 				SpringLayout springLayout = new SpringLayout();
 				springLayout.putConstraint(SpringLayout.NORTH, generatePanel, 200, SpringLayout.NORTH, this);
 				springLayout.putConstraint(SpringLayout.WEST, generatePanel, 300, SpringLayout.WEST, this);
@@ -286,7 +330,7 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 			
 			@Override
 			protected Boolean doInBackground() throws Exception {
-				return guiManager.launchWorld(mapName, generate, (chunk)->publish(chunk));
+				return guiManager.launchWorld(mapName, generate, selectedWorldType, worldSizeSlider.getValue(), (chunk)->publish(chunk));
 			}
 			
 			@Override

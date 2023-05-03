@@ -56,7 +56,6 @@ import ml.sakii.factoryisland.items.ItemType;
 public class World {
 
 	final int CHUNK_WIDTH = 10;
-	int MAP_RADIUS = 5;
 	private static final int MAP_VERSION=1;
 	public String worldName=""; //""=REMOTE MAP
 	long seed;

@@ -141,9 +141,9 @@ public class Main
         	File mapFile = new File("saves/"+map+"/map.xml");
         	GameEngine Engine;
         	if(mapFile.exists()) {
-        		Engine = new GameEngine(map,null,0,LoadMethod.EXISTING,null);
+        		Engine = new GameEngine(map,null,0,LoadMethod.EXISTING,null,0,null);
         	}else {
-        		Engine = new GameEngine(map,null,new Random().nextLong(),LoadMethod.GENERATE,null);
+        		Engine = new GameEngine(map,null,new Random().nextLong(),LoadMethod.GENERATE,null,0,null);
             	Engine.afterGen();
         	}
         	API.Engine=Engine;

@@ -57,7 +57,7 @@ public class GameEngine{
 
 	String error="OK";
 
-	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, Consumer<String> update) throws Exception {
+	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, WorldType type, int size, Consumer<String> update) throws Exception {
 		this.game=game;
 		initTimers();
 		
@@ -70,7 +70,7 @@ public class GameEngine{
 			if(!world.success.equals("OK")) {
 				throw new Exception(world.success);
 			}
-			generateTerrain(seed, update);	
+			generateTerrain(seed, type, size, update);	
 			
 
 			long finishTime = System.currentTimeMillis();
@@ -480,13 +480,20 @@ public class GameEngine{
 	
    
 	
-	private void generateTerrain(long seed, Consumer<String> update) {
+	private void generateTerrain(long seed, WorldType type, int radius, Consumer<String> update) {
+		switch(type) {
+		case FLAT: generateTerrainFlat(seed, radius, update); break;
+		case SPHERE: generateTerrainSphere(seed, radius, update); break;
+		}
+	}
+	
+	private void generateTerrainSphere(long seed, int radius, Consumer<String> update) {
 		
 		world.seed = seed;
 
 		
 		Main.log("Seed:" + seed);
-		int radius = 10;
+		//int radius = world.MAP_RADIUS;
 		int diameter = radius*2;
 		double total = diameter*diameter*diameter;
 		for(int x=-radius;x<radius;x++) {
@@ -511,8 +518,9 @@ public class GameEngine{
 		Tick=3000;
 	}
 	
-	@SuppressWarnings("unused")
-	private void generateTerrainOld(long seed, Consumer<String> update) {
+	
+	
+	private void generateTerrainFlat(long seed, int mapRadius, Consumer<String> update) {
 		
 		world.seed = seed;
 
@@ -544,8 +552,8 @@ public class GameEngine{
 		Point3D tmpPoint=new Point3D();
 		for(int i = 0;i<hillCount;i++){
 			int z = RandomGen.nextInt(3)+3;
-			int x = RandomGen.nextInt(world.CHUNK_WIDTH*world.MAP_RADIUS)-world.CHUNK_WIDTH*world.MAP_RADIUS/2;
-			int y = RandomGen.nextInt(world.CHUNK_WIDTH*world.MAP_RADIUS)-world.CHUNK_WIDTH*world.MAP_RADIUS/2;
+			int x = RandomGen.nextInt(world.CHUNK_WIDTH*mapRadius)-world.CHUNK_WIDTH*mapRadius/2;
+			int y = RandomGen.nextInt(world.CHUNK_WIDTH*mapRadius)-world.CHUNK_WIDTH*mapRadius/2;
 			float slope = RandomGen.nextFloat();
 
 			for(int j=sealevel;j<sealevel+z;j++){
@@ -570,8 +578,8 @@ public class GameEngine{
 
 		for(int i = 0;i<hillCount;i++){
 			int z = RandomGen.nextInt(3)+3;
-			int x = RandomGen.nextInt(world.CHUNK_WIDTH*world.MAP_RADIUS)-world.CHUNK_WIDTH*world.MAP_RADIUS/2;
-			int y = RandomGen.nextInt(world.CHUNK_WIDTH*world.MAP_RADIUS)-world.CHUNK_WIDTH*world.MAP_RADIUS/2;
+			int x = RandomGen.nextInt(world.CHUNK_WIDTH*mapRadius)-world.CHUNK_WIDTH*mapRadius/2;
+			int y = RandomGen.nextInt(world.CHUNK_WIDTH*mapRadius)-world.CHUNK_WIDTH*mapRadius/2;
 			float slope = RandomGen.nextFloat();
 
 			for(int j=sealevel;j>sealevel-z;j--){

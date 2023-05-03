@@ -142,12 +142,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private GUIManager guiManager;
 	
 	
-	public Game(String location, long seed, LoadMethod loadmethod, GUIManager guiManager, Consumer<String> update) {
+	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
 		this.setBackground(new Color(20,20,20)); // csak igy lehet a feher villanast elkerulni valtaskor cardlayout miatt
 		this.guiManager=guiManager;
 		try {
 
-			Engine = new GameEngine(location, this, seed, loadmethod, update);
+			Engine = new GameEngine(location, this, seed, loadmethod, type, size, update);
 			
 			API.Engine=Engine;
 			ml.sakii.factoryisland.api.Block.Engine=Engine;

@@ -152,7 +152,7 @@ public class GUIManager {
 	
 	public boolean joinServer(String IP, JLabel statusLabel)
 	{
-		GAME = new Game(IP, 0, LoadMethod.MULTIPLAYER, this, MPGui.updateFunction);
+		GAME = new Game(IP, 0, LoadMethod.MULTIPLAYER, null, 0, this, MPGui.updateFunction);
 
 		if (GAME.error == null)
 		{
@@ -169,11 +169,11 @@ public class GUIManager {
 		
 	}
 
-	public boolean launchWorld(String mapName, boolean generate, Consumer<String> update)
+	public boolean launchWorld(String mapName, boolean generate, WorldType type, int size, Consumer<String> update)
 	{
 		if (generate)
 		{
-			GAME = new Game(mapName, Main.seed, LoadMethod.GENERATE, this, update);
+			GAME = new Game(mapName, Main.seed, LoadMethod.GENERATE, type, size, this, update);
 			if(GAME.error==null) {
 				update.accept("Executing post-worldgen instructions...");
 				GAME.Engine.afterGen();
@@ -185,7 +185,7 @@ public class GUIManager {
 			}
 		} else
 		{
-			GAME = new Game(mapName, 0, LoadMethod.EXISTING, this, update);
+			GAME = new Game(mapName, 0, LoadMethod.EXISTING, null, 0, this, update);
 			if(GAME.error != null) {
 				Main.err(GAME.error);
 				update.accept("<html>Error: "+GAME.error+"</html>");
@@ -206,7 +206,7 @@ public class GUIManager {
 			return false;
 		}
 		
-		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK, this, BMGui.updateFunction);
+		GAME = new Game(mapName, 0, LoadMethod.BENCHMARK, null, 0, this, BMGui.updateFunction);
 		
 		if(GAME.error != null) {
 			Main.err(GAME.error);
