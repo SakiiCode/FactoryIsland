@@ -9,7 +9,7 @@
 
 ## Building on Linux
 
-1. Download platform-specific JRE 16 runtimes ([AdoptOpenJDK with OpenJ9](https://adoptopenjdk.net/?variant=openjdk16&jvmVariant=openj9) recommended) into `/target/openjdk`. Filenames need to be `jdk16_win64.zip`, `jdk16_mac.tar.gz`, `jdk16_linux64.tar.gz`.
+1. Download platform-specific JRE 17 packages ([Eclipse Temurin](https://adoptium.net/temurin/releases/) for example) into `/target/openjdk`. Filenames need to be `jdk_win64.zip`, `jdk_mac.tar.gz`, `jdk_linux64.tar.gz`.
 2. Right click pom.xml -> Run As -> Maven install
 3. Exported packages will be in /target/export
 

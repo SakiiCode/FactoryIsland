@@ -4,7 +4,7 @@ rm -r export/$1
 
 java -jar packr.jar \
      --platform windows64 \
-     --jdk openjdk/jdk16_win64.zip \
+     --jdk openjdk/jdk_win64.zip \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
@@ -15,7 +15,7 @@ java -jar packr.jar \
      
 java -jar packr.jar \
      --platform linux64 \
-     --jdk openjdk/jdk16_linux64.tar.gz \
+     --jdk openjdk/jdk_linux64.tar.gz \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
@@ -25,7 +25,7 @@ java -jar packr.jar \
      
 java -jar packr.jar \
      --platform mac \
-     --jdk openjdk/jdk16_mac.tar.gz \
+     --jdk openjdk/jdk_mac.tar.gz \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
