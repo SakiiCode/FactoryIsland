@@ -7,8 +7,6 @@ import ml.sakii.factoryisland.Surface;
 
 public class WoodBlock extends SignalPropagator{
 
-	public static Surface[] surfaces = Block.generateSurfacesNoCopy(AssetLibrary.wood);
-	
 	public WoodBlock(int x, int y, int z, GameEngine engine) {
 		super("Wood", x, y, z,engine);
 

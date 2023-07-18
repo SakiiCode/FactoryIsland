@@ -10,7 +10,7 @@ import ml.sakii.factoryisland.Surface;
 public class SaplingBlock extends Block implements TickListener{
 	
 
-	public static Surface[] surfaces = new Surface[] {
+	private static Surface[] surfaces = new Surface[] {
 			AssetLibrary.saplingTop,
 			AssetLibrary.sapling,
 			AssetLibrary.sapling,

@@ -6,7 +6,7 @@ import ml.sakii.factoryisland.Surface;
 
 public class GrassBlock extends Block{
 	
-	public static Surface[] surfaces = new Surface[] {
+	private static Surface[] surfaces = new Surface[] {
 			AssetLibrary.grass,
 			AssetLibrary.dirt,
 			AssetLibrary.dirt,

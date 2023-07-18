@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import ml.sakii.factoryisland.api.API;
+import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.ChestModuleBlock;
 import ml.sakii.factoryisland.blocks.DrillBlock;
 import ml.sakii.factoryisland.blocks.GrassBlock;
@@ -247,29 +248,29 @@ public class Main
 		
 
 		
-		initBlockClass("Water",  WaterBlock.surfaces);
-		initBlockClass("Stone",  StoneBlock.surfaces);
-		initBlockClass("Old",    OldBlock.surfaces);
-		initBlockClass("Grass",  GrassBlock.surfaces);
-		initBlockClass("Sand",   SandBlock.surfaces);
-		initBlockClass("Oil",    OilBlock.surfaces);
-		initBlockClass("Drill",  DrillBlock.surfaces);
-		initBlockClass("Wood",   WoodBlock.surfaces);
-		initBlockClass("Sapling",SaplingBlock.surfaces);
-		initBlockClass("Leaf",   LeafBlock.surfaces);
-		initBlockClass("WaterMill",WaterMillBlock.surfaces);
+		initBlockClass(new WaterBlock(0,0,0,null));
+		initBlockClass(new StoneBlock(0,0,0,null));
+		initBlockClass(new OldBlock(0,0,0,null));
+		initBlockClass(new GrassBlock(0,0,0,null));
+		initBlockClass(new SandBlock(0,0,0,null));
+		initBlockClass(new OilBlock(0,0,0,null));
+		initBlockClass(new DrillBlock(0,0,0,null));
+		initBlockClass(new WoodBlock(0,0,0,null));
+		initBlockClass(new SaplingBlock(0,0,0,null));
+		initBlockClass(new LeafBlock(0,0,0,null));
+		initBlockClass(new WaterMillBlock(0,0,0,null));
 		
-		initBlockClass("ChestModule",ChestModuleBlock.surfaces);
-		initBlockClass("TankModule",TankModuleBlock.surfaces);
+		initBlockClass(new ChestModuleBlock(0,0,0,null));
+		initBlockClass(new TankModuleBlock(0,0,0,null));
 
-		initBlockClass("Lamp",    LampBlock.surfaces);
-		initBlockClass("Silicon", SiliconBlock.surfaces);
+		initBlockClass(new LampBlock(0,0,0,null));
+		initBlockClass(new SiliconBlock(0,0,0,null));
 
-		initBlockClass("TestPowerConsumer", TestPowerConsumerBlock.surfaces);
-		initBlockClass("TestPowerWire", TestPowerWireBlock.surfaces);
+		initBlockClass(new TestPowerConsumerBlock(0,0,0,null));
+		initBlockClass(new TestPowerWireBlock(0,0,0,null));
 		
-		initBlockClass("Sphere", SphereBlock.surfaces);
-		initBlockClass("RandomSphere", RandomSphereBlock.surfaces);
+		initBlockClass(new SphereBlock(0,0,0,null));
+		initBlockClass(new RandomSphereBlock(0,0,0,null));
 
 
 
@@ -307,7 +308,7 @@ public class Main
 					}
 					ModRegistry.add(name);
 					
-					Surface[] surfaces = modBlock.surfaces;
+					Surface[] surfaces = modBlock.getSurfaces();
 					ItemType item=new ItemType(name, name,
 							generateIcon(surfaces[0], surfaces[3], surfaces[4]),
 							generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
@@ -329,9 +330,12 @@ public class Main
 		}
 	}
 	
-	private static void initBlockClass(String name, Surface[] surfaces) {
-		String className = "ml.sakii.factoryisland.blocks." + name + "Block";
-		ItemType item=new ItemType(name, className,
+	private static void initBlockClass(Block block) {
+		//String className = "ml.sakii.factoryisland.blocks." + name + "Block";
+		String name =block.getClass().getSimpleName().replace("Block", "");
+		Surface[] surfaces = block.getSurfaces();
+		 
+		ItemType item=new ItemType(name, block.getClass().getName(),
 				generateIcon(surfaces[0], surfaces[3], surfaces[4]),
 				generateViewmodel(surfaces[0], surfaces[3], surfaces[4]));
 		

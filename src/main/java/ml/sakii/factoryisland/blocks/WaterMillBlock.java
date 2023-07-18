@@ -10,8 +10,6 @@ import ml.sakii.factoryisland.Surface;
 
 public class WaterMillBlock extends SimpleMachine implements SignalGenerator {
 	
-	public static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.wmSideColor);
-
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
 		super("WaterMill", x, y, z,AssetLibrary.wmSideColor,AssetLibrary.wmGradientBeginColor,AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
 

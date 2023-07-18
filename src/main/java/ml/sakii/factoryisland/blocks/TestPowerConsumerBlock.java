@@ -10,8 +10,6 @@ import ml.sakii.factoryisland.Surface;
 
 public class TestPowerConsumerBlock extends SimpleMachine implements PowerConsumer{
 
-	public static Surface[] surfaces = Block.generateSurfacesNoCopy(AssetLibrary.stone);
-	
 	public TestPowerConsumerBlock(int x, int y, int z, GameEngine engine) {
 		super("TestPowerConsumer", x, y, z, AssetLibrary.stone.c, new Color4(0,0,0,255), AssetLibrary.stone.c, new Color4(Color.GRAY), engine);
 		

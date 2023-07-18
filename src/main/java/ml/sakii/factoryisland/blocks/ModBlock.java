@@ -17,7 +17,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public class ModBlock extends Block implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener, SignalConsumer{
 
-    public Surface[] surfaces;
+    private Surface[] surfaces;
 	
     private Invocable invocable;
     

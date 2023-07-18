@@ -10,20 +10,20 @@ import ml.sakii.factoryisland.Vector;
 public class RandomSphereBlock extends Block{
 		
 
-		public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.randomSphere);
+	private static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.randomSphere);
+	
+	private Sphere3D sphere;
+	
+	public RandomSphereBlock(int x, int y, int z, GameEngine engine){
+		super("RandomSphere",x, y, z,engine);
+		sphere = new Sphere3D(new Vector(x,y,z), (int)(Math.random()*8)+2, 20, new Surface(new Color4((float)Math.random(),(float)Math.random(),(float)Math.random(),(float)(Math.random()*0.8f+0.2f))), this);
 		
-		private Sphere3D sphere;
-		
-		public RandomSphereBlock(int x, int y, int z, GameEngine engine){
-			super("RandomSphere",x, y, z,engine);
-			sphere = new Sphere3D(new Vector(x,y,z), (int)(Math.random()*8)+2, 20, new Surface(new Color4((float)Math.random(),(float)Math.random(),(float)Math.random(),(float)(Math.random()*0.8f+0.2f))), this);
-			
-			Objects.add(sphere);
-		}
+		Objects.add(sphere);
+	}
 
-		@Override
-		public Surface[] getSurfaces() {
-			return surfaces;
-		}
+	@Override
+	public Surface[] getSurfaces() {
+		return surfaces;
+	}
 		
 }

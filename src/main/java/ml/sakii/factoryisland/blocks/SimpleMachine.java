@@ -36,7 +36,10 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		HitboxPolygons.put(TargetPolygon, BlockFace.TOP);
 		BlockMeta.put("target", BlockFace.TOP.id + "");
 		BlockMeta.put("active", "0");
-		updateTargetColors(BlockFace.TOP,BlockFace.TOP);
+		
+		if(engine != null) {
+			updateTargetColors(BlockFace.TOP,BlockFace.TOP);
+		}
 	}
 	
 

@@ -7,7 +7,7 @@ import ml.sakii.factoryisland.Surface;
 
 public class LampBlock extends Block{
 
-	public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.lamp);
+	private static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.lamp);
 	
 	public LampBlock(int x, int y, int z, GameEngine engine) {
 		super("Lamp", x, y, z, 0.5f, 0.5f, 0.5f, engine);

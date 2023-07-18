@@ -11,7 +11,6 @@ import ml.sakii.factoryisland.Surface;
 
 public class DrillBlock extends SimpleMachine implements SignalConsumer{
 	
-	public static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.drillSideColor);
 	private HashMap<BlockFace, Integer> signals = new HashMap<>();
 	
 	

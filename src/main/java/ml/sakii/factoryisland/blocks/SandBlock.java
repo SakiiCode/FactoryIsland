@@ -8,7 +8,7 @@ import ml.sakii.factoryisland.Surface;
 public class SandBlock extends Block{
 	
 
-	public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.sand);
+	private static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.sand);
 	
 	public SandBlock(int x, int y, int z, GameEngine engine){
 		super("Sand",x, y, z,engine);

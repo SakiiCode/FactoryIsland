@@ -9,7 +9,7 @@ import ml.sakii.factoryisland.Surface;
 
 public class TestPowerWireBlock extends Block implements PowerPropagator{
 
-	public static Surface[] surfaces = Block.generateSurfaces(new Color4(Color.orange));
+	private static Surface[] surfaces = Block.generateSurfaces(new Color4(Color.orange));
 	private HashSet<PowerGenerator> generatorCache = new HashSet<>();
 	
 	public TestPowerWireBlock(int x, int y, int z, GameEngine engine) {

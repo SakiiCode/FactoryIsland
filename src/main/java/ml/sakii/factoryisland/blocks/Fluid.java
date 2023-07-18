@@ -12,22 +12,17 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public abstract class Fluid extends Block implements TickListener, LoadListener, MetadataListener, BreakListener{
 
-
-	private Surface[] textures; //szintenkent
-	private int maxHeight;
-	public Fluid(String name, int x, int y, int z, Surface[] textures, GameEngine engine) {
-		this(name,x,y,z,textures.length,textures,engine);
-	}
-	
-	public Fluid(String name, int x, int y, int z, int height, Surface[] textures, GameEngine engine) {
+	public Fluid(String name, int x, int y, int z, int height, GameEngine engine) {
 		super(name,x, y, z,engine);
-		this.textures=textures;
-		maxHeight=textures.length-1;
 		BlockMeta.put("height", height+"");
-		heightMap();
+		
 		transparent=true;
 		solid = false;
 		refreshRate = 10;
+		
+		if(engine != null) {
+			heightMap();
+		}
 
 	}
 	
@@ -40,6 +35,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	
 
 	private void heightMap() {
+		Surface[] textures = getTextures();
 		for(Object3D obj : Objects){
 			if(obj instanceof Polygon3D polygon) {
 				polygon.s = textures[getHeight()];
@@ -65,7 +61,12 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	public void onLoad(Game game){
 		heightMap();
 	}
+	
+	protected abstract Surface[] getTextures();  //szintenkent
 
+	private int getMaxHeight() {
+		return getTextures().length-1;
+	}
 	
 	@Override
 	public boolean tick(long tickCount) {
@@ -73,6 +74,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 			boolean hasEmptyNearby=false,hasPlusOneNearby=false,hasBiggerNearby=false;
 			int biggerheight=0;
 			int height = getHeight();
+			int maxHeight = getMaxHeight();
 			for(Entry<BlockFace,Block> entry : Engine.world.get6Blocks(this,true).entrySet()){
 				BlockFace key = entry.getKey();
 				Block value = entry.getValue();
@@ -174,7 +176,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	@Override
 	public ItemStack[] breaked(String username)
 	{
-		if(getHeight()==maxHeight) {
+		if(getHeight()==getMaxHeight()) {
 			return null;
 		}
 		return new ItemStack[] {};

@@ -10,11 +10,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public class LeafBlock extends Block implements BreakListener{
 	
-	public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.leaf);
-	@Override
-	public Surface[] getSurfaces() {
-		return surfaces;
-	}
+	private static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.leaf);
 	
 	
 	public LeafBlock(int x, int y, int z, GameEngine engine) {
@@ -29,6 +25,11 @@ public class LeafBlock extends Block implements BreakListener{
 		String type = giveSapling?"Sapling":"Leaf";
 		return new ItemStack[] {new ItemStack(Main.Items.get(type),1)};
 		
+	}
+	
+	@Override
+	public Surface[] getSurfaces() {
+		return surfaces;
 	}
 
 

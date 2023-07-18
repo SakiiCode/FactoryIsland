@@ -6,7 +6,7 @@ import ml.sakii.factoryisland.Surface;
 
 public class TankModuleBlock extends Block{
 	
-	public static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.tankModule);
+	private static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.tankModule);
 	
 	public TankModuleBlock(int x, int y, int z, GameEngine engine){
 		super("TankModule", x, y, z, engine);

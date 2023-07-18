@@ -6,7 +6,7 @@ import ml.sakii.factoryisland.Surface;
 
 public class StoneBlock extends Block{
 	
-	public static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.stone);
+	private static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.stone);
 	
 	public StoneBlock(int x, int y, int z,GameEngine engine){
 		super("Stone",x, y, z, engine);
