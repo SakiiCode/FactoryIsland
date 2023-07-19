@@ -2,6 +2,7 @@ package ml.sakii.factoryisland;
 
 import java.awt.Graphics;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -9,6 +10,7 @@ import ml.sakii.factoryisland.entities.PlayerMP;
 public class Renderer {
 	
 	private Game game;
+	private static final int UVZ_ARRAY_COUNT = (Runtime.getRuntime().availableProcessors())*2;
 	
 	int previousSkyLight;
 	private Star[] Stars = new Star[200];
@@ -21,18 +23,22 @@ public class Renderer {
 	private MaskManager maskManager = new MaskManager();
 	
 	UVZ[][] uvzArrays;
-	boolean[] uvzArrayTaken;
+	AtomicBoolean[] uvzArrayTaken;
 	
 	public Renderer(Game game) {
 		this.game=game;
 		
-		uvzArrays = new UVZ[(Runtime.getRuntime().availableProcessors()-1)*3][Config.getHeight()];
-		for(int i=0;i<uvzArrays.length;i++)
-		for(int j=0;j<uvzArrays[0].length;j++) {
-			uvzArrays[i][j] = new UVZ();
+		uvzArrays = new UVZ[UVZ_ARRAY_COUNT][Config.getHeight()];
+		for(int i=0;i<uvzArrays.length;i++) {
+			for(int j=0;j<uvzArrays[0].length;j++) {
+				uvzArrays[i][j] = new UVZ();
+			}
 		}
 		
-		uvzArrayTaken = new boolean[(Runtime.getRuntime().availableProcessors()-1)*3];
+		uvzArrayTaken = new AtomicBoolean[UVZ_ARRAY_COUNT];
+		for(int i=0;i<uvzArrayTaken.length;i++) {
+			uvzArrayTaken[i] = new AtomicBoolean(false);
+		}
 		
 		
 		for (int i = 0; i < Stars.length-1; i++)
@@ -57,6 +63,7 @@ public class Renderer {
 
 		fb.setColor(AssetLibrary.skyColor);
 		fb.fillRect(0, 0, Config.getWidth(), Config.getHeight());
+		
 
 		
 		if(!Config.useTextures) {
@@ -80,6 +87,7 @@ public class Renderer {
 		}
 	
 		if(Config.useTextures && !game.locked) {
+			clearZBuffer();
 			VisibleCounter.set(0);
 			Objects.parallelStream().filter(o -> {return o.update(game) && o instanceof BufferRenderable br;}).forEach(o ->{
 				Object[] min = getUVZArray(),max = getUVZArray();
@@ -88,7 +96,7 @@ public class Renderer {
 				UVZ[] bufferUVZmin=(UVZ[]) min[1];
 				int maxId = (int) max[0];
 				UVZ[] bufferUVZmax=(UVZ[]) max[1];
-				((BufferRenderable)o).drawToBuffer(ZBuffer, game);
+				((BufferRenderable)o).drawToBuffer(ZBuffer, game, bufferUVZmin, bufferUVZmax);
 				releaseUVZArray(minId);
 				releaseUVZArray(maxId);
 				
@@ -151,8 +159,7 @@ public class Renderer {
 	
 	public Object[] getUVZArray() {
 		for(int i=0;i<uvzArrayTaken.length;i++) {
-			if(!uvzArrayTaken[i]) {
-				uvzArrayTaken[i]=true;
+			if(uvzArrayTaken[i].compareAndSet(false, true)) {
 				return new Object[] {i,uvzArrays[i]};
 			}
 		}
@@ -160,8 +167,17 @@ public class Renderer {
 	}
 	
 	public void releaseUVZArray(int id) {
-		uvzArrayTaken[id]=false;
+		uvzArrayTaken[id].set(false);
 		
+	}
+	
+	void clearZBuffer() {
+		for(int x=0;x<ZBuffer.length;x++) {
+			
+			for(int y=0;y<ZBuffer[x].length;y++) {
+				ZBuffer[x][y].reset();
+			}
+		}
 	}
 	
 	

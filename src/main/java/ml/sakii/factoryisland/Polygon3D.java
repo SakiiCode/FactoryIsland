@@ -32,24 +32,28 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	
 	public final Vertex[] Vertices;
-	private final Vertex[] clip = new Vertex[20];
-	private final Vertex[] clip2 = new Vertex[20];
+	private final Vertex[] clip = new Vertex[8];
+	private final Vertex[] clip2 = new Vertex[8];
+	private final Point[] result = new Point[8];
 	private int clipSize, clip2Size;
 	
 	private int[] bufferXmin, bufferXmax; 
-	private UVZ[] bufferUVZmin, bufferUVZmax;
 	
 	private Plane tmpnear=new Plane();
 	private Vector RadiusVector=new Vector();
 	private Vector CameraToTriangle = new Vector();
 	private Vector tmp=new Vector();
+	private Point tmpPoint = new Point();
+	
+	private final UVZ tmpUVZ1 = new UVZ();
+	private final UVZ tmpUVZ2 = new UVZ();
+	
 	private int ymax, ymin;
 	private int light=0;
 	
 	private final ConcurrentHashMap<Point3D, Integer> lightSources = new ConcurrentHashMap<>();
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
-	private Point2D.Double centroid2D = new Point2D.Double();
 	private static final float[] fractions = new float[]{0.5f,1.0f};
 	private static final Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
 	private double[][] UVMap;
@@ -96,7 +100,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		for(int i=0;i<clip2.length;i++) {
 			clip2[i]=new Vertex(Vertex.NULL);
 		}
-		
+		for(int i=0;i<result.length;i++) {
+			result[i] = new Point();
+		}
 		recalc(new Vector());
 		if(model.Engine != null) { //inditaskor
 			recalcLightedColor();
@@ -111,85 +117,78 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	protected boolean update(Game game){
 			
 		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
-			if(adjecentFilter) {
-				if(!game.locked) {
-					if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
-						faceFilter=true;
-					}else {
-						CameraToTriangle.set(Vertices[0]).substract(game.PE.getPos());
-						faceFilter = CameraToTriangle.DotProduct(normal) < 0;
-					}
-				}
-				
-				
-				if(faceFilter) {
-					AvgDist = game.PE.getPos().distance(centroid);
-					if(AvgDist<=Config.renderDistance && !isAllBehind(RadiusVector, game)) {
-						resetClipsTo(Vertices, UVMap, Vertices.length);
-						clip(game.ViewFrustum.sides[0]);
-						clip(game.ViewFrustum.sides[1]);
-						clip(game.ViewFrustum.sides[3]);
-						clip(game.ViewFrustum.sides[2]);
-							
-						if(game.locked){
-							tmpnear.normal.set(game.ViewVector);
-							tmpnear.normal.multiply(0.01f);
-							tmpnear.normal.add(game.PE.getPos());
-							tmpnear.distance = game.ViewVector.DotProduct(tmpnear.normal);
-							tmpnear.normal.set(game.ViewVector);
-							clip(tmpnear);
-						}
-						
-						if(clipSize>0){
-							
-							polygon.reset();
-
-							
-							for(int i=0;i<clipSize;i++) {
-								Vertex v=clip[i];
-								
-
-								v.update(game);
-								polygon.addPoint(v.proj.x, v.proj.y);
-
-								
-							}
-							
-							if(Config.useTextures) {
-							
-								ymin = clip[0].proj.y;
-								ymax = clip[0].proj.y;
-								for(int i=0;i<clipSize;i++) {
-									Vertex v=clip[i];
-									ymin = Math.min(ymin,v.proj.y);
-									ymax = Math.max(ymax,v.proj.y);
-								}
-								
-								ymin=Math.max(ymin, 0);
-								ymax=Math.max(ymax, 0);
-								ymin=Math.min(ymin, game.FrameBuffer.getHeight());
-								ymax=Math.min(ymax, game.FrameBuffer.getHeight());
-								
-								if(ymin==ymax) {
-									return false;
-								}
-							
-							}
-							
-							if(!Config.useTextures) {
-								recalcOcclusionPaints(game);
-							}
-							
-							return true;
-	
-						
-						}
-					}
-				}
-			}
-			
+		if(!adjecentFilter) {
 			return false;
 		}
+		
+		if(!game.locked) {
+			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
+				faceFilter=true;
+			}else {
+				CameraToTriangle.set(Vertices[0]).substract(game.PE.getPos());
+				faceFilter = CameraToTriangle.DotProduct(normal) < 0;
+			}
+		}
+		
+		if(!faceFilter) {
+			return false;
+		}
+			
+			
+		AvgDist = game.PE.getPos().distance(centroid);
+		if(AvgDist > Config.renderDistance || isAllBehind(game)) {
+			return false;
+		}
+		
+		resetClipsTo(Vertices, UVMap, Vertices.length);
+		clip(game.ViewFrustum.sides);
+			
+		if(game.locked){
+			tmpnear.normal.set(game.ViewVector);
+			tmpnear.normal.multiply(0.01f);
+			tmpnear.normal.add(game.PE.getPos());
+			tmpnear.distance = game.ViewVector.DotProduct(tmpnear.normal);
+			tmpnear.normal.set(game.ViewVector);
+			clip(tmpnear);
+		}
+		
+		if(clipSize == 0){
+			return false;
+		}
+			
+		game.convert3Dto2D(clip2, result, clipSize);
+		
+		polygon.reset();
+		for(int i=0;i<clipSize;i++) {
+			polygon.addPoint(result[i].x, result[i].y);
+		}
+		
+		if(Config.useTextures) {
+		
+			ymin = result[0].y;
+			ymax = result[0].y;
+			for(int i=0;i<clipSize;i++) {
+				ymin = Math.min(ymin,result[i].y);
+				ymax = Math.max(ymax,result[i].y);
+			}
+			
+			ymin=Math.max(ymin, 0);
+			ymax=Math.max(ymax, 0);
+			ymin=Math.min(ymin, game.FrameBuffer.getHeight());
+			ymax=Math.min(ymax, game.FrameBuffer.getHeight());
+			
+			if(ymin==ymax) {
+				return false;
+			}
+		
+		}
+		
+		if(!Config.useTextures) {
+			recalcOcclusionPaints(game);
+		}
+		
+		return true;
+	}
 	
 	void addSource(Point3D b, int intensity) {
 		
@@ -262,7 +261,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 		
 	@Override
-	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
+	public void drawToBuffer(PixelData[][] ZBuffer, Game game, UVZ[] bufferUVZmin, UVZ[] bufferUVZmax) {
 		
 		// buffer init
 		bufferXmin = new int[ymax-ymin+2];
@@ -270,15 +269,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			bufferXmin[i]=Config.getWidth()+1;
 		}
 		bufferXmax = new int[ymax-ymin+2];
-		for(int i=0;i<bufferXmin.length;i++) {
+		for(int i=0;i<bufferXmax.length;i++) {
 			bufferXmax[i]=-1;
 		}
 		
-		bufferUVZmin = new UVZ[ymax-ymin+2];
-		bufferUVZmax = new UVZ[ymax-ymin+2];
 
-		UVZ tmpUVZ1 = new UVZ();
-		UVZ tmpUVZ2 = new UVZ();
+		
 
 		//vertexről vertexre körbemegyünk
 		for(int i=0;i<clipSize;i++) {
@@ -289,19 +285,19 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			Vertex v1 = clip[index1]; 
 			Vertex v2 = clip[index2];
 			
-			v1.getUVZ(clipUV[index1], game, tmpUVZ1);
-			v2.getUVZ(clipUV[index2], game, tmpUVZ2);
+			getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
+			getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
 			
 			
-			final Point p1 = v1.proj;
-			final Point p2 = v2.proj;
+			final Point p1 = result[index1];
+			final Point p2 = result[index2];
 			
 			//p1 és p2 meredeksége
 			final double m=(p2.y==p1.y) ? 0.0 : (p2.x-p1.x)*1.0/(p2.y-p1.y);
 			
 			// mindenképpen y pozitív irányban szeretnénk végigmenni a polygon oldalán, de lehet, hogy p2 van feljebb.
 			final int xmin = (p1.y<p2.y) ? p1.x : p2.x;
-			final int ymin= (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
+			final int ymin = (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
 			final int ymax = (p1.y<p2.y) ? p2.y : p1.y;
 
 			
@@ -330,7 +326,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				}
 				if(x < bufferXmin[y-this.ymin]) {
 					bufferXmin[y-this.ymin] = (int)x;
-					bufferUVZmin[y-this.ymin] = UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2);
+					tmpPoint.move((int) x, y);
+					UVZ.interp(p1, p2, tmpPoint, tmpUVZ1, tmpUVZ2, bufferUVZmin[y-this.ymin]);
 				}
 				
 				if(y-this.ymin>=bufferXmax.length) {
@@ -341,7 +338,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				
 				if(x > bufferXmax[y-this.ymin]) {
 					bufferXmax[y-this.ymin] = (int)x;
-					bufferUVZmax[y-this.ymin] = UVZ.interp(p1, p2, new Point((int) x, y), tmpUVZ1, tmpUVZ2);
+					tmpPoint.move((int) x, y);
+					UVZ.interp(p1, p2, tmpPoint, tmpUVZ1, tmpUVZ2, bufferUVZmax[y-this.ymin]);
 				}
 				
 				x+=m;
@@ -426,7 +424,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				 		//px=px|0xFF000000;
 				 		rgb = Color4.blend(px, overlay.getRGB());
 				 		if(Config.ambientOcclusion) {
-				 			rgb=Color4.blend(rgb,new Color(0f,0f,0f,(float)ao).getRGB());
+				 			rgb=Color4.blend(rgb,Color4.getRGB(0, 0, 0, (int)(ao*255)));
 				 		}
 
 
@@ -462,11 +460,11 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				Vertex v1 = clip[index1]; 
 				Vertex v2 = clip[index2];
 				
-				v1.getUVZ(clipUV[index1], game, tmpUVZ1);
-				v2.getUVZ(clipUV[index2], game, tmpUVZ2);
+				getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
+				getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
 				
-				final Point p1 = v1.proj;
-				final Point p2 = v2.proj;
+				final Point p1 = result[index1];
+				final Point p2 = result[index2];
 				
 				Bresenham.plotLine(p1.x, p1.y, p2.x, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
 			}
@@ -480,16 +478,27 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					Vertex v1 = clip[index1]; 
 					Vertex v2 = clip[index2];
 					
-					v1.getUVZ(clipUV[index1], game, tmpUVZ1);
-					v2.getUVZ(clipUV[index2], game, tmpUVZ2);
+					getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
+					getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
 					
-					final Point p1 = v1.proj;
-					final Point p2 = v2.proj;
+					final Point p1 = result[index1];
+					final Point p2 = result[index2];
 					
 					Bresenham.plotLine(p1.x+1, p1.y, p2.x+1, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
 				}	
 			}
 		}
+	}
+	
+	void getUVZ(Vector v, double[] uv, Game game, UVZ uvz) {
+		// 1/z , u/z , v/z kiszámítása
+		// z nem a kamera és a pont távolsága, hanem a kamera helyének, és a pontnak a kamera irányára vetített helyének távolsága
+		// (egyszerû skalárszorzat)
+		double z = v.substract(game.PE.getPos()).DotProduct(game.ViewVector);
+		uvz.iz=1/z;
+		uvz.uz=uv[0]/z;
+		uvz.vz=uv[1]/z;
+		uvz.ao=uv[2]/z;
 	}
 
 	@Override
@@ -560,7 +569,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 	
 	
-	void renderSelectOutline(Graphics fb){
+	static void renderSelectOutline(Graphics fb, Polygon polygon, Point2D.Double centroid2D){
 		Graphics2D g2d=((Graphics2D)fb);
 		if(Config.targetMarkerType == TargetMarkerType.SHADE) {
 			g2d.setPaint(new RadialGradientPaint(
@@ -692,8 +701,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		
 	    int pointCount = Vertices.length;
 		for(Vertex v : Vertices) {
-
-	    
 	        dx += v.x;
 	        dy += v.y;
 	        dz += v.z;
@@ -705,9 +712,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	
 	
-	private boolean isAllBehind(Vector tmp2, Game game) { //7.1% -> 4.9%
+	private boolean isAllBehind(Game game) { //7.1% -> 4.9%
 		
-		return tmp2.set(game.ViewVector)
+		return RadiusVector.set(game.ViewVector)
 				.multiply(physicalRadius)
 				.add(centroid)
 				.substract(game.PE.getPos())
@@ -751,64 +758,68 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		clipSize=size;
 	}
 	
-	private void clip(Plane P){
-		
-		clip2Size=0;
-		for(int i=0;i<clipSize;i++){
-
-				int index1=i;
-				int index2= (i != clipSize-1) ? i+1 : 0;
-				
-				Vertex v1 = clip[index1];
-				Vertex v2 = clip[index2];
-				
-				double[] uv1 = clipUV[index1];
-				double[] uv2 = clipUV[index2];
-				
-				Vector a = v1;
-				Vector b = v2;
-				
-				
-				
-				float da = a.DotProduct(P.normal) - P.distance;
-				float db = b.DotProduct(P.normal) - P.distance;
-				
-				float s= da/(da-db);
-
-				
-				
-				if(da > 0 && db > 0){ // mindkettő előtte
+	private void clip(Plane... planes){
+		int pIndex=0;
+		while(pIndex<planes.length && clipSize > 0) {
+			Plane P = planes[pIndex];
+			clip2Size=0;
+			for(int i=0;i<clipSize;i++){
+	
+					int index1=i;
+					int index2= (i != clipSize-1) ? i+1 : 0;
 					
-					clip2[clip2Size].set(v1);
-					if(Config.useTextures)
-						clipUV2[clip2Size]=uv1;
-					clip2Size++;
+					Vertex v1 = clip[index1];
+					Vertex v2 = clip[index2];
 					
-				}else if(da < 0 && db < 0){ // mindkettő mögötte
+					double[] uv1 = clipUV[index1];
+					double[] uv2 = clipUV[index2];
 					
-				}else if(da < 0 && db > 0){
+					Vector a = v1;
+					Vector b = v2;
 					
-					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
-					if(Config.useTextures)
-						clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
-					clip2Size++;
 					
-				}else if(da >0 && db < 0){ // elölről vágja félbe
 					
-					clip2[clip2Size].set(v1);
-					if(Config.useTextures)
-						clipUV2[clip2Size]=uv1;
-					clip2Size++;
+					float da = a.DotProduct(P.normal) - P.distance;
+					float db = b.DotProduct(P.normal) - P.distance;
 					
-					clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
-					if(Config.useTextures)
-						clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
-					clip2Size++;
+					float s= da/(da-db);
+	
 					
-				}
+					
+					if(da > 0 && db > 0){ // mindkettő előtte
+						
+						clip2[clip2Size].set(v1);
+						if(Config.useTextures)
+							clipUV2[clip2Size]=uv1;
+						clip2Size++;
+						
+					}else if(da < 0 && db < 0){ // mindkettő mögötte
+						
+					}else if(da < 0 && db > 0){
+						
+						clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
+						if(Config.useTextures)
+							clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
+						clip2Size++;
+						
+					}else if(da >0 && db < 0){ // elölről vágja félbe
+						
+						clip2[clip2Size].set(v1);
+						if(Config.useTextures)
+							clipUV2[clip2Size]=uv1;
+						clip2Size++;
+						
+						clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
+						if(Config.useTextures)
+							clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
+						clip2Size++;
+						
+					}
+			}
+			
+			resetClipsTo(clip2,clipUV2,clip2Size);
+			pIndex++;
 		}
-		
-		resetClipsTo(clip2,clipUV2,clip2Size);
 	}
 	
 	

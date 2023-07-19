@@ -64,7 +64,7 @@ public class MaskManager {
 						}
 						
 					}
-					ZBuffer[x][y].reset();
+					//ZBuffer[x][y].reset();
 	
 				}
 			}
@@ -88,4 +88,6 @@ public class MaskManager {
 			g.fillRect(0, 0, tileWidth, tileHeight);
 		}
 	}
+	
+	
 }

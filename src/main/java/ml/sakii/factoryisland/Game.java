@@ -136,6 +136,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private Vector tmp = new Vector();
 	private boolean benchmarkMode = false;
 	private GUIManager guiManager;
+	private Point2D.Double centroid2D = new Point2D.Double();
+
 	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
@@ -436,7 +438,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						SelectedBlock.select(SelectedFace);
 					}
 					if(showHUD) {
-						SelectedPolygon.renderSelectOutline(fb);
+						Polygon3D.renderSelectOutline(fb, SelectedPolygon.polygon, centroid2D);
 					}
 				
 				}else {
@@ -1069,6 +1071,28 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		point.setLocation(x2d, y2d);
 		return point;
+
+	}
+	
+	public void convert3Dto2D(Vector[] input, Point[] output, int size)
+	{
+		int zoom = Config.getZoom();
+		Vector PEPos = PE.getPos();
+		
+		for(int i=0;i<size;i++) {
+			Vector tmp = input[i];
+		
+			tmp.substract(PEPos);
+			
+			float t = tmp.DotProduct(ViewVector);
+			tmp.multiply(1 / t);
+	
+			float x2d = centerX + zoom * tmp.DotProduct(RightViewVector);
+			float y2d = centerY + zoom * tmp.DotProduct(BottomViewVector);
+			
+	
+			output[i].setLocation(x2d, y2d);
+		}
 
 	}
 

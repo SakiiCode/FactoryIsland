@@ -126,10 +126,10 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	}
 	
 	@Override
-	public void drawToBuffer(PixelData[][] ZBuffer, Game game) {
+	public void drawToBuffer(PixelData[][] ZBuffer, Game game, UVZ[] bufferUVZmin, UVZ[] bufferUVZmax) {
 		for(SpherePolygon3D p : Polygons) {
 			if(p.isVisible()) {
-				p.drawToBuffer(ZBuffer, game);
+				p.drawToBuffer(ZBuffer, game, bufferUVZmin, bufferUVZmax);
 			}
 		}
 	}
