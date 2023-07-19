@@ -472,6 +472,7 @@ public class World {
 			
 		}
 		
+		filterBlock(b);
 		filterAdjecentBlocks(b);
 		
 		recalcAO(b.pos);
@@ -492,6 +493,8 @@ public class World {
 				addLight(b.pos);
 			}
 		}
+		
+		game.updateSkyLight();
 		
 		if(b.z>worldTop) {
 			worldTop=b.z;
@@ -555,7 +558,6 @@ public class World {
 			recalcAO(b.pos);
 			
 			
-			
 
 			
 			
@@ -573,7 +575,8 @@ public class World {
 				addLight(source);		 //valojaban csak az uj blokkokhoz adodik hozza
 			}
 			
-			
+			game.updateSkyLight();
+
 			
 			if(Blocks.size()==0 && (Engine.isLocalMP() || Engine.isSingleplayer())) {
 				addBlockNoReplace(new WaterBlock(0,0,0,Engine), true);
@@ -1406,7 +1409,6 @@ public class World {
 	}
 	
 	private void filterAdjecentBlocks(Block bl) {
-		filterBlock(bl);
 		for (Block b : get6Blocks(bl, false).values()) {
 			filterBlock(b);
 		}
