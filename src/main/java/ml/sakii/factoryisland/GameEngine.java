@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -103,7 +104,7 @@ public class GameEngine{
 		
 		ActionListener tickPerformer = new ActionListener() {
 			
-			ArrayList<Block> surface = new ArrayList<>();
+			HashSet<Block> surface = new HashSet<>();
 			
             @Override
 			public void actionPerformed(ActionEvent evt) {
@@ -152,7 +153,7 @@ public class GameEngine{
 							Vector pos = null;
 							Block b;
 								int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
-								b = surface.get(index);
+								b = surface.toArray(new Block[] {})[index];
 								
 									
 									

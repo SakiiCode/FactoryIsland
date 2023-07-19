@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -1060,15 +1061,22 @@ public class World {
 	}
 	
 	//TODO cachelni
-	public void getSurface(Collection<Block> Blocks) {
-		for (Block b : this.Blocks.values()) {
+	public void getSurface(Set<Block> Blocks) {
+		for(Object3D obj : game.Objects) {
+			if(obj instanceof Polygon3D poly) {
+				if(poly.model instanceof Block b) {
+					Blocks.add(b);
+				}
+			}
+		}
+		/*for (Block b : this.Blocks.values()) {
 			for (Object3D obj : b.Objects) {
 				if (obj instanceof Polygon3D poly && poly.adjecentFilter) {
 					Blocks.add(b);
 					break;
 				}
 			}
-		}
+		}*/
 	}
 	
 	
