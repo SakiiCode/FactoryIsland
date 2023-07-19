@@ -32,7 +32,6 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import javax.swing.JPanel;
@@ -86,13 +85,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private long lastTime;
 	private int totalframes;
 	private long previousTime, currentTime;
-	private int previousSkyLight;
 
 
 	VolatileImage VolatileFrameBuffer;
 	BufferedImage FrameBuffer;
 	BufferedImage prevFrame;
-	private PixelData[][] ZBuffer;
 	private BufferedImageOp op;
 
 	
@@ -101,11 +98,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private Block SelectedBlock = Block.NOTHING;
 	private Entity SelectedEntity;
 	private Block ViewBlock;
-	private Star[] Stars;
 
-	private AtomicInteger VisibleCounter = new AtomicInteger(0);
-	private int VisibleCount;
-	private MaskManager maskManager = new MaskManager();
+	int VisibleCount;
+	
+	Renderer renderer;
 
 	// CONTROLS
 	public boolean moved;
@@ -113,7 +109,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	boolean locked = false;
 	boolean centered;
 	
-	private float centerX, centerY, McenterX, McenterY;
+	float centerX, centerY, McenterX, McenterY;
 	private float difX, difY;
 	private float prevX, prevY;
 	
@@ -266,7 +262,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		BottomViewVector.set(TopViewVector).multiply(-1);
 
 		ViewFrustum = new Frustum(this);
-
+		
+		renderer = new Renderer(this);
 		resizeScreen(Config.getWidth(), Config.getHeight());
 
 
@@ -282,14 +279,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		{
 			e.printStackTrace();
 		}
-
-		Stars = new Star[200];
-		for (int i = 0; i < Stars.length-1; i++)
-		{
-			Stars[i] = new Star();
-		}
-
-		Stars[Stars.length-1] = new Star(100);
+		
+		
 		//sphere = new Sphere3D(0,0,0,10,new Color4(60f/255f,19f/255f,97f/255f,0.3f));
 		/*SphereWeird3D sphere1 = new SphereWeird3D(0,0,0,10,new Color4(1,0,1,0.3f));
 		Objects.add(sphere1);
@@ -404,13 +395,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			fb.setColor(Color.WHITE);
 			
-			double timeFraction = Engine.getTimePercent();
-			Stars[Stars.length-1].pos.set((float)Math.cos(timeFraction*2*Math.PI), 0f, (float)Math.sin(timeFraction*2*Math.PI));
-			
-			for (int i = 0; i < Stars.length; i++)
-			{
-				Stars[i].draw(fb, this);
-			}
 			
 			if(!Config.useTextures) {
 				Spheres.sort((s1,s2)->Float.compare(s2.getCenterDist(),s1.getCenterDist()));
@@ -423,70 +407,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 			
 			
-			int skyLight = Polygon3D.testLightLevel(timeFraction);
-			if(skyLight != previousSkyLight) {
-				previousSkyLight=skyLight;
-				new Thread() {
-					@Override
-					public void run() {
-						
-						for(Object3D o : Objects) {
-							if(o instanceof Polygon3D p) {
-								p.recalcLightedColor();
-							}
-						}
-					}
-				}.start();
-				
-			}
-		
-			if(Config.useTextures && !locked) {
-				VisibleCounter.set(0);
-				Objects.parallelStream().filter(o -> {return o.update(this) && o instanceof BufferRenderable br;}).forEach(o ->{
 
-					((BufferRenderable)o).drawToBuffer(ZBuffer, this);
-					
-					if(o instanceof Polygon3D p) {
-						
-						if (p.polygon.contains(centerX, centerY) &&
-								((SelectedPolygon == null && p.AvgDist<5) || (SelectedPolygon!=null && p.AvgDist<SelectedPolygon.AvgDist)))
-						{
-							SelectedPolygon = p;
-						}
-						if(F3) {
-							VisibleCounter.incrementAndGet();
-						}
-					}
-				});
-
-				VisibleCount=VisibleCounter.get();
-				
-				maskManager.clear();
-				maskManager.copyParallel(ZBuffer, key[6]);
-				maskManager.render(fb);
-
-
-					
-				Objects.parallelStream().filter(o->!(o instanceof BufferRenderable)).sorted().forEachOrdered(t ->{
-					t.draw(fb, this); //nem kell image-t megadni text3d-hez
-				});
-				
-				
-			}else {
-				Objects.parallelStream().filter(o -> o.update(this)).sorted().forEachOrdered(o->
-				{
-					o.draw(fb, this);
-					
-					if(o instanceof Polygon3D poly) {
-						
-						if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
-						{
-							SelectedPolygon = poly;
-						}
-						VisibleCount++;
-					}
-				});
-			}
+			SelectedPolygon = renderer.render(g, Objects, Spheres, F3);
 			
 			
 			
@@ -588,7 +510,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("SelectedEntity: null");
 					}
 					if(Config.useTextures) {
-						debugInfo.add("Selected Pixel: "+ZBuffer[FrameBuffer.getWidth()/2-1][FrameBuffer.getHeight()/2-1].toString());
+						debugInfo.add("Selected Pixel: "+renderer.ZBuffer[FrameBuffer.getWidth()/2-1][FrameBuffer.getHeight()/2-1].toString());
 					}
 					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
 					debugInfo.add("testing:"+key[6]);
@@ -1320,15 +1242,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	{
 
 		FrameBuffer = Main.toCompatibleImage(new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
-		maskManager.resizeScreen(w, h);
 		GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[Main.screen].getDefaultConfiguration();
 		VolatileFrameBuffer = config.createCompatibleVolatileImage(w, h);
-		ZBuffer=new PixelData[w+1][h];
-		for(int x =0;x<w+1;x++) {
-			for(int y=0;y<h;y++) {
-				ZBuffer[x][y]=new PixelData();
-			}
-		}
+		renderer.resizeScreen(w,h);
 		centerX = w / 2;
 		centerY = h / 2;
 		Main.log("FOV:"+Config.FOV+",Zoom:"+Config.FOVToZoom(Config.FOV));
@@ -1357,6 +1273,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		return ViewBlock.Objects.contains(polygon);
 	}
 	
+	
+	//TODO számontartani egy ViewSphere-t és nem végigmenni az összesen, hanem leellenőrizni hogy a polygon hozzá tartozik-e
+	@SuppressWarnings("unlikely-arg-type")
 	boolean insideSphere(Polygon3D polygon) {
 		for(Sphere3D sphere : Spheres) {
 			
