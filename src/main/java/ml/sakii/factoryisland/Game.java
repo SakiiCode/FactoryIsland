@@ -284,10 +284,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Stars = new Star[200];
 		for (int i = 0; i < Stars.length-1; i++)
 		{
-			Stars[i] = new Star(this);
+			Stars[i] = new Star();
 		}
 
-		Stars[Stars.length-1] = new Star(this,100);
+		Stars[Stars.length-1] = new Star(100);
 		//sphere = new Sphere3D(0,0,0,10,new Color4(60f/255f,19f/255f,97f/255f,0.3f));
 		/*SphereWeird3D sphere1 = new SphereWeird3D(0,0,0,10,new Color4(1,0,1,0.3f));
 		Objects.add(sphere1);
@@ -407,7 +407,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			for (int i = 0; i < Stars.length; i++)
 			{
-				Stars[i].draw(fb);
+				Stars[i].draw(fb, this);
 			}
 			
 			if(!Config.useTextures) {

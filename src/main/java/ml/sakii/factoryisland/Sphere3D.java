@@ -140,7 +140,9 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		
 		public SpherePolygon3D(Vertex[] vertices, Surface s, Model model) {
 			super(vertices, new int[vertices.length][2], s, model);
-			addSource(new Point3D((int)model.getPos().x, (int)model.getPos().y, (int)model.getPos().z), 15);
+			if(model.Engine != null) {
+				addSource(new Point3D((int)model.getPos().x, (int)model.getPos().y, (int)model.getPos().z), 15);
+			}
 		}
 		
 		@Override

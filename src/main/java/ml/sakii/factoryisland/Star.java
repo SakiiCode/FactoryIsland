@@ -1,37 +1,41 @@
 package ml.sakii.factoryisland;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
-public class Star {
+public class Star extends Object3D{
 	final Vector pos;
 	
 	private final Vector pos2=new Vector();
 	private final float size;
-	private final Game game;
 	private final Point2D.Float p = new Point2D.Float();
 	
-	public Star(Game game) {
+	public Star() {
 		pos = new Vector(
 				(float)(Math.random()*2-1),
 				(float)(Math.random()*2-1),
 				(float)(Math.random()*2-1));
 		size = (float)(Math.random()*10);
-		this.game = game;
+		AvgDist=1000;
 	}
 	
-	public Star(Game game, int size) {
+	public Star(int size) {
 		pos = new Vector(1,0,0.5f);
 		this.size = size;
-		this.game = game;
 	}
-	
-	void draw(Graphics g) {
-		
-		if(game.ViewVector.DotProduct(pos) > 0) {
-			pos2.set(pos).add(game.PE.getPos());
-			game.convert3Dto2D(pos2,p);
-			g.fillOval((int)p.getX(), (int)p.getY(), (int)(size*game.ratio), (int)(size*game.ratio));
-		}
+
+	@Override
+	protected boolean update(Game game) {
+		return game.ViewVector.DotProduct(pos) > 0;
+	}
+
+	@Override
+	protected void draw(Graphics g, Game game) {
+		float ratio = Config.resolutionScaling;//(Config.getWidth() * 1f / Main.Width	+ Config.getHeight() * 1f / Main.Height) / 2;
+		pos2.set(pos).add(game.PE.getPos());
+		game.convert3Dto2D(pos2,p);
+		g.setColor(Color.WHITE);
+		g.fillOval((int)p.getX(), (int)p.getY(), (int)(size*ratio), (int)(size*ratio));		
 	}
 	
 	
