@@ -34,6 +34,7 @@ public class Globals {
 			</ul>""";
 	
 	public static final long TICKS_PER_DAY = 72000;
+	public static final long LIGHT_UPDATES_PER_DAY=360;
 
 
 }

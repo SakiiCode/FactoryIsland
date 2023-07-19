@@ -280,6 +280,10 @@ public class GameEngine{
 					
 
 				}
+				
+				if(Tick % (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) == 0) {
+					game.updateSkyLight();
+				}
 				Tick++;
 
 
@@ -788,6 +792,12 @@ public class GameEngine{
 	
 	double getTimePercent() {
 		
+		long hours=Tick%Globals.TICKS_PER_DAY;
+		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
+		return skyLightF;
+	}
+	
+	static double getTimePercent(long Tick) {
 		long hours=Tick%Globals.TICKS_PER_DAY;
 		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
 		return skyLightF;

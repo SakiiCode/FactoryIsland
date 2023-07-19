@@ -218,6 +218,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		previousPos = new Vector().set(PE.getPos());
 		previousAim = new EAngle(PE.ViewAngle.yaw, PE.ViewAngle.pitch);
 		
+		updateSkyLight();
+		
 		for(Block b : Engine.world.getWhole()) {
 			if(b instanceof LoadListener ll) {
 				ll.onLoad(this);
@@ -619,7 +621,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					int y= (int) Math.floor(PEPos.y);
 					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + Globals.GravityAcceleration / FPS) * PE.VerticalVector.z));
 					PE.tmpPoint.set(x, y, feetZ);
-					debugInfo.add("Physics FPS: " + Engine.getActualphysicsfps() +", skyLight:"+Engine.getTimePercent()+", cached:"+previousSkyLight+"level:"+Polygon3D.testLightLevel(Engine.getTimePercent()));
+					long lastLightUpdateTick = Engine.Tick / (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) * (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY); 
+					debugInfo.add("Physics FPS: " + Engine.getActualphysicsfps() +
+							", skyLight:"+Engine.getTimePercent()+
+							", level:"+Polygon3D.testLightLevel(Engine.getTimePercent())+
+							", cached:"+Polygon3D.testLightLevel(GameEngine.getTimePercent(lastLightUpdateTick)));
 					// DEBUG SZÖVEG
 					g.setColor(Color.BLACK);
 					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));
@@ -1115,6 +1121,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		}
 
+	}
+	
+	public void updateSkyLight() {
+		for(Object3D o : Objects) {
+			if(o instanceof Polygon3D p) {
+				p.recalcLightedColor();
+			}
+		}
 	}
 
 
