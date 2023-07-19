@@ -4,8 +4,9 @@ import java.awt.Color;
 
 public class Color4 {
 	
-	private int r, g, b, a;
-	private Color cache;
+	private int r=0, g=0, b=0, a=0;
+	private Color cache=null;
+	private boolean dirty;
     
 	public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
 	public static final Color AO_MAX_FLAT = new Color(0, 0, 0, 0.4f);
@@ -29,18 +30,22 @@ public class Color4 {
 		construct(r, g, b, a);
 	}
 	
+	public Color4(Color c){
+		construct(c.getRed(),c.getGreen(), c.getBlue(), c.getAlpha());
+	}
+	
+	public Color4() {
+		construct(0,0,0,0);
+	}
+	
 	private void construct(int r, int g, int b, int a) {
 		this.r = r;
 		this.g = g;
 		this.b = b;
 		this.a = a;
-		this.cache=new Color(r, g, b, a);
+		dirty=true;
 	}
 	
-	public Color4(Color c){
-		construct(c.getRed(),c.getGreen(), c.getBlue(), c.getAlpha());
-
-	}
 	
 	public int getAlpha() {
 		return a;
@@ -56,6 +61,10 @@ public class Color4 {
 	}
 	
 	public Color getColor() {
+		if(dirty) {
+			cache = new Color(r,g,b,a);
+			dirty=false;
+		}
 		return cache;
 	}
 		
@@ -125,19 +134,36 @@ public class Color4 {
 
 		float b01 = ((1 - a0)*a1*b1 + a0*b0) / a01;
 
-		construct((int)(r01*255), (int)(g01*255), (int)(b01*255), (int)(a01*255));
+		if(r01>1) {
+			Main.err(r01+","+g01+","+b01+","+a01);
+		}
+		this.set(r01, g01, b01, a01);
 		
 		return this;
 	}
   
 		
 	public Color4 set(Color4 c) {
-		construct(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+		//construct(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+		if(c.r != r || c.g != g || c.b != b || c.a != a) {
+			dirty=true;
+			r=c.r;
+			g=c.g;
+			b=c.b;
+			a=c.a;
+		}
 		return this;
 	}
 	
 	public Color4 set(Color c) {
-		construct(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+		//construct(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+		if(c.getRed() != r || c.getGreen() != g || c.getBlue() != b || c.getAlpha() != a) {
+			dirty=true;
+			r=c.getRed();
+			g=c.getGreen();
+			b=c.getBlue();
+			a=c.getAlpha();
+		}
 		return this;
 	}
 	
@@ -146,22 +172,38 @@ public class Color4 {
 		int g = (argb>>8)&0xFF;
 		int r = (argb>>16)&0xFF;
 		int a = (argb>>24)&0xFF;
-		construct(r, g, b, a);
+		if(this.r != r || this.g != g || this.b != b || this.a != a) {
+			dirty=true;
+			this.r=r;
+			this.g=g;
+			this.b=b;
+			this.a=a;
+		}
+		//construct(r, g, b, a);
 		return this;
 	}
 	
 	public Color4 set(float r, float g, float b, float a) {
-		construct((int)(r*255), (int)(g*255), (int)(b*255), (int)(a*255));
+		int r2 = (int)(r*255);
+		int g2 = (int)(g*255);
+		int b2 = (int)(b*255);
+		int a2 = (int)(a*255);
+		if(this.r != r2 || this.g != g2 || this.b != b2 || this.a != a2) {
+			dirty=true;
+			this.r=r2;
+			this.g=g2;
+			this.b=b2;
+			this.a=a2;
+		}
+		//construct((int)(r*255), (int)(g*255), (int)(b*255), (int)(a*255));
 		return this;
 	}
 	
 	public int getRGB() {
-		return cache.getRGB();
+		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 	
-	public Color4() {
-		this.cache = Color.BLACK;
-	}
+	
 	
 	public static int getAlpha(int argb) {
 		return (argb>>24)&0xFF;
@@ -176,8 +218,16 @@ public class Color4 {
 
 	public Color4 setAlpha(int pow)
 	{
-		construct(r, g, b, pow);
+		//construct(r, g, b, pow);
+		if(a!=pow) {
+			dirty=true;
+			a=pow;
+		}
 		return this;
+	}
+	
+	public static int getRGB(int r, int g, int b, int a) {
+		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 
 	
