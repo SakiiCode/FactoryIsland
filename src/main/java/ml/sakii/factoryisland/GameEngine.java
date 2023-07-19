@@ -158,7 +158,7 @@ public class GameEngine{
 									
 								for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
 									if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
-										if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
+										if(entry.getKey().getLight()<3 && game.Objects.contains(entry.getKey())) {
 											pos=entry.getKey().centroid;
 										}
 										break;

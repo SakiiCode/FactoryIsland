@@ -461,12 +461,6 @@ public class World {
 			game.TextureBlocks.add((TextureListener)b);
 		}
 		
-		
-		filterAdjecentBlocks(b);
-		
-		recalcAO(b.pos);
-		
-		
 		if(game != null) {
 			for(Object3D obj : b.Objects) {
 				if(obj instanceof Sphere3D sphere) {
@@ -476,6 +470,13 @@ public class World {
 			}
 			
 		}
+		
+		filterAdjecentBlocks(b);
+		
+		recalcAO(b.pos);
+		
+		
+		
 		
 		
 		
@@ -539,11 +540,6 @@ public class World {
 				Engine.DayNightBlocks.remove(dnl);
 			}
 			
-			
-			filterAdjecentBlocks(b);
-	
-			recalcAO(b.pos);
-			
 			if(game != null) {
 				for(Object3D obj : b.Objects) {
 					if(obj instanceof Sphere3D sphere) {
@@ -552,6 +548,12 @@ public class World {
 					game.Objects.remove(obj);
 				}
 			}
+			
+			filterAdjecentBlocks(b);
+	
+			recalcAO(b.pos);
+			
+			
 			
 
 			
@@ -1416,9 +1418,13 @@ public class World {
 				if(entry2.getValue() == key) {
 					Polygon3D side=entry2.getKey();
 					if(!bl.fullblock || !other.fullblock || (!bl.transparent && other.transparent)) {
-						side.adjecentFilter=true;
+						if(!game.Objects.contains(side)) {
+							game.Objects.add(side);
+						}
+						//side.adjecentFilter=true;
 					}else {
-						side.adjecentFilter=false;
+						game.Objects.remove(side);
+						//side.adjecentFilter=false;
 					}
 				}
 					

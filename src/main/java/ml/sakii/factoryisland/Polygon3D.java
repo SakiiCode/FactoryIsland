@@ -23,7 +23,7 @@ import ml.sakii.factoryisland.blocks.GradientCalculator;
 
 public class Polygon3D extends Object3D implements BufferRenderable{
 	Polygon polygon = new Polygon();
-	boolean adjecentFilter = true;
+	//boolean adjecentFilter = true;
 	private boolean faceFilter = true;
 	public boolean selected;
 	private Vector normal=new Vector();
@@ -117,9 +117,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	protected boolean update(Game game){
 			
 		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
-		if(!adjecentFilter) {
-			return false;
-		}
+		//if(!adjecentFilter) {
+		//	return false;
+		//}
 		
 		if(!game.locked) {
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
