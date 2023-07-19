@@ -140,31 +140,36 @@ public class GameEngine{
 						
 					}
 					
-					surface.clear();
-					world.getSurface(surface);
+					
 
-					if(world.getAlienCount() < 6 && Math.random() < 0.004 && surface.size()>0) {
-						int Min = 0;
-						Vector pos = null;
-						Block b;
-							int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
-							b = surface.get(index);
-							
+					if(world.getAlienCount() < 6 && Math.random() < 0.004) {
+						
+						surface.clear();
+						world.getSurface(surface);
+						
+						if(surface.size()>0) {
+							int Min = 0;
+							Vector pos = null;
+							Block b;
+								int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
+								b = surface.get(index);
 								
-								
-							for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
-								if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
-									if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
-										pos=entry.getKey().centroid;
+									
+									
+								for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
+									if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
+										if(entry.getKey().getLight()<3 && entry.getKey().adjecentFilter) {
+											pos=entry.getKey().centroid;
+										}
+										break;
 									}
-									break;
+				
 								}
-			
+									
+							if(pos!=null) {
+								Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
+								world.addEntity(newAlien, true);
 							}
-								
-						if(pos!=null) {
-							Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
-							world.addEntity(newAlien, true);
 						}
 						
 					}
