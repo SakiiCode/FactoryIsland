@@ -20,10 +20,10 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		this.pos=pos;
 		this.radius=radius;
 		
-		Vertex top = new Vertex(pos.cpy().add(Vector.Z.cpy().multiply(radius)));
-		Vertex bottom = new Vertex(pos.cpy().add(Vector.Z.cpy().multiply(-radius)));
+		Vector top = Vector.Z.cpy().multiply(radius).add(pos);
+		Vector bottom = Vector.Z.cpy().multiply(-radius).add(pos);
 		
-		Vertex[][] points = new Vertex[resolution-1][resolution];
+		Vector[][] points = new Vector[resolution-1][resolution];
 		float delta = 180f/resolution;
 		
 		
@@ -34,7 +34,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 			generator.yaw = 0;
 			for(int j=0;j<resolution;j++) {
 				generator.yaw += 2*delta;
-				points[i][j] = new Vertex(pos.cpy().add(generator.toVector().multiply(radius)));
+				points[i][j] = pos.cpy().add(generator.toVector().multiply(radius));
 			}
 			generator.pitch += delta;
 		}
@@ -43,7 +43,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 			for(int j=0;j<resolution;j++) {
 				if(i == 0) {
 					Polygons.add(new SpherePolygon3D(
-							new Vertex[] {
+							new Vector[] {
 								points[i][j],
 								points[i][(j+1)%resolution],
 								bottom,
@@ -52,7 +52,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 							m));
 				}else if(i == resolution-1) {
 					Polygons.add(new SpherePolygon3D(
-							new Vertex[] {
+							new Vector[] {
 								top,
 								points[i-1][(j+1)%resolution],
 								points[i-1][j]
@@ -61,7 +61,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 							m));
 				}else {
 					Polygons.add(new SpherePolygon3D(
-							new Vertex[] {
+							new Vector[] {
 								points[i][j],
 								points[i][(j+1)%resolution],
 								points[i-1][(j+1)%resolution],
@@ -138,7 +138,7 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		
 		private boolean visible;
 		
-		public SpherePolygon3D(Vertex[] vertices, Surface s, Model model) {
+		public SpherePolygon3D(Vector[] vertices, Surface s, Model model) {
 			super(vertices, new int[vertices.length][2], s, model);
 			if(model.Engine != null) {
 				addSource(new Point3D((int)model.getPos().x, (int)model.getPos().y, (int)model.getPos().z), 15);

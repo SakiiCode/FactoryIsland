@@ -9,7 +9,6 @@ import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
-import ml.sakii.factoryisland.Vertex;
 
 public abstract class SimpleMachine extends Block implements InteractListener, TextureListener, PlaceListener, MetadataListener, LoadListener{
 
@@ -29,9 +28,9 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		this.side=side;
 		this.front=front;
 		this.active=active;
-		TargetPolygon = new Polygon3D(new Vertex[]
-				{ new Vertex(new Vector()), new Vertex(new Vector()), new Vertex(new Vector()),
-						new Vertex(new Vector()) },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole),this);
+		TargetPolygon = new Polygon3D(new Vector[]
+				{ new Vector(), new Vector(), new Vector(),
+						new Vector() },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole),this);
 		Objects.add(TargetPolygon);
 		HitboxPolygons.put(TargetPolygon, BlockFace.TOP);
 		BlockMeta.put("target", BlockFace.TOP.id + "");

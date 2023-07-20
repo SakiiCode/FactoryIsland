@@ -17,7 +17,6 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Text3D;
 import ml.sakii.factoryisland.Util;
 import ml.sakii.factoryisland.Vector;
-import ml.sakii.factoryisland.Vertex;
 
 public class Entity extends Model.FP {
 	
@@ -25,7 +24,7 @@ public class Entity extends Model.FP {
 	private int health;
 	public final int maxHealth;
 	public ArrayList<Object3D> Objects = new ArrayList<>();
-	private ArrayList<Vertex> Vertices = new ArrayList<>();
+	private ArrayList<Vector> Vertices = new ArrayList<>();
 	public EAngle ViewAngle;
 	public float GravityVelocity = 0f; // m/s
 	public float JumpVelocity = 0f; // m/s
@@ -59,15 +58,15 @@ public class Entity extends Model.FP {
 		
 		init();
 		
-		Vertex x1yz0 = new Vertex(new Vector(fx1y, z0));
-		Vertex x1y1z0 = new Vertex(new Vector(fx1y1, z0));
-		Vertex xyz0 = new Vertex(new Vector(fxy, z0));
-		Vertex xy1z0 = new Vertex(new Vector(fxy1, z0));
+		Vector x1yz0 = new Vector(fx1y, z0);
+		Vector x1y1z0 = new Vector(fx1y1, z0);
+		Vector xyz0 = new Vector(fxy, z0);
+		Vector xy1z0 = new Vector(fxy1, z0);
 		
-		Vertex x1yz1 = new Vertex(new Vector(fx1y, z));
-		Vertex x1y1z1 = new Vertex(new Vector(fx1y1, z));
-		Vertex xyz1 = new Vertex(new Vector(fxy, z));
-		Vertex xy1z1 = new Vertex(new Vector(fxy1, z));
+		Vector x1yz1 = new Vector(fx1y, z);
+		Vector x1y1z1 = new Vector(fx1y1, z);
+		Vector xyz1 = new Vector(fxy, z);
+		Vector xy1z1 = new Vector(fxy1, z);
 		
 		Vertices.add(x1yz0);
 		Vertices.add(x1y1z0);
@@ -83,17 +82,17 @@ public class Entity extends Model.FP {
 		
 		
 		//top
-		Objects.add(new Polygon3D(new Vertex[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
+		Objects.add(new Polygon3D(new Vector[] {xy1z1, x1y1z1, x1yz1, xyz1},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//bottom
-		Objects.add(new Polygon3D(new Vertex[] {xyz0, x1yz0, x1y1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
+		Objects.add(new Polygon3D(new Vector[] {xyz0, x1yz0, x1y1z0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//back
-		Objects.add(new Polygon3D(new Vertex[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
+		Objects.add(new Polygon3D(new Vector[] {xy1z1, xyz1, xyz0, xy1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//front
-		Objects.add(new Polygon3D(new Vertex[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front,this));
+		Objects.add(new Polygon3D(new Vector[] {x1yz1, x1y1z1, x1y1z0, x1yz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, front,this));
 		//left
-		Objects.add(new Polygon3D(new Vertex[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
+		Objects.add(new Polygon3D(new Vector[] {x1y1z1, xy1z1, xy1z0, x1y1z0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		//right
-		Objects.add(new Polygon3D(new Vertex[] {xyz1, x1yz1, x1yz0, xyz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
+		Objects.add(new Polygon3D(new Vector[] {xyz1, x1yz1, x1yz0, xyz0},new int[][] {{0,0},{0,0},{0,0},{0,0}}, side,this));
 		
 	}
 	

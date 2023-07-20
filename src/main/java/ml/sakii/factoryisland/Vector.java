@@ -193,6 +193,10 @@ public class Vector {
 		
 		return this;
 	}
+
+	public boolean equals(float x, float y, float z) {
+		return this.x == x && this.y==y && this.z == z;
+	}
 	
 	
 }

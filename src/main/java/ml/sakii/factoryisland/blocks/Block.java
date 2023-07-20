@@ -11,7 +11,7 @@ import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
-import ml.sakii.factoryisland.Vertex;
+import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
 
 public abstract class Block extends Model.Int implements BlockInterface
@@ -78,27 +78,27 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 		int w = top.color ? 1 : top.Texture.getWidth() - 1, h = top.color ? 1 : top.Texture.getHeight() - 1;
 
-		Vertex xnykzn = new Vertex(xn, yk, zn);
-		Vertex xnynzn = new Vertex(xn, yn, zn);
-		Vertex xnynzk = new Vertex(xn, yn, zk);
-		Vertex xnykzk = new Vertex(xn, yk, zk);
+		Vector xnykzn = new Vector(xn, yk, zn);
+		Vector xnynzn = new Vector(xn, yn, zn);
+		Vector xnynzk = new Vector(xn, yn, zk);
+		Vector xnykzk = new Vector(xn, yk, zk);
 		
 
-		Vertex xkykzk = new Vertex(xk, yk, zk);
-		Vertex xkynzk = new Vertex(xk, yn, zk);
-		Vertex xkynzn = new Vertex(xk, yn, zn);
-		Vertex xkykzn = new Vertex(xk, yk, zn);
+		Vector xkykzk = new Vector(xk, yk, zk);
+		Vector xkynzk = new Vector(xk, yn, zk);
+		Vector xkynzn = new Vector(xk, yn, zn);
+		Vector xkykzn = new Vector(xk, yk, zn);
 		
 
-		Objects.add(new Polygon3D(new Vertex[]	{ xkynzn, xnynzn, xnykzn, xkykzn }, new int[][] {{0,0},{w,0},{w,h},{0,h}},top,this));
-		Objects.add(new Polygon3D(new Vertex[]	{ xnynzk, xkynzk, xkykzk, xnykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom,this));
+		Objects.add(new Polygon3D(new Vector[]	{ xkynzn, xnynzn, xnykzn, xkykzn }, new int[][] {{0,0},{w,0},{w,h},{0,h}},top,this));
+		Objects.add(new Polygon3D(new Vector[]	{ xnynzk, xkynzk, xkykzk, xnykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}},bottom,this));
 
 
-		Objects.add(new Polygon3D(new Vertex[]	{ xnynzn, xkynzn, xkynzk, xnynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, north,this));
-		Objects.add(new Polygon3D(new Vertex[]	{ xkykzn, xnykzn, xnykzk, xkykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, south,this));
+		Objects.add(new Polygon3D(new Vector[]	{ xnynzn, xkynzn, xkynzk, xnynzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, north,this));
+		Objects.add(new Polygon3D(new Vector[]	{ xkykzn, xnykzn, xnykzk, xkykzk }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, south,this));
 		
-		Objects.add(new Polygon3D(new Vertex[]	{ xnykzn, xnynzn, xnynzk, xnykzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, east,this));
-		Objects.add(new Polygon3D(new Vertex[]	{ xkynzn, xkykzn, xkykzk, xkynzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, west,this));
+		Objects.add(new Polygon3D(new Vector[]	{ xnykzn, xnynzn, xnynzk, xnykzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, east,this));
+		Objects.add(new Polygon3D(new Vector[]	{ xkynzn, xkykzn, xkykzk, xkynzk  }, new int[][] {{0,0},{w,0},{w,h},{0,h}}, west,this));
 
 
 		HitboxPolygons.put((Polygon3D)Objects.get(0), BlockFace.TOP);

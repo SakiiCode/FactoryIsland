@@ -31,9 +31,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	public Surface s;
 	
 	
-	public final Vertex[] Vertices;
-	private final Vertex[] clip = new Vertex[8];
-	private final Vertex[] clip2 = new Vertex[8];
+	public final Vector[] Vertices;
+	private final Vector[] clip = new Vector[8];
+	private final Vector[] clip2 = new Vector[8];
 	private final Point[] result = new Point[8];
 	private int clipSize, clip2Size;
 	
@@ -76,7 +76,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private Point2D.Float end=new Point2D.Float();
 
 	
-	public Polygon3D(Vertex[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
+	public Polygon3D(Vector[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
 		
 		this.Vertices = vertices;
 		
@@ -95,10 +95,10 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		
 		this.s = s;
 		for(int i=0;i<clip.length;i++) {
-			clip[i]=new Vertex(Vertex.NULL);
+			clip[i]=new Vector();
 		}
 		for(int i=0;i<clip2.length;i++) {
-			clip2[i]=new Vertex(Vertex.NULL);
+			clip2[i]=new Vector();
 		}
 		for(int i=0;i<result.length;i++) {
 			result[i] = new Point();
@@ -282,8 +282,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			int index1= i;
 			int index2= i != clipSize-1 ? i+1 : 0;
 			
-			Vertex v1 = clip[index1]; 
-			Vertex v2 = clip[index2];
+			Vector v1 = clip[index1]; 
+			Vector v2 = clip[index2];
 			
 			getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
 			getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
@@ -457,8 +457,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				int index1= i;
 				int index2= i != clipSize-1 ? i+1 : 0;
 				
-				Vertex v1 = clip[index1]; 
-				Vertex v2 = clip[index2];
+				Vector v1 = clip[index1]; 
+				Vector v2 = clip[index2];
 				
 				getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
 				getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
@@ -475,8 +475,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					int index1= i;
 					int index2= i != clipSize-1 ? i+1 : 0;
 					
-					Vertex v1 = clip[index1]; 
-					Vertex v2 = clip[index2];
+					Vector v1 = clip[index1]; 
+					Vector v2 = clip[index2];
 					
 					getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
 					getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
@@ -700,7 +700,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		float dx=0, dy=0, dz=0;
 		
 	    int pointCount = Vertices.length;
-		for(Vertex v : Vertices) {
+		for(Vector v : Vertices) {
 	        dx += v.x;
 	        dy += v.y;
 	        dz += v.z;
@@ -750,7 +750,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	    return point;
 	}
 
-	private void resetClipsTo(Vertex[] vertexArr, double[][] uvArr, int size) {
+	private void resetClipsTo(Vector[] vertexArr, double[][] uvArr, int size) {
 		for(int i=0;i<size;i++) {
 			clip[i].set(vertexArr[i]);
 			clipUV[i]=uvArr[i];
@@ -768,8 +768,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					int index1=i;
 					int index2= (i != clipSize-1) ? i+1 : 0;
 					
-					Vertex v1 = clip[index1];
-					Vertex v2 = clip[index2];
+					Vector v1 = clip[index1];
+					Vector v2 = clip[index2];
 					
 					double[] uv1 = clipUV[index1];
 					double[] uv2 = clipUV[index2];
