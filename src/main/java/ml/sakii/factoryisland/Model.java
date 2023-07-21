@@ -29,6 +29,7 @@ public abstract class Model {
 	public static class Int extends Model{
 		public int x, y, z;
 		public Point3D pos;
+		private Vector posVector;
 		
 		public Int(String name, int x, int y, int z, GameEngine engine){
 			super(name, engine);
@@ -36,11 +37,12 @@ public abstract class Model {
 			this.y = y;
 			this.z = z;
 			pos = new Point3D(x,y,z);
+			posVector = new Vector(x,y,z);
 		}
 		
 		@Override
 		public Vector getPos() {
-			return new Vector(pos.x,pos.y,pos.z);
+			return posVector;
 		}
 	}
 	

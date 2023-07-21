@@ -27,6 +27,7 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.RescaleOp;
 import java.awt.image.VolatileImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
@@ -98,6 +99,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private Block SelectedBlock = Block.NOTHING;
 	private Entity SelectedEntity;
 	private Block ViewBlock;
+	private ArrayList<Sphere3D> ViewSpheres;
 
 	int VisibleCount;
 	
@@ -265,6 +267,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 		ViewFrustum = new Frustum(this);
 		
+		ViewSpheres=new ArrayList<>();
+		
 		renderer = new Renderer(this);
 		resizeScreen(Config.getWidth(), Config.getHeight());
 
@@ -376,6 +380,14 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				for (TextureListener b : TextureBlocks)
 				{
 					b.updateTexture(tmp, this);
+				}
+				
+				ViewSpheres.clear();
+				
+				for(Sphere3D s : Spheres) {
+					if(s.isPlayerInside(PE)) {
+						ViewSpheres.add(s);
+					}
 				}
 
 			}
@@ -1301,9 +1313,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	//TODO számontartani egy ViewSphere-t és nem végigmenni az összesen, hanem leellenőrizni hogy a polygon hozzá tartozik-e
 	@SuppressWarnings("unlikely-arg-type")
 	boolean insideSphere(Polygon3D polygon) {
-		for(Sphere3D sphere : Spheres) {
-			
-			if(sphere.Polygons.contains(polygon) && sphere.isPlayerInside(PE)) {
+		for(int i=0;i<ViewSpheres.size();i++) {
+			if(ViewSpheres.get(i).Polygons.contains(polygon)) {
 				return true;
 			}
 		}
