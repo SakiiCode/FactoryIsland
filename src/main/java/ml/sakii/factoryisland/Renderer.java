@@ -90,8 +90,8 @@ public class Renderer {
 			clearZBuffer();
 			VisibleCounter.set(0);
 			Objects.parallelStream().filter(o -> {return o.update(game) && o instanceof BufferRenderable br;}).forEach(o ->{
-				Object[] min = getUVZArray(),max = getUVZArray();
-				
+				Object[] min = getUVZArray();
+				Object[] max = getUVZArray();
 				int minId = (int) min[0];
 				UVZ[] bufferUVZmin=(UVZ[]) min[1];
 				int maxId = (int) max[0];

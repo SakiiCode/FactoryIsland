@@ -115,12 +115,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 	@Override
 	protected boolean update(Game game){
-			
-		// Ha bármelyik hamis, eltűnik. Csak akkor jelenik meg, ha az összes igaz.
-		//if(!adjecentFilter) {
-		//	return false;
-		//}
-		
+				
 		if(!game.locked) {
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
 				faceFilter=true;
@@ -490,7 +485,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		}
 	}
 	
-	void getUVZ(Vector v, double[] uv, Game game, UVZ uvz) {
+	private static void getUVZ(Vector v, double[] uv, Game game, UVZ uvz) {
 		// 1/z , u/z , v/z kiszámítása
 		// z nem a kamera és a pont távolsága, hanem a kamera helyének, és a pontnak a kamera irányára vetített helyének távolsága
 		// (egyszerû skalárszorzat)
