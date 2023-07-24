@@ -12,6 +12,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -51,7 +52,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private int ymax, ymin;
 	private int light=0;
 	
-	private final ConcurrentHashMap<Point3D, Integer> lightSources = new ConcurrentHashMap<>();
+	private final HashMap<Point3D, Integer> lightSources = new HashMap<>();
 	private Color4 lightedcolor = new Color4();
 	private Color4 overlay=new Color4();
 	private static final float[] fractions = new float[]{0.5f,1.0f};

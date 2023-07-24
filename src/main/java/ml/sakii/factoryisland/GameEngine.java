@@ -1,13 +1,10 @@
 package ml.sakii.factoryisland;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
@@ -38,10 +35,10 @@ public class GameEngine{
 	
 	
 	public World world;
-	public final CopyOnWriteArraySet<Point3D> TickableBlocks = new CopyOnWriteArraySet<>();
-	final CopyOnWriteArraySet<DayNightListener> DayNightBlocks = new CopyOnWriteArraySet<>();
+	public final ArrayList<Point3D> TickableBlocks = new ArrayList<>();
+	final ArrayList<DayNightListener> DayNightBlocks = new ArrayList<>();
 	public long Tick=0;
-	Timer ticker;
+	//Timer ticker;
 	
 	private Timer physics;
 	
@@ -52,15 +49,17 @@ public class GameEngine{
 	private final Vector previousPos=new Vector();
 	private final EAngle previousAim=new EAngle();
 
-	private float actualphysicsfps;
+	//private float actualphysicsfps;
 	public Game game;
 	
 
 	String error="OK";
+	HashSet<Block> surface = new HashSet<>();
+	long physics1, physics2;
 
 	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, WorldType type, int size, Consumer<String> update) throws Exception {
 		this.game=game;
-		initTimers();
+		//initTimers();
 		
 		switch(loadmethod) {
 		case GENERATE:
@@ -100,300 +99,269 @@ public class GameEngine{
 				
 	}
 	
-	private void initTimers() {
-		
-		ActionListener tickPerformer = new ActionListener() {
-			
-			HashSet<Block> surface = new HashSet<>();
-			
-            @Override
-			public void actionPerformed(ActionEvent evt) {
-        		
+	public void performTick() {
 
-            	if(server != null || client==null) {
-            		
-            		ArrayList<Point3D> current = new ArrayList<>(TickableBlocks);
-					TickableBlocks.clear();
-					for(Point3D p : current) {
-        				
-						Block bl = world.getBlockAtP(p);
-						if(bl != Block.NOTHING) {
+    	if(server != null || client==null) {
+    		
+    		ArrayList<Point3D> current = new ArrayList<>(TickableBlocks);
+			TickableBlocks.clear();
+			for(Point3D p : current) {
+				
+				Block bl = world.getBlockAtP(p);
+				if(bl != Block.NOTHING) {
+					
+					if(Tick % bl.refreshRate == 0){
+						if(bl instanceof TickListener b) {
 							
-							if(Tick % bl.refreshRate == 0){
-								if(bl instanceof TickListener b) {
-									
-									if(b.tick(Tick)) {
-										
-										
-										TickableBlocks.add(p);
-									}
+							if(b.tick(Tick)) {
 								
-								}else {
-									Main.err("Attempted to tick non-tickable block:"+bl);
-								}
-							}else {
+								
 								TickableBlocks.add(p);
 							}
-						}else if(Main.verbose){
-							// Air block ticked
-							Main.err("Attempted to tick air block:"+p);
+						
+						}else {
+							Main.err("Attempted to tick non-tickable block:"+bl);
 						}
-						
+					}else {
+						TickableBlocks.add(p);
 					}
-					
-					
-
-					if(world.getAlienCount() < 6 && Math.random() < 0.004) {
-						
-						surface.clear();
-						world.getSurface(surface);
-						
-						if(surface.size()>0) {
-							int Min = 0;
-							Vector pos = null;
-							Block b;
-								int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
-								b = surface.toArray(new Block[] {})[index];
-								
-									
-									
-								for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
-									if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
-										if(entry.getKey().getLight()<3 && game.Objects.contains(entry.getKey())) {
-											pos=entry.getKey().centroid;
-										}
-										break;
-									}
+				}else if(Main.verbose){
+					// Air block ticked
+					Main.err("Attempted to tick air block:"+p);
+				}
 				
-								}
-									
-							if(pos!=null) {
-								Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
-								world.addEntity(newAlien, true);
-							}
-						}
-						
-					}
-            	
-				
-					if(Tick % (2*Globals.TICKSPEED) == 0) {
-						for(Entity entity : world.getAllEntities()) {
-							if(entity instanceof Alien alien) {
-								Vector alienPos = alien.getPos();
-								
-								if(alienPos.getLength()>56) {
-									world.hurtEntity(alien.ID, alien.getHealth(), true);
-								}else if(!alien.locked){
-									double random = Math.random();
-									if(random < 0.4) {
-										alien.target.set(alienPos);
-									}else if(random>0.4){
-										Random rnd = new Random();
-										alien.target.set(rnd.nextInt(20)-10, rnd.nextInt(20)-10, alienPos.z).add(alienPos);
-									}
+			}
+			
+			
 
-								}
-								for(Entity data : world.getAllEntities()) {
-									if(data instanceof PlayerMP && data != PlayerMP.ServerPerson) {
-										
-										if(data.getPos().distance(alien.getPos())<0.2) {
-											world.hurtEntity(data.ID, 3, true);
-										}
-									}
-								}
-							}
+			if(world.getAlienCount() < 6 && Math.random() < 0.004) {
+				
+				surface.clear();
+				world.getSurface(surface);
+				
+				if(surface.size()>0) {
+					int Min = 0;
+					Vector pos = null;
+					Block b;
+						int index = Min + (int)(Math.random() * ((surface.size()-1 - Min) + 1));
+						b = surface.toArray(new Block[] {})[index];
+						
 							
 							
-						}
-					}
-					
-					if(Tick % Globals.AUTOSAVE_INTERVAL == 0) {
-						Main.log("Autosave started...");
-						world.saveByShutdown();
-						Main.log("Autosave finished.");
-					}
-					
-					if(Tick % Globals.ENTITYSYNCRATE == 0 && server != null) {
-						StringBuilder data = new StringBuilder();
-						data.append("16");
-						int counter = 0;
-						for(Entity e : world.getAllEntities()) {
-							if(!(e instanceof PlayerMP)) {
-								data.append(",");
-								data.append(e);
-								counter++;
-							}
-						}
-						if(counter>0) {
-							for(PlayerMP client : server.clients.values()) {
-								if(client != PlayerMP.ServerPerson) {
-									server.sendData(data.toString(),client.socket);
+						for(Entry<Polygon3D,BlockFace> entry : b.HitboxPolygons.entrySet()) {
+							if(entry.getValue() == BlockFace.TOP || entry.getValue() == BlockFace.BOTTOM) {
+								if(entry.getKey().getLight()<3 && game.Objects.contains(entry.getKey())) {
+									pos=entry.getKey().centroid;
 								}
+								break;
 							}
+		
 						}
+							
+					if(pos!=null) {
+						Alien newAlien = new Alien(new Vector().set(Vector.PLAYER).multiply(Math.signum(pos.z-0.5f)).add(pos), new EAngle(40,0),"",10,new Random().nextLong(), GameEngine.this);
+						world.addEntity(newAlien, true);
 					}
-					
-					//ezek előre ki lettek számolva: sin(x/TICKS_PER_DAY*2*PI)=3/14 és -3/14
-					for(DayNightListener dnl : DayNightBlocks) {
-						Block b =(Block)dnl; 
-						if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 2475) {
-							dnl.onDay();
-						}else if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 33525) {
-							dnl.onNight();
-						}else if(b.z<0 && Tick % Globals.TICKS_PER_DAY == 38745) {
-							dnl.onDay();
-						}else if(b.z<0 && Tick % Globals.TICKS_PER_DAY == 69525) {
-							dnl.onNight();
-						}
-	
-						
-					}
-					
-					if(Tick % Globals.TICKS_PER_DAY == 2475) {
-						Main.log("Day on top");
-					}else if(Tick % Globals.TICKS_PER_DAY == 33525) {
-						Main.log("Night on top");
-					}else if(Tick % Globals.TICKS_PER_DAY == 38745) {
-						Main.log("Day on bottom");
-					}else if(Tick % Globals.TICKS_PER_DAY == 69525) {
-						Main.log("Night on bottom");
-					}
-
-					
-
-
-            	} //vege a szerveroldali dolgoknak
-
-
-
-				if(Tick % Globals.ENTITYSYNCRATE == 0) {
-					
-					if(game != null && client != null){
-
-							if( game.PE.getPos().distance(previousPos)>0 || Math.abs(previousAim.yaw-game.PE.ViewAngle.yaw)>0) {
-								client.sendPlayerPos();
-
-								previousPos.set(game.PE.getPos());
-								previousAim.set(game.PE.ViewAngle);
-							}
-						
-					}
-					
-
 				}
 				
-				if(Tick % (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) == 0) {
-					game.updateSkyLight();
-				}
-				Tick++;
-
-
-            }
-        };
-
-        ticker = new Timer(1000/Globals.TICKSPEED , tickPerformer);
-
-        ActionListener physicsPerformer = new ActionListener() {
-        	long physics1, physics2;
-
-        	
-        	
-    		@Override
-    		public void actionPerformed(ActionEvent event)
-
-    		{
-    			physics1 = physics2;
-				physics2 = System.currentTimeMillis();
-
-				if (physics1 == 0L)
-				{
-					actualphysicsfps = 1f/Globals.PHYSICS_FPS;
-				} else
-				{
-					actualphysicsfps = 1000f / (physics2 - physics1);
-				}
+			}
+    	
+		
+			if(Tick % (2*Globals.TICKSPEED) == 0) {
 				for(Entity entity : world.getAllEntities()) {
-				//world.getAllEntities().parallelStream().forEach(entity-> {
 					if(entity instanceof Alien alien) {
-						Vector closest = null;
-						
-						
 						Vector alienPos = alien.getPos();
 						
+						if(alienPos.getLength()>56) {
+							world.hurtEntity(alien.ID, alien.getHealth(), true);
+						}else if(!alien.locked){
+							double random = Math.random();
+							if(random < 0.4) {
+								alien.target.set(alienPos);
+							}else if(random>0.4){
+								Random rnd = new Random();
+								alien.target.set(rnd.nextInt(20)-10, rnd.nextInt(20)-10, alienPos.z).add(alienPos);
+							}
 
-						
-						float dst=Float.MAX_VALUE;
-						
-						for(Entity e : world.Entities.values()) {
-							if(e instanceof PlayerMP && e != PlayerMP.ServerPerson) {
-								PlayerMP player = (PlayerMP)e;
-								//min kiválasztás
-								float distance = player.getPos().distance(alienPos);
-								if(distance<10 && distance < dst) {
-									dst=distance;
-									closest=player.getPos();
+						}
+						for(Entity data : world.getAllEntities()) {
+							if(data instanceof PlayerMP && data != PlayerMP.ServerPerson) {
+								
+								if(data.getPos().distance(alien.getPos())<0.2) {
+									world.hurtEntity(data.ID, 3, true);
 								}
 							}
-							
 						}
-						
-						
-						if(closest!=null) {
-							alien.target.set(closest);
-							alien.locked=true;
-						}else {
-							alien.locked=false;
-						}
-					
-						alien.target.z=alienPos.z;
-						
-						Vector aim = alien.aim.set(alien.target).substract(alienPos);
-						if(aim.getLength()>0.2f) {
-							aim.normalize();
-								if(!world.walk(aim, 2, alien, actualphysicsfps, false)){ // false mert a sync mashol van
-									alien.jump();
-								}
-							alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
-							alien.update();
-						}
-						
 					}
+					
+					
+				}
+			}
+			
+			if(Tick % Globals.AUTOSAVE_INTERVAL == 0) {
+				Main.log("Autosave started...");
+				world.saveByShutdown();
+				Main.log("Autosave finished.");
+			}
+			
+			if(Tick % Globals.ENTITYSYNCRATE == 0 && server != null) {
+				StringBuilder data = new StringBuilder();
+				data.append("16");
+				int counter = 0;
+				for(Entity e : world.getAllEntities()) {
+					if(!(e instanceof PlayerMP)) {
+						data.append(",");
+						data.append(e);
+						counter++;
+					}
+				}
+				if(counter>0) {
+					for(PlayerMP client : server.clients.values()) {
+						if(client != PlayerMP.ServerPerson) {
+							server.sendData(data.toString(),client.socket);
+						}
+					}
+				}
+			}
+			
+			//ezek előre ki lettek számolva: sin(x/TICKS_PER_DAY*2*PI)=3/14 és -3/14
+			for(DayNightListener dnl : DayNightBlocks) {
+				Block b =(Block)dnl; 
+				if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 2475) {
+					dnl.onDay();
+				}else if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 33525) {
+					dnl.onNight();
+				}else if(b.z<0 && Tick % Globals.TICKS_PER_DAY == 38745) {
+					dnl.onDay();
+				}else if(b.z<0 && Tick % Globals.TICKS_PER_DAY == 69525) {
+					dnl.onNight();
+				}
 
-					if(!(entity instanceof PlayerMP)) {
-						Block under = world.getBlockUnderEntity(false, true, entity);
-						if (!entity.flying && under == Block.NOTHING)
-						{
-							entity.fly(true);
-						} else if(entity.flying && under != Block.NOTHING)
-						{
-							entity.fly(false);
-						}
-						if (!entity.flying)
-						{
-					
-							doGravity(entity, world, actualphysicsfps);
-							entity.update();
-						
-						}
-					}
 				
-				
-				} // minden entity kód vége
-        	
+			}
+			
+			if(Tick % Globals.TICKS_PER_DAY == 2475) {
+				Main.log("Day on top");
+			}else if(Tick % Globals.TICKS_PER_DAY == 33525) {
+				Main.log("Night on top");
+			}else if(Tick % Globals.TICKS_PER_DAY == 38745) {
+				Main.log("Day on bottom");
+			}else if(Tick % Globals.TICKS_PER_DAY == 69525) {
+				Main.log("Night on bottom");
 			}
 
-
-            
-        };
-    	
-    	
-        
-        physics = new Timer(1000/Globals.PHYSICS_FPS, physicsPerformer);
+			
 
 
-        
+    	} //vege a szerveroldali dolgoknak
+
+
+
+		if(Tick % Globals.ENTITYSYNCRATE == 0) {
+			
+			if(game != null && client != null){
+
+					if( game.PE.getPos().distance(previousPos)>0 || Math.abs(previousAim.yaw-game.PE.ViewAngle.yaw)>0) {
+						client.sendPlayerPos();
+
+						previousPos.set(game.PE.getPos());
+						previousAim.set(game.PE.ViewAngle);
+					}
+				
+			}
+			
+
+		}
+		
+		if(Tick % (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) == 0) {
+			game.updateSkyLight();
+		}
+		Tick++;
 	}
+
 	
+				
+	public void performPhysics(float FPS){
+		/*physics1 = physics2;
+		physics2 = System.currentTimeMillis();
+
+		if (physics1 == 0L)
+		{
+			actualphysicsfps = 1f/Globals.PHYSICS_FPS;
+		} else
+		{
+			actualphysicsfps = 1000f / (physics2 - physics1);
+		}*/
+		for(Entity entity : world.getAllEntities()) {
+		//world.getAllEntities().parallelStream().forEach(entity-> {
+			if(entity instanceof Alien alien) {
+				Vector closest = null;
+				
+				
+				Vector alienPos = alien.getPos();
+				
+
+				
+				float dst=Float.MAX_VALUE;
+				
+				for(Entity e : world.Entities.values()) {
+					if(e instanceof PlayerMP && e != PlayerMP.ServerPerson) {
+						PlayerMP player = (PlayerMP)e;
+						//min kiválasztás
+						float distance = player.getPos().distance(alienPos);
+						if(distance<10 && distance < dst) {
+							dst=distance;
+							closest=player.getPos();
+						}
+					}
+					
+				}
+				
+				
+				if(closest!=null) {
+					alien.target.set(closest);
+					alien.locked=true;
+				}else {
+					alien.locked=false;
+				}
+			
+				alien.target.z=alienPos.z;
+				
+				Vector aim = alien.aim.set(alien.target).substract(alienPos);
+				if(aim.getLength()>0.2f) {
+					aim.normalize();
+						if(!world.walk(aim, 2, alien, FPS, false)){ // false mert a sync mashol van
+							alien.jump();
+						}
+					alien.ViewAngle.yaw=(float) Math.toDegrees(Math.atan2(aim.y, aim.x));
+					alien.update();
+				}
+				
+			}
+
+			if(!(entity instanceof PlayerMP)) {
+				Block under = world.getBlockUnderEntity(false, true, entity);
+				if (!entity.flying && under == Block.NOTHING)
+				{
+					entity.fly(true);
+				} else if(entity.flying && under != Block.NOTHING)
+				{
+					entity.fly(false);
+				}
+				if (!entity.flying)
+				{
+			
+					doGravity(entity, world, FPS);
+					entity.update();
+				
+				}
+			}
+		
+		
+		} // minden entity kód vége
+	
+	}
+		
 	public boolean isDay(int z) {
 		long realTime = Tick % Globals.TICKS_PER_DAY;
 		float timePercent = (realTime*1f/Globals.TICKS_PER_DAY);
@@ -852,8 +820,8 @@ public class GameEngine{
 				GUIManager.showMessageDialog(error, "Disconnected", JOptionPane.ERROR_MESSAGE);
 			}
 		}
-		ticker.stop();
-		stopPhysics();
+		//ticker.stop();
+		//stopPhysics();
 		if (client != null)
 		{
 				Main.log("disconnecting from multiplayer");
@@ -879,16 +847,16 @@ public class GameEngine{
 	
 	
 
-	void startPhysics() {
+	/*void startPhysics() {
 		physics.start();
 	}
 	
 	boolean isPhysicsRunning() {
 		return physics.isRunning();
-	}
+	}*/
 	
 	public int getActualphysicsfps() {
-		return (int)actualphysicsfps;
+		return 0;//(int)actualphysicsfps;
 	}
 	
 	void stopPhysics() {

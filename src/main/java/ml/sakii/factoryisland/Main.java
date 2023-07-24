@@ -149,8 +149,8 @@ public class Main
         	}
         	API.Engine=Engine;
         	ml.sakii.factoryisland.api.Block.Engine=Engine;
-        	Engine.startPhysics();
-        	Engine.ticker.start();
+        	//Engine.startPhysics();
+        	//Engine.ticker.start();
         	Main.log("Timers started");
         	String error = Engine.startServer();
         	if(error != null) {

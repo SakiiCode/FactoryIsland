@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 import javax.swing.JPanel;
@@ -61,9 +59,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	// ENGINE
 	GameEngine Engine;
 	public PlayerMP PE;
-	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
-	CopyOnWriteArraySet<TextureListener> TextureBlocks = new CopyOnWriteArraySet<>();
-	final CopyOnWriteArrayList<Sphere3D> Spheres = new CopyOnWriteArrayList<>();
+	public final ArrayList<Object3D> Objects = new ArrayList<>();
+	ArrayList<TextureListener> TextureBlocks = new ArrayList<>();
+	final ArrayList<Sphere3D> Spheres = new ArrayList<>();
 	
 	
 	// RENDERING
@@ -108,6 +106,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	// CONTROLS
 	public boolean moved;
 	boolean[] key = new boolean[20];
+	boolean[] mouse = new boolean[3];
 	boolean locked = false;
 	boolean centered;
 	
@@ -139,7 +138,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private boolean benchmarkMode = false;
 	private GUIManager guiManager;
 	private Point2D.Double centroid2D = new Point2D.Double();
-
+	private long tickCounter=0;
 	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
@@ -370,8 +369,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			if (!locked) ViewFrustum.update();
 
+			
+			
+			if(!firstframe) {
+				long MAX_TICKS = 1000000000/Globals.TICKSPEED;
+				tickCounter += currentTime-previousTime; 
+				if(tickCounter>MAX_TICKS) {
+					Engine.performTick();
+					tickCounter -= MAX_TICKS;
+				}
+			}
+				
 			firstframe = false;
-
 
 
 			
@@ -806,6 +815,88 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			GameEngine.doGravity(PE, Engine.world, FPS);
 		}
 		
+		if(mouse[0]) {
+			if (remoteInventory == null) {
+				if (SelectedBlock != Block.NOTHING)
+				{
+					if(Engine.isSingleplayer()) { //mpben az item visszaadast a gameclient kezeli
+					
+						ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(SelectedBlock.name),1)};
+						
+						
+						if (SelectedBlock instanceof BreakListener bl)
+						{
+							ItemStack[] returnAsItem2 = bl.breaked(Config.username);
+							if(returnAsItem2!=null){
+								returnAsItem=returnAsItem2;
+							}
+						}
+							
+						PE.inventory.add( returnAsItem, true);
+						
+						
+						//PowerGenerator miatt utana kell torolni
+						Engine.world.destroyBlock(SelectedBlock, true);
+
+	
+					}else{
+						Engine.world.destroyBlock(SelectedBlock, true);
+					}
+				}else if(SelectedEntity != null) {
+					Engine.world.hurtEntity(SelectedEntity.ID, 1, true);
+
+					
+				}
+			}
+			mouse[0]=false;
+		}
+		
+		if(mouse[1]) {
+			if (localInvActive)
+			{
+				if(PE.inventory.hasSelected())
+					SwapItems(false, PE.inventory.getSelectedKind().name);
+			} else
+			{
+				SwapItems(true, remoteInventory.getInv().getSelectedKind().name);
+			}
+			mouse[1]=false;
+		}
+		
+		
+		if(mouse[2]) {
+			if (remoteInventory == null) {
+				if (SelectedBlock != Block.NOTHING)
+				{
+					if (!key[5])
+					{
+						if (PE.inventory.hasSelected())
+						{
+							ItemType selected = PE.inventory.getSelectedKind();
+							if (placeBlock(selected.className))
+							{
+								PE.inventory.add(selected, -1, true);
+							}
+						}
+					} else if (SelectedBlock instanceof InteractListener il)
+					{
+						il.interact(SelectedFace);
+						
+						if (SelectedBlock instanceof BlockInventoryInterface bii)
+						{
+							PlayerInventory otherInv = bii.getInv();
+							if (PE.inventory.items.size() == 0 && otherInv.items.size() > 0)
+							{
+								SwitchInventory(false);
+							}
+						}
+					}
+				}
+			}
+			mouse[2]=false;
+		}
+		
+		
 
 	}
 
@@ -976,85 +1067,16 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	@Override
 	public void mousePressed(MouseEvent arg0)
 	{
-		if (remoteInventory == null)
-		{
-			if (arg0.getButton() == MouseEvent.BUTTON1)
-			{
-				if (SelectedBlock != Block.NOTHING)
-				{
-					if(Engine.isSingleplayer()) { //mpben az item visszaadast a gameclient kezeli
-					
-						ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(SelectedBlock.name),1)};
-						
-						
-						if (SelectedBlock instanceof BreakListener bl)
-						{
-							ItemStack[] returnAsItem2 = bl.breaked(Config.username);
-							if(returnAsItem2!=null){
-								returnAsItem=returnAsItem2;
-							}
-						}
-							
-						PE.inventory.add( returnAsItem, true);
-						
-						
-						//PowerGenerator miatt utana kell torolni
-						Engine.world.destroyBlock(SelectedBlock, true);
-
-	
-					}else{
-						Engine.world.destroyBlock(SelectedBlock, true);
-					}
-				}else if(SelectedEntity != null) {
-					Engine.world.hurtEntity(SelectedEntity.ID, 1, true);
-
-					
-				}
-				
-			}
-
-			if (arg0.getButton() == MouseEvent.BUTTON3)
-			{
-				if (SelectedBlock != Block.NOTHING)
-				{
-					if (!key[5])
-					{
-						if (PE.inventory.hasSelected())
-						{
-							ItemType selected = PE.inventory.getSelectedKind();
-							if (placeBlock(selected.className))
-							{
-								PE.inventory.add(selected, -1, true);
-							}
-						}
-					} else if (SelectedBlock instanceof InteractListener il)
-					{
-						il.interact(SelectedFace);
-						
-						if (SelectedBlock instanceof BlockInventoryInterface bii)
-						{
-							PlayerInventory otherInv = bii.getInv();
-							if (PE.inventory.items.size() == 0 && otherInv.items.size() > 0)
-							{
-								SwitchInventory(false);
-							}
-						}
-					}
-				}
-
-			}
+		if(arg0.getButton() == MouseEvent.BUTTON1) {
+			mouse[0] = true;
 		}
-		if (arg0.getButton() == MouseEvent.BUTTON2)
-		{
-			if (localInvActive)
-			{
-				if(PE.inventory.hasSelected())
-					SwapItems(false, PE.inventory.getSelectedKind().name);
-			} else
-			{
-				SwapItems(true, remoteInventory.getInv().getSelectedKind().name);
-			}
-
+		
+		if(arg0.getButton() == MouseEvent.BUTTON2) {
+			mouse[1] = true;
+		}
+		
+		if(arg0.getButton() == MouseEvent.BUTTON3) {
+			mouse[2] = true;
 		}
 
 	}
@@ -1156,9 +1178,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 	void start() {
-		Engine.ticker.start();
+		/*Engine.ticker.start();
 		if(Engine.isSingleplayer())
-			Engine.startPhysics();
+			Engine.startPhysics();*/
 
 
 
@@ -1199,8 +1221,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			AssetLibrary.FreezeBG = op.filter(Main.deepCopy(FrameBuffer), null);//TODO kell a deepcopy?
 		}
 		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
-			Engine.ticker.stop();
-			Engine.stopPhysics();//tavoli mpnel nem is futott ugyhogy mindegy
+			//Engine.ticker.stop();
+			//Engine.stopPhysics();//tavoli mpnel nem is futott ugyhogy mindegy
 		}
 		
 
@@ -1243,12 +1265,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			return;
 		}
 		setCursor(invisibleCursor);
-		if(!Engine.ticker.isRunning()) {
+		/*if(!Engine.ticker.isRunning()) {
 			Engine.ticker.start();
 		}
 		if(!Engine.isPhysicsRunning() && (Engine.isSingleplayer() || Engine.isLocalMP())) {
 			Engine.startPhysics();
-		}
+		}*/
 		firstframe = true;
 		renderThread = new RenderThread(this, guiManager);
 		

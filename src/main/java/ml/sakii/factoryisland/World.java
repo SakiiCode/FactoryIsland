@@ -13,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -64,10 +63,10 @@ public class World {
 	private static final float BLOCK_RANGE = 0.2f;
 	
 	private GameEngine Engine;
-	private ConcurrentHashMap<Point3D, Block> Blocks = new ConcurrentHashMap<>(10000);
+	private HashMap<Point3D, Block> Blocks = new HashMap<>(10000);
 	private Game game;
 	String success="OK";
-	public ConcurrentHashMap<Long, Entity> Entities = new ConcurrentHashMap<>();
+	public HashMap<Long, Entity> Entities = new HashMap<>();
 	
 	private int worldTop,worldBottom;
 	int lightCalcRuns=0;
@@ -422,7 +421,7 @@ public class World {
 			for(Block nearby : get6Blocks(b, false).values()) {
 				for(Object3D obj : nearby.Objects) {
 					if(obj instanceof Polygon3D poly) {
-						for(Point3D source : new HashSet<>(poly.getSources())) {// TODO concurrentmodificationexception?
+						for(Point3D source : poly.getSources()) {
 							HashMap<Polygon3D,Integer> removeResult = new HashMap<>();
 							sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
 							removeLightIntoMap(source,removeResult);
