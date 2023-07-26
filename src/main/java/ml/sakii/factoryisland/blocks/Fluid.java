@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Object3D;
-import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -77,32 +76,24 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 			int biggerheight=0;
 			int height = getHeight();
 			int maxHeight = getMaxHeight();
-			for(Entry<BlockFace,Block> entry : Engine.world.get6Blocks(this,true).entrySet()){
-				BlockFace key = entry.getKey();
-				Block value = entry.getValue();
-				
-				if(key != BlockFace.BOTTOM && key != BlockFace.TOP){
-					if(value == Block.NOTHING){
-						hasEmptyNearby = true;
-					}else if(value.name.equals(name)){
-						Fluid wb = (Fluid)value;
-						int otherHeight = wb.getHeight();
-						
-						if(otherHeight == height+1){
-							hasPlusOneNearby=true;
-						}else if(otherHeight > height + 1){
-							if(biggerheight<otherHeight){
-								biggerheight=otherHeight;
-								
-								hasBiggerNearby=true;
-							}
+			for(Block value : Engine.world.get4Blocks(x,y,z).values()){
+				if(value == Block.NOTHING){
+					hasEmptyNearby = true;
+				}else if(value.name.equals(name)){
+					Fluid wb = (Fluid)value;
+					int otherHeight = wb.getHeight();
+					
+					if(otherHeight == height+1){
+						hasPlusOneNearby=true;
+					}else if(otherHeight > height + 1){
+						if(biggerheight<otherHeight){
+							biggerheight=otherHeight;
 							
+							hasBiggerNearby=true;
 						}
 						
-						
 					}
-					
-					
+				
 				}
 				
 			}
@@ -131,26 +122,22 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 				
 				
 				if(getHeight() > 1){
-					Point3D tmpPoint = new Point3D();
-					for(Entry<BlockFace, Block> entry : Engine.world.get4Blocks(tmpPoint.set(pos), true, new HashMap<>()).entrySet()){
+					HashMap<BlockFace,Block> adjacentBlocks = Engine.world.get4Blocks(pos.x,pos.y,pos.z);
+					for(Entry<BlockFace, Block> entry : adjacentBlocks.entrySet()){
 						BlockFace key = entry.getKey();
 						Block value = entry.getValue();
 						if(value == Block.NOTHING){
 							
 							
 							int biggestyet = 0;
-							for(Entry<BlockFace, Block> wentry : Engine.world.get6Blocks(tmpPoint.set(pos).add(key), false).entrySet()){
-								BlockFace wkey = wentry.getKey();
-								Block wvalue = wentry.getValue();
-								if(wkey != BlockFace.TOP && wkey != BlockFace.BOTTOM){
-									if(wvalue.name.equals(name)){
-										
-										Fluid wb = (Fluid)wvalue;
-										int wotherHeight = wb.getHeight();
-										if(wotherHeight > height + 1 && biggestyet < wotherHeight){
-											biggestyet=wotherHeight;
+							for(Block wvalue : Engine.world.get4Blocks(x+key.direction[0],y+key.direction[1],z+key.direction[2]).values()){
+								if(wvalue.name.equals(name)){
+									
+									Fluid wb = (Fluid)wvalue;
+									int wotherHeight = wb.getHeight();
+									if(wotherHeight > height + 1 && biggestyet < wotherHeight){
+										biggestyet=wotherHeight;
 
-										}
 									}
 								}
 							}

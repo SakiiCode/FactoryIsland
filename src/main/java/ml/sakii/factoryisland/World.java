@@ -834,34 +834,13 @@ public class World {
 
 	}
 	
-	public HashMap<BlockFace, Block> get4Blocks(Point3D p, boolean includeNothing, HashMap<BlockFace, Block> result){
-		int x = p.x;
-		int y = p.y;
-		int z = p.z;
-
-		p.set(x - 1, y, z);
-		Block west = getBlockAtP(p);
-		if (west != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.WEST, west);
-		}
-
-		p.set(x + 1, y, z);
-		Block east = getBlockAtP(p);
-		if (east != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.EAST, east);
-		}
-
-		p.set(x, y - 1, z);
-		Block south = getBlockAtP(p);
-		if (south != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.SOUTH, south);
-		}
-
-		p.set(x, y + 1, z);
-		Block north = getBlockAtP(p);
-		if (north != Block.NOTHING || includeNothing) {
-			result.put(BlockFace.NORTH, north);
-		}
+	public HashMap<BlockFace, Block> get4Blocks(int x, int y, int z){
+		HashMap<BlockFace,Block> result = new HashMap<>();
+		
+		result.put(BlockFace.WEST, getBlockAt(x - 1, y, z));
+		result.put(BlockFace.EAST, getBlockAt(x + 1, y, z));
+		result.put(BlockFace.SOUTH, getBlockAt(x, y - 1, z));
+		result.put(BlockFace.NORTH, getBlockAt(x, y + 1, z));
 
 		return result;
 	}
