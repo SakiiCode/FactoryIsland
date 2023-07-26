@@ -407,8 +407,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 
 
-			PE.tmpPoint.set((int)Math.floor(PEPos.x), (int)Math.floor(PEPos.y), (int)Math.floor(PEPos.z));
-			ViewBlock = Engine.world.getBlockAtP(PE.tmpPoint);
+			ViewBlock = Engine.world.getBlockAt((int)Math.floor(PEPos.x), (int)Math.floor(PEPos.y), (int)Math.floor(PEPos.z));
 
 
 

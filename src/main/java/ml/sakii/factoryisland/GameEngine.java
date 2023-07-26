@@ -378,10 +378,8 @@ public class GameEngine{
 	static void doGravity(Entity entity, World world, float physicsFPS) {
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
-		Point3D tmpPoint=entity.tmpPoint;
 
-		tmpPoint.set(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * VerticalVector.z));
-		if (!world.getBlockAtP(tmpPoint).solid)
+		if (!world.getBlockAt(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * VerticalVector.z)).solid)
 		{
 			entity.GravityVelocity -= Globals.GravityAcceleration / physicsFPS;
 		}

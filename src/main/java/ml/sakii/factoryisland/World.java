@@ -64,10 +64,14 @@ public class World {
 	private static final float BLOCK_RANGE = 0.2f;
 	
 	private GameEngine Engine;
-	private HashMap<Point3D, Block> Blocks = new HashMap<>(10000);
+	//private HashMap<Point3D, Block> Blocks = new HashMap<>(10000);
+	private static final int MAP_SIZE=300;
+	private Block[][][] Blocks = new Block[MAP_SIZE][MAP_SIZE][MAP_SIZE];
+	private int blockCount=0;
 	private Game game;
 	String success="OK";
 	public HashMap<Long, Entity> Entities = new HashMap<>();
+	private ArrayList<Block> Whole = new ArrayList<>(8000);
 	
 	private int worldTop,worldBottom;
 	int lightCalcRuns=0;
@@ -247,7 +251,7 @@ public class World {
 	            		   if(curBlock!=null) {
 	            			   addBlockNoReplace(curBlock,true);
 	            			   curBlock=null;
-	            			   update.accept("Loading blocks... "+(int)(this.Blocks.size()*100f/totalBlocks)+"%");
+	            			   update.accept("Loading blocks... "+(int)(blockCount*100f/totalBlocks)+"%");
 	            		   }else {
 	            			   return "Closing tag of empty block";
 	            		   }
@@ -386,18 +390,28 @@ public class World {
 		return Entities.values();
 	}
 	
+ 	public Block getBlockAt(float x, float y, float z) {
+ 		return getBlockAt((int)Math.floor(z),(int)Math.floor(y),(int)Math.floor(x));
+ 	}
+
 	
  	public Block getBlockAt(int x, int y, int z) {
-		
-		Point3D p = new Point3D(x, y, z);
-		return getBlockAtP(p);
+		Block result = Blocks[x+MAP_SIZE/2][y+MAP_SIZE/2][z+MAP_SIZE/2]; 
+ 		if(result == null) {
+ 			return Block.NOTHING;
+ 		}else {
+ 			return result;
+ 		}
+		//Point3D p = new Point3D(x, y, z);
+		//return getBlockAtP(p);
 
 	}
  	
  	public Block getBlockAtP(Point3D p) {
-		Block b = Blocks.get(p);
+ 		return getBlockAt(p.x,p.y,p.z);
+		//Block b = Blocks.get(p);
 
-		return (b == null) ? Block.NOTHING : b ;
+		//return (b == null) ? Block.NOTHING : b ;
  	}
 
 	
@@ -415,10 +429,9 @@ public class World {
 	}
 	
 	private void ReplaceBlock(Block b) {
-		HashSet<Point3D> sources=new HashSet<>();
-		//HashMap<Point3D,HashMap<Polygon3D,Integer>> removeResults=new HashMap<>();
+		if(getBlockAtP(b.pos) == Block.NOTHING) blockCount++;
+
 		if(!loading) {
-			
 			for(Block nearby : get6Blocks(b, false).values()) {
 				for(Object3D obj : nearby.Objects) {
 					if(obj instanceof Polygon3D poly) {
@@ -435,17 +448,8 @@ public class World {
 			}
 		}
 		
-		//TODO polygonokat tarolni majd a komponensben
-		for(Object3D obj : game.Objects) {
-			if(obj instanceof Polygon3D poly) {
-				for(Point3D source : sources) {
-					poly.getSources().remove(source);
-				}
-			}
-		}
-		
-		Blocks.put(b.pos, b);
-		
+		Blocks[b.x+MAP_SIZE/2][b.y+MAP_SIZE/2][b.z+MAP_SIZE/2] = b;
+		Whole.add(b);
 
 		
 		for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
@@ -514,12 +518,16 @@ public class World {
 		
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
 				Main.err("Attempted to destroy air block: "+b.pos);
+			}else {
+				blockCount--;
 			}
 	
 			if(b.lightLevel>0)
 				removeLight(b.pos);
 			
-			Blocks.remove(b.pos);
+			Blocks[b.x+MAP_SIZE/2][b.y+MAP_SIZE/2][b.z+MAP_SIZE/2] = null;
+			Whole.remove(b);
+
 			
 			for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 				Block bu = entry.getValue();
@@ -802,32 +810,32 @@ public class World {
 
 		p.set(x, y, z + 1);
 		if(!excluding.contains(p)) {
-			result.put(BlockFace.TOP, getBlockAtP(p));
+			result.put(BlockFace.TOP, getBlockAt(x, y, z + 1));
 		}
 
 		p.set(x, y, z - 1);
 		if(!excluding.contains(p)) {
-			result.put(BlockFace.BOTTOM, getBlockAtP(p));
+			result.put(BlockFace.BOTTOM, getBlockAt(x, y, z - 1));
 		}
 
 		p.set(x - 1, y, z);
 		if(!excluding.contains(p)) {
-			result.put(BlockFace.WEST, getBlockAtP(p));
+			result.put(BlockFace.WEST, getBlockAt(x - 1, y, z));
 		}
 
 		p.set(x + 1, y, z);
 		if(!excluding.contains(p)) {
-			result.put(BlockFace.EAST, getBlockAtP(p));
+			result.put(BlockFace.EAST, getBlockAt(x + 1, y, z));
 		}
 
 		p.set(x, y - 1, z);
 		if(!excluding.contains(p)) {
-			result.put(BlockFace.SOUTH, getBlockAtP(p));
+			result.put(BlockFace.SOUTH, getBlockAt(x, y - 1, z));
 		}
 
 		p.set(x, y + 1, z);
 		if(!excluding.contains(p)) {
-			result.put(BlockFace.NORTH, getBlockAtP(p));
+			result.put(BlockFace.NORTH, getBlockAt(x, y + 1, z));
 		}
 
 		return result;
@@ -1081,27 +1089,22 @@ public class World {
 	
 
 	int getTop(int x, int y) {
-		TreeSet<Block> blockColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
-
-		for (Entry<Point3D, Block> entry : Blocks.entrySet()) {
-			Point3D pos = entry.getKey();
-			Block b = entry.getValue();
-
-			if (pos.x == x && pos.y == y) {
-				blockColumn.add(b);
-			}
-		}
-		if(blockColumn.isEmpty()) {
+		if(x>MAP_SIZE-1 || x<-MAP_SIZE || y>MAP_SIZE-1 || y<-MAP_SIZE) {
 			return 0;
 		}
-		return blockColumn.last().z;
+		int result = -MAP_SIZE-1;
+		for(int z=-MAP_SIZE;z<MAP_SIZE;z++) {
+			if(getBlockAt(x,y,z) != Block.NOTHING) {
+				result = z;
+			}
+		}
+		return result;
 	}
 
 	public Collection<Block> getWhole() {
-		return this.Blocks.values();
+		return Whole;
 	}
 	
-	//TODO cachelni
 	public void getSurface(Set<Block> Blocks) {
 		for(Object3D obj : game.Objects) {
 			if(obj instanceof Polygon3D poly) {
@@ -1110,28 +1113,20 @@ public class World {
 				}
 			}
 		}
-		/*for (Block b : this.Blocks.values()) {
-			for (Object3D obj : b.Objects) {
-				if (obj instanceof Polygon3D poly && poly.adjecentFilter) {
-					Blocks.add(b);
-					break;
-				}
-			}
-		}*/
 	}
 	
 	
 
 	public Block getSpawnBlock() {
 
-		for(Block b : Blocks.values()) {
+		for(Block b : Whole) {
 			if(b.name.equals("ChestModule") && getBlockAt(b.x, b.y, b.z+1)==Block.NOTHING) {
 				return b;
 			}
 
 		}
 
-		for(Block b : Blocks.values()) {
+		for(Block b : Whole) {
 			if(getBlockAt(b.x, b.y, b.z + 1) == Block.NOTHING &&
 					getBlockAt(b.x, b.y, b.z + 2) == Block.NOTHING) {
 				return b;
@@ -1144,13 +1139,12 @@ public class World {
 	}
 
 	public int getSize() {
-		return Blocks.size();
+		return blockCount;
 	}
 
 	Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {
 		
 		Point3D feetPoint=entity.feetPoint;
-		Point3D tmpPoint=entity.tmpPoint;
 		TreeSet<Point3D> playerColumn = entity.playerColumn;
 		
 		playerColumn.clear();
@@ -1164,8 +1158,7 @@ public class World {
 			for(int j=y-1;j<=y+1;j++) {
 				for(int k=worldBottom;k<=worldTop;k++) {
 					
-					tmpPoint.set(i,j,k);
-					Block b = getBlockAtP(tmpPoint);
+					Block b = getBlockAt(i,j,k);
 					if(b == Block.NOTHING) {
 						continue;
 					}
