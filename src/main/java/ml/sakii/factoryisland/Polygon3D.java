@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import ml.sakii.factoryisland.blocks.Block;
@@ -190,13 +189,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		
 		lightSources.put(b, intensity);
 		
-		recalcLightedColor();
+		//recalcLightedColor();
 	}
 	
 	void removeSource(Point3D b) {
 		
 		lightSources.remove(b);
-		recalcLightedColor();
+		//recalcLightedColor();
 	}
 	
 	Set<Point3D> getSources(){
@@ -823,8 +822,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 	@Override
 	public String toString() {
-		return s+",light:"+getLight()+",simple:"+SimpleOcclusions+",corner:"+CornerOcclusions+",paints:"
-				+", "+OcclusionPaints;
+		return s+",light:"+getLight()+",simple:"+SimpleOcclusions+",corner:"+CornerOcclusions+","+lightSources;
 	}
 
 

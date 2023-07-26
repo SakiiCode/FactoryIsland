@@ -9,8 +9,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -415,23 +416,33 @@ public class World {
 	
 	private void ReplaceBlock(Block b) {
 		HashSet<Point3D> sources=new HashSet<>();
-		HashMap<Point3D,HashMap<Polygon3D,Integer>> removeResults=new HashMap<>();
+		//HashMap<Point3D,HashMap<Polygon3D,Integer>> removeResults=new HashMap<>();
 		if(!loading) {
 			
 			for(Block nearby : get6Blocks(b, false).values()) {
 				for(Object3D obj : nearby.Objects) {
 					if(obj instanceof Polygon3D poly) {
 						for(Point3D source : poly.getSources()) {
-							HashMap<Polygon3D,Integer> removeResult = new HashMap<>();
-							sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
-							removeLightIntoMap(source,removeResult);
-							removeResults.put(source, removeResult);
+							//if(!sources.contains(source)) {
+								//HashMap<Polygon3D,Integer> removeResult = new HashMap<>();
+								sources.add(source); // kikapcsolja az osszes fenyforrast es elmenti oket
+								//modifyLightIntoMap(source, false, removeResult);
+								//removeResults.put(source, removeResult);
+							//}
 						}
 					}
 				}
 			}
 		}
 		
+		//TODO polygonokat tarolni majd a komponensben
+		for(Object3D obj : game.Objects) {
+			if(obj instanceof Polygon3D poly) {
+				for(Point3D source : sources) {
+					poly.getSources().remove(source);
+				}
+			}
+		}
 		
 		Blocks.put(b.pos, b);
 		
@@ -445,9 +456,6 @@ public class World {
 			
 			
 		}
-		
-		
-
 		
 		if (b instanceof TickListener) {
 			Engine.TickableBlocks.add(b.pos);
@@ -475,25 +483,19 @@ public class World {
 		filterAdjecentBlocks(b);
 		
 		recalcAO(b.pos);
-		
-		
-		
-		
-		
-		
 
 		
 		if(!loading) {
 			for(Point3D source : sources) { //elterjeszti az elmentett a fenyforrasokat
-				reAddLight(source,removeResults.get(source));
+				//reAddLight(source,removeResults.get(source));
+				reAddLight(source,new HashMap<>());
 			}
 			
 			if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
 				addLight(b.pos);
 			}
 		}
-		
-		game.updateSkyLight();
+		game.dirtyLights=true;
 		
 		if(b.z>worldTop) {
 			worldTop=b.z;
@@ -526,9 +528,6 @@ public class World {
 				}
 				
 			}
-			
-			
-			
 
 			if (b instanceof TickListener) {
 				Engine.TickableBlocks.remove(b.pos);
@@ -556,10 +555,6 @@ public class World {
 	
 			recalcAO(b.pos);
 			
-			
-
-			
-			
 			HashSet<Point3D> sources = new HashSet<>();
 			for(Object3D obj : b.Objects) { // kiuteskor eleg ujraszamolni az erintett forrasokat
 				if(obj instanceof Polygon3D poly) {
@@ -574,7 +569,7 @@ public class World {
 				addLight(source);		 //valojaban csak az uj blokkokhoz adodik hozza
 			}
 			
-			game.updateSkyLight();
+			game.dirtyLights=true;
 
 			
 			if(Blocks.size()==0 && (Engine.isLocalMP() || Engine.isSingleplayer())) {
@@ -585,19 +580,16 @@ public class World {
 	
 	private void recalcAO(Point3D pos) {
 		Point3D tmp = new Point3D();
-		for(Point3D point1 : get6BlocksP(pos)) {
-			for(Point3D point2 : get6BlocksP(point1)) {
-				Block b1 = getBlockAtP(point2);
-				if(b1 != Block.NOTHING) {
-					b1.recalcOcclusions(this, tmp);
-				}
-				for(Point3D point3 : get6BlocksP(point2)) {
-					Block b2 = getBlockAtP(point3);
-					if(b2 != Block.NOTHING) {
-						b2.recalcOcclusions(this, tmp);
+		for(int z=-3;z<=3;z++) {
+			int radius = 3-Math.abs(z);
+			for(int x=-radius;x<=radius;x++) {
+				for(int y=-radius;y<=radius;y++) {
+					if(Math.abs(x)+Math.abs(y)<=radius) {
+						Block b = getBlockAt(pos.x+x,pos.y+y,pos.z+z);
+						if(b!=Block.NOTHING) {
+							b.recalcOcclusions(this, tmp);
+						}
 					}
-					
-					
 				}
 			}
 		}
@@ -751,35 +743,17 @@ public class World {
 	}
 	
 	public HashMap<BlockFace, Block> get6Blocks(Block center, boolean includeNothing) {
-		return get6Blocks(new Point3D().set(center.x, center.y, center.z), includeNothing); //masolni kell point3d-t mert felulirja
-
-	}
-
-	public HashMap<BlockFace, Block> get6Blocks(float xf, float yf, float zf, boolean includeNothing) {
-		return get6Blocks(new Point3D().set(xf, yf, zf), includeNothing);
-		
-	}
-	
-	public static ArrayList<Point3D> get6BlocksP(Point3D p){
-		ArrayList<Point3D> result = new ArrayList<>(6);
-		int x = p.x;
-		int y = p.y;
-		int z = p.z;
-		result.add(new Point3D(x, y, z + 1));
-		result.add(new Point3D(x, y, z - 1));
-		result.add(new Point3D(x - 1, y, z));
-		result.add(new Point3D(x + 1, y, z));
-		result.add(new Point3D(x, y - 1, z));
-		result.add(new Point3D(x, y + 1, z));
-		return result;
-
+		return get6Blocks(center.pos.cpy(), includeNothing); //masolni kell point3d-t mert felulirja
 	}
 	
 	public HashMap<BlockFace, Block> get6Blocks(Point3D p, boolean includeNothing){
+		return get6Blocks(p, includeNothing, new HashMap<>(6));
+	}
+	
+	public HashMap<BlockFace, Block> get6Blocks(Point3D p, boolean includeNothing, HashMap<BlockFace, Block> result){
 		int x = p.x;
 		int y = p.y;
 		int z = p.z;
-		HashMap<BlockFace, Block> result = new HashMap<>();
 
 		p.set(x, y, z + 1);
 		Block top = getBlockAtP(p);
@@ -819,8 +793,92 @@ public class World {
 
 		return result;
 
-		
-		
+	}
+	
+	public HashMap<BlockFace, Block> get6BlocksExcl(Point3D p, Set<Point3D> excluding, HashMap<BlockFace, Block> result){
+		int x = p.x;
+		int y = p.y;
+		int z = p.z;
+
+		p.set(x, y, z + 1);
+		if(!excluding.contains(p)) {
+			result.put(BlockFace.TOP, getBlockAtP(p));
+		}
+
+		p.set(x, y, z - 1);
+		if(!excluding.contains(p)) {
+			result.put(BlockFace.BOTTOM, getBlockAtP(p));
+		}
+
+		p.set(x - 1, y, z);
+		if(!excluding.contains(p)) {
+			result.put(BlockFace.WEST, getBlockAtP(p));
+		}
+
+		p.set(x + 1, y, z);
+		if(!excluding.contains(p)) {
+			result.put(BlockFace.EAST, getBlockAtP(p));
+		}
+
+		p.set(x, y - 1, z);
+		if(!excluding.contains(p)) {
+			result.put(BlockFace.SOUTH, getBlockAtP(p));
+		}
+
+		p.set(x, y + 1, z);
+		if(!excluding.contains(p)) {
+			result.put(BlockFace.NORTH, getBlockAtP(p));
+		}
+
+		return result;
+
+	}
+	
+	public HashMap<BlockFace, Block> get4Blocks(Point3D p, boolean includeNothing, HashMap<BlockFace, Block> result){
+		int x = p.x;
+		int y = p.y;
+		int z = p.z;
+
+		p.set(x - 1, y, z);
+		Block west = getBlockAtP(p);
+		if (west != Block.NOTHING || includeNothing) {
+			result.put(BlockFace.WEST, west);
+		}
+
+		p.set(x + 1, y, z);
+		Block east = getBlockAtP(p);
+		if (east != Block.NOTHING || includeNothing) {
+			result.put(BlockFace.EAST, east);
+		}
+
+		p.set(x, y - 1, z);
+		Block south = getBlockAtP(p);
+		if (south != Block.NOTHING || includeNothing) {
+			result.put(BlockFace.SOUTH, south);
+		}
+
+		p.set(x, y + 1, z);
+		Block north = getBlockAtP(p);
+		if (north != Block.NOTHING || includeNothing) {
+			result.put(BlockFace.NORTH, north);
+		}
+
+		return result;
+	}
+	
+	public static ArrayList<Point3D> get6BlocksP(Point3D p){
+		ArrayList<Point3D> result = new ArrayList<>(6);
+		int x = p.x;
+		int y = p.y;
+		int z = p.z;
+		result.add(new Point3D(x, y, z + 1));
+		result.add(new Point3D(x, y, z - 1));
+		result.add(new Point3D(x - 1, y, z));
+		result.add(new Point3D(x + 1, y, z));
+		result.add(new Point3D(x, y - 1, z));
+		result.add(new Point3D(x, y + 1, z));
+		return result;
+
 	}
 	
 	private final static Point3D[] deltas = new Point3D[8];
@@ -879,89 +937,100 @@ public class World {
 		return result;
 	}
 	
+	//BFS -- iterative
+	private void modifyLight(Queue<Point3D> pointQueue, Queue<Integer> intensityQueue, boolean add, HashSet<Point3D> discovered, HashMap<Polygon3D, Integer> result) {
+		Point3D tmpPoint1 = new Point3D();
+		HashMap<BlockFace, Block> tmpMap = new HashMap<>();
+		while(!pointQueue.isEmpty()) {
+			
+			Point3D coord = pointQueue.poll();
+			int intensity = intensityQueue.poll();
+
+			for(Entry<BlockFace, Block> entry : get6BlocksExcl(tmpPoint1.set(coord), discovered, tmpMap).entrySet()) {
+				Block b = entry.getValue();
+				BlockFace face = entry.getKey();
+				
+				if(intensity > 1 && (b == Block.NOTHING || b.transparent)) {
+					Point3D nextCoord = coord.cpy().add(face); //this needs copying for the discovered set
+					if(!discovered.contains(nextCoord)) {
+						discovered.add(nextCoord);
+						pointQueue.add(nextCoord);
+						intensityQueue.add(intensity-1);
+					}
+				}
+				
+				if(b != Block.NOTHING) {
+					applyIntensity(b, face.getOpposite(), intensity, add, result);
+				}
+			}
+			
+		}
+	}
 	
-	//BFS
-	private void modifyLight(LinkedHashMap<Point3D,Integer> queue , boolean add, HashSet<Point3D> discovered, HashMap<Polygon3D, Integer> result) {
-		if(queue.isEmpty()) return;
+	//BFS -- recursive
+	/*private void modifyLight(Queue<Point3D> pointQueue, Queue<Integer> intensityQueue, boolean add, HashSet<Point3D> discovered, HashMap<Polygon3D, Integer> result) {
+		if(pointQueue.isEmpty()) return;
 		
 		//TODO memoriaoptimalizalas
 
-		Point3D coord = new Point3D().set(queue.keySet().toArray(new Point3D[0])[0]);
-		int intensity = queue.get(coord);
-		queue.remove(coord);
+		Point3D coord = pointQueue.poll();
+		int intensity = intensityQueue.poll();
 		
 		if(intensity <= 0) return;
 		
-		applyIntensityToNearby(new Point3D().set(coord),intensity, add, result);
+		//applyIntensityToNearby(new Point3D().set(coord),intensity, add, result);
+		
 		
 		for(Entry<BlockFace, Block> entry : get6Blocks(new Point3D().set(coord), true).entrySet()) {
 			Block b = entry.getValue();
 			BlockFace face = entry.getKey();
+			
+			if(b != Block.NOTHING) {
+				applyIntensity(b, face, intensity, add, result);
+			}
 
 			if(b == Block.NOTHING || b.transparent) {
 				//TODO memoriaoptimalizalas
 				Point3D nextCoord = new Point3D().set(coord).add(face);
 				if(!discovered.contains(nextCoord)) {
 					discovered.add(nextCoord);
-					queue.put(nextCoord, intensity-1);
+					pointQueue.add(nextCoord);
+					intensityQueue.add(intensity-1);
 				}
 			}
 		}
 		
 		
-		modifyLight(queue,add,discovered,result);
+		modifyLight(pointQueue,intensityQueue,add,discovered,result);
 		
 
-	}
+	}*/
 	
-	private void applyIntensityToNearby(Point3D coord, int intensity, boolean add, HashMap<Polygon3D, Integer> result) {
-		HashMap<BlockFace, Block> nearby = get6Blocks(coord, false);
-		for(Entry<BlockFace, Block> entry : nearby.entrySet()) {
-			Block b = entry.getValue();
-			BlockFace face = entry.getKey();
-			
-			
-			
-			for(Entry<Polygon3D, BlockFace> polys :  b.HitboxPolygons.entrySet()) {
-				BlockFace polyface = polys.getValue(); 
-				Polygon3D poly = polys.getKey();
-				if(polyface == face.getOpposite()) {
-					
-					
-					if(add) {
-							result.put(poly, intensity);
-					}else {
-						result.put(poly, null);
-					}
-					
-				}				
-				
-			}
-			
+	private void applyIntensity(Block b, BlockFace opposite, int intensity, boolean add, HashMap<Polygon3D, Integer> result) {
+		//TODO reverse lookup
+		for(Entry<Polygon3D, BlockFace> polys :  b.HitboxPolygons.entrySet()) {
+			BlockFace polyface = polys.getValue(); 
+			Polygon3D poly = polys.getKey();
+			if(polyface == opposite) {
+				if(add) {
+					result.put(poly, intensity);
+				}else {
+					result.put(poly, null);
+				}
+			}				
 		}
-		
-
 	}
 	
 	
 	private void reAddLight(Point3D source, HashMap<Polygon3D,Integer> removedResults) {
-
-		
-		//add
 		
 		Block sourceBlock = getBlockAt(source.x, source.y, source.z);
 		int intensity = sourceBlock.lightLevel;
 
-		
-		LinkedHashMap<Point3D, Integer> queue = new LinkedHashMap<>();
-		queue.put(source, intensity);
-		
-		
-		
 		HashSet<Point3D> discovered = new HashSet<>();
 		discovered.add(source);
 		
-		modifyLight(queue , true, discovered , removedResults);
+		modifyLightIntoMap(source, true, removedResults);
 
 		for(Entry<Polygon3D, Integer> pass : removedResults.entrySet()) {
 			Integer val = pass.getValue();
@@ -989,17 +1058,7 @@ public class World {
 		
 		
 		HashMap<Polygon3D,Integer> results = new HashMap<>();
-		
-		//BFS
-		LinkedHashMap<Point3D, Integer> queue = new LinkedHashMap<>();
-		queue.put(source, intensity);
-		
-		
-		
-		HashSet<Point3D> discovered = new HashSet<>();
-		discovered.add(source);
-		
-		modifyLight(queue , true, discovered , results);
+		modifyLightIntoMap(source, true, results);
 
 		for(Entry<Polygon3D, Integer> pass : results.entrySet()) {
 			pass.getKey().addSource(source, pass.getValue());
@@ -1009,15 +1068,18 @@ public class World {
 		
 	}
 	
-	private void removeLightIntoMap(Point3D source,HashMap<Polygon3D,Integer> results) {
+	private void modifyLightIntoMap(Point3D source, boolean add, HashMap<Polygon3D,Integer> results) {
 		int intensity = getBlockAt(source.x, source.y, source.z).lightLevel;
-		LinkedHashMap<Point3D, Integer> queue = new LinkedHashMap<>();
-		queue.put(source, intensity);
+		LinkedList<Point3D> pointQueue = new LinkedList<>();
+		pointQueue.add(source);
+		
+		LinkedList<Integer> intensityQueue = new LinkedList<>();
+		intensityQueue.add(intensity);		
 		
 		HashSet<Point3D> discovered = new HashSet<>();
 		discovered.add(source);
 		
-		modifyLight(queue , false, discovered , results);
+		modifyLight(pointQueue, intensityQueue, add, discovered, results);
 	}
 	
 	
@@ -1025,10 +1087,8 @@ public class World {
 		lightCalcRuns=0;
 
 		
-		//BFS
 		HashMap<Polygon3D,Integer> results = new HashMap<>();
-
-		removeLightIntoMap(source,results);
+		modifyLightIntoMap(source, false, results);
 		
 		
 		for(Entry<Polygon3D, Integer> pass : results.entrySet()) {

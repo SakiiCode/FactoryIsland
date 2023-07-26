@@ -1,10 +1,12 @@
 package ml.sakii.factoryisland.blocks;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Object3D;
+import ml.sakii.factoryisland.Point3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -129,14 +131,15 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 				
 				
 				if(getHeight() > 1){
-					for(Entry<BlockFace, Block> entry : Engine.world.get6Blocks(this, true).entrySet()){
+					Point3D tmpPoint = new Point3D();
+					for(Entry<BlockFace, Block> entry : Engine.world.get4Blocks(tmpPoint.set(pos), true, new HashMap<>()).entrySet()){
 						BlockFace key = entry.getKey();
 						Block value = entry.getValue();
-						if(key != BlockFace.TOP && key != BlockFace.BOTTOM && value == Block.NOTHING){
+						if(value == Block.NOTHING){
 							
 							
 							int biggestyet = 0;
-							for(Entry<BlockFace, Block> wentry : Engine.world.get6Blocks(x + key.direction[0], y + key.direction[1], z + key.direction[2], false).entrySet()){
+							for(Entry<BlockFace, Block> wentry : Engine.world.get6Blocks(tmpPoint.set(pos).add(key), false).entrySet()){
 								BlockFace wkey = wentry.getKey();
 								Block wvalue = wentry.getValue();
 								if(wkey != BlockFace.TOP && wkey != BlockFace.BOTTOM){

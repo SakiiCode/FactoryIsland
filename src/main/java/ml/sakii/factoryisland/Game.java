@@ -139,6 +139,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private GUIManager guiManager;
 	private Point2D.Double centroid2D = new Point2D.Double();
 	private long tickCounter=0;
+	public boolean dirtyLights = false;
 	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
@@ -381,8 +382,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 				
 			firstframe = false;
+			
+			if(dirtyLights) {
+				updateSkyLight();
+			}
 
-
+			
 			
 			if (!locked && moved)
 			{
@@ -567,8 +572,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + Globals.GravityAcceleration / FPS) * PE.VerticalVector.z));
 					PE.tmpPoint.set(x, y, feetZ);
 					long lastLightUpdateTick = Engine.Tick / (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) * (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY); 
-					debugInfo.add("Physics FPS: " + Engine.getActualphysicsfps() +
-							", skyLight:"+Engine.getTimePercent()+
+					debugInfo.add("SkyLight:"+Engine.getTimePercent()+
 							", level:"+Polygon3D.testLightLevel(Engine.getTimePercent())+
 							", cached:"+Polygon3D.testLightLevel(GameEngine.getTimePercent(lastLightUpdateTick)));
 					// DEBUG SZÖVEG
