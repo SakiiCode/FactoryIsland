@@ -28,6 +28,7 @@ import java.awt.image.RescaleOp;
 import java.awt.image.VolatileImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
@@ -139,7 +140,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private GUIManager guiManager;
 	private Point2D.Double centroid2D = new Point2D.Double();
 	private long tickCounter=0;
-	public boolean dirtyLights = false;
+	public HashSet<Point3D> dirtyLights = new HashSet<>();
 	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
@@ -383,7 +384,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				
 			firstframe = false;
 			
-			if(dirtyLights) {
+			if(dirtyLights.size() > 0) {
+				//TODO polygonokat tarolni majd a komponensben
+				for(Object3D obj : Objects) {
+					if(obj instanceof Polygon3D poly) {
+						for(Point3D source : dirtyLights) {
+							poly.getSources().remove(source);
+						}
+					}
+				}
+				for(Point3D p : dirtyLights) {
+					Engine.world.reAddLight(p);
+				}
+				dirtyLights.clear();
 				updateSkyLight();
 			}
 
