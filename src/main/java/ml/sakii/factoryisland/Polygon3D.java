@@ -67,13 +67,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
 	private CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
 	private ArrayList<GradientPaint> OcclusionPaints = new ArrayList<>();
-	
-	private Vector lineVec = new Vector();
-	private Vector pointVec = new Vector();
-	
-	private Point2D.Float begin1=new Point2D.Float();
-	private Point2D.Float begin2=new Point2D.Float();
-	private Point2D.Float end=new Point2D.Float();
 
 	
 	public Polygon3D(Vector[] vertices,int[][] UVMapOfVertices, Surface s, Model model) {
@@ -176,9 +169,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				return false;
 			}
 		
-		}
-		
-		if(!Config.useTextures) {
+		}else if(Config.ambientOcclusion) {
 			recalcOcclusionPaints(game);
 		}
 		
@@ -186,16 +177,11 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 	
 	void addSource(Point3D b, int intensity) {
-		
 		lightSources.put(b, intensity);
-		
-		//recalcLightedColor();
 	}
 	
 	void removeSource(Point3D b) {
-		
 		lightSources.remove(b);
-		//recalcLightedColor();
 	}
 	
 	Set<Point3D> getSources(){
@@ -638,22 +624,30 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		BlockFace currentFace = b.HitboxPolygons.get(this);
 		OcclusionPaints.clear();
 		
+		Vector lineVec = new Vector();
+		Vector pointVec = new Vector();
+		
 		for(BlockFace nearbyFace : SimpleOcclusions) {
-			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, lineVec, game);
-			begin1 = values[0];
-			begin2 = values[1];
-			end = values[2];					
+			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, game);				
 			
-			GradientCalculator.getPerpendicular(begin1, begin2, end, pointVec, lineVec);
+			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 
-			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX_FLAT, end.x, end.y, Color4.TRANSPARENT));
+			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX_FLAT, values[2].x, values[2].y, Color4.TRANSPARENT));
 		}
 		
 
 		
 		BlockFace face = currentFace;
 		
+		Point2D.Float[] values = new Point2D.Float[3];
+		for(int i=0;i<values.length;i++) {
+			values[i] = new Point2D.Float();
+		}
 		
+		Vector[] input = new Vector[3];
+		for(int i=0;i<values.length;i++) {
+			input[i] = new Vector();
+		}
 		
 		for(Point3D delta : CornerOcclusions) {
 			
@@ -663,21 +657,16 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			
 			int corner = c.toInt();
 			
+			input[0].set(Vertices[Math.floorMod(corner-1, 4)]);
+			input[1].set(Vertices[Math.floorMod(corner+1, 4)]);
+			input[2].set(Vertices[Math.floorMod(corner, 4)]);
+			game.convert3Dto2D(input, values, 3);
 			
-			game.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner-1, 4)]), begin1);
-			game.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner+1, 4)]), begin2);
-			game.convert3Dto2D(tmp.set(Vertices[Math.floorMod(corner, 4)]), end);
 			
-			
-			
-			pointVec.set(end.x-begin2.x,end.y-begin2.y,0);
-			lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y,0)
-				.normalize()
-				.multiply(lineVec.DotProduct(pointVec))
-				.add(begin2.x, begin2.y, 0);
+			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 			
 
-			OcclusionPaints.add((new GradientPaint(lineVec.x, lineVec.y, Color4.TRANSPARENT, end.x, end.y, Color4.AO_MAX_FLAT)));
+			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y, Color4.TRANSPARENT, values[2].x, values[2].y, Color4.AO_MAX_FLAT));
 			
 		}
 

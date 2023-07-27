@@ -103,14 +103,11 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		
 		for(BlockFace nearby : target.getNearby()){
 			 	
-			Point2D.Float[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, lineVec, game);
-			Point2D.Float begin1 = values[0];
-			Point2D.Float begin2 = values[1];
-			Point2D.Float end = values[2];
+			Point2D.Float[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, game);
 			
-			GradientCalculator.getPerpendicular(begin1, begin2, end, pointVec, lineVec);
+			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 				
-			((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec.x, lineVec.y, this.front.getColor(), end.x, end.y, Color4.TRANSPARENT);
+			((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec.x, lineVec.y, this.front.getColor(), values[2].x, values[2].y, Color4.TRANSPARENT);
 		 }
 		
 	}
