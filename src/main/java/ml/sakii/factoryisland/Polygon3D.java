@@ -36,9 +36,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private final Point[] result = new Point[8];
 	private int clipSize;
 	
-	private int[] bufferXmin, bufferXmax; 
 	
-	private Plane tmpnear=new Plane();
 	private Vector RadiusVector=new Vector();
 	private Vector CameraToTriangle = new Vector();
 	private Vector tmp=new Vector();
@@ -120,12 +118,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		clip(game.ViewFrustum.sides);
 			
 		if(game.locked){
-			tmpnear.normal.set(game.ViewVector);
-			tmpnear.normal.multiply(0.01f);
-			tmpnear.normal.add(game.PE.getPos());
-			tmpnear.distance = game.ViewVector.DotProduct(tmpnear.normal);
-			tmpnear.normal.set(game.ViewVector);
-			clip(tmpnear);
+			clip(game.ViewFrustum.tmpnear);
 		}
 		
 		if(clipSize == 0){

@@ -3,6 +3,7 @@ package ml.sakii.factoryisland;
 
 public class Frustum {
 	  Plane[] sides = new Plane[4];
+	  Plane tmpnear = new Plane();
 	  private float hratio, vratio;
 	  private Game game;
 	  private Vector al, ar, at, ab;
@@ -28,6 +29,14 @@ public class Frustum {
 	  
 	  
 	  void update(){
+		  if(game.locked) {
+			  tmpnear.normal.set(game.ViewVector);
+			  tmpnear.normal.multiply(0.01f);
+			  tmpnear.normal.add(game.PE.getPos());
+			  tmpnear.distance = game.ViewVector.DotProduct(tmpnear.normal);
+			  tmpnear.normal.set(game.ViewVector);
+			  return;
+		  }
 		  
 		  Vector ViewFrom = game.PE.getPos();
 		  // left
@@ -61,7 +70,6 @@ public class Frustum {
 		  ab.CrossProduct2(game.RightViewVector);
 		  sides[3].normal.set(ab);
 		  sides[3].distance = sides[3].normal.DotProduct(ViewFrom);
-		  
 
 	}
 }

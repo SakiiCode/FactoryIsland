@@ -369,7 +369,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			LeftViewVector.set(RightViewVector).multiply(-1);
 			BottomViewVector.set(TopViewVector).multiply(-1);
 
-			if (!locked) ViewFrustum.update();
+			ViewFrustum.update();
 
 			
 			
