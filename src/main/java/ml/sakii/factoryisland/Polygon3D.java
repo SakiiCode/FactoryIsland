@@ -23,12 +23,12 @@ import ml.sakii.factoryisland.blocks.GradientCalculator;
 
 public class Polygon3D extends Object3D implements BufferRenderable{
 	Polygon polygon = new Polygon();
-	//boolean adjecentFilter = true;
 	private boolean faceFilter = true;
 	public boolean selected;
 	private Vector normal=new Vector();
 	Vector centroid=new Vector();
 	public Surface s;
+	Model model;
 	
 	
 	public final Vector[] Vertices;
@@ -43,10 +43,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private Vector RadiusVector=new Vector();
 	private Vector CameraToTriangle = new Vector();
 	private Vector tmp=new Vector();
-	private Point tmpPoint = new Point();
-	
-	private final UVZ tmpUVZ1 = new UVZ();
-	private final UVZ tmpUVZ2 = new UVZ();
 	
 	private int ymax, ymin;
 	private int light=0;
@@ -60,9 +56,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private double[][] clipUV,clipUV2;
 	
 	private float physicalRadius;
-	
-	
-	Model model;
 
 	private CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
 	private CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
@@ -245,16 +238,17 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	public void drawToBuffer(PixelData[][] ZBuffer, Game game, UVZ[] bufferUVZmin, UVZ[] bufferUVZmax) {
 		
 		// buffer init
-		bufferXmin = new int[ymax-ymin+2];
+		int[] bufferXmin = new int[ymax-ymin+2];
 		for(int i=0;i<bufferXmin.length;i++) {
 			bufferXmin[i]=Config.getWidth()+1;
 		}
-		bufferXmax = new int[ymax-ymin+2];
+		int[] bufferXmax = new int[ymax-ymin+2];
 		for(int i=0;i<bufferXmax.length;i++) {
 			bufferXmax[i]=-1;
 		}
 		
-
+		UVZ tmpUVZ1 = new UVZ();
+		UVZ tmpUVZ2 = new UVZ();
 		
 
 		//vertexről vertexre körbemegyünk
@@ -307,8 +301,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				}
 				if(x < bufferXmin[y-this.ymin]) {
 					bufferXmin[y-this.ymin] = (int)x;
-					tmpPoint.move((int) x, y);
-					UVZ.interp(p1, p2, tmpPoint, tmpUVZ1, tmpUVZ2, bufferUVZmin[y-this.ymin]);
+					UVZ.interp(p1, p2, x, y, tmpUVZ1, tmpUVZ2, bufferUVZmin[y-this.ymin]);
 				}
 				
 				if(y-this.ymin>=bufferXmax.length) {
@@ -319,8 +312,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				
 				if(x > bufferXmax[y-this.ymin]) {
 					bufferXmax[y-this.ymin] = (int)x;
-					tmpPoint.move((int) x, y);
-					UVZ.interp(p1, p2, tmpPoint, tmpUVZ1, tmpUVZ2, bufferUVZmax[y-this.ymin]);
+					UVZ.interp(p1, p2, x, y, tmpUVZ1, tmpUVZ2, bufferUVZmax[y-this.ymin]);
 				}
 				
 				x+=m;
