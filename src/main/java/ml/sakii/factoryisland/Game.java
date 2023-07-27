@@ -958,11 +958,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(F3) {
 				locked = !locked;
 			}
-
-			for(Point3D t : Engine.TickableBlocks) {
-				Block b = Engine.world.getBlockAtP(t);
-				System.out.println(b);
-			}
 		}
 		if (arg0.getKeyCode() == KeyEvent.VK_F3)
 		{
@@ -1147,7 +1142,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Vector PEPos = PE.getPos();
 		
 		for(int i=0;i<size;i++) {
-			Vector tmp = input[i];
+			Vector tmp = input[i].cpy();
 		
 			tmp.substract(PEPos);
 			

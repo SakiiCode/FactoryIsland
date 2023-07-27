@@ -33,9 +33,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	public final Vector[] Vertices;
 	private final Vector[] clip = new Vector[8];
-	private final Vector[] clip2 = new Vector[8];
 	private final Point[] result = new Point[8];
-	private int clipSize, clip2Size;
+	private int clipSize;
 	
 	private int[] bufferXmin, bufferXmax; 
 	
@@ -53,7 +52,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private static final float[] fractions = new float[]{0.5f,1.0f};
 	private static final Color[] colors = new Color[]{new Color(0.0f,0.0f,0.0f,0.0f), Color.BLACK};
 	private double[][] UVMap;
-	private double[][] clipUV,clipUV2;
+	private double[][] clipUV;
 	
 	private float physicalRadius;
 
@@ -75,16 +74,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		this.model=model;
 
 		
-		clipUV=new double[20][3];
-		clipUV2=new double[20][3];
+		clipUV=new double[8][3];
 
 		
 		this.s = s;
 		for(int i=0;i<clip.length;i++) {
 			clip[i]=new Vector();
-		}
-		for(int i=0;i<clip2.length;i++) {
-			clip2[i]=new Vector();
 		}
 		for(int i=0;i<result.length;i++) {
 			result[i] = new Point();
@@ -137,7 +132,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			return false;
 		}
 			
-		game.convert3Dto2D(clip2, result, clipSize);
+		game.convert3Dto2D(clip, result, clipSize);
 		
 		polygon.reset();
 		for(int i=0;i<clipSize;i++) {
@@ -735,67 +730,64 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 	
 	private void clip(Plane... planes){
+		
+		
+		Vector[][] clip2 = new Vector[planes.length+1][8];
+		double[][][] clipUV2=new double[planes.length+1][8][3];
+		int clip2Size=0;
+
+		for(int i=0;i<clip2.length;i++) {
+			for(int j=0;j<clip2[0].length;j++) {
+				clip2[i][j]=new Vector();
+			}
+		}
+		
+		for(int j=0;j<clipSize;j++) {
+			clip2[0][j].set(clip[j]);
+			clipUV2[0][j]=clipUV[j];
+			clip2Size=clipSize;
+		}
+		
 		int pIndex=0;
-		while(pIndex<planes.length && clipSize > 0) {
+		while(pIndex<planes.length && clip2Size > 0) {
 			Plane P = planes[pIndex];
-			clip2Size=0;
-			for(int i=0;i<clipSize;i++){
+			int clip3Size=0;
+			for(int i=0;i<clip2Size;i++){
 	
-					int index1=i;
-					int index2= (i != clipSize-1) ? i+1 : 0;
-					
-					Vector v1 = clip[index1];
-					Vector v2 = clip[index2];
-					
-					double[] uv1 = clipUV[index1];
-					double[] uv2 = clipUV[index2];
-					
-					Vector a = v1;
-					Vector b = v2;
-					
-					
-					
-					float da = a.DotProduct(P.normal) - P.distance;
-					float db = b.DotProduct(P.normal) - P.distance;
-					
+				int index1 = i;
+				int index2 = (i+1) % clip2Size;
+				
+				Vector a = clip2[pIndex][index1];
+				Vector b = clip2[pIndex][index2];
+				
+				float da = a.DotProduct(P.normal) - P.distance;
+				float db = b.DotProduct(P.normal) - P.distance;
+				
+				
+				if(da > 0) {
+					clip2[pIndex+1][clip3Size].set(a);
+					if(Config.useTextures)
+						clipUV2[pIndex+1][clip3Size]=clipUV2[pIndex][index1];
+					clip3Size++;
+				}
+				
+				if(da * db < 0) {
 					float s= da/(da-db);
-	
-					
-					
-					if(da > 0 && db > 0){ // mindkettő előtte
-						
-						clip2[clip2Size].set(v1);
-						if(Config.useTextures)
-							clipUV2[clip2Size]=uv1;
-						clip2Size++;
-						
-					}else if(da < 0 && db < 0){ // mindkettő mögötte
-						
-					}else if(da < 0 && db > 0){
-						
-						clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
-						if(Config.useTextures)
-							clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
-						clip2Size++;
-						
-					}else if(da >0 && db < 0){ // elölről vágja félbe
-						
-						clip2[clip2Size].set(v1);
-						if(Config.useTextures)
-							clipUV2[clip2Size]=uv1;
-						clip2Size++;
-						
-						clip2[clip2Size].set(tmp.set(b).substract(a).multiply(s).add(a));
-						if(Config.useTextures)
-							clipUV2[clip2Size] = UVZ.interpUV(a, tmp, b, uv1,uv2);
-						clip2Size++;
+					clip2[pIndex+1][clip3Size].set(tmp.set(b).substract(a).multiply(s).add(a));
+					if(Config.useTextures) {
+						double[] uv1 = clipUV[index1];
+						double[] uv2 = clipUV[index2];
+						clipUV2[pIndex+1][clip3Size] = UVZ.interpUV(a, tmp, b, uv1, uv2);
 						
 					}
+					clip3Size++;
+				}
 			}
-			
-			resetClipsTo(clip2,clipUV2,clip2Size);
+			clip2Size = clip3Size;
 			pIndex++;
 		}
+		resetClipsTo(clip2[pIndex],clipUV2[pIndex],clip2Size);
+
 	}
 	
 	
