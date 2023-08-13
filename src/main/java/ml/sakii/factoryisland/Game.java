@@ -78,7 +78,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	float ratio;
 	int margin;
 	
-	boolean showHUD=true;
+	private boolean showHUD=true;
 	private boolean F3 = false;
 	private float FPS = 30f;
 	private LinkedList<String> debugInfo = new LinkedList<>();
@@ -101,8 +101,11 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private ArrayList<Sphere3D> ViewSpheres;
 
 	int VisibleCount;
+	HashSet<Point3D> dirtyLights = new HashSet<>();
+	private Point2D.Double centroid2D = new Point2D.Double();
+
 	
-	Renderer renderer;
+	private Renderer renderer;
 
 	// CONTROLS
 	public boolean moved;
@@ -111,7 +114,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	boolean locked = false;
 	boolean centered;
 	
-	float centerX, centerY, McenterX, McenterY;
+	float centerX, centerY;
+	private float McenterX, McenterY;
 	private float difX, difY;
 	private float prevX, prevY;
 	
@@ -138,9 +142,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private Vector tmp = new Vector();
 	private boolean benchmarkMode = false;
 	private GUIManager guiManager;
-	private Point2D.Double centroid2D = new Point2D.Double();
 	private long tickCounter=0;
-	public HashSet<Point3D> dirtyLights = new HashSet<>();
 	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
@@ -400,6 +402,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				updateSkyLight();
 			}
 
+			Engine.performPhysics(FPS);
 			
 			
 			if (!locked && moved)
@@ -454,7 +457,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			if (SelectedPolygon == null)
 			{
-				SelectedBlock.select(BlockFace.NONE);
 				SelectedBlock = Block.NOTHING;
 				SelectedFace = BlockFace.NONE;
 				SelectedEntity=null;
@@ -466,21 +468,17 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					if(SelectedBlock==b) {
 						BlockFace face = b.HitboxPolygons.get(SelectedPolygon);
 						if(face!=b.getSelectedFace()) {
-							b.select(face);
 							SelectedFace=face;
 						}
 					}else {
-						SelectedBlock.select(BlockFace.NONE);
 						SelectedBlock=b;
 						SelectedFace=b.HitboxPolygons.get(SelectedPolygon);
-						SelectedBlock.select(SelectedFace);
 					}
 					if(showHUD) {
 						Polygon3D.renderSelectOutline(fb, SelectedPolygon.polygon, centroid2D);
 					}
 				
 				}else {
-					SelectedBlock.select(BlockFace.NONE);
 					SelectedBlock = Block.NOTHING;
 					SelectedFace = BlockFace.NONE;
 					SelectedEntity=(Entity) SelectedPolygon.model;

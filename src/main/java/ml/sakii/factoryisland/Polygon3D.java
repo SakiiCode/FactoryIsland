@@ -24,7 +24,6 @@ import ml.sakii.factoryisland.blocks.GradientCalculator;
 public class Polygon3D extends Object3D implements BufferRenderable{
 	Polygon polygon = new Polygon();
 	private boolean faceFilter = true;
-	public boolean selected;
 	private Vector normal=new Vector();
 	Vector centroid=new Vector();
 	public Surface s;
@@ -744,43 +743,48 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		int pIndex=0;
 		while(pIndex<planes.length && clip2Size > 0) {
 			Plane P = planes[pIndex];
-			int clip3Size=0;
-			for(int i=0;i<clip2Size;i++){
-	
-				int index1 = i;
-				int index2 = (i+1) % clip2Size;
-				
-				Vector a = clip2[pIndex][index1];
-				Vector b = clip2[pIndex][index2];
-				
-				float da = a.DotProduct(P.normal) - P.distance;
-				float db = b.DotProduct(P.normal) - P.distance;
-				
-				
-				if(da > 0) {
-					clip2[pIndex+1][clip3Size].set(a);
-					if(Config.useTextures)
-						clipUV2[pIndex+1][clip3Size]=clipUV2[pIndex][index1];
-					clip3Size++;
-				}
-				
-				if(da * db < 0) {
-					float s= da/(da-db);
-					clip2[pIndex+1][clip3Size].set(tmp.set(b).substract(a).multiply(s).add(a));
-					if(Config.useTextures) {
-						double[] uv1 = clipUV[index1];
-						double[] uv2 = clipUV[index2];
-						clipUV2[pIndex+1][clip3Size] = UVZ.interpUV(a, tmp, b, uv1, uv2);
-						
-					}
-					clip3Size++;
-				}
-			}
-			clip2Size = clip3Size;
+
+			clip2Size = clip(clip2[pIndex],clipUV2[pIndex],clip2[pIndex+1],clipUV2[pIndex+1],P,clip2Size,tmp);
 			pIndex++;
 		}
 		resetClipsTo(clip2[pIndex],clipUV2[pIndex],clip2Size);
 
+	}
+	
+	private static int clip(Vector[] vecInput, double[][] uvInput, Vector[] vecOutput, double[][] uvOutput, Plane P, int inputSize, Vector tmp) {
+		int clip3Size=0;
+		for(int i=0;i<inputSize;i++){
+
+			int index1 = i;
+			int index2 = (i+1) % inputSize;
+			
+			Vector a = vecInput[index1];
+			Vector b = vecInput[index2];
+			
+			float da = a.DotProduct(P.normal) - P.distance;
+			float db = b.DotProduct(P.normal) - P.distance;
+			
+			
+			if(da > 0) {
+				vecOutput[clip3Size].set(a);
+				if(Config.useTextures)
+					uvOutput[clip3Size]=uvInput[index1];
+				clip3Size++;
+			}
+			
+			if(da * db < 0) {
+				float s= da/(da-db);
+				vecOutput[clip3Size].set(tmp.set(b).substract(a).multiply(s).add(a));
+				if(Config.useTextures) {
+					double[] uv1 = uvInput[index1];
+					double[] uv2 = uvInput[index2];
+					uvOutput[clip3Size] = UVZ.interpUV(a, tmp, b, uv1, uv2);
+					
+				}
+				clip3Size++;
+			}
+		}
+		return clip3Size;
 	}
 	
 	

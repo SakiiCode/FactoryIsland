@@ -59,12 +59,6 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 	
 	private String mapName;
 	
-	public Consumer<String> updateFunction = (text) -> {
-		SwingUtilities.invokeLater(()->{
-			statusLabel.setText(text);
-		});
-	};
-	
 	public SingleplayerGUI(GUIManager guiManager){
 		super(AssetLibrary.GUIBG, guiManager);
 		
@@ -255,7 +249,11 @@ public class SingleplayerGUI extends PaintedScreen implements ActionListener, Ke
 		return worlds.toArray(new String[] {});
 	}
 
-
+	private Consumer<String> updateFunction = (text) -> {
+		SwingUtilities.invokeLater(()->{
+			statusLabel.setText(text);
+		});
+	};
 	
 	
 	@Override

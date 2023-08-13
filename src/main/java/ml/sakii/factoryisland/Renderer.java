@@ -12,7 +12,6 @@ public class Renderer {
 	private Game game;
 	private static final int UVZ_ARRAY_COUNT = (Runtime.getRuntime().availableProcessors())*2;
 	
-	int previousSkyLight;
 	private Star[] Stars = new Star[200];
 
 	PixelData[][] ZBuffer;
@@ -21,9 +20,8 @@ public class Renderer {
 
 	private AtomicInteger VisibleCounter = new AtomicInteger(0);
 	private MaskManager maskManager = new MaskManager();
-	
-	UVZ[][] uvzArrays;
-	AtomicBoolean[] uvzArrayTaken;
+	private UVZ[][] uvzArrays;
+	private AtomicBoolean[] uvzArrayTaken;
 	
 	public Renderer(Game game) {
 		this.game=game;
@@ -166,12 +164,12 @@ public class Renderer {
 		throw new ArrayIndexOutOfBoundsException();
 	}
 	
-	public void releaseUVZArray(int id) {
+	private void releaseUVZArray(int id) {
 		uvzArrayTaken[id].set(false);
 		
 	}
 	
-	void clearZBuffer() {
+	private void clearZBuffer() {
 		for(int x=0;x<ZBuffer.length;x++) {
 			
 			for(int y=0;y<ZBuffer[x].length;y++) {

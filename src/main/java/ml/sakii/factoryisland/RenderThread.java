@@ -22,7 +22,7 @@ public class RenderThread extends Thread
 	private boolean screenshotstarted=false;
 	private BufferStrategy strategy; 
 	private GUIManager guiManager;
-	public static RenderingHints rh;
+	private static RenderingHints rh;
 	static {
 		rh = new RenderingHints(null);
 		rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

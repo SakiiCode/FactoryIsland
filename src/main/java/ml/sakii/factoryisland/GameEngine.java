@@ -8,8 +8,6 @@ import java.util.Random;
 import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
-import javax.swing.Timer;
-
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.GrassBlock;
@@ -38,9 +36,6 @@ public class GameEngine{
 	public final ArrayList<Point3D> TickableBlocks = new ArrayList<>();
 	final ArrayList<DayNightListener> DayNightBlocks = new ArrayList<>();
 	public long Tick=0;
-	//Timer ticker;
-	
-	private Timer physics;
 	
 	
 	public GameClient client;
@@ -48,18 +43,15 @@ public class GameEngine{
 	
 	private final Vector previousPos=new Vector();
 	private final EAngle previousAim=new EAngle();
+	private final HashSet<Block> surface = new HashSet<>();
 
-	//private float actualphysicsfps;
 	public Game game;
 	
 
 	String error="OK";
-	HashSet<Block> surface = new HashSet<>();
-	long physics1, physics2;
 
 	public GameEngine(String location, Game game, long seed, LoadMethod loadmethod, WorldType type, int size, Consumer<String> update) throws Exception {
 		this.game=game;
-		//initTimers();
 		
 		switch(loadmethod) {
 		case GENERATE:
@@ -841,24 +833,6 @@ public class GameEngine{
 		{
 			world.saveByShutdown();
 		}
-	}
-	
-	
-
-	/*void startPhysics() {
-		physics.start();
-	}
-	
-	boolean isPhysicsRunning() {
-		return physics.isRunning();
-	}*/
-	
-	public int getActualphysicsfps() {
-		return 0;//(int)actualphysicsfps;
-	}
-	
-	void stopPhysics() {
-		physics.stop();
 	}
 	
 	public boolean isSingleplayer() {

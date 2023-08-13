@@ -9,8 +9,8 @@ import java.util.stream.IntStream;
 
 public class MaskManager {
 	private ArrayList<BufferedImage> buffers;
-	int threads;
-	int tileWidth;
+	private int threads;
+	private int tileWidth;
 	private int tileHeight;
 	
 	private AlphaComposite transparency = AlphaComposite.getInstance(AlphaComposite.CLEAR);
@@ -30,7 +30,7 @@ public class MaskManager {
 		}
 	}
 	
-	void setRGB(int x, int y, int color) {
+	private void setRGB(int x, int y, int color) {
 		
 		
 		int mask = x/tileWidth;

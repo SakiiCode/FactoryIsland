@@ -27,7 +27,7 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 
 	public final HashMap<Polygon3D, BlockFace> HitboxPolygons = new HashMap<>();
-	public ArrayList<Object3D> Objects = new ArrayList<>(6);
+	public final ArrayList<Object3D> Objects = new ArrayList<>(6);
 	public boolean fullblock = true;
 	public int lightLevel = 0;
 	private BlockFace selectedFace = BlockFace.NONE;
@@ -140,23 +140,6 @@ public abstract class Block extends Model.Int implements BlockInterface
 		}
 	}*/
 	
-	public void select(BlockFace face)
-	{
-		if (selectedFace != face)
-		{
-			for (Entry<Polygon3D, BlockFace> entry : HitboxPolygons.entrySet())
-			{
-				if (entry.getValue() == face)
-				{
-					entry.getKey().selected = true;
-				} else
-				{
-					entry.getKey().selected = false;
-				}
-			}
-			selectedFace = face;
-		}
-	}
 
 	
 

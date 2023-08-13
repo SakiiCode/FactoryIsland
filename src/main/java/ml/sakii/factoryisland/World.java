@@ -58,13 +58,12 @@ public class World {
 
 	final int CHUNK_WIDTH = 10;
 	private static final int MAP_VERSION=1;
-	public String worldName=""; //""=REMOTE MAP
+	public String worldName=""; // "" = REMOTE MAP
 	long seed;
 	private int loadedVersion=MAP_VERSION;
 	private static final float BLOCK_RANGE = 0.2f;
 	
 	private GameEngine Engine;
-	//private HashMap<Point3D, Block> Blocks = new HashMap<>(10000);
 	private static final int MAP_SIZE=300;
 	private Block[][][] Blocks = new Block[MAP_SIZE][MAP_SIZE][MAP_SIZE];
 	private int blockCount=0;
@@ -402,16 +401,10 @@ public class World {
  		}else {
  			return result;
  		}
-		//Point3D p = new Point3D(x, y, z);
-		//return getBlockAtP(p);
-
 	}
  	
  	public Block getBlockAtP(Point3D p) {
  		return getBlockAt(p.x,p.y,p.z);
-		//Block b = Blocks.get(p);
-
-		//return (b == null) ? Block.NOTHING : b ;
  	}
 
 	
@@ -916,15 +909,9 @@ public class World {
 			Point3D coord = pointQueue.poll();
 			int intensity = intensityQueue.poll();
 			
-			//if(discovered.contains(coord)) {
-			//	continue;
-			//}
-
 			for(Entry<BlockFace, Block> entry : get6BlocksExcl(tmpPoint1.set(coord), discovered, tmpMap).entrySet()) {
 				Block b = entry.getValue();
 				BlockFace face = entry.getKey();
-				
-				
 				
 				if(b != Block.NOTHING) {
 					applyIntensity(b, face.getOpposite(), intensity, add, result);
@@ -981,6 +968,7 @@ public class World {
 
 	}*/
 	
+	@SuppressWarnings("static-method")
 	private void applyIntensity(Block b, BlockFace opposite, int intensity, boolean add, HashMap<Polygon3D, Integer> result) {
 		//TODO reverse lookup
 		for(Entry<Polygon3D, BlockFace> polys :  b.HitboxPolygons.entrySet()) {
