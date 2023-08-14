@@ -1164,7 +1164,7 @@ public class World {
 		
 		
 		if(under) {
-			if ((entity.VerticalVector.z == 1 && !inverse) || (entity.VerticalVector.z == -1 && inverse)) {
+			if ((entity.VerticalVector.z > 0 && !inverse) || (entity.VerticalVector.z < 0 && inverse)) {
 				result = playerColumn.floor(feetPoint);
 	
 			} else {
@@ -1172,7 +1172,7 @@ public class World {
 	
 			}
 		}else {
-			if ((entity.VerticalVector.z == 1 && !inverse) || (entity.VerticalVector.z == -1 && inverse)) {
+			if ((entity.VerticalVector.z > 0 && !inverse) || (entity.VerticalVector.z < 0 && inverse)) {
 				result = playerColumn.ceiling(feetPoint);
 	
 			} else {

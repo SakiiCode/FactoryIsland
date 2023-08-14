@@ -143,6 +143,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private boolean benchmarkMode = false;
 	private GUIManager guiManager;
 	private long tickCounter=0;
+	private float rotationTarget=0;
+	private float rotationTargetPitch=0;
+	private float rotationPhase=0;
 	
 	
 	public Game(String location, long seed, LoadMethod loadmethod, WorldType type, int size, GUIManager guiManager, Consumer<String> update) {
@@ -354,7 +357,32 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 
 			
+			
+			
 			Controls();
+			
+			if(rotationPhase != rotationTarget) {
+				rotationPhase += rotationTarget/FPS*4;
+				if(Math.abs(rotationPhase) > Math.abs(rotationTarget)) {
+					rotationPhase = rotationTarget;
+				}
+				Vector verticalVector = Vector.Z.cpy();
+				Vector sideVector = ViewVector.cpy().CrossProduct(Vector.Z);
+				verticalVector.multiply(rotationPhase);
+				sideVector.multiply((1-Math.abs(rotationPhase)));
+				PE.VerticalVector.set(verticalVector).add(sideVector);
+				PE.VerticalVector.normalize();
+				Main.log(rotationPhase+","+(1-Math.abs(rotationPhase)));
+				
+				/*float startPitch = -rotationTargetPitch;
+				if(rotationTarget>0) {
+					PE.ViewAngle.pitch = -startPitch*rotationPhase;
+				}else {
+					PE.ViewAngle.pitch = startPitch*rotationPhase;
+				}*/
+			}
+			
+			
 			Vector PEPos = PE.getPos();
 			moved = !previousPos.equals(PEPos) || !previousAim.equals(PE.ViewAngle);
 			previousPos.set(PEPos);
@@ -784,7 +812,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Block invunder = Engine.world.getBlockUnderEntity(true, true, PE);
 		if (PE.VerticalVector.z == 1 && PEPos.z < 0	&& invunder != Block.NOTHING)
 		{
-			PE.VerticalVector.z = -1;
+			startRotation(-1);
+			//PE.VerticalVector.z = -1;
 			Block above = Engine.world.getBlockUnderEntity(false, true, PE);
 			if (PEPos.z >= above.z - 1.7f)
 			{
@@ -792,7 +821,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 		} else if (PE.VerticalVector.z == -1 && PEPos.z >= 0 && invunder != Block.NOTHING)
 		{
-			PE.VerticalVector.z = 1;
+			//PE.VerticalVector.z = 1;
+			startRotation(1);
 
 			Block under = Engine.world.getBlockUnderEntity(false, true, PE);
 			if (PEPos.z <= under.z + 2.7f)
@@ -1358,6 +1388,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				+ h * 1f / Main.Height) / 2;
 		margin = (int) (5 * ratio);
 
+	}
+	
+	public void startRotation(float target) {
+		rotationTarget=target;
+		rotationPhase=PE.VerticalVector.z;
+		rotationTargetPitch = -PE.ViewAngle.pitch;
 	}
 
 	private void CalcAverageTick()

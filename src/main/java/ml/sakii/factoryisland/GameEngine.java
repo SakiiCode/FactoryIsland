@@ -371,7 +371,7 @@ public class GameEngine{
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
 
-		if (!world.getBlockAt(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * VerticalVector.z)).isSolid())
+		if (!world.getBlockAt(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * Math.signum(VerticalVector.z))).isSolid())
 		{
 			entity.GravityVelocity -= Globals.GravityAcceleration / physicsFPS;
 		}
@@ -379,12 +379,12 @@ public class GameEngine{
 		float resultant = (entity.JumpVelocity + entity.GravityVelocity);
 		if (Math.abs(entity.JumpVelocity) + Math.abs(entity.GravityVelocity) != 0f)
 		{
-			float JumpDistance = resultant / physicsFPS * VerticalVector.z;
+			float JumpDistance = resultant / physicsFPS * Math.signum(VerticalVector.z);
 			if (resultant < 0)
 			{// lefelé esik önmagához képest
 				Block under = world.getBlockUnderEntity(false, true, entity);
 				
-				if (VerticalVector.z == 1)
+				if (VerticalVector.z > 0)
 				{
 	
 					if (under != Block.NOTHING && under.z + 1 >= entityPos.z - 1.7f + JumpDistance)
@@ -412,7 +412,7 @@ public class GameEngine{
 			{ // felfelé ugrik  önmagához képest
 				Block above = world.getBlockUnderEntity(false, false, entity);
 	
-				if (VerticalVector.z == 1)
+				if (VerticalVector.z > 0)
 				{
 					if (above != Block.NOTHING && above.z <= entityPos.z + JumpDistance)
 					{ // belefejelne egy blokkba alulról

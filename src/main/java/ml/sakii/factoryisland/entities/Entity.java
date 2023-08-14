@@ -164,7 +164,7 @@ public class Entity extends Model.FP {
 		
 		
 		
-		if(VerticalVector.z==1) {
+		if(VerticalVector.z > 0) {
 			z = ViewFrom.z;
 			z0 = ViewFrom.z-1.7f;
 		}else {
