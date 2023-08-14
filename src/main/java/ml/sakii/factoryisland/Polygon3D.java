@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.Corner;
@@ -35,10 +33,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private final Point[] result = new Point[8];
 	private int clipSize;
 	
-	
-	private Vector RadiusVector=new Vector();
-	private Vector CameraToTriangle = new Vector();
-	private Vector tmp=new Vector();
+	private Vector tmpVector = new Vector();
 	
 	private int ymax, ymin;
 	private int light=0;
@@ -53,8 +48,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	private float physicalRadius;
 
-	private CopyOnWriteArrayList<BlockFace> SimpleOcclusions = new CopyOnWriteArrayList<>();
-	private CopyOnWriteArrayList<Point3D> CornerOcclusions = new CopyOnWriteArrayList<>();
+	private ArrayList<BlockFace> SimpleOcclusions = new ArrayList<>();
+	private ArrayList<Point3D> CornerOcclusions = new ArrayList<>();
 	private ArrayList<GradientPaint> OcclusionPaints = new ArrayList<>();
 
 	
@@ -98,8 +93,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
 				faceFilter=true;
 			}else {
-				CameraToTriangle.set(Vertices[0]).substract(game.PE.getPos());
-				faceFilter = CameraToTriangle.DotProduct(normal) < 0;
+				faceFilter = tmpVector.set(Vertices[0]).substract(game.PE.getPos()).DotProduct(normal) < 0;
 			}
 		}
 		
@@ -247,8 +241,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			Vector v1 = clip[index1]; 
 			Vector v2 = clip[index2];
 			
-			getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
-			getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
+			getUVZ(tmpVector.set(v1), clipUV[index1], game, tmpUVZ1);
+			getUVZ(tmpVector.set(v2), clipUV[index2], game, tmpUVZ2);
 			
 			
 			final Point p1 = result[index1];
@@ -420,8 +414,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				Vector v1 = clip[index1]; 
 				Vector v2 = clip[index2];
 				
-				getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
-				getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
+				getUVZ(tmpVector.set(v1), clipUV[index1], game, tmpUVZ1);
+				getUVZ(tmpVector.set(v2), clipUV[index2], game, tmpUVZ2);
 				
 				final Point p1 = result[index1];
 				final Point p2 = result[index2];
@@ -438,8 +432,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					Vector v1 = clip[index1]; 
 					Vector v2 = clip[index2];
 					
-					getUVZ(tmp.set(v1), clipUV[index1], game, tmpUVZ1);
-					getUVZ(tmp.set(v2), clipUV[index2], game, tmpUVZ2);
+					getUVZ(tmpVector.set(v1), clipUV[index1], game, tmpUVZ1);
+					getUVZ(tmpVector.set(v2), clipUV[index2], game, tmpUVZ2);
 					
 					final Point p1 = result[index1];
 					final Point p2 = result[index2];
@@ -677,7 +671,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	private boolean isAllBehind(Game game) { //7.1% -> 4.9%
 		
-		return RadiusVector.set(game.ViewVector)
+		return tmpVector.set(game.ViewVector)
 				.multiply(physicalRadius)
 				.add(centroid)
 				.substract(game.PE.getPos())
@@ -744,14 +738,14 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		while(pIndex<planes.length && clip2Size > 0) {
 			Plane P = planes[pIndex];
 
-			clip2Size = clip(clip2[pIndex],clipUV2[pIndex],clip2[pIndex+1],clipUV2[pIndex+1],P,clip2Size,tmp);
+			clip2Size = clip(clip2[pIndex],clipUV2[pIndex],clip2[pIndex+1],clipUV2[pIndex+1],P,clip2Size,tmpVector);
 			pIndex++;
 		}
 		resetClipsTo(clip2[pIndex],clipUV2[pIndex],clip2Size);
 
 	}
 	
-	private static int clip(Vector[] vecInput, double[][] uvInput, Vector[] vecOutput, double[][] uvOutput, Plane P, int inputSize, Vector tmp) {
+	private static int clip(Vector[] vecInput, double[][] uvInput, Vector[] vecOutput, double[][] uvOutput, Plane P, int inputSize, Vector tmpVector) {
 		int clip3Size=0;
 		for(int i=0;i<inputSize;i++){
 
@@ -774,11 +768,11 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			
 			if(da * db < 0) {
 				float s= da/(da-db);
-				vecOutput[clip3Size].set(tmp.set(b).substract(a).multiply(s).add(a));
+				vecOutput[clip3Size].set(tmpVector.set(b).substract(a).multiply(s).add(a));
 				if(Config.useTextures) {
 					double[] uv1 = uvInput[index1];
 					double[] uv2 = uvInput[index2];
-					uvOutput[clip3Size] = UVZ.interpUV(a, tmp, b, uv1, uv2);
+					uvOutput[clip3Size] = UVZ.interpUV(a, tmpVector, b, uv1, uv2);
 					
 				}
 				clip3Size++;
