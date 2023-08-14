@@ -36,7 +36,11 @@ public class Star extends Object3D{
 	@Override
 	protected void draw(Graphics g, Game game) {
 		int size = (int)(Config.resolutionScaling*this.size);
-		g.setColor(Color.WHITE);
+		if(Config.fogEnabled) {
+			g.setColor(Color.GRAY);
+		}else {
+			g.setColor(Color.white);
+		}
 		g.fillOval(p.x, p.y, size, size);		
 	}
 	

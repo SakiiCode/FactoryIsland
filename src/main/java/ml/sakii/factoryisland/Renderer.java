@@ -78,9 +78,14 @@ public class Renderer {
 		
 		Stars[Stars.length-1].pos.set((float)Math.cos(timeFraction*2*Math.PI), 0f, (float)Math.sin(timeFraction*2*Math.PI));
 		
-		for(Star star : Stars) {
-			if(star.update(game)) {
-				star.draw(g, game);
+		if(Config.fogEnabled) {
+			Stars[Stars.length-1].update(game);
+			Stars[Stars.length-1].draw(g,game);
+		}else {
+			for(Star star : Stars) {
+				if(star.update(game)) {
+					star.draw(g, game);
+				}
 			}
 		}
 	
