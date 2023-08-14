@@ -1,13 +1,13 @@
 package ml.sakii.factoryisland.items;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
 public class PlayerInventory {
-	public final ConcurrentHashMap<ItemType, Integer> items = new ConcurrentHashMap<>();
+	public final HashMap<ItemType, Integer> items = new HashMap<>();
 	public static final PlayerInventory Creative = new CreativeInventory();
 	private final ItemStack SelectedStack = new ItemStack(null,0);
 	private int hotbarIndex = -1;
