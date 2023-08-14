@@ -102,7 +102,7 @@ public class GameEngine{
 				Block bl = world.getBlockAtP(p);
 				if(bl != Block.NOTHING) {
 					
-					if(Tick % bl.refreshRate == 0){
+					if(Tick % bl.getRefreshRate() == 0){
 						if(bl instanceof TickListener b) {
 							
 							if(b.tick(Tick)) {
@@ -371,7 +371,7 @@ public class GameEngine{
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
 
-		if (!world.getBlockAt(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * VerticalVector.z)).solid)
+		if (!world.getBlockAt(entityPos.x, entityPos.y, entityPos.z - ((1.7f + Globals.GravityAcceleration / physicsFPS) * VerticalVector.z)).isSolid())
 		{
 			entity.GravityVelocity -= Globals.GravityAcceleration / physicsFPS;
 		}

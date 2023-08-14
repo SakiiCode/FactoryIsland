@@ -1,6 +1,8 @@
 package ml.sakii.factoryisland.blocks;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import ml.sakii.factoryisland.AssetLibrary;
@@ -10,13 +12,30 @@ import ml.sakii.factoryisland.Surface;
 public class SaplingBlock extends Block implements TickListener{
 	
 
-	private static Surface[] surfaces = new Surface[] {
+	private static final Surface[] surfaces = new Surface[] {
 			AssetLibrary.saplingTop,
 			AssetLibrary.sapling,
 			AssetLibrary.sapling,
 			AssetLibrary.sapling,
 			AssetLibrary.sapling,
 			AssetLibrary.sapling};
+	
+	private static final BlockDescriptor descriptor = new BlockDescriptor() {
+		private static List<String> canBePlacedOn = Arrays.asList(new String[] {"Grass"});
+		
+		@Override
+		public List<String> getCanBePlacedOn() {
+			return canBePlacedOn;
+		}
+		
+		@Override
+		public int getRefreshRate() {
+			return 20;
+		}
+		
+	};
+	
+	
 	
 	
 	public SaplingBlock(int x, int y, int z, GameEngine engine) {
@@ -25,8 +44,6 @@ public class SaplingBlock extends Block implements TickListener{
 		
 		BlockMeta.put("growTime", 200 + new Random().nextInt(200)+"");
 		BlockMeta.put("placedTick", getTick()+"");
-		canBePlacedOn.add("Grass");
-		refreshRate = 20;
 	}
 	
 	@Override
@@ -41,8 +58,11 @@ public class SaplingBlock extends Block implements TickListener{
 	private int growTime(){
 		return Integer.parseInt(BlockMeta.get("growTime"));
 	}
-
-
+	
+	@Override
+	public BlockDescriptor getDescriptor() {
+		return descriptor;
+	}
 
 	@Override
 	public boolean tick(long tickCount) {

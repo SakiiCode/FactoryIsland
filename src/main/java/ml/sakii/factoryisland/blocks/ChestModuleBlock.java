@@ -17,7 +17,7 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	
 	private BlockInventory inv;
 	
-	private static Surface[] surfaces = Block.generateSurfaces(AssetLibrary.chestModule);
+	private static final Surface[] surfaces = Block.generateSurfaces(AssetLibrary.chestModule);
 	
 	public ChestModuleBlock(int x, int y, int z, GameEngine engine){
 		super("ChestModule", x, y, z, engine);

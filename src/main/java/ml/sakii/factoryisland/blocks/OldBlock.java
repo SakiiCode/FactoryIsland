@@ -8,7 +8,13 @@ import ml.sakii.factoryisland.Surface;
 public class OldBlock extends Block{
 
 	
-	private static Surface[] surfaces = new Surface[] {new Surface(Color.cyan), new Surface(Color.ORANGE), new Surface(Color.darkGray), new Surface(Color.gray), new Surface(Color.blue), new Surface(Color.magenta)};
+	private static final Surface[] surfaces = new Surface[] {
+			new Surface(Color.cyan),
+			new Surface(Color.ORANGE),
+			new Surface(Color.darkGray),
+			new Surface(Color.gray),
+			new Surface(Color.blue),
+			new Surface(Color.magenta)};
 	
 	public OldBlock(int x, int y, int z,GameEngine engine){
 		super("Old",x, y, z,engine);

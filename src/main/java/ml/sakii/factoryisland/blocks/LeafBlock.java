@@ -10,7 +10,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public class LeafBlock extends Block implements BreakListener{
 	
-	private static Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.leaf);
+	private static final Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.leaf);
 	
 	
 	public LeafBlock(int x, int y, int z, GameEngine engine) {

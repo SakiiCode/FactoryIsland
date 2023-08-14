@@ -20,12 +20,33 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
     private Surface[] surfaces;
 	
     private Invocable invocable;
+    private ScriptEngine engine;
+    private final BlockDescriptor descriptor = new BlockDescriptor() {
+    	@Override
+    	public boolean isSolid() {
+    		try {
+    			return Boolean.parseBoolean(engine.eval("solid").toString());
+    		} catch (ScriptException e) {
+    			e.printStackTrace();
+    			return true;
+    		}
+    	}
+    	
+    	@Override
+    	public boolean isTransparent() {
+    		try {
+    			return Boolean.parseBoolean(engine.eval("transparent").toString());
+    		} catch (ScriptException e) {
+    			e.printStackTrace();
+    			return false;
+    		}
+    	}
+	};
     
 	
 	public ModBlock(String name, int x, int y, int z, GameEngine gengine) {
 		super(x, y, z, gengine);
-		ScriptEngine engine;
-	    try {
+			    try {
 			NashornScriptEngineFactory nashorn = new NashornScriptEngineFactory();
 	    	engine = nashorn.getScriptEngine();
 	    	if(engine == null) {
@@ -60,8 +81,6 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
         	float yscale = Float.parseFloat(engine.eval("yscale").toString());
         	float zscale = Float.parseFloat(engine.eval("zscale").toString());
         	this.name=name;
-        	this.solid=Boolean.parseBoolean(engine.eval("solid").toString());
-        	this.transparent=Boolean.parseBoolean(engine.eval("transparent").toString());
 			surfaces = new Surface[] {top, bottom, north, south, east, west};
 			generate(xscale, yscale, zscale);
 		} catch (ScriptException e) {
@@ -70,6 +89,12 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 		
 		
 	}
+	
+	@Override
+	public BlockDescriptor getDescriptor() {
+		return descriptor;
+	}
+	
 
 	@Override
 	public void generateWorld() {

@@ -2,6 +2,7 @@ package ml.sakii.factoryisland.blocks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.Color4;
@@ -16,22 +17,12 @@ import ml.sakii.factoryisland.World;
 
 public abstract class Block extends Model.Int implements BlockInterface
 {
-
 	public static final Block NOTHING = new Nothing();
+	public static final BlockDescriptor DEFAULT = new BlockDescriptor() {};
 	public final HashMap<String, String> BlockMeta = new HashMap<>();
-	public final ArrayList<String> canBePlacedOn = new ArrayList<>();
-	public int refreshRate = 1;
-	public boolean solid=true;
-
-	public boolean transparent=false;
-
 
 	public final HashMap<Polygon3D, BlockFace> HitboxPolygons = new HashMap<>();
 	public final ArrayList<Object3D> Objects = new ArrayList<>(6);
-	public boolean fullblock = true;
-	public int lightLevel = 0;
-	private BlockFace selectedFace = BlockFace.NONE;
-	
 
 	/** ModBlock és Nothing miatt */
 	public Block(int x, int y, int z, GameEngine engine)
@@ -70,11 +61,6 @@ public abstract class Block extends Model.Int implements BlockInterface
 		float yn = y + (0.5f + yscale / 2);
 		float zk = z + (0.5f - zscale / 2);
 		float zn = z + (0.5f + zscale / 2);
-
-		if (xscale != 1 || yscale != 1 || zscale != 1)
-		{
-			fullblock = false;
-		}
 
 		int w = top.color ? 1 : top.Texture.getWidth() - 1, h = top.color ? 1 : top.Texture.getHeight() - 1;
 
@@ -168,14 +154,14 @@ public abstract class Block extends Model.Int implements BlockInterface
 			Polygon3D poly = entry1.getKey();
 			poly.clearOcclusions();
 				
-			if(transparent || lightLevel>0) {
+			if(isTransparent() || getLightLevel()>0) {
 				continue;
 			}
 		
 			BlockFace face = entry1.getValue();
 			
 			for(Entry<BlockFace, Block> entry : world.get6Blocks(pos.cpy().add(face), false).entrySet()) {
-				if(entry.getValue().transparent || entry.getValue().lightLevel>0) {
+				if(entry.getValue().isTransparent() || entry.getValue().getLightLevel()>0) {
 					continue;
 				}
 				
@@ -190,7 +176,7 @@ public abstract class Block extends Model.Int implements BlockInterface
 			}
 
 		
-			if(transparent || lightLevel>0) {
+			if(isTransparent() || getLightLevel()>0) {
 				return;
 			}
 	
@@ -201,7 +187,7 @@ public abstract class Block extends Model.Int implements BlockInterface
 							isBlockingCorner(world.getBlockAtP(tmp.set(pos).add(face).add(0,0,delta.z)))) {
 					continue;
 				}
-				if(entry.getValue().transparent || entry.getValue().lightLevel > 0) {
+				if(entry.getValue().isTransparent() || entry.getValue().getLightLevel() > 0) {
 					continue;
 				}
 				poly.addCornerOcclusion(delta);
@@ -213,7 +199,7 @@ public abstract class Block extends Model.Int implements BlockInterface
 	}
 	
 	private static boolean isBlockingCorner(Block b) {
-		return !b.transparent && b != Block.NOTHING;
+		return !b.isTransparent() && b != Block.NOTHING;
 	}
 
 
@@ -308,7 +294,30 @@ public abstract class Block extends Model.Int implements BlockInterface
 	@Override
 	public void setBlockMeta(String key, String value, boolean resend) {
 		setMetadata(key, value, resend);
-
+	}
+	
+	@SuppressWarnings("static-method")
+	public BlockDescriptor getDescriptor() {
+		return DEFAULT;
+	}
+	
+	public final List<String> getCanBePlacedOn(){
+		return getDescriptor().getCanBePlacedOn();
+	}
+	public final int getLightLevel() {
+		return getDescriptor().getLightLevel();
+	}
+	public final boolean isFullBlock() {
+		return getDescriptor().isFullBlock();
+	}
+	public final boolean isTransparent() {
+		return getDescriptor().isTransparent();
+	}
+	public final boolean isSolid() {
+		return getDescriptor().isSolid();
+	}
+	public final int getRefreshRate() {
+		return getDescriptor().getRefreshRate();
 	}
 
 }

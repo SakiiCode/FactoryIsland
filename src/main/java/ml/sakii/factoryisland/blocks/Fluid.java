@@ -13,13 +13,26 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public abstract class Fluid extends Block implements TickListener, LoadListener, MetadataListener, BreakListener{
 
+	private static final BlockDescriptor descriptor =new BlockDescriptor() {
+		@Override
+		public boolean isSolid() {
+			return false;
+		}
+		
+		@Override
+		public boolean isTransparent() {
+			return true;
+		}
+		
+		@Override
+		public int getRefreshRate() {
+			return 10;
+		}
+	};
+	
 	public Fluid(String name, int x, int y, int z, int height, GameEngine engine) {
 		super(name,x, y, z,engine);
 		BlockMeta.put("height", height+"");
-		
-		transparent=true;
-		solid = false;
-		refreshRate = 10;
 		
 		if(engine != null) {
 			heightMap();
@@ -27,6 +40,10 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 
 	}
 	
+	@Override
+	public BlockDescriptor getDescriptor() {
+		return descriptor; 
+	}
 	
 	public void setHeight(int newHeight){
 		setMetadata("height",""+newHeight, true);

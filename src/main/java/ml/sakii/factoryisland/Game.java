@@ -228,7 +228,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				ll.onLoad(this);
 			}
 			update.accept("Spreading light...");
-			if(b.lightLevel>1) {
+			if(b.getLightLevel()>1) {
 				Engine.world.addLight(b.pos);
 			}
 		}
@@ -1465,7 +1465,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		int nextZ = SelectedBlock.z + SelectedFace.direction[2];
 
 		Block placeable = Engine.createBlockByClass(className, nextX, nextY, nextZ);
-		if (!placeable.canBePlacedOn.isEmpty() && !placeable.canBePlacedOn
+		if (!placeable.getCanBePlacedOn().isEmpty() && !placeable.getCanBePlacedOn()
 				.contains(Engine.world.getBlockAt(placeable.x, placeable.y, placeable.z - 1).name))
 		{
 			return false;

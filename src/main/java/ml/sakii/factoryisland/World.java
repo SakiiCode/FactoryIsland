@@ -479,7 +479,7 @@ public class World {
 		
 		if(!loading) {
 			
-			if(b.lightLevel>0) { //ha ad ki fenyt akkor elterjeszti
+			if(b.getLightLevel()>0) { //ha ad ki fenyt akkor elterjeszti
 				addLight(b.pos);
 			}
 		}
@@ -505,7 +505,7 @@ public class World {
 				blockCount--;
 			}
 	
-			if(b.lightLevel>0)
+			if(b.getLightLevel()>0)
 				removeLight(b.pos);
 			
 			Blocks[b.x+MAP_SIZE/2][b.y+MAP_SIZE/2][b.z+MAP_SIZE/2] = null;
@@ -648,14 +648,14 @@ public class World {
 		Block nextBlockY2 = blocks6Y[1];// NONE
 		Block nextBlockY3 = blocks6Y[2];// BOTTOM
 
-		if (!nextBlockX1.solid && !nextBlockX2.solid && !nextBlockX3.solid)
+		if (!nextBlockX1.isSolid() && !nextBlockX2.isSolid() && !nextBlockX3.isSolid())
 		{
 			targetX = nextX;
 		}else {
 			int bx;
-			if(nextBlockX1.solid) {
+			if(nextBlockX1.isSolid()) {
 				bx=nextBlockX1.x;
-			}else if(nextBlockX2.solid) {
+			}else if(nextBlockX2.isSolid()) {
 				bx=nextBlockX2.x;
 			}else{
 				bx=nextBlockX3.x;
@@ -672,15 +672,15 @@ public class World {
 			}
 			success=false;
 		}
-		if (!nextBlockY1.solid && !nextBlockY2.solid && !nextBlockY3.solid)
+		if (!nextBlockY1.isSolid() && !nextBlockY2.isSolid() && !nextBlockY3.isSolid())
 		{
 			targetY = nextY;
 		}else {
 			
 			int by;
-			if(nextBlockY1.solid) {
+			if(nextBlockY1.isSolid()) {
 				by=nextBlockY1.y;
-			}else if(nextBlockY2.solid) {
+			}else if(nextBlockY2.isSolid()) {
 				by=nextBlockY2.y;
 			}else{
 				by=nextBlockY3.y;
@@ -917,7 +917,7 @@ public class World {
 					applyIntensity(b, face.getOpposite(), intensity, add, result);
 				}
 				
-				if(intensity > 1 && (b == Block.NOTHING || b.transparent)) {
+				if(intensity > 1 && (b == Block.NOTHING || b.isTransparent())) {
 					Point3D nextCoord = coord.cpy().add(face); //this needs copying for the discovered set
 					if(!discovered.contains(nextCoord)) {
 						discovered.add(nextCoord);
@@ -988,7 +988,7 @@ public class World {
 	void reAddLight(Point3D source) {
 		
 		Block sourceBlock = getBlockAt(source.x, source.y, source.z);
-		int intensity = sourceBlock.lightLevel;
+		int intensity = sourceBlock.getLightLevel();
 
 		HashSet<Point3D> discovered = new HashSet<>();
 		discovered.add(source);
@@ -1014,7 +1014,7 @@ public class World {
 	void addLight(Point3D source) {
 		lightCalcRuns=0;
 		Block sourceBlock = getBlockAt(source.x, source.y, source.z);
-		int intensity = sourceBlock.lightLevel;
+		int intensity = sourceBlock.getLightLevel();
 		for(Polygon3D p : sourceBlock.HitboxPolygons.keySet()) {
 			p.addSource(source, intensity);
 		}
@@ -1031,7 +1031,7 @@ public class World {
 	
 	private HashMap<Polygon3D,Integer> modifyLightIntoMap(Point3D source, boolean add) {
 		HashMap<Polygon3D,Integer> results = new HashMap<>();
-		int intensity = getBlockAt(source.x, source.y, source.z).lightLevel;
+		int intensity = getBlockAt(source.x, source.y, source.z).getLightLevel();
 		LinkedList<Point3D> pointQueue = new LinkedList<>();
 		pointQueue.add(source);
 		
@@ -1134,14 +1134,14 @@ public class World {
 						continue;
 					}
 					
-					if (b.x == x && b.y == y && b.solid) {
+					if (b.x == x && b.y == y && b.isSolid()) {
 						playerColumn.add(b.pos);
 					}else if((b.x-BLOCK_RANGE < entityPos.x && entityPos.x < b.x+1+BLOCK_RANGE)
-							&&  b.y == y && b.solid) {
+							&&  b.y == y && b.isSolid()) {
 							
 						playerColumn.add(b.pos);
 					}else if((b.y-BLOCK_RANGE < entityPos.y && entityPos.y < b.y+1+BLOCK_RANGE)
-							&&  b.x == x && b.solid) {
+							&&  b.x == x && b.isSolid()) {
 							
 						playerColumn.add(b.pos);
 					}
@@ -1429,7 +1429,7 @@ public class World {
 			for (Entry<Polygon3D, BlockFace> entry2 : bl.HitboxPolygons.entrySet()) {
 				if(entry2.getValue() == key) {
 					Polygon3D side=entry2.getKey();
-					if(!bl.fullblock || !other.fullblock || (!bl.transparent && other.transparent)) {
+					if(!bl.isFullBlock() || !other.isFullBlock() || (!bl.isTransparent() && other.isTransparent())) {
 						if(!game.Objects.contains(side)) {
 							game.Objects.add(side);
 						}

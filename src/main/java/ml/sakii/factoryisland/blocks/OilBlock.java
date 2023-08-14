@@ -6,14 +6,19 @@ import ml.sakii.factoryisland.Surface;
 
 public class OilBlock extends Fluid{
 
+	private static final BlockDescriptor descriptor = new BlockDescriptor() {
+		@Override
+		public int getRefreshRate() {
+			return 20;
+		}
+	};
+	
 	public OilBlock(int x, int y, int z, GameEngine engine) {
 		this(x, y, z, 3, engine);
 	}
 
 	public OilBlock(int x, int y, int z, int height, GameEngine engine) {
 		super("Oil",x, y, z,height,engine);
-		refreshRate = 20;
-
 	}
 	
 	@Override
@@ -26,6 +31,12 @@ public class OilBlock extends Fluid{
 	protected Surface[] getTextures() {
 		return AssetLibrary.oils;
 	}
+	
+	@Override
+	public BlockDescriptor getDescriptor() {
+		return descriptor;
+	}
+	
 
 
 }

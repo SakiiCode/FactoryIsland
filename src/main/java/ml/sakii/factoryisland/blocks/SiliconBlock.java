@@ -13,8 +13,14 @@ import ml.sakii.factoryisland.entities.PlayerMP;
 
 public class SiliconBlock extends Block implements DayNightListener, PowerGenerator, TextureListener, LoadListener{
 
+	private static final BlockDescriptor descriptor = new BlockDescriptor() {
+		@Override
+		public final boolean isFullBlock() {
+			return false;
+		}
+	};
 	
-	private static Surface[] surfaces =new Surface[] {
+	private static final Surface[] surfaces =new Surface[] {
 			new Surface(new Color4(0.2f,0.2f,0.2f,1f)),
 			new Surface(new Color4(0.8f,0.8f,0.8f,1f)),
 			new Surface(new Color4(0.5f,0.5f,0.5f,1f)),
@@ -30,6 +36,11 @@ public class SiliconBlock extends Block implements DayNightListener, PowerGenera
 	public SiliconBlock(int x, int y, int z, GameEngine engine) {
 		super("Silicon", x, y, z,0.9f, 0.9f, 0.9f, engine);
 		
+	}
+	
+	@Override
+	public BlockDescriptor getDescriptor() {
+		return descriptor;
 	}
 
 	@Override
