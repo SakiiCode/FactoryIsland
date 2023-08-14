@@ -160,7 +160,7 @@ public class GameEngine{
     	
 		
 			if(Tick % (2*Globals.TICKSPEED) == 0) {
-				for(Entity entity : world.getAllEntities()) {
+				for(Entity entity : new ArrayList<>(world.getAllEntities())) { // hurtEntity miatt ConcurrentModificationException
 					if(entity instanceof Alien alien) {
 						Vector alienPos = alien.getPos();
 						
