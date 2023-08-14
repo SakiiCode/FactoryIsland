@@ -129,10 +129,6 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 	
 
-	public BlockFace getSelectedFace()
-	{
-		return selectedFace;
-	}
 
 	static Surface[] generateSurfacesNoCopy(Surface s) {
 		return new Surface[] {s,s,s,s,s,s};

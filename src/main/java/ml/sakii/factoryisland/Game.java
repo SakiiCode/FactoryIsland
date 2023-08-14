@@ -465,15 +465,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			{
 				if(SelectedPolygon.model instanceof Block b) {
 					SelectedEntity=null;
-					if(SelectedBlock==b) {
-						BlockFace face = b.HitboxPolygons.get(SelectedPolygon);
-						if(face!=b.getSelectedFace()) {
-							SelectedFace=face;
-						}
-					}else {
-						SelectedBlock=b;
-						SelectedFace=b.HitboxPolygons.get(SelectedPolygon);
-					}
+					SelectedBlock=b;
+					SelectedFace=b.HitboxPolygons.get(SelectedPolygon);
 					if(showHUD) {
 						Polygon3D.renderSelectOutline(fb, SelectedPolygon.polygon, centroid2D);
 					}
@@ -530,7 +523,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("McenterX:" + McenterX + ", McenterY:" + McenterY);
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
-					debugInfo.add("SelBlock:" + SelectedBlock.getSelectedFace() + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
+					debugInfo.add("SelBlock:" + SelectedFace + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
 					if(SelectedBlock instanceof SignalPropagator wire) {
 						debugInfo.add(wire.powers+"");
 					}
