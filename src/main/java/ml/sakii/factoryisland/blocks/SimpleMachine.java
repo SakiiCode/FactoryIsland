@@ -9,6 +9,7 @@ import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
+import ml.sakii.factoryisland.Vector2D;
 
 public abstract class SimpleMachine extends Block implements InteractListener, TextureListener, PlaceListener, MetadataListener, LoadListener{
 
@@ -17,8 +18,7 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 	private Color4 front;
 	private Color4 active;
 	
-	private Vector lineVec = new Vector();
-	private Vector pointVec = new Vector();
+	
 	
 	
 	public SimpleMachine(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole, GameEngine engine)
@@ -101,13 +101,16 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		
 		BlockFace target = getTarget();
 		
+		Vector2D lineVec = new Vector2D();
+		Vector2D pointVec = new Vector2D();
+		
 		for(BlockFace nearby : target.getNearby()){
 			 	
 			Point2D.Float[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, game);
 			
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 				
-			((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec.x, lineVec.y, this.front.getColor(), values[2].x, values[2].y, Color4.TRANSPARENT);
+			((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec, this.front.getColor(), values[2], Color4.TRANSPARENT);
 		 }
 		
 	}

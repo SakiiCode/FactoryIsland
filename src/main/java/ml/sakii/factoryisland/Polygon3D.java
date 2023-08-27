@@ -597,15 +597,15 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		BlockFace currentFace = b.HitboxPolygons.get(this);
 		OcclusionPaints.clear();
 		
-		Vector lineVec = new Vector();
-		Vector pointVec = new Vector();
+		Vector2D lineVec = new Vector2D();
+		Vector2D pointVec = new Vector2D();
 		
 		for(BlockFace nearbyFace : SimpleOcclusions) {
 			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, game);				
 			
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 
-			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y,	Color4.AO_MAX_FLAT, values[2].x, values[2].y, Color4.TRANSPARENT));
+			OcclusionPaints.add(new GradientPaint(lineVec,	Color4.AO_MAX_FLAT, values[2], Color4.TRANSPARENT));
 		}
 		
 
@@ -639,7 +639,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 			
 
-			OcclusionPaints.add(new GradientPaint(lineVec.x, lineVec.y, Color4.TRANSPARENT, values[2].x, values[2].y, Color4.AO_MAX_FLAT));
+			OcclusionPaints.add(new GradientPaint(lineVec, Color4.TRANSPARENT, values[2], Color4.AO_MAX_FLAT));
 			
 		}
 
@@ -710,7 +710,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private void resetClipsTo(Vector[] vertexArr, double[][] uvArr, int size) {
 		for(int i=0;i<size;i++) {
 			clip[i].set(vertexArr[i]);
-			clipUV[i]=uvArr[i];
+			clipUV[i][0]=uvArr[i][0];
+			clipUV[i][1]=uvArr[i][1];
+			clipUV[i][2]=uvArr[i][2];
 		}
 		clipSize=size;
 	}

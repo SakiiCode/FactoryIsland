@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.Vector;
+import ml.sakii.factoryisland.Vector2D;
 
 public class GradientCalculator {
 	
@@ -161,15 +162,16 @@ public class GradientCalculator {
 		
 	}
 	
-	public static void getPerpendicular(Point2D.Float[] values, Vector pointVec, Vector lineVec) {
+	public static void getPerpendicular(Point2D.Float[] values, Vector2D pointVec, Vector2D lineVec) {
 		Point2D.Float begin1 = values[0];
 		Point2D.Float begin2 = values[1];
 		Point2D.Float end = values[2];
-		pointVec.set(end.x-begin2.x,end.y-begin2.y,0);
-		lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y,0)
+		pointVec.set(end).substract(begin2);
+		lineVec.set(begin1)
+			.substract(begin2)
 			.normalize()
 			.multiply(lineVec.DotProduct(pointVec))
-			.add(begin2.x, begin2.y, 0);
+			.add(begin2);
 	}
 	
 	
