@@ -51,7 +51,7 @@ public class AssetLibrary {
 		dirt = new Surface(loadTexture("textures/blocks/dirt.png"));
 		sand = new Surface(loadTexture("textures/blocks/sand.png"));
 		wood = new Surface(loadTexture("textures/blocks/wood2.png"));
-		leaf = new Surface(loadTexture("textures/blocks/leaf3.png"));
+		leaf = new Surface(loadTexture("textures/blocks/leaf6.png"));
 		sapling = new Surface(new Color(150, 100, 50).darker());
 		saplingTop = new Surface(Color.GREEN);
 		chestModule = new Color4(85, 85, 85);
