@@ -324,7 +324,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				FPS = 1000000000f / (currentTime - previousTime);
 			}
 			if(!firstframe) {
-				CalcAverageTick();
+				CalcAverageTick((currentTime - previousTime)/1000L);
 			}
 
 			if (guiManager.isActive())
@@ -550,7 +550,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("Eye:" + PEPos+", yaw: " + Math.round(PE.ViewAngle.yaw) + ", pitch: " + Math.round(PE.ViewAngle.pitch) +", difX: "+ difX + ", difY: "+ difY);
 					debugInfo.add("McenterX:" + McenterX + ", McenterY:" + McenterY);
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
-					debugInfo.add("FPS (smooth): " + (int) measurement + " - " + FPS);
+					debugInfo.add("FPS (smooth): " + (1f/measurement) + " (" + measurement + " ms) - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedFace + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
 					if(SelectedBlock instanceof SignalPropagator wire) {
 						debugInfo.add(wire.powers+"");
@@ -1396,16 +1396,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		//rotationTargetPitch = -PE.ViewAngle.pitch;
 	}
 
-	private void CalcAverageTick()
+	private void CalcAverageTick(long frameTimeUs)
 	{
-		 totalframes++;
-		 long thisTime = System.currentTimeMillis();
-		 if(thisTime - lastTime > 500) {
-			 measurement=totalframes*2;
-			 lastTime=thisTime;
-			 totalframes=0;
-		 }
-		
+		double frameTimeMs = frameTimeUs/1000.0;
+		double smoothing = Math.pow(0.95, frameTimeMs * 60.0 / 1000.0);
+		measurement = (float)((measurement * smoothing) + (frameTimeMs * (1.0-smoothing)));
+		//Main.log("frameTime: "+frameTimeMs+", smoothing: "+smoothing+", measurement: "+measurement);
 	}
 	
 	boolean insideBlock(Polygon3D polygon) {
