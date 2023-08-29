@@ -144,7 +144,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private GUIManager guiManager;
 	private long tickCounter=0;
 	private float rotationTarget=0;
-	private float rotationTargetPitch=0;
+	//private float rotationTargetPitch=0;
 	private float rotationPhase=0;
 	
 	
@@ -479,7 +479,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			
 
-			SelectedPolygon = renderer.render(g, Objects, Spheres, F3);
+			SelectedPolygon = renderer.render(g, Objects, Spheres);
 			
 			
 			
@@ -1393,7 +1393,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	public void startRotation(float target) {
 		rotationTarget=target;
 		rotationPhase=PE.VerticalVector.z;
-		rotationTargetPitch = -PE.ViewAngle.pitch;
+		//rotationTargetPitch = -PE.ViewAngle.pitch;
 	}
 
 	private void CalcAverageTick()

@@ -27,7 +27,7 @@ public class Star extends Object3D{
 	
 	//TODO data-oriented
 	@Override
-	protected boolean update(Game game) {
+	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2) {
 		pos2.set(pos).add(game.PE.getPos());
 		game.convert3Dto2D(pos2,p);
 		return game.ViewVector.DotProduct(pos) > 0;

@@ -8,7 +8,7 @@ public abstract class Object3D implements Comparable<Object3D> {
 	/**
 	 * @return true ha lathato
 	 */
-	protected abstract boolean update(Game game);
+	protected abstract boolean update(Game game, Vector[][] clip2, double[][][] clipUV2);
 	
 	protected abstract void draw(Graphics g, Game game);
 	

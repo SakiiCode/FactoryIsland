@@ -87,7 +87,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 
 	@Override
-	protected boolean update(Game game){
+	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2){
 				
 		if(!game.locked) {
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
@@ -108,10 +108,10 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		}
 		
 		resetClipsTo(Vertices, UVMap, Vertices.length);
-		clip(game.ViewFrustum.sides);
+			clip(clip2, clipUV2, game.ViewFrustum.sides);
 			
 		if(game.locked){
-			clip(game.ViewFrustum.tmpnear);
+			clip(clip2, clipUV2, game.ViewFrustum.tmpnear);
 		}
 		
 		if(clipSize == 0){
@@ -710,30 +710,29 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private void resetClipsTo(Vector[] vertexArr, double[][] uvArr, int size) {
 		for(int i=0;i<size;i++) {
 			clip[i].set(vertexArr[i]);
-			clipUV[i][0]=uvArr[i][0];
-			clipUV[i][1]=uvArr[i][1];
-			clipUV[i][2]=uvArr[i][2];
+			clipUV[i]=uvArr[i];
 		}
 		clipSize=size;
 	}
 	
-	private void clip(Plane... planes){
+	private void clip(Vector[][] clip2, double[][][] clipUV2, Plane... planes){
 		
 		
-		Vector[][] clip2 = new Vector[planes.length+1][8];
+		
+		int clip2Size=clipSize;
+		
+		/*Vector[][] clip2 = new Vector[planes.length+1][8];
 		double[][][] clipUV2=new double[planes.length+1][8][3];
-		int clip2Size=0;
 
 		for(int i=0;i<clip2.length;i++) {
 			for(int j=0;j<clip2[0].length;j++) {
 				clip2[i][j]=new Vector();
 			}
-		}
+		}*/
 		
 		for(int j=0;j<clipSize;j++) {
 			clip2[0][j].set(clip[j]);
 			clipUV2[0][j]=clipUV[j];
-			clip2Size=clipSize;
 		}
 		
 		int pIndex=0;

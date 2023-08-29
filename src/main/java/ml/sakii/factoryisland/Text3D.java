@@ -22,7 +22,7 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	protected boolean update(Game game)
+	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2)
 	{
 		
 		ViewToPoint.set(location);

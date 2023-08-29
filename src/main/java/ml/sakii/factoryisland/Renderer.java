@@ -1,8 +1,10 @@
 package ml.sakii.factoryisland;
 
 import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -10,33 +12,24 @@ import ml.sakii.factoryisland.entities.PlayerMP;
 public class Renderer {
 	
 	private Game game;
-	private static final int UVZ_ARRAY_COUNT = (Runtime.getRuntime().availableProcessors())*2;
 	
 	private Star[] Stars = new Star[200];
 
 	PixelData[][] ZBuffer;
 
-	private Polygon3D SelectedPolygon;
+	Polygon3D SelectedPolygon;
 
 	private AtomicInteger VisibleCounter = new AtomicInteger(0);
 	private MaskManager maskManager = new MaskManager();
-	private UVZ[][] uvzArrays;
-	private AtomicBoolean[] uvzArrayTaken;
+	
+	ArrayList<ObjectUpdateThread> flatTasks = new ArrayList<>();
+	ArrayList<TextureRenderThread> texturedTasks = new ArrayList<>();
+	ArrayList<Object3D> filtered = new ArrayList<>();
 	
 	public Renderer(Game game) {
 		this.game=game;
 		
-		uvzArrays = new UVZ[UVZ_ARRAY_COUNT][Config.getHeight()];
-		for(int i=0;i<uvzArrays.length;i++) {
-			for(int j=0;j<uvzArrays[0].length;j++) {
-				uvzArrays[i][j] = new UVZ();
-			}
-		}
 		
-		uvzArrayTaken = new AtomicBoolean[UVZ_ARRAY_COUNT];
-		for(int i=0;i<uvzArrayTaken.length;i++) {
-			uvzArrayTaken[i] = new AtomicBoolean(false);
-		}
 		
 		
 		for (int i = 0; i < Stars.length-1; i++)
@@ -45,9 +38,20 @@ public class Renderer {
 		}
 		
 		Stars[Stars.length-1] = new Star(100);
+		
+		ForkJoinPool pool = ForkJoinPool.commonPool();
+		int threadCount = pool.getParallelism();
+		for(int i=0;i<threadCount;i++) {
+			flatTasks.add(new ObjectUpdateThread(game, i,threadCount));
+		}
+		for(int i=0;i<threadCount;i++) {
+			texturedTasks.add(new TextureRenderThread(game, this, i,threadCount));
+		}
+		filtered = new ArrayList<>(8000);
+
 	}
 	
-	Polygon3D render(Graphics g, List<Object3D> Objects, List<Sphere3D> Spheres, boolean F3) {
+	Polygon3D render(Graphics g, List<Object3D> Objects, List<Sphere3D> Spheres) {
 		
 		GameEngine Engine = game.Engine;
 		PlayerMP PE = game.PE;
@@ -79,11 +83,11 @@ public class Renderer {
 		Stars[Stars.length-1].pos.set((float)Math.cos(timeFraction*2*Math.PI), 0f, (float)Math.sin(timeFraction*2*Math.PI));
 		
 		if(Config.fogEnabled) {
-			Stars[Stars.length-1].update(game);
+			Stars[Stars.length-1].update(game, null, null);
 			Stars[Stars.length-1].draw(g,game);
 		}else {
 			for(Star star : Stars) {
-				if(star.update(game)) {
+				if(star.update(game, null, null)) {
 					star.draw(g, game);
 				}
 			}
@@ -92,30 +96,9 @@ public class Renderer {
 		if(Config.useTextures && !game.locked) {
 			clearZBuffer();
 			VisibleCounter.set(0);
-			Objects.parallelStream().filter(o -> {return o.update(game) && o instanceof BufferRenderable br;}).forEach(o ->{
-				Object[] min = getUVZArray();
-				Object[] max = getUVZArray();
-				int minId = (int) min[0];
-				UVZ[] bufferUVZmin=(UVZ[]) min[1];
-				int maxId = (int) max[0];
-				UVZ[] bufferUVZmax=(UVZ[]) max[1];
-				((BufferRenderable)o).drawToBuffer(ZBuffer, game, bufferUVZmin, bufferUVZmax);
-				releaseUVZArray(minId);
-				releaseUVZArray(maxId);
-				
-				if(o instanceof Polygon3D p) {
-					
-					if (p.polygon.contains(centerX, centerY) &&
-							((SelectedPolygon == null && p.AvgDist<5) || (SelectedPolygon!=null && p.AvgDist<SelectedPolygon.AvgDist)))
-					{
-						SelectedPolygon = p;
-					}
-					if(F3) {
-						VisibleCounter.incrementAndGet();
-					}
-				}
-			});
-
+			
+			updateRenderTextured();
+			
 			game.VisibleCount=VisibleCounter.get();
 			
 			maskManager.clear();
@@ -130,22 +113,50 @@ public class Renderer {
 			
 			
 		}else {
-			Objects.parallelStream().filter(o -> o.update(game)).sorted().forEachOrdered(o->
-			{
-				o.draw(fb, game);
+				filtered.clear();
 				
-				if(o instanceof Polygon3D poly) {
+				updateFlat();
+				
+				Collections.sort(filtered);
+				for(Object3D o : filtered) {
+					o.draw(fb, game);
 					
-					if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
-					{
-						SelectedPolygon = poly;
+					if(o instanceof Polygon3D poly) {
+						
+						if (poly.AvgDist < 5 && poly.polygon.contains(centerX, centerY))
+						{
+							SelectedPolygon = poly;
+						}
 					}
-					game.VisibleCount++;
 				}
-			});
+				game.VisibleCount=filtered.size();
 		}
 		
 		return SelectedPolygon;
+	}
+	
+	private void updateFlat() {
+		for(ObjectUpdateThread task : flatTasks) {
+			task.reinitialize();
+			task.fork();
+		}
+		
+		for(ObjectUpdateThread task : flatTasks) {
+			synchronized(filtered) {
+				filtered.addAll(task.join());
+			}
+		}
+	}
+	
+	private void updateRenderTextured() {
+		for(TextureRenderThread task : texturedTasks) {
+			task.reinitialize();
+			task.fork();
+		}
+		
+		for(TextureRenderThread task : texturedTasks) {
+			VisibleCounter.addAndGet(task.join());
+		}
 	}
 	
 	
@@ -158,20 +169,9 @@ public class Renderer {
 				ZBuffer[x][y]=new PixelData();
 			}
 		}
-	}
-	
-	public Object[] getUVZArray() {
-		for(int i=0;i<uvzArrayTaken.length;i++) {
-			if(uvzArrayTaken[i].compareAndSet(false, true)) {
-				return new Object[] {i,uvzArrays[i]};
-			}
+		for(TextureRenderThread texturedTask : texturedTasks) {
+			texturedTask.resizeScreen();
 		}
-		throw new ArrayIndexOutOfBoundsException();
-	}
-	
-	private void releaseUVZArray(int id) {
-		uvzArrayTaken[id].set(false);
-		
 	}
 	
 	private void clearZBuffer() {
