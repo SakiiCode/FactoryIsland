@@ -6,7 +6,6 @@ import java.awt.Point;
 public class Star extends Object3D{
 	final Vector pos;
 	
-	private final Vector pos2=new Vector();
 	private final float size;
 	private final Point p = new Point();
 	
@@ -27,9 +26,9 @@ public class Star extends Object3D{
 	
 	//TODO data-oriented
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2) {
-		pos2.set(pos).add(game.PE.getPos());
-		game.convert3Dto2D(pos2,p);
+	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector) {
+		tmpVector.set(pos).add(game.PE.getPos());
+		game.convert3Dto2D(tmpVector,p);
 		return game.ViewVector.DotProduct(pos) > 0;
 	}
 

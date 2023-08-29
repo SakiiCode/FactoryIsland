@@ -13,12 +13,15 @@ public class ObjectUpdateThread extends ForkJoinTask<ArrayList<Object3D>> {
 	ArrayList<Object3D> result = new ArrayList<>();
 	private Vector[][] clip2;
 	private double[][][] clipUV2;
+	private Vector tmpVector2;
 
 	public ObjectUpdateThread(Game game, int threadIndex, int threadCount) {
 		this.game = game;
 		this.threadIndex = threadIndex;
 		this.threadCount = threadCount;
 		this.Objects = game.Objects;
+		
+		this.tmpVector2 = new Vector();
 		
 		clip2 = new Vector[6][8];
 		clipUV2=new double[6][8][3];
@@ -49,7 +52,7 @@ public class ObjectUpdateThread extends ForkJoinTask<ArrayList<Object3D>> {
 			int objectIndex = threadIndex * objectsPerThread + j;
 			if(Objects.size() > objectIndex) {
 				Object3D obj = Objects.get(objectIndex); 
-				if (obj.update(game, clip2, clipUV2)) {
+				if (obj.update(game, clip2, clipUV2, tmpVector2)) {
 					result.add(obj);
 				}
 			}

@@ -79,9 +79,9 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	}
 	
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2) {
+	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector2) {
 		for(Polygon3D p : Polygons) {
-			p.update(game, clip2, clipUV2);
+			p.update(game, clip2, clipUV2, tmpVector2);
 		}
 		centerDist = game.PE.getPos().distance(pos);
 		if(game.key[8]) {
@@ -146,8 +146,8 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		}
 		
 		@Override
-		protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2) {
-			visible = super.update(game, clip2, clipUV2);
+		protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector2) {
+			visible = super.update(game, clip2, clipUV2, tmpVector2);
 			if(!Config.useTextures) {
 				if(game.key[8]) {
 					AvgDist = 4;

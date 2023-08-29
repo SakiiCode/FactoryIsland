@@ -18,6 +18,8 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 	private Color4 front;
 	private Color4 active;
 	
+	private Vector[] tmpArr = new Vector[] {new Vector(),new Vector(), new Vector()};
+
 	
 	
 	
@@ -104,9 +106,11 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		Vector2D lineVec = new Vector2D();
 		Vector2D pointVec = new Vector2D();
 		
+
+		
 		for(BlockFace nearby : target.getNearby()){
 			 	
-			Point2D.Float[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, game);
+			Point2D.Float[] values = GradientCalculator.getGradientOf(x, y, z, nearby, target, tmpArr, game);
 			
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 				

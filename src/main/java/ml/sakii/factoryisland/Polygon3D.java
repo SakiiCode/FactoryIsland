@@ -34,6 +34,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private int clipSize;
 	
 	private Vector tmpVector = new Vector();
+	private Vector[] tmpArr = new Vector[] {new Vector(),new Vector(), new Vector()};
+	private Vector2D lineVec = new Vector2D();
+	private Vector2D pointVec = new Vector2D();
+
+	private UVZ tmpUVZ1 = new UVZ();
+	private UVZ tmpUVZ2 = new UVZ();
+
 	
 	private int ymax, ymin;
 	private int light=0;
@@ -87,7 +94,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2){
+	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector2){
 				
 		if(!game.locked) {
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
@@ -124,7 +131,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			return false;
 		}
 			
-		game.convert3Dto2D(clip, result, clipSize);
+		game.convert3Dto2D(clip, result, clipSize, tmpVector);
 		
 		polygon.reset();
 		for(int i=0;i<clipSize;i++) {
@@ -234,10 +241,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			bufferXmax[i]=-1;
 		}
 		
-		UVZ tmpUVZ1 = new UVZ();
-		UVZ tmpUVZ2 = new UVZ();
-		
-
 		//vertexről vertexre körbemegyünk
 		for(int i=0;i<clipSize;i++) {
 			
@@ -258,11 +261,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			final double m=(p2.y==p1.y) ? 0.0 : (p2.x-p1.x)*1.0/(p2.y-p1.y);
 			
 			// mindenképpen y pozitív irányban szeretnénk végigmenni a polygon oldalán, de lehet, hogy p2 van feljebb.
-			final int xmin = (p1.y<p2.y) ? p1.x : p2.x;
-			final int ymin = (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
-			final int ymax = (p1.y<p2.y) ? p2.y : p1.y;
+			int xmin = (p1.y<p2.y) ? p1.x : p2.x;
+			int ymin = (p1.y<p2.y) ? p1.y : p2.y; // y határértékei adott szakaszon
+			int ymax = (p1.y<p2.y) ? p2.y : p1.y;
 
-			
+			xmin = Util.limit(xmin, 0, Config.getWidth()-1);
+			ymin = Util.limit(ymin, 0, Config.getHeight()-1);
+			ymax = Util.limit(ymax, 0, Config.getHeight()-1);
 			
 
 
@@ -603,11 +608,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		BlockFace currentFace = b.HitboxPolygons.get(this);
 		OcclusionPaints.clear();
 		
-		Vector2D lineVec = new Vector2D();
-		Vector2D pointVec = new Vector2D();
-		
 		for(BlockFace nearbyFace : SimpleOcclusions) {
-			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, game);				
+			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, tmpArr, game);				
 			
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 
@@ -623,11 +625,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			values[i] = new Point2D.Float();
 		}
 		
-		Vector[] input = new Vector[3];
-		for(int i=0;i<values.length;i++) {
-			input[i] = new Vector();
-		}
-		
 		for(Point3D delta : CornerOcclusions) {
 			
 			
@@ -636,10 +633,10 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			
 			int corner = c.toInt();
 			
-			input[0].set(Vertices[Math.floorMod(corner-1, 4)]);
-			input[1].set(Vertices[Math.floorMod(corner+1, 4)]);
-			input[2].set(Vertices[Math.floorMod(corner, 4)]);
-			game.convert3Dto2D(input, values, 3);
+			tmpArr[0].set(Vertices[Math.floorMod(corner-1, 4)]);
+			tmpArr[1].set(Vertices[Math.floorMod(corner+1, 4)]);
+			tmpArr[2].set(Vertices[Math.floorMod(corner, 4)]);
+			game.convert3Dto2D(tmpArr, values, 3);
 			
 			
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);

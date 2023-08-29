@@ -15,6 +15,8 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 	private ArrayList<Object3D> result = new ArrayList<>();
 	private Renderer renderer;
 	private int visibleCount;
+	
+	private Vector tmpVector2;
 
 	private int threadIndex;
 	private int threadCount;
@@ -28,6 +30,8 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 		this.threadCount = threadCount;
 		this.Objects = game.Objects;
 		this.renderer = renderer;
+		
+		this.tmpVector2 = new Vector();
 
 		clip2 = new Vector[6][8];
 		clipUV2 = new double[6][8][3];
@@ -62,7 +66,7 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 			int objectIndex = threadIndex * objectsPerThread + j;
 			if (Objects.size() > objectIndex) {
 				Object3D obj = Objects.get(objectIndex);
-				if (obj.update(game, clip2, clipUV2) && obj instanceof BufferRenderable br) {
+				if (obj.update(game, clip2, clipUV2, tmpVector2) && obj instanceof BufferRenderable br) {
 					br.drawToBuffer(renderer.ZBuffer, game, bufferUVZmin, bufferUVZmax);
 
 					if (obj instanceof Polygon3D p) {

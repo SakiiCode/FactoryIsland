@@ -8,7 +8,7 @@ import ml.sakii.factoryisland.Vector2D;
 
 public class GradientCalculator {
 	
-	public static Point2D.Float[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Game game){
+	public static Point2D.Float[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector[] tmpArr, Game game){
 		
 		float[][] values = calculate(nearby, target);
 		
@@ -16,17 +16,20 @@ public class GradientCalculator {
 		float[] begin = values[1];
 		float[] end = values[2];
 		
-		Vector[] input = {
+		/*Vector[] input = {
 				new Vector(x+begin1[0], y+begin1[1], z+begin1[2]),
 				new Vector(x+begin[0], y+begin[1], z+begin[2]),
-				new Vector(x+end[0], y+end[1], z+end[2])};
+				new Vector(x+end[0], y+end[1], z+end[2])};*/
+		tmpArr[0].set(x+begin1[0], y+begin1[1], z+begin1[2]);
+		tmpArr[1].set(x+begin[0], y+begin[1], z+begin[2]);
+		tmpArr[2].set(x+end[0], y+end[1], z+end[2]);
 		
 		Point2D.Float[] output = new Point2D.Float[] {
 				new Point2D.Float(),
 				new Point2D.Float(),
 				new Point2D.Float()};
 		
-		return game.convert3Dto2D(input, output, 3);
+		return game.convert3Dto2D(tmpArr, output, 3);
 		
 	}
 	

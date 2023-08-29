@@ -176,7 +176,7 @@ public class GameEngine{
 							}
 
 						}
-						for(Entity data : world.getAllEntities()) {
+						for(Entity data : new ArrayList<>(world.getAllEntities())) { // hurtEntity miatt ConcurrentModificationException
 							if(data instanceof PlayerMP && data != PlayerMP.ServerPerson) {
 								
 								if(data.getPos().distance(alien.getPos())<0.2) {

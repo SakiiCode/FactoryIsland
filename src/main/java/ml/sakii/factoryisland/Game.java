@@ -1157,13 +1157,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 	
-	public Point[] convert3Dto2D(Vector[] input, Point[] output, int size)
+	public Point[] convert3Dto2D(Vector[] input, Point[] output, int size, Vector tmp)
 	{
 		int zoom = Config.getZoom();
 		Vector PEPos = PE.getPos();
 		
 		for(int i=0;i<size;i++) {
-			Vector tmp = input[i].cpy();
+			tmp.set(input[i]);
 		
 			tmp.substract(PEPos);
 			
