@@ -91,7 +91,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				
 		if(!game.locked) {
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
-				faceFilter=true;
+				faceFilter = true;
 			}else {
 				faceFilter = tmpVector.set(Vertices[0]).substract(game.PE.getPos()).DotProduct(normal) < 0;
 			}
@@ -103,12 +103,18 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			
 			
 		AvgDist = game.PE.getPos().distance(centroid);
-		if(AvgDist > Config.renderDistance || isAllBehind(game)) {
+		if(AvgDist > Config.renderDistance) {
+			return false;
+		}
+		
+		if(isAllInvisible(game, new Vector())) {
 			return false;
 		}
 		
 		resetClipsTo(Vertices, UVMap, Vertices.length);
+		if(!isAllVisible(game, new Vector())) {
 			clip(clip2, clipUV2, game.ViewFrustum.sides);
+		}
 			
 		if(game.locked){
 			clip(clip2, clipUV2, game.ViewFrustum.tmpnear);
@@ -669,15 +675,19 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	
 	
-	private boolean isAllBehind(Game game) { //7.1% -> 4.9%
-		
-		return tmpVector.set(game.ViewVector)
-				.multiply(physicalRadius)
-				.add(centroid)
-				.substract(game.PE.getPos())
-				.DotProduct(game.ViewVector)<0;
-		
+	
+	private boolean isAllInvisible(Game game, Vector tmpVector2) {
+		Vector pos = tmpVector.set(game.ViewVector).multiply(-physicalRadius*3).add(game.PE.getPos());
+		return !Util.sphereCone(centroid, physicalRadius, pos, game.ViewVector, game.ViewFrustum.bigSinAngle, game.ViewFrustum.bigTanSq, tmpVector2);
+
 	}
+	
+	private boolean isAllVisible(Game game, Vector tmpVector2) {
+		Vector pos = tmpVector.set(game.ViewVector).multiply(physicalRadius*3).add(game.PE.getPos());
+		return Util.sphereCone(centroid, physicalRadius, pos, game.ViewVector, game.ViewFrustum.smallSinAngle, game.ViewFrustum.smallTanSq, tmpVector2);
+	}
+	
+	
 	
 	
 	private static float getRadius(Polygon polygon){

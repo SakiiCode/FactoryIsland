@@ -105,8 +105,11 @@ public class Vector {
 	}
 	
 	public float getLength(){
-		
 		return (float) Math.sqrt(x*x+y*y+z*z);
+	}
+	
+	public float getLengthSq(){
+		return x*x+y*y+z*z;
 	}
 	
 	@Override

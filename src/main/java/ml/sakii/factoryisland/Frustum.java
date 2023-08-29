@@ -3,7 +3,11 @@ package ml.sakii.factoryisland;
 public class Frustum {
 	Plane[] sides = new Plane[4];
 	Plane tmpnear = new Plane();
-	private float hratio, vratio;
+	float hratio, vratio;
+	float bigRadius, smallRadius;
+	float bigSinAngle, bigTanSq;
+	float smallSinAngle, smallTanSq;
+	
 	private Game game;
 	private Vector al, ar, at, ab;
 
@@ -22,6 +26,18 @@ public class Frustum {
 	void setRatios(float hratio, float vratio) {
 		this.hratio = hratio;
 		this.vratio = vratio;
+		
+		bigRadius = Config.getDiagonalFOV()*0.5f;
+		smallRadius = (float) Math.toRadians(Config.FOV/2);
+		
+		Main.log("bigRadius: " + bigRadius + " ("+Math.toDegrees(bigRadius)+"°)");
+		Main.log("smallRadius: " + smallRadius + " ("+Math.toDegrees(smallRadius)+"°)");
+		
+		bigSinAngle = (float) Math.sin(bigRadius);
+		bigTanSq = (float) (1 + Math.pow(Math.tan(bigRadius), 2));
+		
+		smallSinAngle = (float) Math.sin(smallRadius);
+		smallTanSq = (float) (1 + Math.pow(Math.tan(smallRadius), 2));
 	}
 
 	void update() {

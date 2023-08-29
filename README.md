@@ -23,5 +23,6 @@
 - [hendriks73](https://github.com/hendriks73/ffsampledsp) for the FFSampledSP library
 - [Bresenham](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm) for the line drawing algorithm
 - [mikolalysenko (0fps.net)](https://0fps.net/2013/07/03/ambient-occlusion-for-minecraft-like-worlds/) for the ambient occlusion
+- [Squareys](https://blog.squareys.de/sphere-cone-intersection/) for the sphere-cone intersection algorithm
 - [Leo Ono](https://www.youtube.com/c/LeoOno), [FuzzyCat](https://www.youtube.com/channel/UCxosPk3zlNp98CS1YGCzGww), [ThinMatrix](https://www.youtube.com/c/ThinMatrix) and [Gameplicit](https://www.twitch.tv/gameplicit) for inspiration
 - Countless anonymous StackExchange, Reddit and other users for guidance in the right direction

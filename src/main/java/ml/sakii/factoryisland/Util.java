@@ -45,5 +45,21 @@ public class Util {
 		return value;
 	}
 	
+	/** @param coneOrigin IMMUTABLE */
+	public static boolean sphereCone(Vector sphereCenter, float sphereRadius, Vector coneOrigin, Vector coneNormal, float sinAngle, float tanAngleSqPlusOne, Vector tmpVector)
+	{
+	    Vector diff = coneOrigin.multiply(-1).add(sphereCenter);
+	    
+	    if(tmpVector.set(coneNormal).multiply(sinAngle).multiply(sphereRadius).multiply(-1).add(diff).DotProduct(coneNormal) > 0) {
+	    	//Vector c = diff.multiply(sinAngle).add(coneNormal.cpy().multiply(sphereRadius));
+	    	Vector c = diff.multiply(sinAngle).add(tmpVector.set(coneNormal).multiply(sphereRadius));
+	    	double lenA = c.DotProduct(coneNormal);
+	    	
+	    	return c.getLengthSq() <= lenA*lenA*tanAngleSqPlusOne;
+	    }else {
+	    	return diff.getLengthSq() <= sphereRadius*sphereRadius;
+	    }
+	}
+	
 
 }
