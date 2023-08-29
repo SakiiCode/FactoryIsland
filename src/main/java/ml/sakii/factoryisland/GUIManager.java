@@ -45,6 +45,13 @@ public class GUIManager {
 			
 			 // linuxon a talcat es stb nem lehet eltakarni
 			GraphicsDevice d = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[Main.screen];
+			
+			if(d.isFullScreenSupported()) {
+				Main.log("FSE mode supported");
+			}else {
+				Main.log("FSE mode emulated");
+			}
+			
 			d.setFullScreenWindow(Frame);
 			
 		} else {
