@@ -82,8 +82,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	private boolean F3 = false;
 	private float FPS = 30f;
 	private LinkedList<String> debugInfo = new LinkedList<>();
-	private long lastTime;
-	private int totalframes;
 	private long previousTime, currentTime;
 
 
@@ -627,7 +625,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					}
 				} else
 				{
-					g.drawString("FPS: " + (int) measurement, 20, 20);
+					g.drawString("FPS: " + (int) (1000f/measurement), (int)(viewportscale*20), (int)(viewportscale*20));
 	
 				}
 				
@@ -641,10 +639,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					{
 
 						BufferedImage viewmodel = Main.Items.get(PE.inventory.getSelectedKind().name).ViewmodelTexture;
-						int wv = viewmodel.getWidth();
-						int hv = viewmodel.getHeight();
+						int x = Config.getWidth() * 2 / 3;
+						int y = (int) (Config.getHeight() - viewportscale * viewmodel.getHeight());
+						int w = (int) (viewmodel.getWidth() * 2 * viewportscale);
+						int h = (int) (viewmodel.getHeight() * 2 * viewportscale);
 	
-						g.drawImage(viewmodel, Config.getWidth() / 3 * 2, Config.getHeight() - hv, 2 * wv, 2 * hv, null);
+						g.drawImage(viewmodel, x, y, w, h, null);
 
 					}
 					

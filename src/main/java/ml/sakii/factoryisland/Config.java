@@ -88,11 +88,11 @@ public class Config {
 	}
 	
 	public static float getHorizontalFOV() {
-		return (float) (2*Math.atan(Main.Width/2/zoom));
+		return (float) (2*Math.atan(getWidth()/2/zoom));
 	}
 	
 	public static float getDiagonalFOV() {
-		return (float) (2*Math.atan2(Math.sqrt(Main.Width*Main.Width+Main.Height*Main.Height)/2,zoom));
+		return (float) (2*Math.atan2(Math.sqrt(getWidth()*getWidth()+getHeight()*getHeight())/2,zoom));
 	}
 		
 	
