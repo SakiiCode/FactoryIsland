@@ -33,10 +33,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private final Point[] result = new Point[8];
 	private int clipSize;
 	
+	//TODO ezeket render szálanként tárolni
 	private Vector tmpVector = new Vector();
 	private Vector[] tmpArr = new Vector[] {new Vector(),new Vector(), new Vector()};
 	private Vector2D lineVec = new Vector2D();
 	private Vector2D pointVec = new Vector2D();
+	private Point2D.Float[] values = new Point2D.Float[] {new Point2D.Float(),new Point2D.Float(),new Point2D.Float()};
+
 
 	private UVZ tmpUVZ1 = new UVZ();
 	private UVZ tmpUVZ2 = new UVZ();
@@ -114,12 +117,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			return false;
 		}
 		
-		if(isAllInvisible(game, new Vector())) {
+		if(isAllInvisible(game, tmpVector2)) {
 			return false;
 		}
 		
 		resetClipsTo(Vertices, UVMap, Vertices.length);
-		if(!isAllVisible(game, new Vector())) {
+		if(!isAllVisible(game, tmpVector2)) {
 			clip(clip2, clipUV2, game.ViewFrustum.sides);
 		}
 			
@@ -359,45 +362,46 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			{
 			 
 		 		double iz=Util.interpSlope(xmin, x, uvzmin.iz, Siz);
-		 		//TODO megnezni miert van eltolva x+1
+		 		
+			 	
+			 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
+			 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
+			 	
+			 	double u=uz/iz;
+			 	double v=vz/iz;
+			 	
+			 	
+			 	double aoz=0, ao=0;
+			 	if(Config.ambientOcclusion) {
+			 		aoz=Util.interpSlope(xmin, x, uvzmin.ao, Sao);
+			 		ao=Util.limit(aoz/iz,0,1);
+			 	}
+			 	
+			 	int rgb;
+			 	
+			 	try {
+			 		int px;
+			 		if(s.color) {
+			 			px=s.c.getRGB();
+			 		}else {
+			 			int u2 = Util.limit((int)u, 0, s.Texture.getWidth()-1);
+			 			int v2 = Util.limit((int)v, 0, s.Texture.getHeight()-1);
+			 			px=s.Texture.getRGB(u2, v2);
+			 		}
+			 		//px=px|0xFF000000;
+			 		rgb = Color4.blend(px, overlay.getRGB());
+			 		if(Config.ambientOcclusion) {
+			 			rgb=Color4.blend(rgb,Color4.getRGB(0, 0, 0, (int)(ao*255)));
+			 		}
+
+
+			 	}catch(Exception e) {
+			 		System.out.println(e.getMessage()+" (u:"+u+",v:"+v+",ao:"+ao);
+			 		rgb=0xFF000000;
+			 	}
+			 	
+			 	//TODO megnezni miert van eltolva x+1
 		 		synchronized(ZBuffer[x+1][y]) {
-				 	
-				 	double uz=Util.interpSlope(xmin, x, uvzmin.uz, Suz);
-				 	double vz=Util.interpSlope(xmin, x, uvzmin.vz, Svz);
-				 	
-				 	double u=uz/iz;
-				 	double v=vz/iz;
-				 	
-				 	
-				 	double aoz=0, ao=0;
-				 	if(Config.ambientOcclusion) {
-				 		aoz=Util.interpSlope(xmin, x, uvzmin.ao, Sao);
-				 		ao=Util.limit(aoz/iz,0,1);
-				 	}
-				 	
-				 	int rgb;
-				 	
-				 	try {
-				 		int px;
-				 		if(s.color) {
-				 			px=s.c.getRGB();
-				 		}else {
-				 			int u2 = Util.limit((int)u, 0, s.Texture.getWidth()-1);
-				 			int v2 = Util.limit((int)v, 0, s.Texture.getHeight()-1);
-				 			px=s.Texture.getRGB(u2, v2);
-				 		}
-				 		//px=px|0xFF000000;
-				 		rgb = Color4.blend(px, overlay.getRGB());
-				 		if(Config.ambientOcclusion) {
-				 			rgb=Color4.blend(rgb,Color4.getRGB(0, 0, 0, (int)(ao*255)));
-				 		}
-
-
-				 	}catch(Exception e) {
-				 		System.out.println(e.getMessage()+" (u:"+u+",v:"+v+",ao:"+ao);
-				 		rgb=0xFF000000;
-				 	}
-				 	
 				 	if(Color4.getAlpha(rgb)==255) {
 				 		if(ZBuffer[x+1][y].depth<iz) {
 				 			ZBuffer[x+1][y].depth=iz;
@@ -409,8 +413,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				 			ZBuffer[x+1][y].overlayColor=rgb;
 				 		}
 				 	}
-			 		
 		 		}
+		 		
 			}
 				
 		}
@@ -609,7 +613,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		OcclusionPaints.clear();
 		
 		for(BlockFace nearbyFace : SimpleOcclusions) {
-			Point2D.Float[] values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, tmpArr, game);				
+			values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, tmpArr, game);				
 			
 			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 
@@ -619,11 +623,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 		
 		BlockFace face = currentFace;
-		
-		Point2D.Float[] values = new Point2D.Float[3];
-		for(int i=0;i<values.length;i++) {
-			values[i] = new Point2D.Float();
-		}
 		
 		for(Point3D delta : CornerOcclusions) {
 			
