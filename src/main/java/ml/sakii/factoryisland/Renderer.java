@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import ml.sakii.factoryisland.entities.PlayerMP;
 
 public class Renderer {
@@ -14,22 +12,22 @@ public class Renderer {
 	private Game game;
 	
 	private Star[] Stars = new Star[200];
-	private Vector tmpVector = new Vector();
 
 	PixelData[][] ZBuffer;
 
 	Polygon3D SelectedPolygon;
 
-	private AtomicInteger VisibleCounter = new AtomicInteger(0);
+	private int VisibleCounter;
 	private MaskManager maskManager = new MaskManager();
+	private UpdateContext updateContext;
 	
 	ArrayList<ObjectUpdateThread> flatTasks = new ArrayList<>();
 	ArrayList<TextureRenderThread> texturedTasks = new ArrayList<>();
 	ArrayList<Object3D> filtered = new ArrayList<>();
 	
 	public Renderer(Game game) {
-		this.game=game;
-		
+		this.game = game;
+		this.updateContext = new UpdateContext(game);
 		
 		
 		
@@ -84,11 +82,11 @@ public class Renderer {
 		Stars[Stars.length-1].pos.set((float)Math.cos(timeFraction*2*Math.PI), 0f, (float)Math.sin(timeFraction*2*Math.PI));
 		
 		if(Config.fogEnabled) {
-			Stars[Stars.length-1].update(game, null, null, tmpVector);
+			Stars[Stars.length-1].update(updateContext);
 			Stars[Stars.length-1].draw(g,game);
 		}else {
 			for(Star star : Stars) {
-				if(star.update(game, null, null, tmpVector)) {
+				if(star.update(updateContext)) {
 					star.draw(g, game);
 				}
 			}
@@ -96,11 +94,11 @@ public class Renderer {
 	
 		if(Config.useTextures && !game.locked) {
 			clearZBuffer();
-			VisibleCounter.set(0);
+			VisibleCounter = 0;
 			
 			updateRenderTextured();
 			
-			game.VisibleCount=VisibleCounter.get();
+			game.VisibleCount = VisibleCounter;
 			
 			maskManager.clear();
 			maskManager.copyParallel(ZBuffer, game.key[6]);
@@ -156,7 +154,7 @@ public class Renderer {
 		}
 		
 		for(TextureRenderThread task : texturedTasks) {
-			VisibleCounter.addAndGet(task.join());
+			VisibleCounter += task.join();
 		}
 	}
 	

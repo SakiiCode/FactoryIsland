@@ -6,31 +6,18 @@ import java.util.concurrent.ForkJoinTask;
 public class ObjectUpdateThread extends ForkJoinTask<ArrayList<Object3D>> {
 
 	private static final long serialVersionUID = -4446511856579332836L;
-	private Game game;
 	private ArrayList<Object3D> Objects;
 	private int threadIndex;
 	private int threadCount;
+	private UpdateContext context;
 	ArrayList<Object3D> result = new ArrayList<>();
-	private Vector[][] clip2;
-	private double[][][] clipUV2;
-	private Vector tmpVector2;
+	
 
 	public ObjectUpdateThread(Game game, int threadIndex, int threadCount) {
-		this.game = game;
 		this.threadIndex = threadIndex;
 		this.threadCount = threadCount;
 		this.Objects = game.Objects;
-		
-		this.tmpVector2 = new Vector();
-		
-		clip2 = new Vector[6][8];
-		clipUV2=new double[6][8][3];
-
-		for(int i=0;i<clip2.length;i++) {
-			for(int j=0;j<clip2[0].length;j++) {
-				clip2[i][j]=new Vector();
-			}
-		}
+		this.context = new UpdateContext(game);
 	}
 
 	@Override
@@ -52,7 +39,7 @@ public class ObjectUpdateThread extends ForkJoinTask<ArrayList<Object3D>> {
 			int objectIndex = threadIndex * objectsPerThread + j;
 			if(Objects.size() > objectIndex) {
 				Object3D obj = Objects.get(objectIndex); 
-				if (obj.update(game, clip2, clipUV2, tmpVector2)) {
+				if (obj.update(context)) {
 					result.add(obj);
 				}
 			}

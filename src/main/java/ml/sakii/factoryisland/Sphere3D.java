@@ -79,12 +79,12 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	}
 	
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector2) {
+	protected boolean update(UpdateContext context) {
 		for(Polygon3D p : Polygons) {
-			p.update(game, clip2, clipUV2, tmpVector2);
+			p.update(context);
 		}
-		centerDist = game.PE.getPos().distance(pos);
-		if(game.key[8]) {
+		centerDist = context.game.PE.getPos().distance(pos);
+		if(context.game.key[8]) {
 			AvgDist = 4;
 		}else {
 			AvgDist = centerDist;
@@ -126,10 +126,10 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 	}
 	
 	@Override
-	public void drawToBuffer(PixelData[][] ZBuffer, Game game, UVZ[] bufferUVZmin, UVZ[] bufferUVZmax) {
+	public void drawToBuffer(TextureRenderThread context) {
 		for(SpherePolygon3D p : Polygons) {
 			if(p.isVisible()) {
-				p.drawToBuffer(ZBuffer, game, bufferUVZmin, bufferUVZmax);
+				p.drawToBuffer(context);
 			}
 		}
 	}
@@ -146,13 +146,13 @@ public class Sphere3D extends Object3D implements BufferRenderable{
 		}
 		
 		@Override
-		protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector2) {
-			visible = super.update(game, clip2, clipUV2, tmpVector2);
+		protected boolean update(UpdateContext context) {
+			visible = super.update(context);
 			if(!Config.useTextures) {
-				if(game.key[8]) {
+				if(context.game.key[8]) {
 					AvgDist = 4;
 				}else {
-					AvgDist = game.PE.getPos().distance(pos);
+					AvgDist = context.game.PE.getPos().distance(pos);
 				}
 			}
 			

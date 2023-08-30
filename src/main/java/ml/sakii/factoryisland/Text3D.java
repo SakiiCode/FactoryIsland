@@ -22,18 +22,18 @@ public class Text3D extends Object3D
 	}
 
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector)
+	protected boolean update(UpdateContext context)
 	{
 		
 		ViewToPoint.set(location);
-		ViewToPoint.substract(game.PE.getPos());
+		ViewToPoint.substract(context.game.PE.getPos());
 		
 		AvgDist = ViewToPoint.getLength();
 		
-		if (ViewToPoint.DotProduct(game.ViewVector) > 0)
+		if (ViewToPoint.DotProduct(context.game.ViewVector) > 0)
 		{
 			ViewToPoint.set(location);
-			game.convert3Dto2D(ViewToPoint, proj);
+			context.game.convert3Dto2D(ViewToPoint, proj);
 			x = (int) proj.getX();
 			y = (int) proj.getY();
 			return true;

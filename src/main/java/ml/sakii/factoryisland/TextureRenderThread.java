@@ -7,21 +7,25 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 
 	private static final long serialVersionUID = -3786171665982151847L;
 
-	private UVZ[] bufferUVZmin;
-	private UVZ[] bufferUVZmax;
-
-	private Game game;
+	// drawToBuffer parameters
+	UVZ[] bufferUVZmin;
+	UVZ[] bufferUVZmax;
+	Vector tmpVector;
+	int[] bufferXmin;
+	int[] bufferXmax;
+	Renderer renderer;
+	Game game;
+	
+	
 	private ArrayList<Object3D> Objects;
 	private ArrayList<Object3D> result = new ArrayList<>();
-	private Renderer renderer;
 	private int visibleCount;
 	
-	private Vector tmpVector2;
 
 	private int threadIndex;
 	private int threadCount;
-	private Vector[][] clip2;
-	private double[][][] clipUV2;
+	
+	private UpdateContext context;
 
 	public TextureRenderThread(Game game, Renderer renderer, int threadIndex, int threadCount) {
 
@@ -31,16 +35,9 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 		this.Objects = game.Objects;
 		this.renderer = renderer;
 		
-		this.tmpVector2 = new Vector();
-
-		clip2 = new Vector[6][8];
-		clipUV2 = new double[6][8][3];
-
-		for (int i = 0; i < clip2.length; i++) {
-			for (int j = 0; j < clip2[0].length; j++) {
-				clip2[i][j] = new Vector();
-			}
-		}
+		this.tmpVector = new Vector();
+		
+		this.context = new UpdateContext(game);
 		
 		resizeScreen();
 	}
@@ -66,8 +63,8 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 			int objectIndex = threadIndex * objectsPerThread + j;
 			if (Objects.size() > objectIndex) {
 				Object3D obj = Objects.get(objectIndex);
-				if (obj.update(game, clip2, clipUV2, tmpVector2) && obj instanceof BufferRenderable br) {
-					br.drawToBuffer(renderer.ZBuffer, game, bufferUVZmin, bufferUVZmax);
+				if (obj.update(context) && obj instanceof BufferRenderable br) {
+					br.drawToBuffer(this);
 
 					if (obj instanceof Polygon3D p) {
 
@@ -99,6 +96,9 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 		for (int i = 0; i < bufferUVZmax.length; i++) {
 			bufferUVZmax[i] = new UVZ();
 		}
+		
+		bufferXmin = new int[Config.getHeight()];
+		bufferXmax = new int[Config.getHeight()];
 	}
 
 }

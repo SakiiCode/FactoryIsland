@@ -32,14 +32,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private final Vector[] clip = new Vector[8];
 	private final Point[] result = new Point[8];
 	private int clipSize;
-	
-	//TODO ezeket render szálanként tárolni
-	private Vector tmpVector = new Vector();
-	private Vector[] tmpArr = new Vector[] {new Vector(),new Vector(), new Vector()};
-	private Vector2D lineVec = new Vector2D();
-	private Vector2D pointVec = new Vector2D();
-	private Point2D.Float[] values = new Point2D.Float[] {new Point2D.Float(),new Point2D.Float(),new Point2D.Float()};
-
 
 	private UVZ tmpUVZ1 = new UVZ();
 	private UVZ tmpUVZ2 = new UVZ();
@@ -97,13 +89,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 
 
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector2){
-				
+	protected boolean update(UpdateContext context){
+		Game game = context.game;
 		if(!game.locked) {
 			if(game.insideBlock(this) || (Config.useTextures && game.insideSphere(this))) {
 				faceFilter = true;
 			}else {
-				faceFilter = tmpVector.set(Vertices[0]).substract(game.PE.getPos()).DotProduct(normal) < 0;
+				faceFilter = context.tmpVector.set(Vertices[0]).substract(game.PE.getPos()).DotProduct(normal) < 0;
 			}
 		}
 		
@@ -117,24 +109,24 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			return false;
 		}
 		
-		if(isAllInvisible(game, tmpVector2)) {
+		if(isAllInvisible(context)) {
 			return false;
 		}
 		
 		resetClipsTo(Vertices, UVMap, Vertices.length);
-		if(!isAllVisible(game, tmpVector2)) {
-			clip(clip2, clipUV2, game.ViewFrustum.sides);
+		if(!isAllVisible(context)) {
+			clip(context, game.ViewFrustum.sides);
 		}
 			
 		if(game.locked){
-			clip(clip2, clipUV2, game.ViewFrustum.tmpnear);
+			clip(context, game.ViewFrustum.tmpnear);
 		}
 		
 		if(clipSize == 0){
 			return false;
 		}
 			
-		game.convert3Dto2D(clip, result, clipSize, tmpVector);
+		game.convert3Dto2D(clip, result, clipSize, context.tmpVector);
 		
 		polygon.reset();
 		for(int i=0;i<clipSize;i++) {
@@ -160,7 +152,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			}
 		
 		}else if(Config.ambientOcclusion) {
-			recalcOcclusionPaints(game);
+			recalcOcclusionPaints(context);
 		}
 		
 		return true;
@@ -232,14 +224,15 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 		
 	@Override
-	public void drawToBuffer(PixelData[][] ZBuffer, Game game, UVZ[] bufferUVZmin, UVZ[] bufferUVZmax) {
+	public void drawToBuffer(TextureRenderThread context) {
 		
 		// buffer init
-		int[] bufferXmin = new int[ymax-ymin+2];
+		int[] bufferXmin = context.bufferXmin;
 		for(int i=0;i<bufferXmin.length;i++) {
 			bufferXmin[i]=Config.getWidth()+1;
 		}
-		int[] bufferXmax = new int[ymax-ymin+2];
+		
+		int[]bufferXmax = context.bufferXmax;
 		for(int i=0;i<bufferXmax.length;i++) {
 			bufferXmax[i]=-1;
 		}
@@ -253,8 +246,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			Vector v1 = clip[index1]; 
 			Vector v2 = clip[index2];
 			
-			getUVZ(tmpVector.set(v1), clipUV[index1], game, tmpUVZ1);
-			getUVZ(tmpVector.set(v2), clipUV[index2], game, tmpUVZ2);
+			getUVZ(context.tmpVector.set(v1), clipUV[index1], context.game, tmpUVZ1);
+			getUVZ(context.tmpVector.set(v2), clipUV[index2], context.game, tmpUVZ2);
 			
 			
 			final Point p1 = result[index1];
@@ -296,7 +289,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				}
 				if(x < bufferXmin[y-this.ymin]) {
 					bufferXmin[y-this.ymin] = (int)x;
-					UVZ.interp(p1, p2, x, y, tmpUVZ1, tmpUVZ2, bufferUVZmin[y-this.ymin]);
+					UVZ.interp(p1, p2, x, y, tmpUVZ1, tmpUVZ2, context.bufferUVZmin[y-this.ymin]);
 				}
 				
 				if(y-this.ymin>=bufferXmax.length) {
@@ -307,7 +300,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				
 				if(x > bufferXmax[y-this.ymin]) {
 					bufferXmax[y-this.ymin] = (int)x;
-					UVZ.interp(p1, p2, x, y, tmpUVZ1, tmpUVZ2, bufferUVZmax[y-this.ymin]);
+					UVZ.interp(p1, p2, x, y, tmpUVZ1, tmpUVZ2, context.bufferUVZmax[y-this.ymin]);
 				}
 				
 				x+=m;
@@ -330,18 +323,18 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			
 			int xmin=bufferXmin[y-ymin];
 			int xmax=bufferXmax[y-ymin];
-			UVZ uvzmin = bufferUVZmin[y-ymin];
-			UVZ uvzmax = bufferUVZmax[y-ymin];
+			UVZ uvzmin = context.bufferUVZmin[y-ymin];
+			UVZ uvzmax = context.bufferUVZmax[y-ymin];
 		 
 			if(uvzmin == null) {
-				Main.err("uvzmin is null - y: "+y+", ymin: "+ymin+", length: "+bufferUVZmin.length+", index: "+(y-ymin));
-				Main.err(bufferUVZmin);
+				Main.err("uvzmin is null - y: "+y+", ymin: "+ymin+", length: "+context.bufferUVZmin.length+", index: "+(y-ymin));
+				Main.err(context.bufferUVZmin);
 				return;
 			}
 			
 			if(uvzmax == null) {
-				Main.err("uvzmax is null - y: "+y+", ymin: "+ymin+", length: "+bufferUVZmax.length+", index: "+(y-ymin));
-				Main.err(bufferUVZmax);
+				Main.err("uvzmax is null - y: "+y+", ymin: "+ymin+", length: "+context.bufferUVZmax.length+", index: "+(y-ymin));
+				Main.err(context.bufferUVZmax);
 				return;
 			}
 
@@ -400,6 +393,8 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			 		rgb=0xFF000000;
 			 	}
 			 	
+			 	PixelData[][] ZBuffer = context.renderer.ZBuffer;
+			 	
 			 	//TODO megnezni miert van eltolva x+1
 		 		synchronized(ZBuffer[x+1][y]) {
 				 	if(Color4.getAlpha(rgb)==255) {
@@ -429,13 +424,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 				Vector v1 = clip[index1]; 
 				Vector v2 = clip[index2];
 				
-				getUVZ(tmpVector.set(v1), clipUV[index1], game, tmpUVZ1);
-				getUVZ(tmpVector.set(v2), clipUV[index2], game, tmpUVZ2);
+				getUVZ(context.tmpVector.set(v1), clipUV[index1], context.game, tmpUVZ1);
+				getUVZ(context.tmpVector.set(v2), clipUV[index2], context.game, tmpUVZ2);
 				
 				final Point p1 = result[index1];
 				final Point p2 = result[index2];
 				
-				Bresenham.plotLine(p1.x, p1.y, p2.x, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
+				Bresenham.plotLine(p1.x, p1.y, p2.x, p2.y, context.renderer.ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
 			}
 			
 			if(Config.getHeight()>=1440) {
@@ -447,13 +442,13 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 					Vector v1 = clip[index1]; 
 					Vector v2 = clip[index2];
 					
-					getUVZ(tmpVector.set(v1), clipUV[index1], game, tmpUVZ1);
-					getUVZ(tmpVector.set(v2), clipUV[index2], game, tmpUVZ2);
+					getUVZ(context.tmpVector.set(v1), clipUV[index1], context.game, tmpUVZ1);
+					getUVZ(context.tmpVector.set(v2), clipUV[index2], context.game, tmpUVZ2);
 					
 					final Point p1 = result[index1];
 					final Point p2 = result[index2];
 					
-					Bresenham.plotLine(p1.x+1, p1.y, p2.x+1, p2.y, ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
+					Bresenham.plotLine(p1.x+1, p1.y, p2.x+1, p2.y, context.renderer.ZBuffer, tmpUVZ1.iz, tmpUVZ2.iz);
 				}	
 			}
 		}
@@ -618,7 +613,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		}
 	}
 	
-	private void recalcOcclusionPaints(Game game) {
+	private void recalcOcclusionPaints(UpdateContext context) {
 		if(!(model instanceof Block)){
 			return;
 		}
@@ -627,11 +622,11 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		OcclusionPaints.clear();
 		
 		for(BlockFace nearbyFace : SimpleOcclusions) {
-			values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, tmpArr, game);				
+			context.values = GradientCalculator.getGradientOf(b.x, b.y, b.z, currentFace, nearbyFace, context.tmpArr, context.game);				
 			
-			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
+			GradientCalculator.getPerpendicular(context.values, context.pointVec, context.lineVec);
 
-			OcclusionPaints.add(new GradientPaint(lineVec,	Color4.AO_MAX_FLAT, values[2], Color4.TRANSPARENT));
+			OcclusionPaints.add(new GradientPaint(context.lineVec,	Color4.AO_MAX_FLAT, context.values[2], Color4.TRANSPARENT));
 		}
 		
 
@@ -646,16 +641,16 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			
 			int corner = c.toInt();
 			
-			tmpArr[0].set(Vertices[Math.floorMod(corner-1, 4)]);
-			tmpArr[1].set(Vertices[Math.floorMod(corner+1, 4)]);
-			tmpArr[2].set(Vertices[Math.floorMod(corner, 4)]);
-			game.convert3Dto2D(tmpArr, values, 3);
+			context.tmpArr[0].set(Vertices[Math.floorMod(corner-1, 4)]);
+			context.tmpArr[1].set(Vertices[Math.floorMod(corner+1, 4)]);
+			context.tmpArr[2].set(Vertices[Math.floorMod(corner, 4)]);
+			context.game.convert3Dto2D(context.tmpArr, context.values, 3);
 			
 			
-			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
+			GradientCalculator.getPerpendicular(context.values, context.pointVec, context.lineVec);
 			
 
-			OcclusionPaints.add(new GradientPaint(lineVec, Color4.TRANSPARENT, values[2], Color4.AO_MAX_FLAT));
+			OcclusionPaints.add(new GradientPaint(context.lineVec, Color4.TRANSPARENT, context.values[2], Color4.AO_MAX_FLAT));
 			
 		}
 
@@ -686,15 +681,31 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	
 	
 	
-	private boolean isAllInvisible(Game game, Vector tmpVector2) {
-		Vector pos = tmpVector.set(game.ViewVector).multiply(-physicalRadius*3).add(game.PE.getPos());
-		return !Util.sphereCone(centroid, physicalRadius, pos, game.ViewVector, game.ViewFrustum.bigSinAngle, game.ViewFrustum.bigTanSq, tmpVector2);
+	private boolean isAllInvisible(UpdateContext context) {
+		Vector pos = context.tmpVector.set(context.game.ViewVector)
+				.multiply(-physicalRadius*3)
+				.add(context.game.PE.getPos());
+		return !Util.sphereCone(centroid,
+				physicalRadius,
+				pos,
+				context.game.ViewVector,
+				context.game.ViewFrustum.bigSinAngle,
+				context.game.ViewFrustum.bigTanSq,
+				context.tmpVector2);
 
 	}
 	
-	private boolean isAllVisible(Game game, Vector tmpVector2) {
-		Vector pos = tmpVector.set(game.ViewVector).multiply(physicalRadius*3).add(game.PE.getPos());
-		return Util.sphereCone(centroid, physicalRadius, pos, game.ViewVector, game.ViewFrustum.smallSinAngle, game.ViewFrustum.smallTanSq, tmpVector2);
+	private boolean isAllVisible(UpdateContext context) {
+		Vector pos = context.tmpVector.set(context.game.ViewVector)
+				.multiply(physicalRadius*3)
+				.add(context.game.PE.getPos());
+		return Util.sphereCone(centroid,
+				physicalRadius,
+				pos,
+				context.game.ViewVector,
+				context.game.ViewFrustum.smallSinAngle,
+				context.game.ViewFrustum.smallTanSq,
+				context.tmpVector2);
 	}
 	
 	
@@ -735,20 +746,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		clipSize=size;
 	}
 	
-	private void clip(Vector[][] clip2, double[][][] clipUV2, Plane... planes){
+	private void clip(UpdateContext context, Plane... planes){
 		
 		
-		
+		Vector[][] clip2 = context.clip2;
+		double[][][] clipUV2 = context.clipUV2;
 		int clip2Size=clipSize;
-		
-		/*Vector[][] clip2 = new Vector[planes.length+1][8];
-		double[][][] clipUV2=new double[planes.length+1][8][3];
-
-		for(int i=0;i<clip2.length;i++) {
-			for(int j=0;j<clip2[0].length;j++) {
-				clip2[i][j]=new Vector();
-			}
-		}*/
 		
 		for(int j=0;j<clipSize;j++) {
 			clip2[0][j].set(clip[j]);
@@ -759,7 +762,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		while(pIndex<planes.length && clip2Size > 0) {
 			Plane P = planes[pIndex];
 
-			clip2Size = clip(clip2[pIndex],clipUV2[pIndex],clip2[pIndex+1],clipUV2[pIndex+1],P,clip2Size,tmpVector);
+			clip2Size = clip(clip2[pIndex],clipUV2[pIndex],clip2[pIndex+1],clipUV2[pIndex+1],P,clip2Size,context.tmpVector);
 			pIndex++;
 		}
 		resetClipsTo(clip2[pIndex],clipUV2[pIndex],clip2Size);

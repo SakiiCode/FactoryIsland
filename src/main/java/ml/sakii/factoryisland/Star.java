@@ -33,13 +33,13 @@ public class Star extends Object3D {
 
 	// TODO data-oriented
 	@Override
-	protected boolean update(Game game, Vector[][] clip2, double[][][] clipUV2, Vector tmpVector) {
-		if (game.ViewVector.DotProduct(pos) > 0 || (size < MAX_SIZE && Math.random() < 0.001f)) {
+	protected boolean update(UpdateContext context) {
+		if (context.game.ViewVector.DotProduct(pos) > 0 || (size < MAX_SIZE && Math.random() < 0.001f)) {
 			return false;
 		}
 
-		tmpVector.set(pos).add(game.PE.getPos());
-		game.convert3Dto2D(tmpVector, p);
+		context.tmpVector.set(pos).add(context.game.PE.getPos());
+		context.game.convert3Dto2D(context.tmpVector, p);
 		return true;
 	}
 
