@@ -177,7 +177,7 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		}
 
 
-		TargetPolygon.recalc(new Vector());
+		TargetPolygon.recalc();
 		
 		HitboxPolygons.put(TargetPolygon, target);
 

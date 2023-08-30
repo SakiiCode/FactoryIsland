@@ -21,9 +21,9 @@ public class Renderer {
 	private MaskManager maskManager = new MaskManager();
 	private UpdateContext updateContext;
 	
-	ArrayList<ObjectUpdateThread> flatTasks = new ArrayList<>();
-	ArrayList<TextureRenderThread> texturedTasks = new ArrayList<>();
-	ArrayList<Object3D> filtered = new ArrayList<>();
+	private ArrayList<ObjectUpdateThread> flatTasks = new ArrayList<>();
+	private ArrayList<TextureRenderThread> texturedTasks = new ArrayList<>();
+	private ArrayList<Object3D> filtered = new ArrayList<>();
 	
 	public Renderer(Game game) {
 		this.game = game;

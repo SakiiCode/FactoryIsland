@@ -529,8 +529,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				g.drawLine(cX - crosshairSize, cY, cX + crosshairSize, cY);
 				
 				
-				//int fontSize = (int) (Math.cbrt(Config.getHeight())*2)-2;
-				//TODO cache
 				int fontSize;
 				if(Config.getHeight()<1080) {
 					fontSize = (int) Util.interp(0,1080,Config.getHeight(),5,19);
@@ -596,10 +594,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity)+",VV:"+SelectedEntity.VerticalVector.z);
 					}
 					debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
-					int x=(int) Math.floor(PEPos.x) ;
-					int y= (int) Math.floor(PEPos.y);
-					int feetZ = (int) Math.floor(PEPos.z - ((1.7f + Globals.GravityAcceleration / FPS) * PE.VerticalVector.z));
-					PE.tmpPoint.set(x, y, feetZ);
 					long lastLightUpdateTick = Engine.Tick / (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) * (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY); 
 					debugInfo.add("SkyLight:"+Engine.getTimePercent()+
 							", level:"+Polygon3D.testLightLevel(Engine.getTimePercent())+
@@ -786,7 +780,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 
 		if (difX != 0)
-		{//TODO konstans választás
+		{
 			PE.ViewAngle.yaw += difX * Config.sensitivity / 20 * PE.VerticalVector.z;
 
 		}
@@ -1292,8 +1286,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			tmp.getGraphics().drawImage(VolatileFrameBuffer, 0,0,tmp.getWidth(), tmp.getHeight(), null);
 			AssetLibrary.FreezeBG = op.filter(tmp, null);
 		}else {
-			
-			AssetLibrary.FreezeBG = op.filter(Main.deepCopy(FrameBuffer), null);//TODO kell a deepcopy?
+			AssetLibrary.FreezeBG = op.filter(FrameBuffer, null);
 		}
 		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
 			//Engine.ticker.stop();
@@ -1390,7 +1383,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 	
-	public void startRotation(float target) {
+	private void startRotation(float target) {
 		rotationTarget=target;
 		rotationPhase=PE.VerticalVector.z;
 		//rotationTargetPitch = -PE.ViewAngle.pitch;

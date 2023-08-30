@@ -8,11 +8,10 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 	private static final long serialVersionUID = -3786171665982151847L;
 
 	// drawToBuffer parameters
-	UVZ[] bufferUVZmin;
-	UVZ[] bufferUVZmax;
+	UVZ[] bufferUVZmin, bufferUVZmax;
+	int[] bufferXmin, bufferXmax;
+	UVZ tmpUVZ1, tmpUVZ2;
 	Vector tmpVector;
-	int[] bufferXmin;
-	int[] bufferXmax;
 	Renderer renderer;
 	Game game;
 	
@@ -34,6 +33,8 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 		this.threadCount = threadCount;
 		this.Objects = game.Objects;
 		this.renderer = renderer;
+		this.tmpUVZ1 = new UVZ();
+		this.tmpUVZ2 = new UVZ();
 		
 		this.tmpVector = new Vector();
 		

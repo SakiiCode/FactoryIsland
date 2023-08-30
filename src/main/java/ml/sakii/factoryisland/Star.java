@@ -31,7 +31,6 @@ public class Star extends Object3D {
 		c= new Color4(Color.WHITE);
 	}
 
-	// TODO data-oriented
 	@Override
 	protected boolean update(UpdateContext context) {
 		if (context.game.ViewVector.DotProduct(pos) > 0 || (size < MAX_SIZE && Math.random() < 0.001f)) {

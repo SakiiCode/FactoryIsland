@@ -33,9 +33,6 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private final Point[] result = new Point[8];
 	private int clipSize;
 
-	private UVZ tmpUVZ1 = new UVZ();
-	private UVZ tmpUVZ2 = new UVZ();
-
 	
 	private int ymax, ymin;
 	private int light=0;
@@ -78,7 +75,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		for(int i=0;i<result.length;i++) {
 			result[i] = new Point();
 		}
-		recalc(new Vector());
+		recalc();
 		if(model.Engine != null) { //inditaskor
 			recalcLightedColor();
 		}
@@ -237,6 +234,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			bufferXmax[i]=-1;
 		}
 		
+		UVZ tmpUVZ1 = context.tmpUVZ1;
+		UVZ tmpUVZ2 = context.tmpUVZ2;
+		
 		//vertexről vertexre körbemegyünk
 		for(int i=0;i<clipSize;i++) {
 			
@@ -275,7 +275,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 			// y-t 1-gyel, x-et m-mel léptetjük
 			for(int y=ymin;y<ymax;y++) {
 				
-				// TODO ezek ki lettek javitva de debuggolashoz jo lehet
+				// feljebb a limit() nem engedi ezeket
 				if(y<this.ymin) {
 					Main.err("y<ymin  "+ y + " < "+this.ymin);
 					return;
@@ -657,12 +657,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 
 
-	public void recalc(Vector tmpVector) {
+	public void recalc() {
 		if(Vertices.length>0) {
 			Vector v0 = Vertices[0];
 			Vector v1 = Vertices[1];
 			Vector v2 = Vertices[2];
-			normal.set(v2).substract(v0).CrossProduct(tmpVector.set(v1).substract(v0));
+			normal.set(v2).substract(v0).CrossProduct(centroid.set(v1).substract(v0));
 		}
 		
 		float dx=0, dy=0, dz=0;
@@ -674,7 +674,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	        dz += v.z;
 	    }
 
-	    this.centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
+	    centroid.set(dx/pointCount, dy/pointCount, dz/pointCount);
 	}
 	
 	

@@ -10,7 +10,7 @@ public class ObjectUpdateThread extends ForkJoinTask<ArrayList<Object3D>> {
 	private int threadIndex;
 	private int threadCount;
 	private UpdateContext context;
-	ArrayList<Object3D> result = new ArrayList<>();
+	private ArrayList<Object3D> result = new ArrayList<>();
 	
 
 	public ObjectUpdateThread(Game game, int threadIndex, int threadCount) {

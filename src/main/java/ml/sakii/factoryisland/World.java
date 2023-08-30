@@ -71,6 +71,9 @@ public class World {
 	String success="OK";
 	public HashMap<Long, Entity> Entities = new HashMap<>();
 	private ArrayList<Block> Whole = new ArrayList<>(8000);
+	private Point3D tmpPoint = new Point3D();
+	public Point3D feetPoint = new Point3D();
+	public TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
 	
 	private int worldTop,worldBottom;
 	int lightCalcRuns=0;
@@ -637,9 +640,8 @@ public class World {
 		float targetX, targetY;
 		float nextX = entity.getPos().x + direction.x * coefficient / FPS;
 		float nextY = entity.getPos().y + direction.y * coefficient / FPS;
-		Point3D coords = entity.tmpPoint;
-		Block[] blocks6X = getCollidingBlocks(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, entity, coords);
-		Block[] blocks6Y = getCollidingBlocks(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, entity, coords);
+		Block[] blocks6X = getCollidingBlocks(nextX+Math.copySign(World.BLOCK_RANGE, direction.x), entity.getPos().y, entity.getPos().z, entity, tmpPoint);
+		Block[] blocks6Y = getCollidingBlocks(entity.getPos().x, nextY+Math.copySign(World.BLOCK_RANGE, direction.y), entity.getPos().z, entity, tmpPoint);
 		Block nextBlockX1 = blocks6X[0];// TOP
 		Block nextBlockX2 = blocks6X[1];// NONE
 		Block nextBlockX3 = blocks6X[2];// BOTTOM
@@ -929,45 +931,6 @@ public class World {
 		}
 	}
 	
-	//BFS -- recursive
-	/*private void modifyLight(Queue<Point3D> pointQueue, Queue<Integer> intensityQueue, boolean add, HashSet<Point3D> discovered, HashMap<Polygon3D, Integer> result) {
-		if(pointQueue.isEmpty()) return;
-		
-		//TODO memoriaoptimalizalas
-
-		Point3D coord = pointQueue.poll();
-		int intensity = intensityQueue.poll();
-		
-		if(intensity <= 0) return;
-		
-		//applyIntensityToNearby(new Point3D().set(coord),intensity, add, result);
-		
-		
-		for(Entry<BlockFace, Block> entry : get6Blocks(new Point3D().set(coord), true).entrySet()) {
-			Block b = entry.getValue();
-			BlockFace face = entry.getKey();
-			
-			if(b != Block.NOTHING) {
-				applyIntensity(b, face, intensity, add, result);
-			}
-
-			if(b == Block.NOTHING || b.transparent) {
-				//TODO memoriaoptimalizalas
-				Point3D nextCoord = new Point3D().set(coord).add(face);
-				if(!discovered.contains(nextCoord)) {
-					discovered.add(nextCoord);
-					pointQueue.add(nextCoord);
-					intensityQueue.add(intensity-1);
-				}
-			}
-		}
-		
-		
-		modifyLight(pointQueue,intensityQueue,add,discovered,result);
-		
-
-	}*/
-	
 	@SuppressWarnings("static-method")
 	private void applyIntensity(Block b, BlockFace opposite, int intensity, boolean add, HashMap<Polygon3D, Integer> result) {
 		//TODO reverse lookup
@@ -1114,9 +1077,6 @@ public class World {
 	}
 
 	Block getBlockUnderEntity(boolean inverse, boolean under, Entity entity) {
-		
-		Point3D feetPoint=entity.feetPoint;
-		TreeSet<Point3D> playerColumn = entity.playerColumn;
 		
 		playerColumn.clear();
 		Vector entityPos = entity.getPos();
