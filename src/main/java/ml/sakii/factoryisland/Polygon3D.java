@@ -474,40 +474,17 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	protected void draw(Graphics g, Game game){
 		Graphics2D g2d=(Graphics2D)g;
 		
-		g2d.setColor(s.paint ? s.c.getColor() : lightedcolor.getColor());
-		g2d.fillPolygon(polygon);
-
-		if(s.paint) {
-			g2d.setPaint(s.p);
-			g2d.fillPolygon(polygon);
-			Color4 lightedc=getLightOverlay();
-			g2d.setColor(lightedc.getColor());
-			g2d.fillPolygon(polygon);
-		}
+		
+		drawSurface(g2d);
 		
 		if(Config.ambientOcclusion) {
-			for(GradientPaint p : OcclusionPaints) {
-				g2d.setPaint(p);
-				g2d.fillPolygon(polygon);
-			}
+			drawAO(g2d);
 		}
 		
-		boolean drawfog = (AvgDist > Config.renderDistance*(0.75f) && Config.fogEnabled);
+		
+		boolean drawfog = (Config.fogEnabled && AvgDist > Config.renderDistance*(0.75f));
 		if(drawfog){
-			float totalFogSize = Config.renderDistance/4f;
-			float foggyDist = Config.renderDistance-AvgDist;
-			int ratio = (int) (255*(foggyDist/totalFogSize));
-			if(ratio > 255)
-				ratio=255;
-			if(ratio < 0){
-				ratio = 0;
-			}
-
-			Color customColor = new Color(AssetLibrary.skyColor.getRed(), AssetLibrary.skyColor.getGreen(), AssetLibrary.skyColor.getBlue(), 255-ratio);
-			g2d.setColor(customColor);
-
-			g2d.fillPolygon(polygon);
-			g2d.setColor(new Color(0,0,0,ratio));
+			drawFog(g2d);
 		}else{
 			g2d.setColor(Color.BLACK);
 		}
@@ -519,6 +496,43 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 		
 		
 		
+		drawSpheres(g2d, game);
+		
+	}
+	
+	private void drawSurface(Graphics2D g2d) {
+		g2d.setColor(s.paint ? s.c.getColor() : lightedcolor.getColor());
+		g2d.fillPolygon(polygon);
+
+		if(s.paint) {
+			g2d.setPaint(s.p);
+			g2d.fillPolygon(polygon);
+			Color4 lightedc=getLightOverlay();
+			g2d.setColor(lightedc.getColor());
+			g2d.fillPolygon(polygon);
+		}
+	}
+	
+	private void drawAO(Graphics2D g2d){
+		for(GradientPaint p : OcclusionPaints) {
+			g2d.setPaint(p);
+			g2d.fillPolygon(polygon);
+		}
+	}
+	
+	private void drawFog(Graphics2D g2d) {
+		float totalFogSize = Config.renderDistance/4f;
+		float foggyDist = Config.renderDistance-AvgDist;
+		int ratio = Util.limit((int) (255*(foggyDist/totalFogSize)),0,255);
+
+		Color customColor = new Color(AssetLibrary.skyColor.getRed(), AssetLibrary.skyColor.getGreen(), AssetLibrary.skyColor.getBlue(), 255-ratio);
+		g2d.setColor(customColor);
+
+		g2d.fillPolygon(polygon);
+		g2d.setColor(new Color(0,0,0,ratio));
+	}
+	
+	private void drawSpheres(Graphics2D g2d, Game game) {
 		for(Sphere3D sphere : game.Spheres) {
 			if(sphere.isPlayerInside(game.PE)) { //player is in the sphere
 				// polygon is outside the sphere
