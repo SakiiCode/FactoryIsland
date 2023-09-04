@@ -12,21 +12,17 @@ public class UpdateContext {
 	Vector2D pointVec = new Vector2D();
 	Point2D.Float[] values = new Point2D.Float[] {new Point2D.Float(),new Point2D.Float(),new Point2D.Float()};
 
-	Vector[][] clip2;
-	double[][][] clipUV2;
-	Vector tmpVector2 = new Vector();
-	
+	Vector[] clip2;
+	double[][] clipUV2;
 	
 	public UpdateContext(Game game) {
 		this.game = game;
 		
-		clip2 = new Vector[6][8];
-		clipUV2=new double[6][8][3];
+		clip2 = new Vector[8];
+		clipUV2=new double[8][3];
 
 		for(int i=0;i<clip2.length;i++) {
-			for(int j=0;j<clip2[0].length;j++) {
-				clip2[i][j]=new Vector();
-			}
+			clip2[i]=new Vector();
 		}
 	}
 }

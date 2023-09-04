@@ -18,6 +18,7 @@ public class Surface {
 	public Paint p;
 	public boolean color;
 	public boolean paint;
+	public int[][] TextureRGB = null;
 	
 	//ModBlock-hoz kell
 	public Surface(Object o) {
@@ -30,6 +31,7 @@ public class Surface {
 			this.c = averageColor(img);
 			color = false;
 			paint = false;
+			generateTextureRGB();
 		}else if(o instanceof Color) {
 			this.c.set(new Color4((Color)o));
 			color = true;
@@ -58,6 +60,16 @@ public class Surface {
 		color = false;
 		this.p = p;
 		paint = true;
+		generateTextureRGB();
+	}
+	
+	private void generateTextureRGB() {
+		TextureRGB = new int[Texture.getHeight()][Texture.getWidth()];
+		for(int y=0;y<Texture.getHeight();y++) {
+			for(int x=0;x<Texture.getWidth();x++) {
+				TextureRGB[y][x] = Texture.getRGB(x, y);
+			}
+		}
 	}
 	
 	public Surface copy() {

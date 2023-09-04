@@ -186,7 +186,7 @@ public abstract class Block extends Model.Int implements BlockInterface
 				if(entry.getValue().isTransparent() || entry.getValue().getLightLevel() > 0) {
 					continue;
 				}
-				poly.addCornerOcclusion(delta);
+				poly.addCornerOcclusion(Corner.fromDelta(face, delta));
 			}
 			
 			
