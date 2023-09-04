@@ -8,26 +8,17 @@ import ml.sakii.factoryisland.Vector2D;
 
 public class GradientCalculator {
 	
-	public static Point2D.Float[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector[] tmpArr, Game game){
+	public static Point2D.Float[] getGradientOf(int x, int y, int z, BlockFace nearby, BlockFace target, Vector[] tmpArr, Point2D.Float[] output, Game game){
 		
 		float[][] values = calculate(nearby, target);
 		
 		float[] begin1 = values[0];
 		float[] begin = values[1];
 		float[] end = values[2];
-		
-		/*Vector[] input = {
-				new Vector(x+begin1[0], y+begin1[1], z+begin1[2]),
-				new Vector(x+begin[0], y+begin[1], z+begin[2]),
-				new Vector(x+end[0], y+end[1], z+end[2])};*/
+
 		tmpArr[0].set(x+begin1[0], y+begin1[1], z+begin1[2]);
 		tmpArr[1].set(x+begin[0], y+begin[1], z+begin[2]);
 		tmpArr[2].set(x+end[0], y+end[1], z+end[2]);
-		
-		Point2D.Float[] output = new Point2D.Float[] {
-				new Point2D.Float(),
-				new Point2D.Float(),
-				new Point2D.Float()};
 		
 		return game.convert3Dto2D(tmpArr, output, 3);
 		
@@ -169,12 +160,10 @@ public class GradientCalculator {
 		Point2D.Float begin1 = values[0];
 		Point2D.Float begin2 = values[1];
 		Point2D.Float end = values[2];
-		pointVec.set(end).substract(begin2);
-		lineVec.set(begin1)
-			.substract(begin2)
-			.normalize()
-			.multiply(lineVec.DotProduct(pointVec))
-			.add(begin2);
+		pointVec.set(end.x-begin2.x, end.y-begin2.y);
+		lineVec.set(begin1.x-begin2.x,begin1.y-begin2.y).normalize();
+		float dot = pointVec.x*lineVec.x+pointVec.y*lineVec.y;
+		lineVec.set(lineVec.x*dot+begin2.x,lineVec.y*dot+begin2.y);
 	}
 	
 	

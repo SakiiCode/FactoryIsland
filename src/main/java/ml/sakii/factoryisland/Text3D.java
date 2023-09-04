@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 
 public class Text3D extends Object3D
 {
@@ -13,7 +13,7 @@ public class Text3D extends Object3D
 	private Vector location;
 	private int x, y;
 	private final Vector ViewToPoint = new Vector();
-	private final Point2D.Float proj = new Point2D.Float();
+	private final Point proj = new Point();
 
 	public Text3D(String text, float x, float y, float z)
 	{
@@ -34,8 +34,8 @@ public class Text3D extends Object3D
 		{
 			ViewToPoint.set(location);
 			context.game.convert3Dto2D(ViewToPoint, proj);
-			x = (int) proj.getX();
-			y = (int) proj.getY();
+			x = proj.x;
+			y = proj.y;
 			return true;
 		}
 		return false;

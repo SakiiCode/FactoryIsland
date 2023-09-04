@@ -1115,60 +1115,43 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 	}
 
-
 	
-	public Point2D.Float convert3Dto2D(Vector tmp, Point2D.Float point)
+	public Point convert3Dto2D(Vector input, Point output)
 	{
+		int zoom = Config.getZoom();
+		Vector PEPos = PE.getPos();
 		
-		tmp.substract(PE.getPos());
+		float diffX = input.x-PEPos.x;
+		float diffY = input.y-PEPos.y;
+		float diffZ = input.z-PEPos.z;
 		
-		float t = tmp.DotProduct(ViewVector);
-		tmp.multiply(1 / t);
-
-		float x2d = centerX + Config.getZoom() * tmp.DotProduct(RightViewVector);
-		float y2d = centerY + Config.getZoom() * tmp.DotProduct(BottomViewVector);
+		float dot =  diffX * ViewVector.x + diffY * ViewVector.y + diffZ * ViewVector.z;
+		float sumX = (diffX * RightViewVector.x + diffY * RightViewVector.y + diffZ * RightViewVector.z) / dot;
+		float x = sumX * zoom + centerX;
+		float sumY = (diffX * BottomViewVector.x + diffY * BottomViewVector.y + diffZ*BottomViewVector.z)/dot;
+		float y = sumY * zoom + centerY;
+		output.setLocation((int)x, (int)y);
 		
-
-		point.setLocation(x2d, y2d);
-		return point;
+		return output;
 
 	}
 	
-	public Point convert3Dto2D(Vector tmp, Point point)
-	{
-		
-		tmp.substract(PE.getPos());
-		
-		float t = tmp.DotProduct(ViewVector);
-		tmp.multiply(1 / t);
-
-		float x2d = centerX + Config.getZoom() * tmp.DotProduct(RightViewVector);
-		float y2d = centerY + Config.getZoom() * tmp.DotProduct(BottomViewVector);
-		
-
-		point.setLocation(x2d, y2d);
-		return point;
-
-	}
-	
-	public Point[] convert3Dto2D(Vector[] input, Point[] output, int size, Vector tmp)
+	public Point[] convert3Dto2D(Vector[] input, Point[] output, int size)
 	{
 		int zoom = Config.getZoom();
 		Vector PEPos = PE.getPos();
 		
 		for(int i=0;i<size;i++) {
-			tmp.set(input[i]);
-		
-			tmp.substract(PEPos);
+			float diffX = input[i].x-PEPos.x;
+			float diffY = input[i].y-PEPos.y;
+			float diffZ = input[i].z-PEPos.z;
 			
-			float t = tmp.DotProduct(ViewVector);
-			tmp.multiply(1 / t);
-	
-			float x2d = centerX + zoom * tmp.DotProduct(RightViewVector);
-			float y2d = centerY + zoom * tmp.DotProduct(BottomViewVector);
-			
-	
-			output[i].setLocation(x2d, y2d);
+			float dot =  diffX * ViewVector.x + diffY * ViewVector.y + diffZ * ViewVector.z;
+			float sumX = (diffX * RightViewVector.x + diffY * RightViewVector.y + diffZ * RightViewVector.z) / dot;
+			float x = sumX * zoom + centerX;
+			float sumY = (diffX * BottomViewVector.x + diffY * BottomViewVector.y + diffZ*BottomViewVector.z)/dot;
+			float y = sumY * zoom + centerY;
+			output[i].setLocation((int)x, (int)y);
 		}
 		
 		return output;
@@ -1181,18 +1164,16 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		Vector PEPos = PE.getPos();
 		
 		for(int i=0;i<size;i++) {
-			Vector tmp = input[i];
-		
-			tmp.substract(PEPos);
+			float diffX = input[i].x-PEPos.x;
+			float diffY = input[i].y-PEPos.y;
+			float diffZ = input[i].z-PEPos.z;
 			
-			float t = tmp.DotProduct(ViewVector);
-			tmp.multiply(1 / t);
-	
-			float x2d = centerX + zoom * tmp.DotProduct(RightViewVector);
-			float y2d = centerY + zoom * tmp.DotProduct(BottomViewVector);
-			
-	
-			output[i].setLocation(x2d, y2d);
+			float dot =  diffX * ViewVector.x + diffY * ViewVector.y + diffZ * ViewVector.z;
+			float sumX = (diffX * RightViewVector.x + diffY * RightViewVector.y + diffZ * RightViewVector.z) / dot;
+			float x = sumX * zoom + centerX;
+			float sumY = (diffX * BottomViewVector.x + diffY * BottomViewVector.y + diffZ*BottomViewVector.z)/dot;
+			float y = sumY * zoom + centerY;
+			output[i].setLocation(x, y);
 		}
 		
 		return output;
@@ -1398,7 +1379,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	}
 	
 	boolean insideBlock(Polygon3D polygon) {
-		return ViewBlock.Objects.contains(polygon);
+		return ViewBlock == polygon.model;
 	}
 	
 	

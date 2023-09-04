@@ -45,19 +45,28 @@ public class Util {
 		return value;
 	}
 	
-	/** @param coneOrigin IMMUTABLE */
-	public static boolean sphereCone(Vector sphereCenter, float sphereRadius, Vector coneOrigin, Vector coneNormal, float sinAngle, float tanAngleSqPlusOne, Vector tmpVector)
+	public static boolean sphereCone(Vector sphereCenter, float sphereRadius, Vector coneOrigin, Vector coneNormal, float sinAngle, float tanAngleSqPlusOne)
 	{
-	    Vector diff = coneOrigin.multiply(-1).add(sphereCenter);
+		float diffX = sphereCenter.x - coneOrigin.x;
+		float diffY = sphereCenter.y - coneOrigin.y;
+		float diffZ = sphereCenter.z - coneOrigin.z;
+		
+		float aheadX = diffX-coneNormal.x*sinAngle*sphereRadius;
+		float aheadY = diffY-coneNormal.y*sinAngle*sphereRadius;
+		float aheadZ = diffZ-coneNormal.z*sinAngle*sphereRadius;
+		
+		float ahead = aheadX*coneNormal.x+aheadY*coneNormal.y+aheadZ*coneNormal.z;
 	    
-	    if(tmpVector.set(coneNormal).multiply(sinAngle).multiply(sphereRadius).multiply(-1).add(diff).DotProduct(coneNormal) > 0) {
-	    	//Vector c = diff.multiply(sinAngle).add(coneNormal.cpy().multiply(sphereRadius));
-	    	Vector c = diff.multiply(sinAngle).add(tmpVector.set(coneNormal).multiply(sphereRadius));
-	    	double lenA = c.DotProduct(coneNormal);
+	    if(ahead > 0) {
+	    	float cX = diffX*sinAngle+coneNormal.x*sphereRadius;
+	    	float cY = diffY*sinAngle+coneNormal.y*sphereRadius;
+	    	float cZ = diffZ*sinAngle+coneNormal.z*sphereRadius;
 	    	
-	    	return c.getLengthSq() <= lenA*lenA*tanAngleSqPlusOne;
+	    	double lenA = cX*coneNormal.x+cY*coneNormal.y+cZ*coneNormal.z;
+	    	
+	    	return cX*cX+cY*cY+cZ*cZ <= lenA*lenA*tanAngleSqPlusOne;
 	    }else {
-	    	return diff.getLengthSq() <= sphereRadius*sphereRadius;
+	    	return diffX*diffX+diffY*diffY+diffZ*diffZ <= sphereRadius*sphereRadius;
 	    }
 	}
 	
