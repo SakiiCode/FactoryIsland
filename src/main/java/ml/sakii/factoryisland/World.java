@@ -72,8 +72,8 @@ public class World {
 	public HashMap<Long, Entity> Entities = new HashMap<>();
 	private ArrayList<Block> Whole = new ArrayList<>(8000);
 	private Point3D tmpPoint = new Point3D();
-	public Point3D feetPoint = new Point3D();
-	public TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
+	private Point3D feetPoint = new Point3D();
+	private TreeSet<Point3D> playerColumn = new TreeSet<>((arg0, arg1) -> Integer.compare(arg0.z, arg1.z));
 	
 	private int worldTop,worldBottom;
 	int lightCalcRuns=0;

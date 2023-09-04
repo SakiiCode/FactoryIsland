@@ -42,22 +42,22 @@ public class RenderThread extends Thread
 	@Override
 	public void run()
 	{
-		Graphics graphics = strategy.getDrawGraphics();
-		
+		Graphics directGraphics = strategy.getDrawGraphics();
+		Graphics volatileGraphics = game.VolatileFrameBuffer.getGraphics();
+		Graphics bufferedGraphics = game.FrameBuffer.getGraphics();
 		
 		
 		
 
 		guiManager.SwitchWindow("game");
+		Graphics2D g = (Graphics2D)game.getGraphics();
+		if(Config.resolutionScaling>0.5f) {
+			g.setRenderingHints(rh);
+		}
+		
 		while(running) {
-			Graphics2D g = (Graphics2D)game.getGraphics();
-			if(Config.resolutionScaling>0.5f) {
-				g.setRenderingHints(rh);
-			}
- 
-				
 			if(screenshot) {
-				game.render(game.FrameBuffer.getGraphics());
+				game.render(bufferedGraphics);
 				g.drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
 				game.prevFrame = Main.deepCopy(game.FrameBuffer);
 				saveScreenshot(game.prevFrame);
@@ -65,15 +65,15 @@ public class RenderThread extends Thread
 			}else {
 				switch(Config.renderMethod) {
 				case DIRECT:
-					game.render(graphics);
+					game.render(directGraphics);
 					strategy.show();
 					break;
 				case VOLATILE:
-					game.render(game.VolatileFrameBuffer.getGraphics());
+					game.render(volatileGraphics);
 					g.drawImage(game.VolatileFrameBuffer, 0, 0,Main.Width, Main.Height, null);
 					break;
 				case BUFFERED:
-					game.render(game.FrameBuffer.getGraphics());
+					game.render(bufferedGraphics);
 					g.drawImage(game.FrameBuffer, 0, 0,Main.Width, Main.Height, null);
 					break;
 				}
@@ -83,7 +83,7 @@ public class RenderThread extends Thread
 		}
 		
 		
-		graphics.dispose();
+		directGraphics.dispose();
 		strategy.dispose();
 		
 

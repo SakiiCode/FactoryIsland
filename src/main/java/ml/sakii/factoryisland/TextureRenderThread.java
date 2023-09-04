@@ -11,7 +11,6 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 	UVZ[] bufferUVZmin, bufferUVZmax;
 	int[] bufferXmin, bufferXmax;
 	UVZ tmpUVZ1, tmpUVZ2;
-	Vector tmpVector;
 	Renderer renderer;
 	Game game;
 	
@@ -35,9 +34,7 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 		this.renderer = renderer;
 		this.tmpUVZ1 = new UVZ();
 		this.tmpUVZ2 = new UVZ();
-		
-		this.tmpVector = new Vector();
-		
+				
 		this.context = new UpdateContext(game);
 		
 		resizeScreen();

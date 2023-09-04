@@ -50,6 +50,15 @@ public class Frustum {
 		}
 
 		Vector ViewFrom = game.PE.getPos();
+		
+		// bottom
+		ab.set(game.BottomViewVector);
+		ab.multiply(vratio);
+		ab.add(game.ViewVector);
+		ab.CrossProduct2(game.RightViewVector);
+		sides[3].normal.set(ab);
+		sides[3].distance = sides[3].normal.DotProduct(ViewFrom);
+
 		// left
 		al.set(game.LeftViewVector);
 		al.multiply(hratio);
@@ -66,13 +75,6 @@ public class Frustum {
 		sides[1].normal.set(ar);
 		sides[1].distance = sides[1].normal.DotProduct(ViewFrom);
 
-		// bottom
-		ab.set(game.BottomViewVector);
-		ab.multiply(vratio);
-		ab.add(game.ViewVector);
-		ab.CrossProduct2(game.RightViewVector);
-		sides[3].normal.set(ab);
-		sides[3].distance = sides[3].normal.DotProduct(ViewFrom);
 
 		// top
 		at.set(game.TopViewVector);
