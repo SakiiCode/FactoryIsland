@@ -489,6 +489,7 @@ public class World {
 			
 			if(b.getLightLevel()>0) { //ha ad ki fenyt akkor elterjeszti
 				addLight(b.pos);
+				game.dirtyLights.add(b.pos);
 			}
 		}
 		
@@ -513,8 +514,10 @@ public class World {
 				blockCount--;
 			}
 	
-			if(b.getLightLevel()>0)
+			if(b.getLightLevel()>0) {
 				removeLight(b.pos);
+				game.dirtyLights.add(b.pos);
+			}
 			
 			Blocks[b.x+MAP_SIZE/2][b.y+MAP_SIZE/2][b.z+MAP_SIZE/2] = null;
 			Whole.remove(b);
