@@ -393,11 +393,16 @@ public class World {
 	}
 	
  	public Block getBlockAt(float x, float y, float z) {
- 		return getBlockAt((int)Math.floor(z),(int)Math.floor(y),(int)Math.floor(x));
+ 		return getBlockAt((int)Math.floor(x),(int)Math.floor(y),(int)Math.floor(z));
  	}
 
 	
  	public Block getBlockAt(int x, int y, int z) {
+ 		int minIndex = -MAP_SIZE;
+ 		int maxIndex = MAP_SIZE-1;
+ 		if(x < minIndex || x > maxIndex || y < minIndex || y > maxIndex || z < minIndex || z > maxIndex) {
+ 			return Block.NOTHING;
+ 		}
 		Block result = Blocks[x+MAP_SIZE/2][y+MAP_SIZE/2][z+MAP_SIZE/2]; 
  		if(result == null) {
  			return Block.NOTHING;

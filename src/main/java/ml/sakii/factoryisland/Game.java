@@ -843,7 +843,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if(key[4]) {
 				PE.jump();
 			}
-			GameEngine.doGravity(PE, Engine.world, FPS);
+			Engine.doGravity(PE, FPS);
 		}
 		
 		if(mouse[0]) {

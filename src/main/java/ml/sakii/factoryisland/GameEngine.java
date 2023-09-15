@@ -343,7 +343,7 @@ public class GameEngine{
 				if (!entity.flying)
 				{
 			
-					doGravity(entity, world, FPS);
+					doGravity(entity, FPS);
 					entity.update();
 				
 				}
@@ -367,7 +367,7 @@ public class GameEngine{
 		}
 	}
 
-	static void doGravity(Entity entity, World world, float physicsFPS) {
+	void doGravity(Entity entity, float physicsFPS) {
 		Vector entityPos = entity.getPos();
 		Vector VerticalVector = entity.VerticalVector;
 
