@@ -33,7 +33,7 @@ public class Star extends Object3D {
 
 	@Override
 	protected boolean update(UpdateContext context) {
-		if (context.game.ViewVector.DotProduct(pos) > 0 || (size < MAX_SIZE && Math.random() < 0.001f)) {
+		if (context.game.ViewVector.DotProduct(pos) < 0 || (size < MAX_SIZE && Math.random() < 0.001f)) {
 			return false;
 		}
 
@@ -50,7 +50,7 @@ public class Star extends Object3D {
 		} else {
 			g.setColor(c.getColor());
 		}
-		g.fillOval(p.x, p.y, size, size);
+		g.fillOval(p.x-size/2, p.y-size/2, size, size);
 	}
 
 }

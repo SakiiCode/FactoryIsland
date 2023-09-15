@@ -751,14 +751,14 @@ public class GameEngine{
 	
 	double getTimePercent() {
 		
-		long hours=Tick%Globals.TICKS_PER_DAY;
-		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
+		double hours=Tick%Globals.TICKS_PER_DAY;
+		double skyLightF=(hours/Globals.TICKS_PER_DAY);
 		return skyLightF;
 	}
 	
 	static double getTimePercent(long Tick) {
-		long hours=Tick%Globals.TICKS_PER_DAY;
-		double skyLightF=(hours*1f/Globals.TICKS_PER_DAY);
+		double hours=Tick%Globals.TICKS_PER_DAY;
+		double skyLightF=(hours/Globals.TICKS_PER_DAY);
 		return skyLightF;
 	}
 	

@@ -490,10 +490,12 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 	
 	private void drawSurface(Graphics2D g2d) {
-		g2d.setColor(s.paint ? s.c.getColor() : lightedcolor.getColor());
-		g2d.fillPolygon(polygon);
-
-		if(s.paint) {
+		if(!s.paint) {
+			g2d.setColor(lightedcolor.getColor());
+			g2d.fillPolygon(polygon);
+		} else {
+			g2d.setColor(s.c.getColor());
+			g2d.fillPolygon(polygon);
 			g2d.setPaint(s.p);
 			g2d.fillPolygon(polygon);
 			Color4 lightedc=getLightOverlay();

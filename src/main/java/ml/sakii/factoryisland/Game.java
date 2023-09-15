@@ -595,7 +595,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					}
 					debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
 					long lastLightUpdateTick = Engine.Tick / (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) * (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY); 
-					debugInfo.add("SkyLight:"+Engine.getTimePercent()+
+					debugInfo.add("TimePercent:"+Engine.getTimePercent()+
 							", level:"+Polygon3D.testLightLevel(Engine.getTimePercent())+
 							", cached:"+Polygon3D.testLightLevel(GameEngine.getTimePercent(lastLightUpdateTick)));
 					// DEBUG SZÖVEG
