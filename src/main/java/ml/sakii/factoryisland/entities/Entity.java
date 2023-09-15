@@ -30,6 +30,7 @@ public class Entity extends Model.FP {
 	public String className;
 	public long ID;
 	private GameEngine engine;
+	private boolean moved=false;
 
 	
 	private float z0,z;
@@ -136,6 +137,7 @@ public class Entity extends Model.FP {
 			engine.client.sendEntityMove(ID, x, y, z, ViewAngle.yaw, ViewAngle.pitch);
 		}else {
 			ViewFrom.set(x, y, z);
+			moved=true;
 		}
 		
 	}
@@ -189,9 +191,14 @@ public class Entity extends Model.FP {
 		Vertices.get(7).set(fxy1, z);
 		
 		for(Object3D p : Objects) {
-			if(p instanceof Polygon3D) {
+			if(p instanceof Polygon3D poly) {
 
-				((Polygon3D) p).recalc();
+				poly.recalc();
+				if(moved) {
+					poly.recalcLightedColor();
+					moved=false;
+				}
+				
 			}else {
 				((Text3D)p).setLocation(ViewFrom);				
 			}
