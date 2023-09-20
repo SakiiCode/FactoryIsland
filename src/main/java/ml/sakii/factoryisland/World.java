@@ -1154,9 +1154,23 @@ public class World {
 
 	}
 
-	public void saveByShutdown() {
-
-		saveWorld(worldName, getWhole(), Engine.Tick, seed, getAllEntities(), loadedVersion);
+	public void saveByShutdown(boolean block) {
+		Main.log("Saving...");
+		final ArrayList<Block> Blocks = new ArrayList<>(getWhole());
+		final ArrayList<Entity> Entities = new ArrayList<>(getAllEntities());
+		Thread saveThread = new Thread(()->{
+			saveWorld(worldName, Blocks, Engine.Tick, seed, Entities, loadedVersion);
+			Main.log("Save finished");
+		});
+		saveThread.start();
+		if(block) {
+			try {
+				saveThread.join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 	}
 

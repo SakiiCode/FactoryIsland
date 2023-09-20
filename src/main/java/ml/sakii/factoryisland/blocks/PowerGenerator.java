@@ -48,7 +48,7 @@ public interface PowerGenerator extends PowerListener, BreakListener, BlockInter
 		for(Block b : blocks.values()) {
 			if(b instanceof PowerPropagator pp) {
 				
-				pp.propagate(energyPerSide, this, new LinkedList<PowerListener>(), results);
+				pp.propagate(energyPerSide, this, new LinkedList<>(), results);
 			}else if(b instanceof PowerConsumer pc) {
 				pc.addPower(energyPerSide, this);
 			}

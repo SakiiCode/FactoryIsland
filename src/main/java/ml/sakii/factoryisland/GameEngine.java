@@ -192,7 +192,7 @@ public class GameEngine{
 			
 			if(Tick % Globals.AUTOSAVE_INTERVAL == 0) {
 				Main.log("Autosave started...");
-				world.saveByShutdown();
+				world.saveByShutdown(false);
 				Main.log("Autosave finished.");
 			}
 			
@@ -668,7 +668,7 @@ public class GameEngine{
 				wgl.generateWorld();
 			}
 		}
-		world.saveByShutdown();
+		world.saveByShutdown(true);
 	}
 	
 	private boolean isNearWater(Block b){
@@ -831,7 +831,7 @@ public class GameEngine{
 
 		} else
 		{
-			world.saveByShutdown();
+			world.saveByShutdown(true);
 		}
 	}
 	
