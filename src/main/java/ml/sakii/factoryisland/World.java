@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,9 +46,9 @@ import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.SignalConsumer;
 import ml.sakii.factoryisland.blocks.SignalPropagator;
 import ml.sakii.factoryisland.blocks.TextureListener;
-import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.DayNightListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
+import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -450,15 +451,17 @@ public class World {
 		
 		for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 			Block block = entry.getValue();
-			if (block instanceof TickListener) {
-				Engine.TickableBlocks.add(block.pos);
+			Optional<TickUpdateComponent> tuc = block.getComponent(TickUpdateComponent.class);
+			if(!tuc.isEmpty()) {
+				Engine.TickableBlocks.add(tuc.get());
 			}
 			
 			
 		}
 		
-		if (b instanceof TickListener) {
-			Engine.TickableBlocks.add(b.pos);
+		Optional<TickUpdateComponent> tuc = b.getComponent(TickUpdateComponent.class);
+		if(!tuc.isEmpty()) {
+			Engine.TickableBlocks.add(tuc.get());
 		}
 		
 		if(b instanceof DayNightListener dnl) {
@@ -526,14 +529,16 @@ public class World {
 			
 			for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 				Block bu = entry.getValue();
-				if (bu instanceof TickListener) {
-					Engine.TickableBlocks.add(bu.pos);
+				Optional<TickUpdateComponent> tuc = bu.getComponent(TickUpdateComponent.class);
+				if(!tuc.isEmpty()) {
+					Engine.TickableBlocks.add(tuc.get());
 				}
 				
 			}
-
-			if (b instanceof TickListener) {
-				Engine.TickableBlocks.remove(b.pos);
+			
+			Optional<TickUpdateComponent> tuc = b.getComponent(TickUpdateComponent.class);
+			if(!tuc.isEmpty()) {
+				Engine.TickableBlocks.remove(tuc.get());
 			}
 			
 			

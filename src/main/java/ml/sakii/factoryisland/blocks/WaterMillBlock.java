@@ -19,9 +19,9 @@ public class WaterMillBlock extends SimpleMachine {
 		super("WaterMill", x, y, z,AssetLibrary.wmSideColor,AssetLibrary.wmGradientBeginColor,AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
 		sgc = new SignalGeneratorComponent(this);
 		Components.add(sgc);
-		tuc = new TickUpdateComponent(this) {
+		tuc = new TickUpdateComponent(this,1) {
 			@Override
-			public void onTick() {
+			public boolean onTick() {
 				BlockFace target=getTarget();
 				Block tBlock =Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]); 
 				BlockFace[] notTargetSides = new BlockFace[5];
@@ -32,12 +32,13 @@ public class WaterMillBlock extends SimpleMachine {
 					}
 				}
 				if(tBlock instanceof WaterBlock && ((WaterBlock)tBlock).getHeight()<4){
-					//switchSignal(true,notTargetSides);
 					sgc.setOutput(15, notTargetSides);
+					setBlockMeta("active", "1", true);
 				}else {
-					//switchSignal(false,notTargetSides);
 					sgc.setOutput(0, notTargetSides);
+					setBlockMeta("active", "0", true);	
 				}
+				return false;
 			}
 		};
 		Components.add(tuc);

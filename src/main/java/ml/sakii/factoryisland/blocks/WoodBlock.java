@@ -1,14 +1,19 @@
 package ml.sakii.factoryisland.blocks;
 
 import java.awt.Color;
+import java.util.Map;
+import java.util.Optional;
 
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.blocks.components.SignalPropagatorComponent;
+import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 
 public class WoodBlock extends Block{
@@ -20,6 +25,7 @@ public class WoodBlock extends Block{
 		spc = new SignalPropagatorComponent(this) {
 			@Override
 			public void onSignalUpdate() {
+				Main.log("Wood signal update");
 				recalcPaints();
 			}
 		};
@@ -30,6 +36,29 @@ public class WoodBlock extends Block{
 			@Override
 			public void onLoad() {
 				recalcPaints();
+			}
+		});
+		
+		Components.add(new TickUpdateComponent(this,1) {
+			
+			@Override
+			public boolean onTick() {
+				for(Map.Entry<BlockFace, Integer> entry : spc.signals.entrySet()) {
+					spc.spreadPower(entry.getValue(), entry.getKey());
+				}
+				return false;
+			}
+		});
+		
+		Components.add(new BreakComponent(this) {
+			@Override
+			public void onBreak() {
+				for(Map.Entry<BlockFace, Block> entry : WoodBlock.this.Engine.world.get6Blocks(WoodBlock.this,false).entrySet()) {
+					Optional<SignalPropagatorComponent> spc = entry.getValue().getComponent(SignalPropagatorComponent.class);  
+					if(!spc.isEmpty()) {
+						spc.get().spreadPower(0,entry.getKey().getOpposite());
+					}
+				}
 			}
 		});
 	}

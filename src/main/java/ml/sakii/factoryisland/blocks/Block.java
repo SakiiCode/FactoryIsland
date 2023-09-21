@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
@@ -15,6 +16,7 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.components.Component;
+import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 
 public abstract class Block extends Model.Int implements BlockInterface
 {
@@ -222,14 +224,15 @@ public abstract class Block extends Model.Int implements BlockInterface
 			if(!alreadyput) {
 				BlockMeta.put(key, value);
 			}
-			if(this instanceof TickListener) {
-				Engine.TickableBlocks.add(pos);
+			Optional<TickUpdateComponent> tuc = this.getComponent(TickUpdateComponent.class);
+			if(!tuc.isEmpty()) {
+				Engine.TickableBlocks.add(tuc.get());
 			}
 			for (Block b2 : Engine.world.get6Blocks(this, false).values())
 			{
-				if (b2 instanceof TickListener && (Engine.client == null || (Engine.client != null && Engine.client != null)))
-				{
-					Engine.TickableBlocks.add(b2.pos);
+				Optional<TickUpdateComponent> tuc2 = b2.getComponent(TickUpdateComponent.class);
+				if(!tuc2.isEmpty() && (Engine.client == null || (Engine.client != null && Engine.client != null))) {
+					Engine.TickableBlocks.add(tuc2.get());
 				}
 			}
 
@@ -316,6 +319,16 @@ public abstract class Block extends Model.Int implements BlockInterface
 	}
 	public final int getRefreshRate() {
 		return getDescriptor().getRefreshRate();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public final <T extends Component> Optional<T> getComponent(Class<T> type) {
+		for(Component c : Components) {
+			if(type.isAssignableFrom(c.getClass())) {
+				return (Optional<T>) Optional.of(c);
+			}
+		}
+		return Optional.empty();
 	}
 
 }

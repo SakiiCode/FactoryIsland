@@ -8,6 +8,7 @@ import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.items.ItemStack;
 
 
@@ -30,6 +31,9 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 		}
 	};
 	
+	TickUpdateComponent tuc;
+	
+	
 	public Fluid(String name, int x, int y, int z, int height, GameEngine engine) {
 		super(name,x, y, z,engine);
 		BlockMeta.put("height", height+"");
@@ -37,6 +41,101 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 		if(engine != null) {
 			heightMap();
 		}
+		
+		tuc = new TickUpdateComponent(this, 10) {
+			@Override
+			public boolean onTick() {
+				boolean hasEmptyNearby=false,hasPlusOneNearby=false,hasBiggerNearby=false;
+				int biggerheight=0;
+				int height = getHeight();
+				int maxHeight = getMaxHeight();
+				for(Block value : Engine.world.get4Blocks(x,y,z).values()){
+					if(value == Block.NOTHING){
+						hasEmptyNearby = true;
+					}else if(value.name.equals(name)){
+						Fluid wb = (Fluid)value;
+						int otherHeight = wb.getHeight();
+						
+						if(otherHeight == height+1){
+							hasPlusOneNearby=true;
+						}else if(otherHeight > height + 1){
+							if(biggerheight<otherHeight){
+								biggerheight=otherHeight;
+								
+								hasBiggerNearby=true;
+							}
+							
+						}
+					
+					}
+					
+				}
+				
+				
+				if(hasBiggerNearby){
+					if(height != maxHeight){
+						setHeight(biggerheight-1);
+					
+					}
+				}else if(!hasPlusOneNearby){
+					if(height != maxHeight){
+						if(height == 1){
+							Engine.world.destroyBlock(Fluid.this, true);
+
+							return false;
+						}
+						setHeight(height-1);
+					}
+					
+				}
+				
+				height=getHeight();
+				
+				if(hasEmptyNearby){
+					
+					
+					if(getHeight() > 1){
+						HashMap<BlockFace,Block> adjacentBlocks = Engine.world.get4Blocks(pos.x,pos.y,pos.z);
+						for(Entry<BlockFace, Block> entry : adjacentBlocks.entrySet()){
+							BlockFace key = entry.getKey();
+							Block value = entry.getValue();
+							if(value == Block.NOTHING){
+								
+								
+								int biggestyet = 0;
+								for(Block wvalue : Engine.world.get4Blocks(x+key.direction[0],y+key.direction[1],z+key.direction[2]).values()){
+									if(wvalue.name.equals(name)){
+										
+										Fluid wb = (Fluid)wvalue;
+										int wotherHeight = wb.getHeight();
+										if(wotherHeight > height + 1 && biggestyet < wotherHeight){
+											biggestyet=wotherHeight;
+
+										}
+									}
+								}
+								
+								int height2 = biggestyet==0 ? height-1 : biggestyet-1;
+								
+								Block child1 = Engine.createFluid(name,x + key.direction[0], y + key.direction[1], z + key.direction[2], height2);
+								
+								Engine.world.addBlockNoReplace(child1, true);
+
+							}
+						}
+					}
+					
+				}
+				
+				
+				
+				return false;
+			}
+		};
+		
+		Components.add(tuc);
+		
+		
 
 	}
 	

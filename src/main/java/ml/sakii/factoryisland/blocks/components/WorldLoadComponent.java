@@ -11,5 +11,10 @@ public class WorldLoadComponent extends Component{
 	public void onLoad() {
 		
 	}
+	
+	@Override
+	public String toString() {
+		return "WorldLoad";
+	}
 
 }

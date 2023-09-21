@@ -1,7 +1,6 @@
 package ml.sakii.factoryisland.api;
 
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.blocks.TickListener;
 
 @Deprecated
 public class Block{
@@ -45,9 +44,11 @@ public class Block{
 	}
 	
 	public void update() {
-		if(b instanceof TickListener) {
+		//TODO implement
+		throw new UnsupportedOperationException("ModBlock.update()");
+		/*if(b instanceof TickListener) {
 			Engine.TickableBlocks.add(b.pos);
-		}
+		}*/
 	}
 	
 	

@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 
-public class SignalGeneratorComponent extends Component {
+public class SignalGeneratorComponent extends SignalComponent {
 
 	public SignalGeneratorComponent(Block block) {
 		super(block);
@@ -22,7 +22,7 @@ public class SignalGeneratorComponent extends Component {
 			if (activeSides.contains(face)) {
 				for (Component c : b.Components) {
 					if (c instanceof SignalPropagatorComponent spp) {
-						spp.spreadPower(intensity);
+						spp.spreadPower(intensity, face.getOpposite());
 					} else if (c instanceof SignalConsumerComponent scp) {
 						scp.addSignal(intensity, face.getOpposite());
 					}
@@ -30,6 +30,11 @@ public class SignalGeneratorComponent extends Component {
 
 			}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return "SignalGenerator("+getCharge()+")";
 	}
 
 }

@@ -6,7 +6,12 @@ public class BreakComponent extends Component {
 
 	public BreakComponent(Block block) {
 		super(block);
-		// TODO Auto-generated constructor stub
+	}
+
+	//TODO ItemStack
+	public void onBreak() {
+		
+		
 	}
 
 }

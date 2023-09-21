@@ -19,9 +19,9 @@ import ml.sakii.factoryisland.blocks.ModBlock;
 import ml.sakii.factoryisland.blocks.SandBlock;
 import ml.sakii.factoryisland.blocks.SaplingBlock;
 import ml.sakii.factoryisland.blocks.StoneBlock;
-import ml.sakii.factoryisland.blocks.TickListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.blocks.WorldGenListener;
+import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -33,7 +33,7 @@ public class GameEngine{
 	
 	
 	public World world;
-	public final ArrayList<Point3D> TickableBlocks = new ArrayList<>();
+	public final HashSet<TickUpdateComponent> TickableBlocks = new HashSet<>();
 	final ArrayList<DayNightListener> DayNightBlocks = new ArrayList<>();
 	public long Tick=0;
 	
@@ -95,34 +95,14 @@ public class GameEngine{
 
     	if(server != null || client==null) {
     		
-    		ArrayList<Point3D> current = new ArrayList<>(TickableBlocks);
-			TickableBlocks.clear();
-			for(Point3D p : current) {
-				
-				Block bl = world.getBlockAtP(p);
-				if(bl != Block.NOTHING) {
-					
-					if(Tick % bl.getRefreshRate() == 0){
-						if(bl instanceof TickListener b) {
-							
-							if(b.tick(Tick)) {
-								
-								
-								TickableBlocks.add(p);
-							}
-						
-						}else {
-							Main.err("Attempted to tick non-tickable block:"+bl);
-						}
-					}else {
-						TickableBlocks.add(p);
-					}
-				}else if(Main.verbose){
-					// Air block ticked
-					Main.err("Attempted to tick air block:"+p);
-				}
-				
-			}
+    		
+    		for(TickUpdateComponent tuc : new ArrayList<>(TickableBlocks)) {
+    			if(Tick % tuc.refreshRate == 0 && !tuc.onTick()) {
+    				TickableBlocks.remove(tuc);
+    			}
+    		}
+
+			
 			
 			
 
