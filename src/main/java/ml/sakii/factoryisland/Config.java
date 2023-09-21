@@ -9,7 +9,7 @@ public class Config {
 
 	private static Preferences Prefs = Preferences.userRoot().node("FactoryIsland");//.userNodeForPackage(ml.sakii.factoryisland.Main.class);
 	
-	public static int renderDistance = Prefs.getInt("renderDistance", 32);
+	public static int renderDistance = Prefs.getInt("renderDistance", 128);
 	public static int sensitivity = Prefs.getInt("sensitivity", 5);
 	public static boolean useTextures = Prefs.getBoolean("useTextures", false);
 	public static boolean fogEnabled = Prefs.getBoolean("fogEnabled", false);
