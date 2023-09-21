@@ -14,6 +14,7 @@ import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
+import ml.sakii.factoryisland.blocks.components.Component;
 
 public abstract class Block extends Model.Int implements BlockInterface
 {
@@ -23,7 +24,8 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 	public final HashMap<Polygon3D, BlockFace> HitboxPolygons = new HashMap<>();
 	public final ArrayList<Object3D> Objects = new ArrayList<>(6);
-
+	public final ArrayList<Component> Components = new ArrayList<>();
+	
 	/** ModBlock és Nothing miatt */
 	public Block(int x, int y, int z, GameEngine engine)
 	{
