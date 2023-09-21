@@ -64,7 +64,7 @@ public class World {
 	private static final float BLOCK_RANGE = 0.2f;
 	
 	private GameEngine Engine;
-	private static final int MAP_SIZE=300;
+	static final int MAP_SIZE=300;
 	private Block[][][] Blocks = new Block[MAP_SIZE][MAP_SIZE][MAP_SIZE];
 	private int blockCount=0;
 	private Game game;
@@ -398,8 +398,8 @@ public class World {
 
 	
  	public Block getBlockAt(int x, int y, int z) {
- 		int minIndex = -MAP_SIZE;
- 		int maxIndex = MAP_SIZE-1;
+ 		int minIndex = -MAP_SIZE/2;
+ 		int maxIndex = MAP_SIZE/2-1;
  		if(x < minIndex || x > maxIndex || y < minIndex || y > maxIndex || z < minIndex || z > maxIndex) {
  			return Block.NOTHING;
  		}
@@ -510,6 +510,7 @@ public class World {
 		
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
 				Main.err("Attempted to destroy air block: "+b.pos);
+				return;
 			}else {
 				blockCount--;
 			}
@@ -1034,8 +1035,8 @@ public class World {
 		if(x>MAP_SIZE-1 || x<-MAP_SIZE || y>MAP_SIZE-1 || y<-MAP_SIZE) {
 			return 0;
 		}
-		int result = -MAP_SIZE-1;
-		for(int z=-MAP_SIZE;z<MAP_SIZE;z++) {
+		int result = -MAP_SIZE/2;
+		for(int z=-MAP_SIZE/2;z<MAP_SIZE/2;z++) {
 			if(getBlockAt(x,y,z) != Block.NOTHING) {
 				result = z;
 			}

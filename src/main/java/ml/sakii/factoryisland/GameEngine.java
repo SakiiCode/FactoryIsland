@@ -503,18 +503,9 @@ public class GameEngine{
 		
 		
 		
-		update.accept("- Adding pond...");
-		int top = world.getTop(0, 0);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
-
-		for(int i = -1; i <= 1; i++)
-			for(int j = -1; j <= 1; j++)
-				
-				world.addBlockNoReplace(new WaterBlock(i, j, top, this), false);
-		
 		
 		
 		update.accept("- Creating earth above sea level...");
-		System.gc();
 
 		int hillCount = Main.small? RandomGen.nextInt(3)+2 : RandomGen.nextInt(8)+8;
 		Point3D tmpPoint=new Point3D();
@@ -541,7 +532,6 @@ public class GameEngine{
 			}
 		}
 		update.accept("- Creating earth under sea level...");
-		System.gc();
 		hillCount = Main.small? RandomGen.nextInt(3)+2 : RandomGen.nextInt(8)+8;
 
 		for(int i = 0;i<hillCount;i++){
@@ -566,18 +556,38 @@ public class GameEngine{
 				}
 			}
 		}
-		System.gc();
+		
+		
+		update.accept("- Adding pond...");
+		int pondX=0, pondY=0;
+		int top = world.getTop(pondX, pondY);// == 0 ? world.CHUNK_HEIGHT/2 : world.getTop(0, 0).z;
+		if(top==-World.MAP_SIZE/2) {
+			ArrayList<Block> Blocks = new ArrayList<>(world.getWhole());
+			Block target = Blocks.get(RandomGen.nextInt(Blocks.size()));
+			pondX=target.x;
+			pondY=target.y;
+			top=world.getTop(pondX, pondY);
+		}
+		for(int i = -1; i <= 1; i++) {
+			for(int j = -1; j <= 1; j++) {
+				Main.log(i+","+j+","+top);
+				Block target = world.getBlockAt(pondX+i, pondY+j, top);
+				if(target != Block.NOTHING) {
+					world.destroyBlock(target, false);
+				}
+				world.addBlockNoReplace(new WaterBlock(pondX+i, pondY+j, top, this), false);
+			}
+		}
 
 		
 		update.accept("- Sprinkling sand and grass...");
 		
-		for(Block b : world.getWhole()){
-			if(!b.name.equals("Water") && !b.name.equals("Old")){
+		for(Block b : new ArrayList<>(world.getWhole())){
+			if(b instanceof StoneBlock){
 				if(isNearWater(b)){
 					world.destroyBlock(b, false);
 					world.addBlockNoReplace(new GrassBlock(b.x, b.y, b.z,this), false);
-				}
-				if(world.getBlockAt(b.x, b.y, b.z+1) instanceof WaterBlock){
+				} else if(world.getBlockAt(b.x, b.y, b.z+1) instanceof WaterBlock){
 					world.destroyBlock(b, false);
 					world.addBlockNoReplace(new SandBlock(b.x, b.y, b.z,this), false);
 				}
@@ -603,6 +613,7 @@ public class GameEngine{
 			if(replace != Block.NOTHING) {
 				world.destroyBlock(replace, false);
 			}
+			Main.log(grass);
 			world.addBlockNoReplace(new SaplingBlock(grass.x, grass.y, grass.z+1, this), false);
 		}else {
 			Main.err("No grass found!!");
@@ -610,14 +621,22 @@ public class GameEngine{
 			if(replace != Block.NOTHING) {
 				world.destroyBlock(replace, false);
 			}
+			replace = world.getBlockAt(0,0,0);
+			if(replace != Block.NOTHING) {
+				world.destroyBlock(replace, false);
+			}
+			world.addBlockNoReplace(new GrassBlock(0, 0, 0, this), false);
 			world.addBlockNoReplace(new SaplingBlock(0, 0, 1, this), false);
 		}
 		
 		update.accept("- Lunar module landing ...");
 		
-		int lmbx = RandomGen.nextInt(60)-30;
-		int lmby = RandomGen.nextInt(60)-30;
-		int lmbz = world.getTop(lmbx, lmby);
+		ArrayList<Block> whole = new ArrayList<>(world.getWhole());
+		Block randomBlock = whole.get(RandomGen.nextInt(whole.size()));
+		Block lmbBlock = world.getBlockAt(randomBlock.x, randomBlock.y, world.getTop(randomBlock.x, randomBlock.y));
+		int lmbx = lmbBlock.x;
+		int lmby = lmbBlock.y;
+		int lmbz = lmbBlock.z;
 		Block[] lunarModule = new Block[24];
 		lunarModule[0] = new TankModuleBlock(lmbx, lmby, lmbz+1, this);
 		lunarModule[5] = new TankModuleBlock(lmbx, lmby, lmbz+2, this);
@@ -672,7 +691,7 @@ public class GameEngine{
 	}
 	
 	private boolean isNearWater(Block b){
-		for(Block b2 : world.get6Blocks(b, false).values()){
+		for(Block b2 : world.get4Blocks(b.x, b.y, b.z).values()){
 			if(b2 instanceof WaterBlock){
 				return true;
 			}
