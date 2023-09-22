@@ -359,7 +359,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 			
 			
-			
+			moved=false;
 			Controls();
 			
 			if(rotationPhase != rotationTarget) {
@@ -381,11 +381,12 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				}else {
 					PE.ViewAngle.pitch = startPitch*rotationPhase;
 				}*/
+				moved=true;
 			}
 			
 			
 			Vector PEPos = PE.getPos();
-			moved = !previousPos.equals(PEPos) || !previousAim.equals(PE.ViewAngle);
+			moved = moved || !previousPos.equals(PEPos) || !previousAim.equals(PE.ViewAngle);
 			previousPos.set(PEPos);
 			previousAim.pitch = PE.ViewAngle.pitch;
 			previousAim.yaw = PE.ViewAngle.yaw;

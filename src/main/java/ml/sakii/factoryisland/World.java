@@ -468,8 +468,8 @@ public class World {
 			Engine.DayNightBlocks.add(dnl);
 		}
 		
-		if (b instanceof TextureListener && game != null) {
-			game.TextureBlocks.add((TextureListener)b);
+		if (b instanceof TextureListener tl && game != null) {
+			game.TextureBlocks.add(tl);
 		}
 		
 		if(game != null) {
@@ -1420,11 +1420,10 @@ public class World {
 					if(!bl.isFullBlock() || !other.isFullBlock() || (!bl.isTransparent() && other.isTransparent())) {
 						if(!game.Objects.contains(side)) {
 							game.Objects.add(side);
+							side.recalcLightedColor();
 						}
-						//side.adjecentFilter=true;
 					}else {
 						game.Objects.remove(side);
-						//side.adjecentFilter=false;
 					}
 				}
 					
