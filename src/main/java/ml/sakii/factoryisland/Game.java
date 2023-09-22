@@ -232,7 +232,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			}
 			update.accept("Spreading light...");
 			if(b.getLightLevel()>1) {
-				Engine.world.addLight(b.pos);
+				dirtyLights.add(b.pos);
 			}
 		}
 		
