@@ -1,12 +1,9 @@
 package ml.sakii.factoryisland.blocks;
 
 import java.awt.Color;
-import java.util.HashMap;
-
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.blocks.components.SignalConsumerComponent;
 

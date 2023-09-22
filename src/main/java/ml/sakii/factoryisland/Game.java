@@ -41,7 +41,6 @@ import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.BreakListener;
 import ml.sakii.factoryisland.blocks.InteractListener;
 import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.PlaceListener;

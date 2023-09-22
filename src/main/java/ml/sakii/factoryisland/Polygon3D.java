@@ -316,9 +316,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	}
 	
 	private static void setPixel(PixelData[][] ZBuffer, int x, int y, int rgb, double iz) {
-		//TODO megnezni miert van eltolva x+1
-	 	PixelData pixel = ZBuffer[x+1][y]; 
-	 	//TODO szalankent sajat zbuffer, nem itt szinkronizalni
+	 	PixelData pixel = ZBuffer[x+1][y];  // +1 offset is needed for outlines to be in align
  		synchronized(pixel) {
 		 	if(Color4.getAlpha(rgb)==255) {
 		 		if(pixel.depth<iz) {
