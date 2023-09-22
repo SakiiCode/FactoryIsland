@@ -202,7 +202,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if (playerFile.exists())
 			{
 				Engine.world.parsePE(Config.username, PE);
-				
+				PE.VerticalVector.z = Math.signum(PE.getPos().z);
 				
 				
 				break;
