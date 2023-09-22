@@ -14,8 +14,8 @@ public class Renderer {
 	private Star[] Stars = new Star[200];
 
 	PixelData[][] ZBuffer;
-
 	Polygon3D SelectedPolygon;
+	String coreDistribution;
 
 	private int VisibleCounter;
 	private MaskManager maskManager = new MaskManager();
@@ -43,10 +43,11 @@ public class Renderer {
 		for(int i=0;i<threadCount;i++) {
 			flatTasks.add(new ObjectUpdateThread(game, i,threadCount));
 		}
-		for(int i=0;i<threadCount;i++) {
-			texturedTasks.add(new TextureRenderThread(game, this, i,threadCount));
-		}
 		filtered = new ArrayList<>(8000);
+
+		for(int i=0;i<threadCount;i++) {
+			texturedTasks.add(new TextureRenderThread(game, this, filtered, i,threadCount));
+		}
 
 	}
 	
@@ -91,6 +92,9 @@ public class Renderer {
 				}
 			}
 		}
+		
+		filtered.clear();
+		updateFlat();
 	
 		if(Config.useTextures && !game.locked) {
 			clearZBuffer();
@@ -112,9 +116,6 @@ public class Renderer {
 			
 			
 		}else {
-				filtered.clear();
-				
-				updateFlat();
 				
 				Collections.sort(filtered);
 				for(Object3D o : filtered) {
@@ -140,10 +141,11 @@ public class Renderer {
 			task.fork();
 		}
 		
+		coreDistribution = "";
 		for(ObjectUpdateThread task : flatTasks) {
-			synchronized(filtered) {
-				filtered.addAll(task.join());
-			}
+			ArrayList<Object3D> visible = task.join();
+			filtered.addAll(visible);
+			coreDistribution += visible.size()+",";
 		}
 	}
 	
@@ -152,9 +154,12 @@ public class Renderer {
 			task.reinitialize();
 			task.fork();
 		}
-		
+
+		coreDistribution = "";
 		for(TextureRenderThread task : texturedTasks) {
-			VisibleCounter += task.join();
+			int polygons = task.join();
+			VisibleCounter += polygons;
+			coreDistribution += polygons+",";
 		}
 	}
 	

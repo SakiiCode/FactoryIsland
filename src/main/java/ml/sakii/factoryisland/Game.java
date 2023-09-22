@@ -572,6 +572,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("Selected Pixel: "+renderer.ZBuffer[FrameBuffer.getWidth()/2-1][FrameBuffer.getHeight()/2-1].toString());
 					}
 					debugInfo.add("Polygon count: " + VisibleCount + "/" + Objects.size());
+					debugInfo.add("Core distribution: " + renderer.coreDistribution);
 					debugInfo.add("testing:"+key[6]);
 					debugInfo.add("Filter locked: " + locked + ", moved: " + moved + ", nopause:" + Main.nopause);
 					long realTime = Engine.Tick % Globals.TICKS_PER_DAY;

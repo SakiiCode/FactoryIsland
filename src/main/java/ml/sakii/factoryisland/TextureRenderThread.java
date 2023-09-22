@@ -1,6 +1,7 @@
 package ml.sakii.factoryisland;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ForkJoinTask;
 
 public class TextureRenderThread extends ForkJoinTask<Integer> {
@@ -15,7 +16,7 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 	Game game;
 	
 	
-	private ArrayList<Object3D> Objects;
+	List<Object3D> Objects;
 	private ArrayList<Object3D> result = new ArrayList<>();
 	private int visibleCount;
 	
@@ -23,20 +24,16 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 	private int threadIndex;
 	private int threadCount;
 	
-	private UpdateContext context;
-
-	public TextureRenderThread(Game game, Renderer renderer, int threadIndex, int threadCount) {
+	public TextureRenderThread(Game game, Renderer renderer, List<Object3D> Objects, int threadIndex, int threadCount) {
 
 		this.game = game;
 		this.threadIndex = threadIndex;
 		this.threadCount = threadCount;
-		this.Objects = game.Objects;
+		this.Objects = Objects;
 		this.renderer = renderer;
 		this.tmpUVZ1 = new UVZ();
 		this.tmpUVZ2 = new UVZ();
 				
-		this.context = new UpdateContext(game);
-		
 		resizeScreen();
 	}
 
@@ -56,12 +53,22 @@ public class TextureRenderThread extends ForkJoinTask<Integer> {
 		result.clear();
 		visibleCount = 0;
 
-		int objectsPerThread = Objects.size() / threadCount + 1;
-		for (int j = 0; j < objectsPerThread; j++) {
-			int objectIndex = threadIndex * objectsPerThread + j;
+		int minObjects = Objects.size() / threadCount;
+		int remainder = Objects.size() % threadCount;
+		
+		int startIndex, currentObjects;
+		if(threadIndex < remainder) {                // process the remainder as well, +1 object per thread
+			currentObjects = minObjects+1;
+			startIndex = (minObjects+1)*threadIndex;
+		}else {                                      // only process minObjects amount, no remainder 
+			currentObjects = minObjects;
+			startIndex = (minObjects+1)*remainder+minObjects*(threadIndex-remainder);
+		}
+		
+		for (int objectIndex = startIndex; objectIndex < startIndex+currentObjects; objectIndex++) {
 			if (Objects.size() > objectIndex) {
 				Object3D obj = Objects.get(objectIndex);
-				if (obj.update(context) && obj instanceof BufferRenderable br) {
+				if (obj instanceof BufferRenderable br) {
 					br.drawToBuffer(this);
 
 					if (obj instanceof Polygon3D p) {
