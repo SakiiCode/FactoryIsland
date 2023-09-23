@@ -47,8 +47,8 @@ public class AudioThread extends Thread{
 	        	
 	        	@SuppressWarnings("resource")
 				SourceDataLine line = (SourceDataLine)line2;
-	        	line.open(pcmFormat,256);
-	            byte[] data = new byte[256];
+	        	line.open(pcmFormat,4096);
+	            byte[] data = new byte[4096];
 	            // Start
 	            line.start();
 
