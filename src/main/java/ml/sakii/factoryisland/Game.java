@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
@@ -551,7 +550,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (1f/measurement) + " (" + measurement + " ms) - " + FPS);
 					debugInfo.add("SelBlock:" + SelectedFace + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
-					debugInfo.add("SelBlock Components:" + SelectedBlock.Components.toString());
+					debugInfo.add("SelBlock Components:" + SelectedBlock.getComponents().toString());
 					if(SelectedBlock instanceof SignalPropagator wire) {
 						debugInfo.add(wire.powers+"");
 					}
@@ -579,7 +578,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					float timePercent = (realTime*1f/Globals.TICKS_PER_DAY);
 					double light = Math.sin(2*Math.PI*timePercent);
 					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + "), day:"+Engine.isDay((int)PE.ViewFrom.z)+",light:"+light);
-					debugInfo.add("needUpdate:" + !SelectedBlock.getComponent(TickUpdateComponent.class).isEmpty() +", blockLightPass:"+Engine.world.lightCalcRuns);
+					debugInfo.add("needUpdate:" + !SelectedBlock.getComponents(TickUpdateComponent.class).isEmpty() +", blockLightPass:"+Engine.world.lightCalcRuns);
 					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+PE.inventory.getHotbarIndex()+", selected:"+((PE.inventory.getHotbarIndex()>-1 ) ? PE.inventory.getSelectedKind() : ""));
 					if (Engine.client != null)
 					{
@@ -861,9 +860,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						
 						
 						
-						Optional<BreakComponent> bc = SelectedBlock.getComponent(BreakComponent.class);
-						if(!bc.isEmpty()) {
-							bc.get().onBreak();
+						for(BreakComponent bc : SelectedBlock.getComponents(BreakComponent.class)) {
+							bc.onBreak();
 						}
 							
 						PE.inventory.add( returnAsItem, true);

@@ -133,7 +133,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 			}
 		};
 		
-		Components.add(tuc);
+		addComponent(tuc);
 		
 		
 

@@ -18,7 +18,7 @@ public class WaterMillBlock extends SimpleMachine {
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
 		super("WaterMill", x, y, z,AssetLibrary.wmSideColor,AssetLibrary.wmGradientBeginColor,AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
 		sgc = new SignalGeneratorComponent(this);
-		Components.add(sgc);
+		addComponent(sgc);
 		tuc = new TickUpdateComponent(this,1) {
 			@Override
 			public boolean onTick() {
@@ -41,7 +41,7 @@ public class WaterMillBlock extends SimpleMachine {
 				return false;
 			}
 		};
-		Components.add(tuc);
+		addComponent(tuc);
 	}
 
 	@Override

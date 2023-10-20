@@ -20,9 +20,9 @@ public class SignalGeneratorComponent extends SignalComponent {
 			Block b = e.getValue();
 
 			if (activeSides.contains(face)) {
-				for (Component c : b.Components) {
+				for (Component c : b.getComponents()) {
 					if (c instanceof SignalPropagatorComponent spp) {
-						spp.spreadPower(intensity, face.getOpposite());
+						spp.spreadSignal(intensity, face.getOpposite());
 					} else if (c instanceof SignalConsumerComponent scp) {
 						scp.addSignal(intensity, face.getOpposite());
 					}

@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
@@ -451,19 +450,15 @@ public class World {
 		
 		for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 			Block block = entry.getValue();
-			Optional<TickUpdateComponent> tuc = block.getComponent(TickUpdateComponent.class);
-			if(!tuc.isEmpty()) {
-				Engine.TickableBlocks.add(tuc.get());
+			for(TickUpdateComponent tuc : block.getComponents(TickUpdateComponent.class)) {
+				Engine.TickableBlocks.add(tuc);
 			}
-			
-			
 		}
 		
-		Optional<TickUpdateComponent> tuc = b.getComponent(TickUpdateComponent.class);
-		if(!tuc.isEmpty()) {
-			Engine.TickableBlocks.add(tuc.get());
+		for(TickUpdateComponent tuc : b.getComponents(TickUpdateComponent.class)) {
+			Engine.TickableBlocks.add(tuc);
 		}
-		
+
 		if(b instanceof DayNightListener dnl) {
 			Engine.DayNightBlocks.add(dnl);
 		}
@@ -529,18 +524,14 @@ public class World {
 			
 			for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 				Block bu = entry.getValue();
-				Optional<TickUpdateComponent> tuc = bu.getComponent(TickUpdateComponent.class);
-				if(!tuc.isEmpty()) {
-					Engine.TickableBlocks.add(tuc.get());
+				for(TickUpdateComponent tuc : bu.getComponents(TickUpdateComponent.class)) {
+					Engine.TickableBlocks.add(tuc);
 				}
-				
 			}
 			
-			Optional<TickUpdateComponent> tuc = b.getComponent(TickUpdateComponent.class);
-			if(!tuc.isEmpty()) {
-				Engine.TickableBlocks.remove(tuc.get());
+			for(TickUpdateComponent tuc : b.getComponents(TickUpdateComponent.class)) {
+				Engine.TickableBlocks.add(tuc);
 			}
-			
 			
 			if (b instanceof TextureListener tl && game != null) {
 				game.TextureBlocks.remove(tl);

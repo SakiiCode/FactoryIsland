@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Optional;
-
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Model;
@@ -26,7 +24,8 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 	public final HashMap<Polygon3D, BlockFace> HitboxPolygons = new HashMap<>();
 	public final ArrayList<Object3D> Objects = new ArrayList<>(6);
-	public final ArrayList<Component> Components = new ArrayList<>();
+	
+	private final ArrayList<Component> Components = new ArrayList<>();
 	
 	/** ModBlock és Nothing miatt */
 	public Block(int x, int y, int z, GameEngine engine)
@@ -224,15 +223,15 @@ public abstract class Block extends Model.Int implements BlockInterface
 			if(!alreadyput) {
 				BlockMeta.put(key, value);
 			}
-			Optional<TickUpdateComponent> tuc = this.getComponent(TickUpdateComponent.class);
-			if(!tuc.isEmpty()) {
-				Engine.TickableBlocks.add(tuc.get());
+			for(TickUpdateComponent tuc : this.getComponents(TickUpdateComponent.class)) {
+				Engine.TickableBlocks.add(tuc);
 			}
 			for (Block b2 : Engine.world.get6Blocks(this, false).values())
 			{
-				Optional<TickUpdateComponent> tuc2 = b2.getComponent(TickUpdateComponent.class);
-				if(!tuc2.isEmpty() && (Engine.client == null || (Engine.client != null && Engine.client != null))) {
-					Engine.TickableBlocks.add(tuc2.get());
+				if(Engine.client == null || (Engine.client != null && Engine.client != null)) {
+					for(TickUpdateComponent tuc2 : b2.getComponents(TickUpdateComponent.class)) {
+						Engine.TickableBlocks.add(tuc2);
+					}
 				}
 			}
 
@@ -322,13 +321,26 @@ public abstract class Block extends Model.Int implements BlockInterface
 	}
 	
 	@SuppressWarnings("unchecked")
-	public final <T extends Component> Optional<T> getComponent(Class<T> type) {
+	public final <T extends Component> List<T> getComponents(Class<T> type) {
+		ArrayList<T> results = new ArrayList<>();
 		for(Component c : Components) {
 			if(type.isAssignableFrom(c.getClass())) {
-				return (Optional<T>) Optional.of(c);
+				results.add((T) c);
 			}
 		}
-		return Optional.empty();
+		return results;
+	}
+	
+	public final void addComponent(Component c) {
+		if(!c.SubComponents.isEmpty()) {
+			for(Component sc : c.SubComponents) {
+				addComponent(sc);
+			}
+		}
+	}
+	
+	public final List<Component> getComponents(){
+		return Components;
 	}
 
 }

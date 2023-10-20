@@ -9,6 +9,9 @@ import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
+import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
+import ml.sakii.factoryisland.blocks.components.PowerGeneratorComponent;
+import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 import ml.sakii.factoryisland.entities.PlayerMP;
 
 public class SiliconBlock extends Block implements DayNightListener, PowerGenerator, TextureListener, LoadListener{
@@ -31,10 +34,33 @@ public class SiliconBlock extends Block implements DayNightListener, PowerGenera
 		};
 	
 	private HashSet<PowerConsumer> consumerCache=new HashSet<>();
-	
+	private PowerGeneratorComponent pgc;
+	private DynamicTextureComponent dtc;
 	
 	public SiliconBlock(int x, int y, int z, GameEngine engine) {
 		super("Silicon", x, y, z,0.9f, 0.9f, 0.9f, engine);
+		pgc = new PowerGeneratorComponent(this);
+		addComponent(pgc);
+		dtc = new DynamicTextureComponent(this) {
+			@Override
+			public void updateTexture(Vector tmp, Game game) {
+				PlayerMP PE = game.PE;
+				for(Object3D o : Objects) {
+					if(o instanceof Polygon3D p) {
+						float brightness = Math.abs(tmp.set(p.getCentroid()).substract(PE.ViewFrom).normalize().DotProduct(p.getNormal()));
+						p.s.c.set(brightness,brightness,brightness,1f);//) = new Surface(new Color4(brightness,brightness,brightness,1f));
+						p.recalcLightedColor();
+					}
+				}
+			}
+		};
+		addComponent(dtc);
+		addComponent(new WorldLoadComponent(this) {
+			@Override
+			public void onLoad(Game game) {
+				dtc.updateTexture(new Vector(), game);
+			}
+		});
 		
 	}
 	

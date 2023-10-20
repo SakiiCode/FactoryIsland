@@ -1,16 +1,15 @@
 package ml.sakii.factoryisland.blocks.components;
 
+import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.blocks.Block;
 
-public class WorldLoadComponent extends Component{
+public abstract class WorldLoadComponent extends Component{
 	
 	public WorldLoadComponent(Block block) {
 		super(block);
 	}
 
-	public void onLoad() {
-		
-	}
+	public abstract void onLoad(Game game);
 	
 	@Override
 	public String toString() {

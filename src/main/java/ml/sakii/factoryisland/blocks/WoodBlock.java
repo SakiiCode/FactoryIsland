@@ -2,10 +2,9 @@ package ml.sakii.factoryisland.blocks;
 
 import java.awt.Color;
 import java.util.Map;
-import java.util.Optional;
-
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
+import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Object3D;
@@ -29,34 +28,33 @@ public class WoodBlock extends Block{
 				recalcPaints();
 			}
 		};
-		Components.add(spc);
+		addComponent(spc);
 		
 		//TODO ez legyen automatikus
-		Components.add(new WorldLoadComponent(this) {
+		addComponent(new WorldLoadComponent(this) {
 			@Override
-			public void onLoad() {
+			public void onLoad(Game game) {
 				recalcPaints();
 			}
 		});
 		
-		Components.add(new TickUpdateComponent(this,1) {
+		addComponent(new TickUpdateComponent(this,1) {
 			
 			@Override
 			public boolean onTick() {
 				for(Map.Entry<BlockFace, Integer> entry : spc.signals.entrySet()) {
-					spc.spreadPower(entry.getValue(), entry.getKey());
+					spc.spreadSignal(entry.getValue(), entry.getKey());
 				}
 				return false;
 			}
 		});
 		
-		Components.add(new BreakComponent(this) {
+		addComponent(new BreakComponent(this) {
 			@Override
 			public void onBreak() {
 				for(Map.Entry<BlockFace, Block> entry : WoodBlock.this.Engine.world.get6Blocks(WoodBlock.this,false).entrySet()) {
-					Optional<SignalPropagatorComponent> spc = entry.getValue().getComponent(SignalPropagatorComponent.class);  
-					if(!spc.isEmpty()) {
-						spc.get().spreadPower(0,entry.getKey().getOpposite());
+					for(SignalPropagatorComponent spc : entry.getValue().getComponents(SignalPropagatorComponent.class)) {
+						spc.spreadSignal(0, entry.getKey().getOpposite());
 					}
 				}
 			}

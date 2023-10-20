@@ -12,7 +12,7 @@ public class DrillBlock extends SimpleMachine {
 		super("Drill", x, y, z, AssetLibrary.drillSideColor, AssetLibrary.drillGradientBeginColor,
 				AssetLibrary.drillSideColor, new Color4(Color.RED), engine);
 
-		Components.add(new SignalConsumerComponent(this) {
+		addComponent(new SignalConsumerComponent(this) {
 			@Override
 			public void addSignal(int intensity, BlockFace source) {
 				super.addSignal(intensity, source);
