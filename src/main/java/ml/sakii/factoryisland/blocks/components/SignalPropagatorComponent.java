@@ -12,7 +12,7 @@ public class SignalPropagatorComponent extends SignalComponent{
 		super(block);
 	}
 	
-	public void spreadPower(int targetPower, BlockFace source){
+	public void spreadSignal(int targetPower, BlockFace source){
 		if(targetPower > 0) {
 			if(signals.containsKey(source) && signals.get(source)>targetPower) {
 				return;
@@ -34,9 +34,9 @@ public class SignalPropagatorComponent extends SignalComponent{
 			if(face == source) {
 				continue;
 			}
-			for(Component c : b.Components) {
+			for(Component c : b.getComponents()) {
 				if(c instanceof SignalPropagatorComponent sp) {
-					sp.spreadPower(Math.max(targetPower-1,0), face.getOpposite());
+					sp.spreadSignal(Math.max(targetPower-1,0), face.getOpposite());
 				}else if(c instanceof SignalConsumerComponent scc) {
 					scc.addSignal(targetPower, face.getOpposite());
 				}
