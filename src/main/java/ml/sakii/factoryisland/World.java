@@ -430,8 +430,6 @@ public class World {
 	}
 	
 	private void ReplaceBlock(Block b) {
-		if(getBlockAtP(b.pos) == Block.NOTHING) blockCount++;
-
 		if(!loading) {
 			for(Block nearby : get6Blocks(b, false).values()) {
 				for(Object3D obj : nearby.Objects) {
@@ -446,6 +444,7 @@ public class World {
 		
 		Blocks[b.x+MAP_SIZE/2][b.y+MAP_SIZE/2][b.z+MAP_SIZE/2] = b;
 		Whole.add(b);
+		blockCount++;
 
 		
 		for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {

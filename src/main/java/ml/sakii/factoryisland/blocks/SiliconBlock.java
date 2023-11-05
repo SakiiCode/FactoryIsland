@@ -11,7 +11,6 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
 import ml.sakii.factoryisland.blocks.components.PowerGeneratorComponent;
-import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 import ml.sakii.factoryisland.entities.PlayerMP;
 
 public class SiliconBlock extends Block implements DayNightListener, PowerGenerator, TextureListener, LoadListener{
@@ -55,12 +54,6 @@ public class SiliconBlock extends Block implements DayNightListener, PowerGenera
 			}
 		};
 		addComponent(dtc);
-		addComponent(new WorldLoadComponent(this) {
-			@Override
-			public void onLoad(Game game) {
-				dtc.updateTexture(new Vector(), game);
-			}
-		});
 		
 	}
 	

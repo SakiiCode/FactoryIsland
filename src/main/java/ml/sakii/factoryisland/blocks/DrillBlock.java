@@ -14,11 +14,6 @@ public class DrillBlock extends SimpleMachine {
 
 		addComponent(new SignalConsumerComponent(this) {
 			@Override
-			public void addSignal(int intensity, BlockFace source) {
-				super.addSignal(intensity, source);
-			}
-
-			@Override
 			public void turnOn() {
 				work();
 			}

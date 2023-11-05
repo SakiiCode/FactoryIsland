@@ -30,7 +30,6 @@ public class WoodBlock extends Block{
 		};
 		addComponent(spc);
 		
-		//TODO ez legyen automatikus
 		addComponent(new WorldLoadComponent(this) {
 			@Override
 			public void onLoad(Game game) {

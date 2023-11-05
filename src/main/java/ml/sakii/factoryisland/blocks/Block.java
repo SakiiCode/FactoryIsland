@@ -332,6 +332,7 @@ public abstract class Block extends Model.Int implements BlockInterface
 	}
 	
 	public final void addComponent(Component c) {
+		Components.add(c);
 		if(!c.SubComponents.isEmpty()) {
 			for(Component sc : c.SubComponents) {
 				addComponent(sc);

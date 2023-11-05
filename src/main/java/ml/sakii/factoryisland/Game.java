@@ -41,7 +41,6 @@ import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
 import ml.sakii.factoryisland.blocks.InteractListener;
-import ml.sakii.factoryisland.blocks.LoadListener;
 import ml.sakii.factoryisland.blocks.PlaceListener;
 import ml.sakii.factoryisland.blocks.SignalConsumer;
 import ml.sakii.factoryisland.blocks.SignalPropagator;
@@ -49,6 +48,7 @@ import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
+import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -226,8 +226,8 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		updateSkyLight();
 		
 		for(Block b : Engine.world.getWhole()) {
-			if(b instanceof LoadListener ll) {
-				ll.onLoad(this);
+			for(WorldLoadComponent wll : b.getComponents(WorldLoadComponent.class)) {
+				wll.onLoad(this);
 			}
 			update.accept("Spreading light...");
 			if(b.getLightLevel()>1) {

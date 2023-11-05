@@ -10,6 +10,7 @@ import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vector2D;
+import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 
 public abstract class SimpleMachine extends Block implements InteractListener, TextureListener, PlaceListener, MetadataListener, LoadListener{
 
@@ -43,6 +44,16 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 		if(engine != null) {
 			updateTargetColors(BlockFace.TOP,BlockFace.TOP);
 		}
+		
+		addComponent(new WorldLoadComponent(this) {
+			
+			@Override
+			public void onLoad(Game game) {
+				updateTargetColors(BlockFace.TOP,getTarget());
+				updateActiveColors();
+				updateTexture(new Vector(),game);
+			}
+		});
 	}
 	
 
