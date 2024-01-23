@@ -101,11 +101,7 @@ public class SiliconBlock extends Block implements DayNightListener, PowerGenera
 
 	@Override
 	public float getDesiredPower() {
-		if(Engine.isDay(z)) {
-			return 20;
-		}else {
-			return 0;
-		}
+		return Engine.isDay(z) ? 20 : 0;
 	}
 
 	@Override

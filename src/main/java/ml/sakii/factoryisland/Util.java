@@ -1,7 +1,7 @@
 package ml.sakii.factoryisland;
 
 public class Util {
-
+	
 	public static double interp(double x1, double x2, double x, double y1, double y2) {
 		return y1+(x-x1)*(y2-y1)/(x2-x1);
 	}
@@ -24,7 +24,7 @@ public class Util {
 		float newY = (float)(   ((x-centerX)*Math.sin(angle) + (y-centerY)*Math.cos(angle)) + centerY   );
 		return new float[]{newX, newY};
 	}
-
+	
 	public static int limit(int value, int min, int max) {
 		if(value>max) {
 			return max;
@@ -56,19 +56,19 @@ public class Util {
 		float aheadZ = diffZ-coneNormal.z*sinAngle*sphereRadius;
 		
 		float ahead = aheadX*coneNormal.x+aheadY*coneNormal.y+aheadZ*coneNormal.z;
-	    
-	    if(ahead > 0) {
-	    	float cX = diffX*sinAngle+coneNormal.x*sphereRadius;
-	    	float cY = diffY*sinAngle+coneNormal.y*sphereRadius;
-	    	float cZ = diffZ*sinAngle+coneNormal.z*sphereRadius;
-	    	
-	    	double lenA = cX*coneNormal.x+cY*coneNormal.y+cZ*coneNormal.z;
-	    	
-	    	return cX*cX+cY*cY+cZ*cZ <= lenA*lenA*tanAngleSqPlusOne;
-	    }else {
-	    	return diffX*diffX+diffY*diffY+diffZ*diffZ <= sphereRadius*sphereRadius;
-	    }
+		
+		if(ahead <= 0) {
+			return diffX*diffX+diffY*diffY+diffZ*diffZ <= sphereRadius*sphereRadius;
+		}
+		
+		float cX = diffX*sinAngle+coneNormal.x*sphereRadius;
+		float cY = diffY*sinAngle+coneNormal.y*sphereRadius;
+		float cZ = diffZ*sinAngle+coneNormal.z*sphereRadius;
+		
+		double lenA = cX*coneNormal.x+cY*coneNormal.y+cZ*coneNormal.z;
+		
+		return cX*cX+cY*cY+cZ*cZ <= lenA*lenA*tanAngleSqPlusOne;
 	}
 	
-
+	
 }

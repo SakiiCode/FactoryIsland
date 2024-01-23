@@ -403,12 +403,9 @@ public class World {
  		if(x < minIndex || x > maxIndex || y < minIndex || y > maxIndex || z < minIndex || z > maxIndex) {
  			return Block.NOTHING;
  		}
-		Block result = Blocks[x+MAP_SIZE/2][y+MAP_SIZE/2][z+MAP_SIZE/2]; 
- 		if(result == null) {
- 			return Block.NOTHING;
- 		}else {
- 			return result;
- 		}
+		Block result = Blocks[x+MAP_SIZE/2][y+MAP_SIZE/2][z+MAP_SIZE/2];
+		
+		return result == null ? Block.NOTHING : result;
 	}
  	
  	public Block getBlockAtP(Point3D p) {
@@ -508,8 +505,6 @@ public class World {
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
 				Main.err("Attempted to destroy air block: "+b.pos);
 				return;
-			}else {
-				blockCount--;
 			}
 	
 			if(b.getLightLevel()>0) {
@@ -517,6 +512,7 @@ public class World {
 				game.dirtyLights.add(b.pos);
 			}
 			
+			blockCount--;
 			Blocks[b.x+MAP_SIZE/2][b.y+MAP_SIZE/2][b.z+MAP_SIZE/2] = null;
 			Whole.remove(b);
 
@@ -1163,7 +1159,6 @@ public class World {
 			try {
 				saveThread.join();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

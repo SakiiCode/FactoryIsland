@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 
-@Deprecated
 public class API {
 	
 	public static GameEngine Engine;

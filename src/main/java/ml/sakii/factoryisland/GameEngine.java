@@ -339,12 +339,7 @@ public class GameEngine{
 		float timePercent = (realTime*1f/Globals.TICKS_PER_DAY);
 		double light = Math.sin(2*Math.PI*timePercent);
 		
-		
-		if(z>=0) {
-			return light > 3f/14f;
-		}else {
-			return  light < -3f/14f;
-		}
+		return z >= 0 ? light > 3f/14f : light < -3f/14f;
 	}
 
 	void doGravity(Entity entity, float physicsFPS) {

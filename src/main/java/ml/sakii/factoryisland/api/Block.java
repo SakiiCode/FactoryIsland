@@ -2,7 +2,6 @@ package ml.sakii.factoryisland.api;
 
 import ml.sakii.factoryisland.GameEngine;
 
-@Deprecated
 public class Block{
 
 	public int x, y, z;
@@ -43,6 +42,7 @@ public class Block{
 		b.setMetadata(key, value, true);
 	}
 	
+	@SuppressWarnings("static-method")
 	public void update() {
 		//TODO implement
 		throw new UnsupportedOperationException("ModBlock.update()");

@@ -15,7 +15,6 @@ import ml.sakii.factoryisland.GUIManager;
 import ml.sakii.factoryisland.Globals;
 import ml.sakii.factoryisland.Main;
 
-@Deprecated
 public class SocketListener extends Thread {
 
 	private boolean running=true;

@@ -1384,7 +1384,6 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	}
 	
 	
-	//TODO számontartani egy ViewSphere-t és nem végigmenni az összesen, hanem leellenőrizni hogy a polygon hozzá tartozik-e
 	@SuppressWarnings("unlikely-arg-type")
 	boolean insideSphere(Polygon3D polygon) {
 		for(int i=0;i<ViewSpheres.size();i++) {

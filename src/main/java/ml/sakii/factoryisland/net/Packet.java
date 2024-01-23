@@ -1,6 +1,5 @@
 package ml.sakii.factoryisland.net;
 
-@Deprecated
 public class Packet {
 	Connection connection;
 	String message;
