@@ -1,17 +1,16 @@
 package ml.sakii.factoryisland.blocks.components;
 
-import ml.sakii.factoryisland.blocks.Block;
+import java.util.List;
 
-public class BreakComponent extends Component {
+import ml.sakii.factoryisland.blocks.Block;
+import ml.sakii.factoryisland.items.ItemStack;
+
+public abstract class BreakComponent extends Component {
 
 	public BreakComponent(Block block) {
 		super(block);
 	}
 
-	//TODO ItemStack
-	public void onBreak() {
-		
-		
-	}
+	public abstract List<ItemStack> onBreak();
 
 }

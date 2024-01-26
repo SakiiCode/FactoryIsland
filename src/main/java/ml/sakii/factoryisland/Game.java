@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
@@ -856,25 +857,30 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 				{
 					if(Engine.isSingleplayer()) { //mpben az item visszaadast a gameclient kezeli
 					
-						ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(SelectedBlock.name),1)};
+						ArrayList<ItemStack> returnAsItem = new ArrayList<>();
 						
+						List<BreakComponent> breakComponents = SelectedBlock.getComponents(BreakComponent.class);
 						
+						if(breakComponents.isEmpty()) {
 						
-						for(BreakComponent bc : SelectedBlock.getComponents(BreakComponent.class)) {
-							bc.onBreak();
+							returnAsItem.add(new ItemStack(Main.Items.get(SelectedBlock.name),1));
+						
+						}else {
+						
+							for(BreakComponent bc : breakComponents) {
+								returnAsItem.addAll(bc.onBreak());
+							}
 						}
 							
-						PE.inventory.add( returnAsItem, true);
-						
-						
-						//PowerGenerator miatt utana kell torolni
-						Engine.world.destroyBlock(SelectedBlock, true);
+						PE.inventory.addAll(returnAsItem, true);
 
 	
-					}else{
-						Engine.world.destroyBlock(SelectedBlock, true);
 					}
+					
+					Engine.world.destroyBlock(SelectedBlock, true);
+					
 				}else if(SelectedEntity != null) {
+					
 					Engine.world.hurtEntity(SelectedEntity.ID, 1, true);
 
 					

@@ -2,12 +2,14 @@ package ml.sakii.factoryisland.blocks;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.items.BlockInventory;
 import ml.sakii.factoryisland.items.ItemStack;
 import ml.sakii.factoryisland.items.ItemType;
@@ -19,9 +21,27 @@ public class ChestModuleBlock extends Block implements InteractListener, BlockIn
 	
 	private static final Surface[] surfaces = Block.generateSurfaces(AssetLibrary.chestModule);
 	
+	private BreakComponent bc;
+	
 	public ChestModuleBlock(int x, int y, int z, GameEngine engine){
 		super("ChestModule", x, y, z, engine);
 		inv = new BlockInventory(engine);
+		bc = new BreakComponent(this) {
+			
+			@Override
+			public List<ItemStack> onBreak() {
+				ArrayList<ItemStack> stacks = new ArrayList<>();
+				
+				for(Entry<ItemType, Integer> is : inv.items.entrySet()) {
+					
+					stacks.add(new ItemStack(is.getKey(),is.getValue()));
+				}
+				stacks.add(new ItemStack(Main.Items.get(ChestModuleBlock.this.name),1));
+				return stacks;
+			}
+		};
+		
+		addComponent(bc);
 	}
 
 	@Override

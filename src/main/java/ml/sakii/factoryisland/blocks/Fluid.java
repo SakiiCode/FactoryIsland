@@ -1,13 +1,17 @@
 package ml.sakii.factoryisland.blocks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
+import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.items.ItemStack;
 
@@ -32,6 +36,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	};
 	
 	TickUpdateComponent tuc;
+	BreakComponent bc;
 	
 	
 	public Fluid(String name, int x, int y, int z, int height, GameEngine engine) {
@@ -135,7 +140,22 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 		
 		addComponent(tuc);
 		
+		bc = new BreakComponent(this) {
+			
+			@Override
+			public List<ItemStack> onBreak() {
+				
+				if(getHeight()!=getMaxHeight()) {
+					return new ArrayList<>();
+				}
+				
+				ArrayList<ItemStack> result = new ArrayList<>();
+				result.add(new ItemStack(Main.Items.get(Fluid.this.name), 1));
+				return result;
+			}
+		};
 		
+		addComponent(bc);
 
 	}
 	

@@ -1,6 +1,7 @@
 package ml.sakii.factoryisland.items;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import ml.sakii.factoryisland.GameEngine;
@@ -138,13 +139,15 @@ public class PlayerInventory {
 		Main.log("PlayerInv sent data from client to server");
 	}
 
-
-
-
 	public void add(ItemStack[] stacks, boolean resend) {
 		for(ItemStack stack : stacks) {
 			add(stack.kind,stack.amount,resend);
 		}
-		
+	}
+	
+	public void addAll(List<ItemStack> stacks, boolean resend) {
+		for(ItemStack stack : stacks) {
+			add(stack.kind,stack.amount,resend);
+		}
 	}
 }

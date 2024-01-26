@@ -1,6 +1,8 @@
 package ml.sakii.factoryisland.blocks;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
@@ -14,6 +16,7 @@ import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.blocks.components.SignalPropagatorComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
+import ml.sakii.factoryisland.items.ItemStack;
 
 public class WoodBlock extends Block{
 	
@@ -50,12 +53,15 @@ public class WoodBlock extends Block{
 		
 		addComponent(new BreakComponent(this) {
 			@Override
-			public void onBreak() {
+			public List<ItemStack> onBreak() {
 				for(Map.Entry<BlockFace, Block> entry : WoodBlock.this.Engine.world.get6Blocks(WoodBlock.this,false).entrySet()) {
 					for(SignalPropagatorComponent spc : entry.getValue().getComponents(SignalPropagatorComponent.class)) {
 						spc.spreadSignal(0, entry.getKey().getOpposite());
 					}
 				}
+				ArrayList<ItemStack> result = new ArrayList<>();
+				result.add(new ItemStack(Main.Items.get("Wood"),1));
+				return result;
 			}
 		});
 	}
