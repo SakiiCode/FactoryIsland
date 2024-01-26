@@ -1,6 +1,9 @@
 package ml.sakii.factoryisland.api;
 
+import java.util.List;
+
 import ml.sakii.factoryisland.GameEngine;
+import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 
 public class Block{
 
@@ -42,13 +45,9 @@ public class Block{
 		b.setMetadata(key, value, true);
 	}
 	
-	@SuppressWarnings("static-method")
 	public void update() {
-		//TODO implement
-		throw new UnsupportedOperationException("ModBlock.update()");
-		/*if(b instanceof TickListener) {
-			Engine.TickableBlocks.add(b.pos);
-		}*/
+		List<TickUpdateComponent> tuc = b.getComponents(TickUpdateComponent.class);
+		Engine.TickableBlocks.addAll(tuc);
 	}
 	
 	

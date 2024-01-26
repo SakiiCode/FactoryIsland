@@ -13,6 +13,7 @@ import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
+import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 import ml.sakii.factoryisland.items.ItemStack;
 
 
@@ -37,7 +38,7 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 	
 	TickUpdateComponent tuc;
 	BreakComponent bc;
-	
+	WorldLoadComponent wlc;
 	
 	public Fluid(String name, int x, int y, int z, int height, GameEngine engine) {
 		super(name,x, y, z,engine);
@@ -156,6 +157,16 @@ public abstract class Fluid extends Block implements TickListener, LoadListener,
 		};
 		
 		addComponent(bc);
+		
+		wlc = new WorldLoadComponent(this) {
+			
+			@Override
+			public void onLoad(Game game) {
+				heightMap();
+			}
+		};
+		
+		addComponent(wlc);
 
 	}
 	

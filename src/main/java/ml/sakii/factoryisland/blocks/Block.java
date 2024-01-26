@@ -100,35 +100,6 @@ public abstract class Block extends Model.Int implements BlockInterface
 
 	}
 	
-	//TODO add polygonIterator
-	/*
-	public Iterator<Polygon3D> polygonIterator(){
-		return new Iterator<>() {
-			Iterator<Object3D> iter = Objects.iterator();
-			Object3D next = null;
-			
-			
-			@Override
-			public boolean hasNext() {
-				do{
-					next = iter.next();
-				}while(next != null && !(next instanceof Polygon3D));
-				return next == null;
-			}
-			
-			@Override
-			public Polygon3D next() {
-				if(next==null) {
-					hasNext();
-				}
-				return (Polygon3D)next;
-			}
-			
-			
-			
-		}
-	}*/
-	
 
 	
 
@@ -214,12 +185,12 @@ public abstract class Block extends Model.Int implements BlockInterface
 		
 		}else {
 			boolean alreadyput = false;
-			if(this instanceof MetadataListener ml) {
+			/*if(this instanceof MetadataListener ml) {
 				
 				alreadyput = ml.onMetadataUpdate(key, value);
 				
 				
-			}
+			}*/
 			if(!alreadyput) {
 				BlockMeta.put(key, value);
 			}
