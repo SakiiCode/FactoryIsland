@@ -1,12 +1,14 @@
 package ml.sakii.factoryisland.blocks.components;
 
 import ml.sakii.factoryisland.blocks.Block;
+import ml.sakii.factoryisland.blocks.BlockFace;
 
-public class PlaceComponent extends Component {
+public abstract class PlaceComponent extends Component {
 
 	public PlaceComponent(Block block) {
 		super(block);
-		// TODO Auto-generated constructor stub
 	}
+	
+	public abstract void placed(BlockFace selectedFace);
 
 }

@@ -6,6 +6,22 @@ import ml.sakii.factoryisland.Surface;
 
 public class WaterBlock extends Fluid {
 	
+	private static final BlockDescriptor descriptor = new BlockDescriptor() {
+		@Override
+		public boolean isSolid() {
+			return false;
+		}
+		
+		@Override
+		public boolean isTransparent() {
+			return true;
+		}
+		@Override
+		public int getRefreshRate() {
+			return 10;
+		}
+	};
+	
 	private static final Surface[][] surfaces = new Surface[][] {
 		null,
 		Block.generateSurfacesCopy(AssetLibrary.waters[1]),
@@ -32,6 +48,11 @@ public class WaterBlock extends Fluid {
 	@Override
 	protected Surface[] getTextures() {
 		return AssetLibrary.waters;
+	}
+	
+	@Override
+	public BlockDescriptor getDescriptor() {
+		return descriptor;
 	}
 	
 }

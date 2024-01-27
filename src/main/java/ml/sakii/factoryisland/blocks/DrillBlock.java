@@ -17,6 +17,8 @@ public class DrillBlock extends SimpleMachine {
 			public void turnOn() {
 				work();
 			}
+			@Override
+			public void turnOff() {}
 		});
 
 	}

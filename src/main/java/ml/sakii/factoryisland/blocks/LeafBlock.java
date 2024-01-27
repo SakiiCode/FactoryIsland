@@ -11,7 +11,7 @@ import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.items.ItemStack;
 
-public class LeafBlock extends Block implements BreakListener {
+public class LeafBlock extends Block {
 
 	private static final Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.leaf);
 
@@ -35,7 +35,6 @@ public class LeafBlock extends Block implements BreakListener {
 			
 			@Override
 			public List<ItemStack> onBreak() {
-				// TODO Auto-generated method stub
 				boolean giveSapling = new Random().nextInt(10) == 1;
 				String type = giveSapling ? "Sapling" : "Leaf";
 				ArrayList<ItemStack> result = new ArrayList<>();
@@ -45,15 +44,6 @@ public class LeafBlock extends Block implements BreakListener {
 		};
 		
 		addComponent(bc);
-
-	}
-
-	@Override
-	public ItemStack[] breaked(String username) {
-
-		boolean giveSapling = new Random().nextInt(10) == 1;
-		String type = giveSapling ? "Sapling" : "Leaf";
-		return new ItemStack[] { new ItemStack(Main.Items.get(type), 1) };
 
 	}
 

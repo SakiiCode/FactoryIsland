@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Model;
@@ -16,16 +18,18 @@ import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.components.Component;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 
-public abstract class Block extends Model.Int implements BlockInterface
+public abstract class Block extends Model.Int
 {
 	public static final Block NOTHING = new Nothing();
 	public static final BlockDescriptor DEFAULT = new BlockDescriptor() {};
-	public final HashMap<String, String> BlockMeta = new HashMap<>();
-
+	
 	public final HashMap<Polygon3D, BlockFace> HitboxPolygons = new HashMap<>();
 	public final ArrayList<Object3D> Objects = new ArrayList<>(6);
 	
+	private final HashMap<String, String> BlockMeta = new HashMap<>();
+	
 	private final ArrayList<Component> Components = new ArrayList<>();
+	
 	
 	/** ModBlock és Nothing miatt */
 	public Block(int x, int y, int z, GameEngine engine)
@@ -185,12 +189,11 @@ public abstract class Block extends Model.Int implements BlockInterface
 		
 		}else {
 			boolean alreadyput = false;
-			/*if(this instanceof MetadataListener ml) {
+			if(this instanceof MetadataListener ml) {
 				
 				alreadyput = ml.onMetadataUpdate(key, value);
 				
-				
-			}*/
+			}
 			if(!alreadyput) {
 				BlockMeta.put(key, value);
 			}
@@ -247,24 +250,24 @@ public abstract class Block extends Model.Int implements BlockInterface
 	 */
 	public abstract Surface[] getSurfaces();
 	
-	@Override
 	public GameEngine getEngine() {
 		return Engine;
 	}
 	
-	@Override
 	public World getWorld() {
 		return Engine.world;
 	}
 	
-	@Override
-	public HashMap<String, String> getBlockMeta() {
-		return BlockMeta;
+	public void storeMetadata(String key, String value) {
+		BlockMeta.put(key, value);
 	}
 	
-	@Override
-	public void setBlockMeta(String key, String value, boolean resend) {
-		setMetadata(key, value, resend);
+	public String getMetadata(String key) {
+		return BlockMeta.get(key);
+	}
+	
+	public Set<Entry<String,String>> getAllMetadata(){
+		return BlockMeta.entrySet();
 	}
 	
 	@SuppressWarnings("static-method")

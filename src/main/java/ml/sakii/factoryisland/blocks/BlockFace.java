@@ -13,6 +13,7 @@ public enum BlockFace {
 	public int id;
 	public int opposite;
 	public static BlockFace[] values = new BlockFace[7];
+	public static BlockFace[] ALL = {BlockFace.TOP, BlockFace.BOTTOM, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
 	
 	private BlockFace(byte[] direction, int id, int opposite){
 		this.direction = direction;

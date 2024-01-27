@@ -9,14 +9,17 @@ public abstract class TickUpdateComponent extends Component {
 	public TickUpdateComponent(Block block, int refreshRate) {
 		super(block);
 		this.refreshRate=refreshRate;
-		// TODO Auto-generated constructor stub
+	}
+	
+	public TickUpdateComponent(Block block) {
+		super(block);
+		this.refreshRate=block.getDescriptor().getRefreshRate();
 	}
 	
 	/**
 	 * @return true if keep in update queue
 	 */
-	
-	public abstract boolean onTick();
+	public abstract boolean onTick(long tick);
 	
 	@Override
 	public String toString() {

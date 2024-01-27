@@ -10,9 +10,12 @@ import ml.sakii.factoryisland.Polygon3D;
 import ml.sakii.factoryisland.Surface;
 import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.Vector2D;
+import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
+import ml.sakii.factoryisland.blocks.components.InteractComponent;
+import ml.sakii.factoryisland.blocks.components.PlaceComponent;
 import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 
-public abstract class SimpleMachine extends Block implements InteractListener, TextureListener, PlaceListener, MetadataListener, LoadListener{
+public abstract class SimpleMachine extends Block implements MetadataListener {
 
 	private Polygon3D TargetPolygon;
 	private Color4 side;
@@ -24,6 +27,10 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 	private Vector2D lineVec = new Vector2D();
 	private Vector2D pointVec = new Vector2D();
 	
+	protected InteractComponent ic;
+	protected DynamicTextureComponent dtc;
+	protected PlaceComponent pc;
+	protected WorldLoadComponent wlc;
 	
 	
 	public SimpleMachine(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole, GameEngine engine)
@@ -38,30 +45,66 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 						new Vector() },new int[][] {{0,0},{1,0},{1,1},{0,1}}, new Surface(hole),this);
 		Objects.add(TargetPolygon);
 		HitboxPolygons.put(TargetPolygon, BlockFace.TOP);
-		BlockMeta.put("target", BlockFace.TOP.id + "");
-		BlockMeta.put("active", "0");
+		storeMetadata("target", BlockFace.TOP.id + "");
+		storeMetadata("active", "0");
 		
 		if(engine != null) {
 			updateTargetColors(BlockFace.TOP,BlockFace.TOP);
 		}
 		
-		addComponent(new WorldLoadComponent(this) {
+		wlc = new WorldLoadComponent(this) {
 			
 			@Override
 			public void onLoad(Game game) {
 				updateTargetColors(BlockFace.TOP,getTarget());
 				updateActiveColors();
-				updateTexture(new Vector(),game);
 			}
-		});
+		};
+		
+		addComponent(wlc);
+		
+		dtc = new DynamicTextureComponent(this) {
+			
+			@Override
+			public void updateTexture(Vector tmp, Game game) {
+				BlockFace target = getTarget();
+				
+				for(BlockFace nearby : target.getNearby()){
+					 	
+					GradientCalculator.getGradientOf(x, y, z, nearby, target, tmpArr, values, game);
+					
+					GradientCalculator.getPerpendicular(values, pointVec, lineVec);
+						
+					((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec, SimpleMachine.this.front.getColor(), values[2], Color4.TRANSPARENT);
+				 }
+				
+			}
+		};
+		
+		addComponent(dtc);
+		
+		pc = new PlaceComponent(this) {
+			@Override
+			public void placed(BlockFace selectedFace) {
+				BlockFace target = selectedFace.getOpposite();
+				setMetadata("target", target.id+"", true);	
+			}
+		};
+		
+		addComponent(pc);
+		
+		ic = new InteractComponent(this) {
+			
+			@Override
+			public void interact(BlockFace target) {
+				setMetadata("target", target.id + "", true);				
+			}
+		};
+		
+		addComponent(ic);
+		
 	}
 	
-
-	
-	@Override
-	public void interact(BlockFace target) { 
-		setMetadata("target", target.id + "", true);
-	}
 
 
 	private void updateTargetColors(BlockFace prevTarget, BlockFace newTarget){ //mindenkepp inaktiv lesz, mert nem lehet ugy kattintani h viz fele alljon
@@ -105,26 +148,7 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 	}
 	
 	private boolean isActive() {
-		return Integer.parseInt(BlockMeta.get("active"))>0;
-	}
-	
-	
-	
-
-	@Override
-	public void updateTexture(Vector v, Game game){
-		
-		BlockFace target = getTarget();
-		
-		for(BlockFace nearby : target.getNearby()){
-			 	
-			GradientCalculator.getGradientOf(x, y, z, nearby, target, tmpArr, values, game);
-			
-			GradientCalculator.getPerpendicular(values, pointVec, lineVec);
-				
-			((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec, this.front.getColor(), values[2], Color4.TRANSPARENT);
-		 }
-		
+		return Integer.parseInt(getMetadata("active"))>0;
 	}
 	
 	private void recalcTargetPolygon(BlockFace target) {
@@ -191,37 +215,26 @@ public abstract class SimpleMachine extends Block implements InteractListener, T
 
 	}
 	
-
-	@Override
-	public void placed(BlockFace SelectedFace) {
-		if(this instanceof PowerConsumer pc) {
-			pc.refreshNearby();
-		}
-		BlockFace target = SelectedFace.getOpposite();
-		setMetadata("target", target.id+"", true);
-	}
 	
 	@Override
 	public boolean onMetadataUpdate(String key, String value){
 		if(key.equals("target")){
+
 			updateTargetColors(getTarget(),BlockFace.values[Integer.parseInt(value)]);
-			BlockMeta.put(key, value);
+			storeMetadata(key, value);
+
+			if(Engine.game != null) {
+				dtc.updateTexture(new Vector(), Engine.game);
+			}
 			return true;
 		}
 		if(key.equals("active")){
-			BlockMeta.put(key, value);
+			storeMetadata(key, value);
 			updateActiveColors();
 			return true;
 		}
 		return false;
 
-	}
-
-	@Override
-	public void onLoad(Game game){
-		updateTargetColors(BlockFace.TOP,getTarget());
-		updateActiveColors();
-		updateTexture(new Vector(),game);
 	}
 	
 	

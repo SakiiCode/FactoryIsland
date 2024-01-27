@@ -2,8 +2,6 @@ package ml.sakii.factoryisland.blocks;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -13,13 +11,13 @@ import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Surface;
-import ml.sakii.factoryisland.items.ItemStack;
 
-public class ModBlock extends Block implements BreakListener, InteractListener, PlaceListener, TickListener, WorldGenListener, SignalConsumer{
+public class ModBlock extends Block {
 
     private Surface[] surfaces;
 	
-    private Invocable invocable;
+    @SuppressWarnings("unused")
+	private Invocable invocable;
     private ScriptEngine engine;
     private final BlockDescriptor descriptor = new BlockDescriptor() {
     	@Override
@@ -95,7 +93,12 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 		return descriptor;
 	}
 	
-
+	@Override
+	public Surface[] getSurfaces() {
+		return surfaces;
+	}
+	
+/*
 	@Override
 	public void generateWorld() {
 		try {
@@ -150,10 +153,7 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 		}
 	}
 
-	@Override
-	public Surface[] getSurfaces() {
-		return surfaces;
-	}
+	
 
 	@Override
 	public void work() {
@@ -170,6 +170,6 @@ public class ModBlock extends Block implements BreakListener, InteractListener, 
 	@Override
 	public HashMap<BlockFace, Integer> getSignals() {
 		return signals;
-	}
+	}*/
 
 }

@@ -12,7 +12,6 @@ import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.GrassBlock;
 import ml.sakii.factoryisland.blocks.ChestModuleBlock;
-import ml.sakii.factoryisland.blocks.DayNightListener;
 import ml.sakii.factoryisland.blocks.Fluid;
 import ml.sakii.factoryisland.blocks.TankModuleBlock;
 import ml.sakii.factoryisland.blocks.ModBlock;
@@ -20,8 +19,9 @@ import ml.sakii.factoryisland.blocks.SandBlock;
 import ml.sakii.factoryisland.blocks.SaplingBlock;
 import ml.sakii.factoryisland.blocks.StoneBlock;
 import ml.sakii.factoryisland.blocks.WaterBlock;
-import ml.sakii.factoryisland.blocks.WorldGenListener;
+import ml.sakii.factoryisland.blocks.components.DayNightComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
+import ml.sakii.factoryisland.blocks.components.WorldGenComponent;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -34,7 +34,7 @@ public class GameEngine{
 	
 	public World world;
 	public final HashSet<TickUpdateComponent> TickableBlocks = new HashSet<>();
-	final ArrayList<DayNightListener> DayNightBlocks = new ArrayList<>();
+	final ArrayList<DayNightComponent> DayNightBlocks = new ArrayList<>();
 	public long Tick=0;
 	
 	
@@ -97,7 +97,7 @@ public class GameEngine{
     		
     		
     		for(TickUpdateComponent tuc : new ArrayList<>(TickableBlocks)) {
-    			if(Tick % tuc.refreshRate == 0 && !tuc.onTick()) {
+    			if(Tick % tuc.refreshRate == 0 && !tuc.onTick(Tick)) {
     				TickableBlocks.remove(tuc);
     			}
     		}
@@ -197,8 +197,8 @@ public class GameEngine{
 			}
 			
 			//ezek előre ki lettek számolva: sin(x/TICKS_PER_DAY*2*PI)=3/14 és -3/14
-			for(DayNightListener dnl : DayNightBlocks) {
-				Block b =(Block)dnl; 
+			for(DayNightComponent dnl : DayNightBlocks) {
+				Block b =dnl.getBlock(); 
 				if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 2475) {
 					dnl.onDay();
 				}else if(b.z>=0 && Tick % Globals.TICKS_PER_DAY == 33525) {
@@ -650,16 +650,17 @@ public class GameEngine{
 	
 	void afterGen() {
 		Main.log("- Executing post-worldgen instructions...");
-		if(Main.ModRegistry.size()>0) {
+		//TODO mod support
+		/*if(Main.ModRegistry.size()>0) {
 			
 			for(String mod : Main.ModRegistry) {
 				ModBlock block = new ModBlock(mod, 0, 0, 0, null);
 				block.generateWorld();
 			}
-		}
+		}*/
 		for(Block b : world.getWhole()) {
-			if(b instanceof WorldGenListener wgl) {
-				wgl.generateWorld();
+			for(WorldGenComponent wgc : b.getComponents(WorldGenComponent.class)) {
+				wgc.afterGen();
 			}
 		}
 		world.saveByShutdown(true);

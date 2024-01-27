@@ -9,29 +9,37 @@ public abstract class SignalConsumerComponent extends SignalComponent {
 		super(block);
 	}
 
-	public void addSignal(int intensity, BlockFace source) {
-		int previousSignal = getCharge();
-		if (intensity > 0) {
-			signals.put(source, intensity);
-		} else {
-			signals.remove(source);
+	@Override
+	public void addSignal(int signal, BlockFace relativeFrom) 
+	{
+		if(getSignals().get(relativeFrom) == null  || getSignals().get(relativeFrom) < signal){
+			if(getCharge()==0) {
+				turnOn();
+			}
+			getSignals().put(relativeFrom, signal);
+			//setBlockMeta("signalLevel", getCharge() + "", true);
+		}
+		
+
+	}
+
+	@Override
+	public void removeSignal(BlockFace relativeFrom)
+	{
+		if(getSignals().containsKey(relativeFrom)){
+			if(getCharge()>0) {
+				turnOff();
+			}
+			getSignals().remove(relativeFrom);
+			//setBlockMeta("signalLevel", getCharge() + "", true);
 		}
 
-		if (previousSignal > 0 && getCharge() == 0) {
-			turnOff();
-		} else if (previousSignal == 0 && getCharge() > 0) {
-			turnOn();
-		}
 	}
 
-	public void turnOn() {
-
-	}
-
-	public void turnOff() {
-
-	}
-
+	public abstract void turnOn();
+	
+	public abstract void turnOff();
+	
 	@Override
 	public String toString() {
 		return "SignalConsumer(" + getCharge() + ")";

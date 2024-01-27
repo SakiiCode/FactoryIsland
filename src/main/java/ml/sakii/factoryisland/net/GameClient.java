@@ -7,8 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -21,7 +23,7 @@ import ml.sakii.factoryisland.Vector;
 import ml.sakii.factoryisland.World;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.BreakListener;
+import ml.sakii.factoryisland.blocks.components.BreakComponent;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
 import ml.sakii.factoryisland.items.ItemStack;
@@ -189,7 +191,7 @@ public class GameClient extends Thread{
 			
 			for(int i = 0;i<part.length;i=i+6){
 				
-				Engine.world.getBlockAt(cInt(part[i+1]), cInt(part[i+2]), cInt(part[i+3])).BlockMeta.put(part[i+4], part[i+5]);
+				Engine.world.getBlockAt(cInt(part[i+1]), cInt(part[i+2]), cInt(part[i+3])).setMetadata(part[i+4], part[i+5], false);
 			}
 			
 			
@@ -282,7 +284,7 @@ public class GameClient extends Thread{
 	public void sendBlockPlace(String username, Block b) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("05,"+username+","+b.name+","+b.x+","+b.y+","+b.z);
-		for(Entry<String,String> entry : b.BlockMeta.entrySet()) {
+		for(Entry<String,String> entry : b.getAllMetadata()) {
 			sb.append(",");
 			sb.append(entry.getKey()+","+entry.getValue());
 		}
@@ -307,21 +309,45 @@ public class GameClient extends Thread{
 	
 	public void receiveBlockDestroy(String[] part) {
 		Block b = Engine.world.getBlockAt(cInt(part[2]),cInt(part[3]), cInt(part[4]));
-		ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(b.name),1)};
 		
-		if (b instanceof BreakListener)
+		//ItemStack[] returnAsItem=new ItemStack[] {new ItemStack(Main.Items.get(b.name),1)};
+		ArrayList<ItemStack> returnAsItem = new ArrayList<>();
+		
+		List<BreakComponent> breakComponents = b.getComponents(BreakComponent.class);
+		
+		if(breakComponents.isEmpty()) {
+		
+			returnAsItem.add(new ItemStack(Main.Items.get(b.name),1));
+		
+		}else {
+		
+			boolean everyComponentSkipped = true;
+			
+			for(BreakComponent bc : breakComponents) {
+				List<ItemStack> items = bc.onBreak();
+				if(items != null) {
+					returnAsItem.addAll(items);
+					everyComponentSkipped = false;
+				}
+			}
+			
+			if(everyComponentSkipped) {
+				returnAsItem.add(new ItemStack(Main.Items.get(b.name),1));
+			}
+		}
+		/*if (b instanceof BreakListener)
 		{
 			ItemStack[] returnAsItem2 = ((BreakListener) b).breaked(part[1]);
 			if(returnAsItem2!=null){
 				returnAsItem=returnAsItem2;
 			}
-		}
+		}*/
 		
 		Engine.world.destroyBlock(b, false);
 		if(Engine.isLocalMP()) {
 			for(Entity e : Engine.world.getAllEntities()) {
 				if(e.name.equals(part[1]) && e instanceof PlayerMP p) {
-					p.inventory.add(returnAsItem, true);
+					p.inventory.addAll(returnAsItem, true);
 					break;
 				}
 			}

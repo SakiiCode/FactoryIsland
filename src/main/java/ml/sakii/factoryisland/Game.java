@@ -40,14 +40,15 @@ import javax.swing.JPanel;
 import ml.sakii.factoryisland.api.API;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
-import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.InteractListener;
-import ml.sakii.factoryisland.blocks.PlaceListener;
-import ml.sakii.factoryisland.blocks.SignalConsumer;
-import ml.sakii.factoryisland.blocks.SignalPropagator;
-import ml.sakii.factoryisland.blocks.TextureListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
+import ml.sakii.factoryisland.blocks.components.BlockInventoryComponent;
 import ml.sakii.factoryisland.blocks.components.BreakComponent;
+import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
+import ml.sakii.factoryisland.blocks.components.InteractComponent;
+import ml.sakii.factoryisland.blocks.components.PlaceComponent;
+import ml.sakii.factoryisland.blocks.components.PowerConsumerComponent;
+import ml.sakii.factoryisland.blocks.components.SignalConsumerComponent;
+import ml.sakii.factoryisland.blocks.components.SignalPropagatorComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 import ml.sakii.factoryisland.entities.Entity;
@@ -63,7 +64,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	GameEngine Engine;
 	public PlayerMP PE;
 	public final ArrayList<Object3D> Objects = new ArrayList<>();
-	ArrayList<TextureListener> TextureBlocks = new ArrayList<>();
+	ArrayList<DynamicTextureComponent> TextureBlocks = new ArrayList<>();
 	final ArrayList<Sphere3D> Spheres = new ArrayList<>();
 	
 	
@@ -133,7 +134,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 	// INVENTORY
-	public BlockInventoryInterface remoteInventory;
+	public BlockInventoryComponent remoteInventory;
 	private boolean localInvActive = true;
 	
 
@@ -436,7 +437,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			
 			if (!locked && moved)
 			{
-				for (TextureListener b : TextureBlocks)
+				for (DynamicTextureComponent b : TextureBlocks)
 				{
 					b.updateTexture(tmp, this);
 				}
@@ -550,13 +551,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					debugInfo.add("McenterX:" + McenterX + ", McenterY:" + McenterY);
 					debugInfo.add("Health: " + PE.getHealth() +", ID: " + PE.ID);
 					debugInfo.add("FPS (smooth): " + (1f/measurement) + " (" + measurement + " ms) - " + FPS);
-					debugInfo.add("SelBlock:" + SelectedFace + ", "+SelectedBlock+",meta:"+SelectedBlock.BlockMeta);
-					debugInfo.add("SelBlock Components:" + SelectedBlock.getComponents().toString());
-					if(SelectedBlock instanceof SignalPropagator wire) {
-						debugInfo.add(wire.powers+"");
+					debugInfo.add("SelBlock:" + SelectedFace + ", "+SelectedBlock+",meta:"+SelectedBlock.getAllMetadata().toString());
+					debugInfo.add("SelBlock Components:" + SelectedBlock.getComponents().toString()
+							.replaceAll("ml.sakii.factoryisland.blocks.(components.)?", "")
+							.replaceAll("@[a-f0-9]?[a-f0-9]?[a-f0-9]?[a-f0-9]?[a-f0-9]?[a-f0-9]?[a-f0-9]?[a-f0-9]?", "")
+						);
+					for(SignalPropagatorComponent spc : SelectedBlock.getComponents(SignalPropagatorComponent.class)) {
+						debugInfo.add(spc.getSignals()+"");
 					}
-					if(SelectedBlock instanceof SignalConsumer consumer) {
-						debugInfo.add(consumer.getSignals()+"");
+					for(SignalConsumerComponent scc : SelectedBlock.getComponents(SignalConsumerComponent.class)) {
+						debugInfo.add(scc.getSignals()+"");
+					}
+					for(PowerConsumerComponent scc : SelectedBlock.getComponents(PowerConsumerComponent.class)) {
+						debugInfo.add("Power: "+scc.getPower());
 					}
 					if(SelectedPolygon != null) {
 						debugInfo.add("SelPoly: "+SelectedPolygon);
@@ -855,6 +862,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 			if (remoteInventory == null) {
 				if (SelectedBlock != Block.NOTHING)
 				{
+					
+					Engine.world.destroyBlock(SelectedBlock, true);
+
 					if(Engine.isSingleplayer()) { //mpben az item visszaadast a gameclient kezeli
 					
 						ArrayList<ItemStack> returnAsItem = new ArrayList<>();
@@ -867,8 +877,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						
 						}else {
 						
+							boolean everyComponentSkipped = true;
+							
 							for(BreakComponent bc : breakComponents) {
-								returnAsItem.addAll(bc.onBreak());
+								List<ItemStack> items = bc.onBreak();
+								if(items != null) {
+									returnAsItem.addAll(items);
+									everyComponentSkipped = false;
+								}
+							}
+							
+							if(everyComponentSkipped) {
+								returnAsItem.add(new ItemStack(Main.Items.get(SelectedBlock.name),1));
 							}
 						}
 							
@@ -877,7 +897,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 					}
 					
-					Engine.world.destroyBlock(SelectedBlock, true);
+					
 					
 				}else if(SelectedEntity != null) {
 					
@@ -916,19 +936,19 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 								PE.inventory.add(selected, -1, true);
 							}
 						}
-					} else if (SelectedBlock instanceof InteractListener il)
-					{
-						il.interact(SelectedFace);
-						
-						if (SelectedBlock instanceof BlockInventoryInterface bii)
-						{
-							PlayerInventory otherInv = bii.getInv();
+					} else {
+						for(InteractComponent ic : SelectedBlock.getComponents(InteractComponent.class)) {
+							ic.interact(SelectedFace);
+						}
+						for(BlockInventoryComponent bic : SelectedBlock.getComponents(BlockInventoryComponent.class)) {
+							PlayerInventory otherInv = bic.getInv();
 							if (PE.inventory.items.size() == 0 && otherInv.items.size() > 0)
 							{
 								SwitchInventory(false);
 							}
 						}
 					}
+					
 				}
 			}
 			mouse[2]=false;
@@ -1221,9 +1241,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 	}
 
-	public void openInventory(BlockInventoryInterface inv)
+	public void openInventory(BlockInventoryComponent bic)
 	{
-		remoteInventory = inv;
+		remoteInventory = bic;
 		if (remoteInventory != null)
 		{
 			remoteInventory.getInv().setHotbarIndex(-1);
@@ -1477,12 +1497,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}
 		
 		boolean success =  Engine.world.addBlockNoReplace(placeable, true);
-		if(success && placeable instanceof TextureListener tl) {
-			tl.updateTexture(new Vector(), this);
-		}
-		if (success && placeable instanceof PlaceListener pl) 
-		{
-			pl.placed(SelectedFace);
+		if(success) {
+			for(DynamicTextureComponent dtc : placeable.getComponents(DynamicTextureComponent.class)) {
+				dtc.updateTexture(new Vector(), this);
+			}
+			for(PlaceComponent pc : placeable.getComponents(PlaceComponent.class)) {
+				pc.placed(SelectedFace);
+			}
 		}
 		
 		return success;

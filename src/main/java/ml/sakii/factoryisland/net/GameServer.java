@@ -124,11 +124,9 @@ public class GameServer extends Thread{
 							if(index < size){
 								Block b = Blocks.get(index);
 								message2.append("01," + b.toString() + ",");
-								if(b.BlockMeta.size()>0){
-									for(Entry<String,String> metadata : b.BlockMeta.entrySet()){
+									for(Entry<String,String> metadata : b.getAllMetadata()){
 										message3.append("08," + b.x + "," + b.y + "," + b.z + "," + metadata.getKey() + "," + metadata.getValue() + ",");
 									}
-								}
 							}else{
 								break;
 							}

@@ -8,6 +8,15 @@ public class OilBlock extends Fluid{
 
 	private static final BlockDescriptor descriptor = new BlockDescriptor() {
 		@Override
+		public boolean isSolid() {
+			return false;
+		}
+		
+		@Override
+		public boolean isTransparent() {
+			return true;
+		}
+		@Override
 		public int getRefreshRate() {
 			return 20;
 		}

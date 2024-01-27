@@ -7,15 +7,18 @@ import java.util.Map.Entry;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 
-public class SignalComponent extends Component{
+public abstract class SignalComponent extends Component{
 
 
-	public HashMap<BlockFace, Integer> signals = new HashMap<>();
+	protected HashMap<BlockFace, Integer> signals = new HashMap<>();
 
 
 	public SignalComponent(Block block) {
 		super(block);
 	}
+	
+	public abstract void addSignal(int power, BlockFace relativeFrom); 
+	public abstract void removeSignal(BlockFace relativeFrom);
 	
 	public int getCharge()
 	{
@@ -36,5 +39,9 @@ public class SignalComponent extends Component{
 
 		return result;
 
+	}
+	
+	public HashMap<BlockFace, Integer> getSignals(){
+		return signals;
 	}
 }

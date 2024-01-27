@@ -1,12 +1,14 @@
 package ml.sakii.factoryisland.blocks.components;
 
 import ml.sakii.factoryisland.blocks.Block;
+import ml.sakii.factoryisland.blocks.BlockFace;
 
-public class InteractComponent extends Component {
+public abstract class InteractComponent extends Component {
 
 	public InteractComponent(Block block) {
 		super(block);
-		// TODO Auto-generated constructor stub
 	}
+	
+	public abstract void interact(BlockFace target);
 
 }

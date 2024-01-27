@@ -42,11 +42,11 @@ import org.w3c.dom.NodeList;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
-import ml.sakii.factoryisland.blocks.SignalConsumer;
-import ml.sakii.factoryisland.blocks.SignalPropagator;
-import ml.sakii.factoryisland.blocks.TextureListener;
-import ml.sakii.factoryisland.blocks.DayNightListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
+import ml.sakii.factoryisland.blocks.components.DayNightComponent;
+import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
+import ml.sakii.factoryisland.blocks.components.SignalConsumerComponent;
+import ml.sakii.factoryisland.blocks.components.SignalPropagatorComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.entities.Alien;
 import ml.sakii.factoryisland.entities.Entity;
@@ -120,8 +120,8 @@ public class World {
 			eventReader = factory.createXMLEventReader(reader);
 			
 	 
-	        boolean bSeed=false,bMetadata=false,bPower=false,bTick=false,bInventory=false,bVersion=false;
-	        String curMeta=null,curInv=null,curPower=null;
+	        boolean bSeed=false,bMetadata=false,bSignals=false,bTick=false,bInventory=false,bVersion=false;
+	        String curMeta=null,curInv=null,curSignals=null;
 	        Block curBlock=null;
 	        while(eventReader.hasNext()) {
 	            XMLEvent event;
@@ -162,8 +162,8 @@ public class World {
 	                       
 	                   }else if (qName.equalsIgnoreCase("metadata")) {
 	                	   bMetadata=true;                	   
-	                   }else if (qName.equalsIgnoreCase("power")) {
-	                	   bPower=true;
+	                   }else if (qName.equalsIgnoreCase("signals")) {
+	                	   bSignals=true;
 	                   }else if (qName.equalsIgnoreCase("inventory")) {
 	                	   bInventory=true;
 	                   }else if (qName.equalsIgnoreCase("tick")) {
@@ -196,8 +196,8 @@ public class World {
 	                       
 	                   }else if(bMetadata) {
 	                	   curMeta=qName;
-	                   }else if(bPower) {
-	                	   curPower=qName;
+	                   }else if(bSignals) {
+	                	   curSignals=qName;
 	                   }else if(bInventory) {
 	                	   curInv=qName;
 	                   }else if(!qName.equalsIgnoreCase("world")){
@@ -216,7 +216,7 @@ public class World {
 	            	   
 	            	   if(bMetadata) {
 	            		   if(curBlock!=null && curMeta != null) {
-	            			   curBlock.BlockMeta.put(curMeta,data);
+	            			   curBlock.storeMetadata(curMeta,data);
 	            		   }else {
 	            			   return "No current block/metadata tag while parsing metadata";
 	            		   }
@@ -230,14 +230,13 @@ public class World {
 	            			   return "Incompatible map file";
 	            		   }
 	            	   }else if(curMeta != null) {
-	            		   curBlock.BlockMeta.put(curMeta, data);
-	            	   }else if(curPower != null) {
-	            		   if(curBlock instanceof SignalPropagator curWire) {
-	            			   curWire.powers.put(BlockFace.valueOf(curPower), Integer.parseInt(data));
-	            		   }else if(curBlock instanceof SignalConsumer curConsumer) {
-	            			   curConsumer.getSignals().put(BlockFace.valueOf(curPower), Integer.parseInt(data));
-	            		   }else {
-	            			   Main.err("Power on non-wire block: "+curBlock);
+	            		   curBlock.storeMetadata(curMeta, data);
+	            	   }else if(curSignals != null) {
+	            		   for(SignalPropagatorComponent spc : curBlock.getComponents(SignalPropagatorComponent.class)) {
+	            			   spc.getSignals().put(BlockFace.valueOf(curSignals), Integer.parseInt(data));
+	            		   }
+	            		   for(SignalConsumerComponent scc : curBlock.getComponents(SignalConsumerComponent.class)) {
+	            			   scc.getSignals().put(BlockFace.valueOf(curSignals), Integer.parseInt(data));
 	            		   }
 	            	   }else if(curInv != null) {
 	            		   ((BlockInventoryInterface) curBlock).getInv().add(Main.Items.get(curInv), Integer.parseInt(data), false);
@@ -263,8 +262,8 @@ public class World {
 	                	bMetadata=false;
 	                }
 	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("power")) {
-	                	curPower=null;
-	                	bPower=false;
+	                	curSignals=null;
+	                	bSignals=false;
 	                }
 	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("inventory")) {
 	                	curInv=null;
@@ -454,15 +453,17 @@ public class World {
 		for(TickUpdateComponent tuc : b.getComponents(TickUpdateComponent.class)) {
 			Engine.TickableBlocks.add(tuc);
 		}
+		
+		for(DayNightComponent dnc : b.getComponents(DayNightComponent.class)) {
+			Engine.DayNightBlocks.add(dnc);
+		}
+		
+		if(game != null) {
+			for(DynamicTextureComponent dtc : b.getComponents(DynamicTextureComponent.class)) {
+				game.TextureBlocks.add(dtc);
+			}
+		}
 
-		if(b instanceof DayNightListener dnl) {
-			Engine.DayNightBlocks.add(dnl);
-		}
-		
-		if (b instanceof TextureListener tl && game != null) {
-			game.TextureBlocks.add(tl);
-		}
-		
 		if(game != null) {
 			for(Object3D obj : b.Objects) {
 				if(obj instanceof Sphere3D sphere) {
@@ -525,15 +526,17 @@ public class World {
 			}
 			
 			for(TickUpdateComponent tuc : b.getComponents(TickUpdateComponent.class)) {
-				Engine.TickableBlocks.add(tuc);
+				Engine.TickableBlocks.remove(tuc);
 			}
 			
-			if (b instanceof TextureListener tl && game != null) {
-				game.TextureBlocks.remove(tl);
+			for(DayNightComponent dnc : b.getComponents(DayNightComponent.class)) {
+				Engine.DayNightBlocks.remove(dnc);
 			}
 			
-			if(b instanceof DayNightListener dnl) {
-				Engine.DayNightBlocks.remove(dnl);
+			if(game != null) {
+				for(DynamicTextureComponent dtc : b.getComponents(DynamicTextureComponent.class)) {
+					game.TextureBlocks.remove(dtc);
+				}
 			}
 			
 			if(game != null) {
@@ -933,7 +936,6 @@ public class World {
 	
 	@SuppressWarnings("static-method")
 	private void applyIntensity(Block b, BlockFace opposite, int intensity, boolean add, HashMap<Polygon3D, Integer> result) {
-		//TODO reverse lookup
 		for(Entry<Polygon3D, BlockFace> polys :  b.HitboxPolygons.entrySet()) {
 			BlockFace polyface = polys.getValue(); 
 			Polygon3D poly = polys.getKey();
@@ -1215,7 +1217,7 @@ public class World {
 			BlockElement.setAttribute("name", "" + b.name);
 
 			Element Metadata = document.createElement("metadata");
-			for (Entry<String, String> entry : b.BlockMeta.entrySet()) {
+			for (Entry<String, String> entry : b.getAllMetadata()) {
 				Element data = document.createElement(entry.getKey());
 				data.setTextContent(entry.getValue());
 				Metadata.appendChild(data);
@@ -1224,24 +1226,25 @@ public class World {
 
 			
 			
-			Element Powers = document.createElement("power");
+			Element signals = document.createElement("signals");
+			for(SignalPropagatorComponent spc : b.getComponents(SignalPropagatorComponent.class)) {
+				for (Entry<BlockFace, Integer> entry : spc.getSignals().entrySet()) {
+					Element power = document.createElement(entry.getKey().name());
+					power.setTextContent(entry.getValue().toString());
+					signals.appendChild(power);
+				}
+			}
 			
-			if(b instanceof SignalPropagator wire) {
-				for (Entry<BlockFace, Integer> entry : wire.powers.entrySet()) {
+			for(SignalConsumerComponent scc : b.getComponents(SignalConsumerComponent.class)) {
+				for (Entry<BlockFace, Integer> entry : scc.getSignals().entrySet()) {
 					Element power = document.createElement(entry.getKey().name());
 					power.setTextContent(entry.getValue().toString());
-					Powers.appendChild(power);
-				}				
-			}else if(b instanceof SignalConsumer consumer) {
-				for (Entry<BlockFace, Integer> entry : consumer.getSignals().entrySet()) {
-					Element power = document.createElement(entry.getKey().name());
-					power.setTextContent(entry.getValue().toString());
-					Powers.appendChild(power);
-				}				
+					signals.appendChild(power);
+				}
 			}
 			
 			
-			BlockElement.appendChild(Powers);
+			BlockElement.appendChild(signals);
 			
 			if(b instanceof BlockInventoryInterface bii) {
 				Element Inv = document.createElement("inventory");

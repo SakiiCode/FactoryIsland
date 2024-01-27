@@ -17,11 +17,9 @@ public class WaterMillBlock extends SimpleMachine {
 	
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
 		super("WaterMill", x, y, z,AssetLibrary.wmSideColor,AssetLibrary.wmGradientBeginColor,AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
-		sgc = new SignalGeneratorComponent(this);
-		addComponent(sgc);
-		tuc = new TickUpdateComponent(this,1) {
+		sgc = new SignalGeneratorComponent(this, 10) {
 			@Override
-			public boolean onTick() {
+			public void refresh() {
 				BlockFace target=getTarget();
 				Block tBlock =Engine.world.getBlockAt(x+target.direction[0], y+target.direction[1], z+target.direction[2]); 
 				BlockFace[] notTargetSides = new BlockFace[5];
@@ -32,16 +30,14 @@ public class WaterMillBlock extends SimpleMachine {
 					}
 				}
 				if(tBlock instanceof WaterBlock && ((WaterBlock)tBlock).getHeight()<4){
-					sgc.setOutput(15, notTargetSides);
-					setBlockMeta("active", "1", true);
+					switchSignal(true,notTargetSides);
 				}else {
-					sgc.setOutput(0, notTargetSides);
-					setBlockMeta("active", "0", true);	
-				}
-				return false;
+					switchSignal(false,notTargetSides);
+				}		
 			}
 		};
-		addComponent(tuc);
+		addComponent(sgc);
+		
 	}
 
 	@Override

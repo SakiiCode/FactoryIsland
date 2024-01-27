@@ -38,7 +38,7 @@ public class Block{
 	}
 	
 	public String getMetadata(String key) {
-		return b.BlockMeta.get(key);
+		return b.getMetadata(key);
 	}
 	
 	public void setMetadata(String key, String value) {
