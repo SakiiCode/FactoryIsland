@@ -5,7 +5,7 @@
 1. This project was written in Eclipse 2021-06 and JDK 16. It's better to use an eclipse integrated JDK, so it doesn't interfere with anything installed system-wide.
 2. Eclipse -> Import... -> Existing Maven Project
 3. Set JRE System Library to JavaSE-16 in the build path
-4. Add `-XX:+UseZGC -Dsun.java2d.opengl=true` to VM arguments in the Run Configuration
+4. Add `-Xmx4G -XX:+UseZGC -Dsun.java2d.d3d=false` (Windows) `-Xmx4G -XX:+UseZGC -Dsun.java2d.opengl=True` (Linux) to VM arguments in the Run Configuration
 
 ## Building on Linux
 
