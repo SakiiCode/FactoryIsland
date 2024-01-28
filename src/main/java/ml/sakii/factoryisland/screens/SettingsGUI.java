@@ -336,6 +336,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 			int dialogResult = GUIManager.showConfirmDialog("Are you sure?","Reset Options",JOptionPane.YES_NO_OPTION);
 			if(dialogResult == JOptionPane.YES_OPTION){
 				Config.reset();
+				Config.load();
+				Config.save();
 				guiManager.SwitchBack();
 			}
 			

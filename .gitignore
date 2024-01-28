@@ -8,3 +8,4 @@ target/*
 !target/packr.jar
 !target/build.sh
 /target/
+config.properties

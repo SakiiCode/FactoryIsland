@@ -1,74 +1,98 @@
 package ml.sakii.factoryisland;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.Random;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-//import java.util.Random;
 
 public class Config {
 
-	private static Preferences Prefs = Preferences.userRoot().node("FactoryIsland");//.userNodeForPackage(ml.sakii.factoryisland.Main.class);
+	private static final String CONFIG_FILENAME = "config.properties";
+	private static Properties props = new Properties();
 	
-	public static int renderDistance = Prefs.getInt("renderDistance", 128);
-	public static int sensitivity = Prefs.getInt("sensitivity", 5);
-	public static boolean useTextures = Prefs.getBoolean("useTextures", false);
-	public static boolean fogEnabled = Prefs.getBoolean("fogEnabled", false);
-	public static String username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
-	public static String multiAddr = Prefs.get("multiAddr", "");
-	public static int FOV = Prefs.getInt("FOV", 90);
-	public static float resolutionScaling = Prefs.getFloat("resolutionScaling", 1f);
-	public static boolean creative=Prefs.getBoolean("creative", true);
-	public static String selectedMap=Prefs.get("selectedMap", "");
-	public static final int brightness=7;
-	public static RenderMethod renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 1)];
-	public static TargetMarkerType targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
-	public static boolean ambientOcclusion = Prefs.getBoolean("ambientOcclusion", true);
+	public static int renderDistance;
+	public static int sensitivity;
+	public static boolean useTextures;
+	public static boolean fogEnabled;
+	public static String username;
+	public static String multiAddr;
+	public static int FOV;
+	public static float resolutionScaling;
+	public static boolean creative;
+	public static String selectedMap;
+	public static int brightness;
+	public static RenderMethod renderMethod;
+	public static TargetMarkerType targetMarkerType;
+	public static boolean ambientOcclusion;
 	
 	private static int zoom;
 	
 	public static void save(){
-		Prefs.putInt("renderDistance",	renderDistance);
-		Prefs.putInt("sensitivity", sensitivity);
-		Prefs.putInt("FOV", FOV);
-		Prefs.putFloat("resolutionScaling", resolutionScaling);
+		put("renderDistance",	renderDistance);
+		put("sensitivity", sensitivity);
+		put("FOV", FOV);
+		put("resolutionScaling", resolutionScaling);
 		
-		Prefs.putBoolean("useTextures", useTextures);
-		Prefs.putBoolean("fogEnabled", fogEnabled);
-		Prefs.putBoolean("creative", creative);
-		Prefs.putInt("renderMethod", renderMethod.id);
-		Prefs.putInt("targetMarkerType", targetMarkerType.id);
-		Prefs.put("username", username);
-		Prefs.put("multiAddr", multiAddr);
-		Prefs.put("selectedMap", selectedMap);
-		Prefs.putBoolean("ambientOcclusion", ambientOcclusion);
+		put("useTextures", useTextures);
+		put("fogEnabled", fogEnabled);
+		put("creative", creative);
+		put("renderMethod", renderMethod.id);
+		put("targetMarkerType", targetMarkerType.id);
+		put("username", username);
+		put("multiAddr", multiAddr);
+		put("selectedMap", selectedMap);
+		put("ambientOcclusion", ambientOcclusion);
 		zoom=FOVToZoom(FOV);
+		try(FileOutputStream outputStream = new FileOutputStream(CONFIG_FILENAME)){
+			props.store(outputStream, "Factory Island Settings");	
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
 		
+		
+	}
+	
+	public static void load() {
+		renderDistance = getInt("renderDistance", 128);
+		sensitivity = getInt("sensitivity", 5);
+		useTextures = getBoolean("useTextures", false);
+		fogEnabled = getBoolean("fogEnabled", false);
+		username = get("username", "Guest"+new Random().nextInt(100000));
+		multiAddr = get("multiAddr", "");
+		FOV = getInt("FOV", 90);
+		resolutionScaling=getFloat("resolutionScaling", 1f);
+		creative=getBoolean("creative", true);
+		selectedMap=get("selectedMap", "");
+		brightness=7;
+		renderMethod = RenderMethod.values()[getInt("renderMethod", 1)];
+		targetMarkerType = TargetMarkerType.values()[getInt("targetMarkerType", 0)];
+		ambientOcclusion = getBoolean("ambientOcclusion", true);
+		zoom=FOVToZoom(FOV);
 	}
 
 	public static void reset()
 	{
-		try
-		{
-			Prefs.clear();
-			renderDistance = Prefs.getInt("renderDistance", 32);
-			
-			sensitivity = Prefs.getInt("sensitivity", 5);
-			useTextures = Prefs.getBoolean("useTextures", false);
-			fogEnabled = Prefs.getBoolean("fogEnabled", false);
-			username = Prefs.get("username", "Guest"+new Random().nextInt(100000));
-			multiAddr = Prefs.get("multiAddr", "");
-			FOV = Prefs.getInt("FOV", 90);
-			resolutionScaling=Prefs.getFloat("resolutionScaling", 1f);
-			creative=Prefs.getBoolean("creative", true);
-			selectedMap=Prefs.get("selectedMap", "");
-			renderMethod = RenderMethod.values()[Prefs.getInt("renderMethod", 1)];
-			targetMarkerType = TargetMarkerType.values()[Prefs.getInt("targetMarkerType", 0)];
-			ambientOcclusion = Prefs.getBoolean("ambientOcclusion", true);
-			save();
-		} catch (BackingStoreException e)
-		{
+		props.clear();
+	}
+	
+	static {
+		File f = new File(CONFIG_FILENAME);
+		if(!f.exists()) {
+			try {
+				f.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try (InputStream file = new FileInputStream(f)) {
+			props.load(file);
+		}catch(IOException e) {
 			e.printStackTrace();
 		}
+		load();
 	}
 	
 	public static int FOVToZoom(double FOV) {
@@ -95,6 +119,39 @@ public class Config {
 		return (float) (2*Math.atan2(Math.sqrt(getWidth()*getWidth()+getHeight()*getHeight())/2,zoom));
 	}
 		
+	
+	@SuppressWarnings("unchecked")
+	private static <T> T getObject(Class<T> type, String key, T defaultValue){
+		String value = props.getProperty(key, defaultValue.toString());
+		switch(type.getSimpleName()) {
+		case "Boolean": return (T) Boolean.valueOf(value);
+		case "Float": return (T) Float.valueOf(value);
+		case "Integer": return (T) Integer.valueOf(value);
+		case "String": return (T) value;
+		default: throw new ClassCastException("Could not recognize type " + type.getName());
+		}
+	}
+	
+	private static int getInt(String key, int defaultValue) {
+		return getObject(Integer.class, key, defaultValue);
+	}
+	
+	private static boolean getBoolean(String key, boolean defaultValue) {
+		return getObject(Boolean.class, key, defaultValue);
+	}
+	
+	private static String get(String key, String defaultValue) {
+		return getObject(String.class, key, defaultValue);
+	}
+	
+	private static float getFloat(String key, float defaultValue) {
+		return getObject(Float.class, key, defaultValue);
+	}
+	
+	
+	private static void put(String key, Object value){
+		props.put(key,value.toString());
+	}
 	
 		
 }
