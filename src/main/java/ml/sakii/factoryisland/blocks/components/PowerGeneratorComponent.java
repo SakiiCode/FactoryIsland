@@ -44,12 +44,6 @@ public abstract class PowerGeneratorComponent extends PowerComponent {
 	
 	public void setPower(float power){
 		block.setMetadata("generating",power+"",true);
-		if(power==0) {
-			for(PowerConsumerComponent c : consumers) {
-				c.removePower(this);
-			}
-			return;
-		}
 		HashMap<BlockFace,Block> blocks = block.Engine.world.get6Blocks(block, false);
 		HashSet<PowerConsumerComponent> totalConsumers = new HashSet<>();
 		for(BlockFace face:BlockFace.values) {
