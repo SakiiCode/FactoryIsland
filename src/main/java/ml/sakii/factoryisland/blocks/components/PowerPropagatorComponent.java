@@ -10,7 +10,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public class PowerPropagatorComponent extends PowerComponent{
 
-	HashSet<PowerGeneratorComponent> generators = new HashSet<>();
+	public HashSet<PowerGeneratorComponent> generators = new HashSet<>();
 	
 	BreakComponent bc;
 	PlaceComponent pc;
@@ -21,9 +21,7 @@ public class PowerPropagatorComponent extends PowerComponent{
 			
 			@Override
 			public List<ItemStack> onBreak() {
-				for(PowerGeneratorComponent g : generators) {
-					g.refresh();
-				}
+				refreshGenerators(new LinkedList<>());
 				return null;
 			}
 		};
@@ -61,8 +59,10 @@ public class PowerPropagatorComponent extends PowerComponent{
 		alreadyTested.add(block);
 		if(power==0) {
 			generators.remove(source);
+			refreshActive();
 		}else {
 			generators.add(source);
+			refreshActive();
 		}
 		
 		for(Block b : block.getWorld().get6Blocks(block, false).values()) {
@@ -86,6 +86,10 @@ public class PowerPropagatorComponent extends PowerComponent{
 	}
 	
 	public void refreshGenerators(LinkedList<Block> alreadyTested) {
+		for(PowerGeneratorComponent generator : generators) {
+			generators.remove(generator);
+		}
+		refreshActive();
 		for(Block b : block.getWorld().get6Blocks(block, false).values()) {
 			if(alreadyTested.contains(b)) continue;
 			alreadyTested.add(b);
@@ -96,6 +100,10 @@ public class PowerPropagatorComponent extends PowerComponent{
 				ppc.refreshGenerators(alreadyTested);
 			}
 		}
+	}
+	
+	private void refreshActive() {
+		block.setMetadata("active", generators.size()>0?"1":"0", true);
 	}
 	
 

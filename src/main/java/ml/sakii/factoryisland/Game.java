@@ -47,6 +47,7 @@ import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
 import ml.sakii.factoryisland.blocks.components.InteractComponent;
 import ml.sakii.factoryisland.blocks.components.PlaceComponent;
 import ml.sakii.factoryisland.blocks.components.PowerConsumerComponent;
+import ml.sakii.factoryisland.blocks.components.PowerPropagatorComponent;
 import ml.sakii.factoryisland.blocks.components.SignalConsumerComponent;
 import ml.sakii.factoryisland.blocks.components.SignalPropagatorComponent;
 import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
@@ -564,6 +565,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					}
 					for(PowerConsumerComponent scc : SelectedBlock.getComponents(PowerConsumerComponent.class)) {
 						debugInfo.add("Power: "+scc.getPower());
+					}
+					for(PowerPropagatorComponent ppc : SelectedBlock.getComponents(PowerPropagatorComponent.class)) {
+						debugInfo.add("Generators: "+ppc.generators.toString());
 					}
 					if(SelectedPolygon != null) {
 						debugInfo.add("SelPoly: "+SelectedPolygon);
