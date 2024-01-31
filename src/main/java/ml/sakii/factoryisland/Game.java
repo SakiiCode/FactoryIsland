@@ -92,7 +92,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	VolatileImage VolatileFrameBuffer;
 	BufferedImage FrameBuffer;
 	BufferedImage prevFrame;
-	private BufferedImageOp op;
+	private BufferedImageOp pauseOp, deadOp;
 
 	
 	private BlockFace SelectedFace;
@@ -281,8 +281,13 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		resizeScreen(Config.getWidth(), Config.getHeight());
 
 
-	    op = new RescaleOp(
+	    pauseOp = new RescaleOp(
 	            new float[]{0.2f, 0.2f, 0.2f, 1f}, // scale factors for red, green, blue, alpha
+	            new float[]{0, 0, 0, 0}, // offsets for red, green, blue, alpha
+	            null);
+	    
+	    deadOp = new RescaleOp(
+	            new float[]{4f, 0.6f, 0.6f, 1f}, // scale factors for red, green, blue, alpha
 	            new float[]{0, 0, 0, 0}, // offsets for red, green, blue, alpha
 	            null);
 		
@@ -1297,9 +1302,18 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 		}else if(Config.renderMethod == RenderMethod.VOLATILE){
 			BufferedImage tmp = new BufferedImage(VolatileFrameBuffer.getWidth(),VolatileFrameBuffer.getHeight(),BufferedImage.TYPE_INT_ARGB);
 			tmp.getGraphics().drawImage(VolatileFrameBuffer, 0,0,tmp.getWidth(), tmp.getHeight(), null);
-			AssetLibrary.FreezeBG = op.filter(tmp, null);
+			
+			if(UiName=="died") {
+				AssetLibrary.FreezeBG = deadOp.filter(tmp, null);
+			}else {
+				AssetLibrary.FreezeBG = pauseOp.filter(tmp, null);
+			}
 		}else {
-			AssetLibrary.FreezeBG = op.filter(FrameBuffer, null);
+			if(UiName=="died") {
+				AssetLibrary.FreezeBG = deadOp.filter(FrameBuffer, null);
+			}else {
+				AssetLibrary.FreezeBG = pauseOp.filter(FrameBuffer, null);
+			}
 		}
 		if (Engine.isSingleplayer()) { // ezek multiplayerben nem allhatnak le
 			//Engine.ticker.stop();

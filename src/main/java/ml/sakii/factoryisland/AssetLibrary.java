@@ -26,6 +26,7 @@ public class AssetLibrary {
 	public static BufferedImage StandardBG, FreezeBG;
 	public static BufferedImage PausedBG, PausedTitle;
 	public static BufferedImage SettingsTitle;
+	public static BufferedImage DeadTitle;
 	
 	
 	public static void load() {
@@ -34,6 +35,7 @@ public class AssetLibrary {
 
 		SettingsTitle = loadTexture("textures/settings_title.png");
 		PausedTitle = loadTexture("textures/paused_title.png");
+		DeadTitle = loadTexture("textures/dead_title.png");
 		StandardBG = loadTexture("textures/BG.png");
 		Logo = loadTexture("textures/logo.png");
 		MainMenuBG = loadTexture("textures/mainmenu.png");
