@@ -14,15 +14,17 @@ public class TestPowerConsumerBlock extends SimpleMachine{
 
 	PowerConsumerComponent pcc;
 	
+	private static Color4 disabled = new Color4(50,50,100);
+	
 	public TestPowerConsumerBlock(int x, int y, int z, GameEngine engine) {
-		super("TestPowerConsumer", x, y, z, AssetLibrary.stone.copy(), new Surface(new Color4(0,0,0,255)), AssetLibrary.fire.c, new Color4(Color.GRAY), engine);
+		super("TestPowerConsumer", x, y, z, new Surface(disabled), new Surface(new Color4(0,0,0,255)), AssetLibrary.fire.c, new Color4(Color.GRAY), engine);
 		pcc = new PowerConsumerComponent(this);
 		addComponent(pcc);
 	}
 
 	@Override
 	public Surface[] getSurfaces() {
-		return Block.generateSurfacesCopy(new Surface(AssetLibrary.stone.Texture,Color.black));
+		return Block.generateSurfacesCopy(new Surface(disabled,Color.black));
 	}
 	
 	@Override

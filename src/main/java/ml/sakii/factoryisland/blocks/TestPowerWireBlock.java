@@ -1,6 +1,5 @@
 package ml.sakii.factoryisland.blocks;
 
-import java.awt.Color;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Object3D;
@@ -12,6 +11,9 @@ public class TestPowerWireBlock extends Block implements MetadataListener {
 
 	PowerPropagatorComponent ppc;
 	
+	private static Color4 enabled = new Color4(220,150,40);
+	private static Color4 disabled = new Color4(150,90,15);
+	
 	public TestPowerWireBlock(int x, int y, int z, GameEngine engine) {
 		super("TestPowerWire",x, y, z, engine);
 		ppc = new PowerPropagatorComponent(this);
@@ -21,7 +23,7 @@ public class TestPowerWireBlock extends Block implements MetadataListener {
 
 	@Override
 	public Surface[] getSurfaces() {
-		return  Block.generateSurfaces(new Color4(Color.orange));
+		return  Block.generateSurfaces(disabled);
 	}
 	
 	@Override
@@ -30,9 +32,9 @@ public class TestPowerWireBlock extends Block implements MetadataListener {
 			for(Object3D obj : Objects) {
 				if(obj instanceof Polygon3D poly) {
 					if(value.equals("1")) {
-						poly.s.c.set(Color.orange);
+						poly.s.c.set(enabled);
 					}else {
-						poly.s.c.set(Color.gray);
+						poly.s.c.set(disabled);
 					}
 					poly.recalcLightedColor();
 				}
