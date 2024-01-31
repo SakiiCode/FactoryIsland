@@ -21,6 +21,9 @@ public class PowerPropagatorComponent extends PowerComponent{
 			
 			@Override
 			public List<ItemStack> onBreak() {
+				for(PowerGeneratorComponent pgc : generators) {
+					propagate(0,pgc,new LinkedList<>(), new HashSet<>());
+				}
 				refreshGenerators(new LinkedList<>());
 				return null;
 			}

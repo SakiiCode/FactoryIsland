@@ -42,6 +42,7 @@ import org.w3c.dom.NodeList;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.BlockInventoryInterface;
+import ml.sakii.factoryisland.blocks.MetadataListener;
 import ml.sakii.factoryisland.blocks.WaterBlock;
 import ml.sakii.factoryisland.blocks.components.DayNightComponent;
 import ml.sakii.factoryisland.blocks.components.DynamicTextureComponent;
@@ -217,6 +218,9 @@ public class World {
 	            	   if(bMetadata) {
 	            		   if(curBlock!=null && curMeta != null) {
 	            			   curBlock.storeMetadata(curMeta,data);
+	            			   if(curBlock instanceof MetadataListener ml) {
+	            				   ml.onMetadataUpdate(curMeta, data);
+	            			   }
 	            		   }else {
 	            			   return "No current block/metadata tag while parsing metadata";
 	            		   }
@@ -261,7 +265,7 @@ public class World {
 	                	curMeta=null;
 	                	bMetadata=false;
 	                }
-	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("power")) {
+	                else if(endElement.getName().getLocalPart().equalsIgnoreCase("signals")) {
 	                	curSignals=null;
 	                	bSignals=false;
 	                }

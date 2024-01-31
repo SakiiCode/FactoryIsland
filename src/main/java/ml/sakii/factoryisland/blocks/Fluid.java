@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.Object3D;
@@ -140,16 +139,6 @@ public abstract class Fluid extends Block implements MetadataListener{
 		};
 		
 		addComponent(bc);
-		
-		wlc = new WorldLoadComponent(this) {
-			
-			@Override
-			public void onLoad(Game game) {
-				heightMap();
-			}
-		};
-		
-		addComponent(wlc);
 
 	}
 	
@@ -176,12 +165,13 @@ public abstract class Fluid extends Block implements MetadataListener{
 	@Override
 	public boolean onMetadataUpdate(String key, String value)
 	{
-		storeMetadata(key, value);
 		if(key.equals("height")){
+			storeMetadata(key, value);
 			heightMap();
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 
 

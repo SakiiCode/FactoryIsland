@@ -53,6 +53,8 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 			updateTargetColors(BlockFace.EAST,BlockFace.TOP);
 		}
 		
+		// this is needed because if "active" comes before "target",
+		// the textures will be incorrect after world load
 		wlc = new WorldLoadComponent(this) {
 			
 			@Override
@@ -240,7 +242,7 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 			updateTargetColors(getTarget(),BlockFace.values[Integer.parseInt(value)]);
 			storeMetadata(key, value);
 
-			if(Engine.game != null) {
+			if(Engine.game != null && Engine.game.PE != null) {
 				dtc.updateTexture(new Vector(), Engine.game);
 			}
 			return true;
@@ -252,6 +254,11 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 		}
 		return false;
 
+	}
+	
+	protected BlockFace getTarget()
+	{
+		return BlockFace.values[java.lang.Integer.parseInt(getMetadata("target"))];
 	}
 	
 	

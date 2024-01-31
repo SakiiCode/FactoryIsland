@@ -3,7 +3,6 @@ package ml.sakii.factoryisland.blocks;
 import java.awt.Color;
 import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
-import ml.sakii.factoryisland.Game;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Object3D;
 import ml.sakii.factoryisland.Polygon3D;
@@ -21,15 +20,6 @@ public class WoodBlock extends Block implements MetadataListener{
 		
 		spc = new SignalPropagatorComponent(this);
 		addComponent(spc);
-		
-		wlc = new WorldLoadComponent(this) {
-			@Override
-			public void onLoad(Game game) {
-				recalcPaints();
-			}
-		};
-		
-		addComponent(wlc);
 	}
 
 
@@ -38,9 +28,7 @@ public class WoodBlock extends Block implements MetadataListener{
 		return Block.generateSurfacesCopy(new Surface(AssetLibrary.wood.Texture,Color4.TRANSPARENT));
 	}
 	
-	private void recalcPaints() {
-		int charge = spc.getCharge();
-
+	private void recalcPaints(int charge) {
 		for(Object3D obj : Objects){
 			if(obj instanceof Polygon3D p) {
 				if(charge == 0){
@@ -60,7 +48,7 @@ public class WoodBlock extends Block implements MetadataListener{
 	public boolean onMetadataUpdate(String key, String value) {
 		if(key.equals("signalLevel")) {
 			storeMetadata(key, value);
-			recalcPaints();
+			recalcPaints(Integer.parseInt(value));
 			return true;
 		}
 		return false;

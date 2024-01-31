@@ -573,6 +573,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					for(PowerPropagatorComponent ppc : SelectedBlock.getComponents(PowerPropagatorComponent.class)) {
 						debugInfo.add("Generators: "+ppc.generators.toString());
 					}
+					for(PowerConsumerComponent pcc : SelectedBlock.getComponents(PowerConsumerComponent.class)) {
+						debugInfo.add("Generators: "+pcc.generators.toString());
+					}
 					if(SelectedPolygon != null) {
 						debugInfo.add("SelPoly: "+SelectedPolygon);
 					}else {

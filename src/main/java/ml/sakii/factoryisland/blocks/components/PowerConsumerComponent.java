@@ -12,7 +12,7 @@ import ml.sakii.factoryisland.items.ItemStack;
 
 public class PowerConsumerComponent extends PowerComponent {
 
-	HashMap<PowerGeneratorComponent, Float> generators = new HashMap<>();
+	public HashMap<PowerGeneratorComponent, Float> generators = new HashMap<>();
 	BreakComponent bc;
 	PlaceComponent pc;
 	

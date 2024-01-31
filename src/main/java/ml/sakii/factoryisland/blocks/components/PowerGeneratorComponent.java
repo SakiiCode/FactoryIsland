@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+
 import ml.sakii.factoryisland.Main;
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
@@ -30,7 +31,7 @@ public abstract class PowerGeneratorComponent extends PowerComponent {
 		SubComponents.add(bc);
 		
 		tuc = new TickUpdateComponent(block) {
-			
+			// automatically runs on world load
 			@Override
 			public boolean onTick(long tick) {
 				Main.log("Setting power to "+getDesiredPower());

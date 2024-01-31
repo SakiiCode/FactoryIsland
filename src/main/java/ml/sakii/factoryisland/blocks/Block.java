@@ -226,10 +226,6 @@ public abstract class Block extends Model.Int
 
 
 
-	BlockFace getTarget()
-	{
-		return BlockFace.values[java.lang.Integer.parseInt(this.BlockMeta.get("target"))];
-	}
 
 	long getTick()
 	{
