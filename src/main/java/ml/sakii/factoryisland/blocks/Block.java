@@ -197,14 +197,16 @@ public abstract class Block extends Model.Int
 			if(!alreadyput) {
 				BlockMeta.put(key, value);
 			}
-			for(TickUpdateComponent tuc : this.getComponents(TickUpdateComponent.class)) {
-				Engine.TickableBlocks.add(tuc);
+			
+			if(this.getComponents(TickUpdateComponent.class).size() > 0) {
+				Engine.TickableBlocks.add(pos);
 			}
+			
 			for (Block b2 : Engine.world.get6Blocks(this, false).values())
 			{
 				if(Engine.client == null || (Engine.client != null && Engine.client != null)) {
-					for(TickUpdateComponent tuc2 : b2.getComponents(TickUpdateComponent.class)) {
-						Engine.TickableBlocks.add(tuc2);
+					if(b2.getComponents(TickUpdateComponent.class).size() > 0) {
+						Engine.TickableBlocks.add(b2.pos);
 					}
 				}
 			}

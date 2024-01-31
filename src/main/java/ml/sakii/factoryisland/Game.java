@@ -50,7 +50,6 @@ import ml.sakii.factoryisland.blocks.components.PowerConsumerComponent;
 import ml.sakii.factoryisland.blocks.components.PowerPropagatorComponent;
 import ml.sakii.factoryisland.blocks.components.SignalConsumerComponent;
 import ml.sakii.factoryisland.blocks.components.SignalPropagatorComponent;
-import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 import ml.sakii.factoryisland.entities.Entity;
 import ml.sakii.factoryisland.entities.PlayerMP;
@@ -595,7 +594,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					float timePercent = (realTime*1f/Globals.TICKS_PER_DAY);
 					double light = Math.sin(2*Math.PI*timePercent);
 					debugInfo.add("Tick: " + Engine.Tick + "(" + Engine.TickableBlocks.size() + "), day:"+Engine.isDay((int)PE.ViewFrom.z)+",light:"+light);
-					debugInfo.add("needUpdate:" + !SelectedBlock.getComponents(TickUpdateComponent.class).isEmpty() +", blockLightPass:"+Engine.world.lightCalcRuns);
+					debugInfo.add("needUpdate:" + Engine.TickableBlocks.contains(SelectedBlock.pos) +", blockLightPass:"+Engine.world.lightCalcRuns);
 					debugInfo.add("Blocks: " + Engine.world.getSize() + ", hotbarIndex:"+PE.inventory.getHotbarIndex()+", selected:"+((PE.inventory.getHotbarIndex()>-1 ) ? PE.inventory.getSelectedKind() : ""));
 					if (Engine.client != null)
 					{

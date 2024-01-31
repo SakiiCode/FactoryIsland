@@ -1,9 +1,6 @@
 package ml.sakii.factoryisland.api;
 
-import java.util.List;
-
 import ml.sakii.factoryisland.GameEngine;
-import ml.sakii.factoryisland.blocks.components.TickUpdateComponent;
 
 public class Block{
 
@@ -46,8 +43,7 @@ public class Block{
 	}
 	
 	public void update() {
-		List<TickUpdateComponent> tuc = b.getComponents(TickUpdateComponent.class);
-		Engine.TickableBlocks.addAll(tuc);
+		Engine.TickableBlocks.add(b.pos);
 	}
 	
 	

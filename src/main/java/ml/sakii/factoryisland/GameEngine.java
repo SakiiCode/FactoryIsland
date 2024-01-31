@@ -33,7 +33,7 @@ public class GameEngine{
 	
 	
 	public World world;
-	public final HashSet<TickUpdateComponent> TickableBlocks = new HashSet<>();
+	public final ArrayList<Point3D> TickableBlocks = new ArrayList<>();
 	final ArrayList<DayNightComponent> DayNightBlocks = new ArrayList<>();
 	public long Tick=0;
 	
@@ -96,11 +96,33 @@ public class GameEngine{
     	if(server != null || client==null) {
     		
     		
-    		for(TickUpdateComponent tuc : new ArrayList<>(TickableBlocks)) {
+    		ArrayList<Point3D> current = new ArrayList<>(TickableBlocks);
+			TickableBlocks.clear();
+			for(Point3D p : current) {
+				
+				Block bl = world.getBlockAtP(p);
+				if(bl != Block.NOTHING) {
+						boolean keep=false;
+						for(TickUpdateComponent tuc : bl.getComponents(TickUpdateComponent.class)) {
+			    			if(Tick % tuc.refreshRate != 0 || tuc.onTick(Tick)) {
+			    				keep=true;
+			    			}
+						}
+						if(keep) {
+							TickableBlocks.add(p);
+						}
+				}else if(Main.verbose){
+					// Air block ticked
+					Main.err("Attempted to tick air block:"+p);
+				}
+				
+			}
+    		
+    		/*for(TickUpdateComponent tuc : new ArrayList<>(TickableBlocks)) {
     			if(Tick % tuc.refreshRate == 0 && !tuc.onTick(Tick)) {
     				TickableBlocks.remove(tuc);
     			}
-    		}
+    		}*/
 
 			
 			

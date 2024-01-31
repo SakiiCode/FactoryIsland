@@ -445,13 +445,13 @@ public class World {
 		
 		for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 			Block block = entry.getValue();
-			for(TickUpdateComponent tuc : block.getComponents(TickUpdateComponent.class)) {
-				Engine.TickableBlocks.add(tuc);
+			if(block.getComponents(TickUpdateComponent.class).size() > 0) {
+				Engine.TickableBlocks.add(block.pos);
 			}
 		}
 		
-		for(TickUpdateComponent tuc : b.getComponents(TickUpdateComponent.class)) {
-			Engine.TickableBlocks.add(tuc);
+		if(b.getComponents(TickUpdateComponent.class).size() > 0) {
+			Engine.TickableBlocks.add(b.pos);
 		}
 		
 		for(DayNightComponent dnc : b.getComponents(DayNightComponent.class)) {
@@ -504,7 +504,8 @@ public class World {
 		}else {
 		
 			if (getBlockAtP(b.pos) == Block.NOTHING) {
-				Main.err("Attempted to destroy air block: "+b.pos);
+				Thread.dumpStack();
+				//Main.err("Attempted to destroy air block: "+b.pos);
 				return;
 			}
 	
@@ -520,13 +521,16 @@ public class World {
 			
 			for (Entry<BlockFace, Block> entry : get6Blocks(b, false).entrySet()) {
 				Block bu = entry.getValue();
-				for(TickUpdateComponent tuc : bu.getComponents(TickUpdateComponent.class)) {
-					Engine.TickableBlocks.add(tuc);
+				if (bu.getComponents(TickUpdateComponent.class).size() > 0) {
+					Engine.TickableBlocks.add(bu.pos);
 				}
+				
 			}
 			
-			for(TickUpdateComponent tuc : b.getComponents(TickUpdateComponent.class)) {
-				Engine.TickableBlocks.remove(tuc);
+			
+
+			if (b.getComponents(TickUpdateComponent.class).size() > 0) {
+				Engine.TickableBlocks.remove(b.pos);
 			}
 			
 			for(DayNightComponent dnc : b.getComponents(DayNightComponent.class)) {
