@@ -10,7 +10,7 @@ public class Surface {
 	
 	@Override
 	public String toString() {
-		return c+""+p+",paint:"+paint;
+		return c+","+p+",color:"+color+",paint:"+paint;
 	}
 
 	public BufferedImage Texture;
@@ -70,6 +70,11 @@ public class Surface {
 				TextureRGB[y][x] = Texture.getRGB(x, y);
 			}
 		}
+	}
+	
+	public void setTexture(BufferedImage img) {
+		this.Texture = img;
+		generateTextureRGB();
 	}
 	
 	public Surface copy() {

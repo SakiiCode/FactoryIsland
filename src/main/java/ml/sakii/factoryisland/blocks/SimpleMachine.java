@@ -18,8 +18,8 @@ import ml.sakii.factoryisland.blocks.components.WorldLoadComponent;
 public abstract class SimpleMachine extends Block implements MetadataListener {
 
 	private Polygon3D TargetPolygon;
-	private Color4 side;
-	private Color4 front;
+	private Surface side;
+	private Surface front;
 	private Color4 active;
 	
 	private Vector[] tmpArr = new Vector[] {new Vector(),new Vector(), new Vector()};
@@ -33,7 +33,7 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 	protected WorldLoadComponent wlc;
 	
 	
-	public SimpleMachine(String name, int x, int y, int z, Color4 side, Color4 front, Color4 active, Color4 hole, GameEngine engine)
+	public SimpleMachine(String name, int x, int y, int z, Surface side, Surface front, Color4 active, Color4 hole, GameEngine engine)
 	{
 		super(name, x, y, z,1,1,1, engine);
 
@@ -49,7 +49,8 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 		storeMetadata("active", "0");
 		
 		if(engine != null) {
-			updateTargetColors(BlockFace.TOP,BlockFace.TOP);
+			updateTargetColors(BlockFace.NORTH,BlockFace.EAST);
+			updateTargetColors(BlockFace.EAST,BlockFace.TOP);
 		}
 		
 		wlc = new WorldLoadComponent(this) {
@@ -75,7 +76,7 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 					
 					GradientCalculator.getPerpendicular(values, pointVec, lineVec);
 						
-					((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec, SimpleMachine.this.front.getColor(), values[2], Color4.TRANSPARENT);
+					((Polygon3D)Objects.get(nearby.id)).s.p = new GradientPaint(lineVec, SimpleMachine.this.front.c.getColor(), values[2], Color4.TRANSPARENT);
 				 }
 				
 			}
@@ -115,18 +116,34 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 		Polygon3D newTargetOppositePoly = (Polygon3D)Objects.get(newTarget.opposite);
 		
 		
-		prevTargetPoly.s.c = side;
-		prevTargetPoly.s.paint=true;
+		prevTargetPoly.s.paint = true;
+		prevTargetPoly.s.c = side.c;
+		prevTargetPoly.s.color = side.color;
+		if(!side.color) {
+			prevTargetPoly.s.setTexture(side.Texture);
+		}
 		prevTargetPoly.recalcLightedColor();
 		prevTargetOppositePoly.s.paint = true;
-		prevTargetOppositePoly.s.c = side;
+		prevTargetOppositePoly.s.c = side.c;
+		prevTargetOppositePoly.s.color = side.color;
+		if(!side.color) {
+			prevTargetOppositePoly.s.setTexture(side.Texture);
+		}
 		prevTargetOppositePoly.recalcLightedColor();
 
-		newTargetPoly.s.paint = false;
-		newTargetPoly.s.c = front;
+		newTargetPoly.s.paint = front.paint;
+		newTargetPoly.s.c = front.c;
+		newTargetPoly.s.color = front.color;
+		if(!front.color) {
+			newTargetPoly.s.setTexture(front.Texture);
+		}
 		newTargetPoly.recalcLightedColor();
 		newTargetOppositePoly.s.paint = false;
-		newTargetOppositePoly.s.c = side;
+		newTargetOppositePoly.s.c = side.c;
+		if(!side.color) {
+			newTargetOppositePoly.s.setTexture(side.Texture);
+		}
+		newTargetOppositePoly.s.color = side.color;
 		newTargetOppositePoly.recalcLightedColor();
 		recalcTargetPolygon(newTarget);
 
@@ -139,7 +156,7 @@ public abstract class SimpleMachine extends Block implements MetadataListener {
 					if(isActive()){
 						poly.s.c = active;
 					}else {
-						poly.s.c = side;
+						poly.s.c = side.c;
 					}
 					poly.recalcLightedColor();
 				}

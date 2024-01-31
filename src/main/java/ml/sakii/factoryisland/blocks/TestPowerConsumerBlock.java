@@ -15,7 +15,7 @@ public class TestPowerConsumerBlock extends SimpleMachine{
 	PowerConsumerComponent pcc;
 	
 	public TestPowerConsumerBlock(int x, int y, int z, GameEngine engine) {
-		super("TestPowerConsumer", x, y, z, AssetLibrary.stone.c, new Color4(0,0,0,255), AssetLibrary.fire.c, new Color4(Color.GRAY), engine);
+		super("TestPowerConsumer", x, y, z, AssetLibrary.stone.copy(), new Surface(new Color4(0,0,0,255)), AssetLibrary.fire.c, new Color4(Color.GRAY), engine);
 		pcc = new PowerConsumerComponent(this);
 		addComponent(pcc);
 	}

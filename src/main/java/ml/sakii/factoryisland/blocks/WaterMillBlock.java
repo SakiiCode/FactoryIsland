@@ -16,7 +16,7 @@ public class WaterMillBlock extends SimpleMachine {
 	TickUpdateComponent tuc;
 	
 	public WaterMillBlock(int x, int y, int z, GameEngine engine){
-		super("WaterMill", x, y, z,AssetLibrary.wmSideColor,AssetLibrary.wmGradientBeginColor,AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
+		super("WaterMill", x, y, z,new Surface(AssetLibrary.wmSideColor),new Surface(AssetLibrary.wmGradientBeginColor),AssetLibrary.wmPoweredColor,AssetLibrary.waters[4].c, engine);
 		sgc = new SignalGeneratorComponent(this, 10) {
 			@Override
 			public void refresh() {

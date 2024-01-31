@@ -9,7 +9,7 @@ import ml.sakii.factoryisland.blocks.components.SignalConsumerComponent;
 
 public class DrillBlock extends SimpleMachine {
 	public DrillBlock(int x, int y, int z, GameEngine engine) {
-		super("Drill", x, y, z, AssetLibrary.drillSideColor, AssetLibrary.drillGradientBeginColor,
+		super("Drill", x, y, z, AssetLibrary.drillSide.copy(), AssetLibrary.drillFront.copy(),
 				AssetLibrary.drillSideColor, new Color4(Color.RED), engine);
 
 		addComponent(new SignalConsumerComponent(this) {
@@ -25,8 +25,7 @@ public class DrillBlock extends SimpleMachine {
 
 	@Override
 	public Surface[] getSurfaces() {
-		return Block.generateSurfacesCopy(
-				new Surface(AssetLibrary.drillSide, AssetLibrary.drillGradientBeginColor.getColor()));
+		return Block.generateSurfacesCopy(AssetLibrary.drillSide);
 	}
 
 	public void work() {

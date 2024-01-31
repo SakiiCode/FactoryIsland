@@ -7,8 +7,8 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 public class AssetLibrary {
-	public static BufferedImage drillSide;
-	public static Color4 drillGradientBeginColor, drillSideColor, chestModule, tankModule;
+	public static Surface drillSide, drillFront;
+	public static Color4 drillSideColor, chestModule, tankModule;
 	public static Surface fire;
 	public static Surface lamp;
 	public static Surface stone, grass, dirt, sand, playerSide, playerFront, wood, leaf, sapling, saplingTop,
@@ -50,8 +50,8 @@ public class AssetLibrary {
 		grass = new Surface(loadTexture("textures/blocks/grass.png"));
 		dirt = new Surface(loadTexture("textures/blocks/dirt.png"));
 		sand = new Surface(loadTexture("textures/blocks/sand.png"));
-		wood = new Surface(loadTexture("textures/blocks/wood2.png"));
-		leaf = new Surface(loadTexture("textures/blocks/leaf6.png"));
+		wood = new Surface(loadTexture("textures/blocks/wood.png"));
+		leaf = new Surface(loadTexture("textures/blocks/leaf.png"));
 		sapling = new Surface(new Color(150, 100, 50).darker());
 		saplingTop = new Surface(Color.GREEN);
 		chestModule = new Color4(85, 85, 85);
@@ -60,13 +60,13 @@ public class AssetLibrary {
 		playerFront = new Surface(Color.RED);
 		alienSide = new Surface(Color.GREEN.brighter());
 		alienFront = new Surface(Color.GREEN.darker().darker());
-		drillSide = loadTexture("textures/blocks/drill_side5.png");
-		drillSideColor = Surface.averageColor(drillSide);
-		drillGradientBeginColor = new Color4(200, 70, 60, 255);
+		drillSide = new Surface(loadTexture("textures/blocks/drill_side.png"));
+		drillFront = new Surface(loadTexture("textures/blocks/drill_front.png"));
+		drillSideColor = drillSide.c;
 
 		lamp = new Surface(new Color(240, 220, 170));
-		sphere = new Surface(loadTexture("textures/blocks/sphere2.png"));
-		randomSphere = new Surface(loadTexture("textures/blocks/sphere3.png"));
+		sphere = new Surface(loadTexture("textures/blocks/sphere1.png"));
+		randomSphere = new Surface(loadTexture("textures/blocks/sphere2.png"));
 
 		wmSideColor = new Color4(200, 200, 255);
 		wmGradientBeginColor = new Color4(20, 20, 70);

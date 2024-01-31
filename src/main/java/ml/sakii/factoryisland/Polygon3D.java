@@ -308,7 +308,9 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	 		}else {
 	 			rgb = Texture[v][u];
 	 		}
-	 		rgb = Color4.blend(rgb, overlay.getRGB());
+	 		if(Color4.getAlpha(rgb) > 0) {
+	 			rgb = Color4.blendShadow(rgb, overlay.getRGB());
+	 		}
  			rgb = Color4.blend(rgb,Color4.getRGB(0, 0, 0, ao));
 
 		 	setPixel(ZBuffer, x, y, rgb, iz);
