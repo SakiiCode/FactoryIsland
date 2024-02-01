@@ -249,7 +249,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 		l7.setForeground(Color.WHITE);
 		add(l7);
 		
-		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended for small resolutions.<br>Volatile should be good for everything else</body></html>");
+		JLabel l8 = new JLabel("<html><body align='right'>Buffered rendering is recommended only for small resolutions.<br>You cannot use the resolution slider in Direct mode.</body></html>");
 		l8.setLocation(textureButton.getX()-500-EntrySpacing, renderMethodButton.getY());
 		l8.setSize(500, EntryHeight);
 		l8.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -370,6 +370,7 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 	}
 	
 	private String[] getButtonLabels() {
+		boolean win = System.getProperty("os.name").toLowerCase().contains("win");
 		return new String[] {
 				"Textures: " + (useTextures?"ON":"OFF"),
 				"Show Fog: " + (fogEnabled?"ON":"OFF"),
@@ -381,8 +382,8 @@ public class SettingsGUI extends TexturedScreen implements ActionListener, KeyLi
 				"Ambient Occlusion: " + (ambientOcclusion?"ON":"OFF"),
 				"Rendering Method: " + switch(renderMethod) {
 				case BUFFERED -> "BUFFERED";
-				case VOLATILE -> "VOLATILE (default)";
-				case DIRECT -> "DIRECT";
+				case VOLATILE -> "VOLATILE"+(!win?" (default)":"");
+				case DIRECT -> "DIRECT"+(win?" (default)":"");
 				}
 				
 		};

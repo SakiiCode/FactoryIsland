@@ -56,6 +56,8 @@ public class Config {
 	}
 	
 	public static void load() {
+		boolean win = System.getProperty("os.name").toLowerCase().contains("win");
+
 		renderDistance = getInt("renderDistance", 128);
 		sensitivity = getInt("sensitivity", 5);
 		useTextures = getBoolean("useTextures", false);
@@ -67,7 +69,7 @@ public class Config {
 		creative=getBoolean("creative", true);
 		selectedMap=get("selectedMap", "");
 		brightness=7;
-		renderMethod = RenderMethod.values()[getInt("renderMethod", 1)];
+		renderMethod = RenderMethod.values()[getInt("renderMethod", win?2:1)];
 		targetMarkerType = TargetMarkerType.values()[getInt("targetMarkerType", 0)];
 		ambientOcclusion = getBoolean("ambientOcclusion", true);
 		zoom=FOVToZoom(FOV);
