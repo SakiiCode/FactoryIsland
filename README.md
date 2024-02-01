@@ -2,14 +2,14 @@
 
 ## Getting the source
 
-1. This project was written in Eclipse 2021-06 and JDK 16. It's better to use an eclipse integrated JDK, so it doesn't interfere with anything installed system-wide.
+1. This project was written in Eclipse 2022-12 and JDK 17. It's better to use an eclipse integrated JDK, so it doesn't interfere with anything installed system-wide.
 2. Eclipse -> Import... -> Existing Maven Project
-3. Set JRE System Library to JavaSE-16 in the build path
+3. Set JRE System Library to JavaSE-17 in the build path
 4. Add `-Xmx4G -XX:+UseZGC -Dsun.java2d.d3d=false` (Windows) `-Xmx4G -XX:+UseZGC -Dsun.java2d.opengl=True` (Linux) to VM arguments in the Run Configuration
 
 ## Building on Linux
 
-1. Download platform-specific JRE 17 packages ([Eclipse Temurin](https://adoptium.net/temurin/releases/) for example) into `/target/openjdk`. Filenames need to be `jdk_win64.zip`, `jdk_mac.tar.gz`, `jdk_linux64.tar.gz`.
+1. Download platform-specific JRE 17 packages ([Eclipse Temurin](https://adoptium.net/temurin/releases/) for example) into `/target/openjdk`. Filenames need to be `jre_win64.zip`, `jre_mac.tar.gz`, `jre_linux64.tar.gz`.
 2. Right click pom.xml -> Run As -> Maven install
 3. Exported packages will be in /target/export
 
