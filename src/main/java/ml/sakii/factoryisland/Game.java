@@ -621,10 +621,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 						debugInfo.add("FirstBlockUnder: " + Engine.world.getBlockUnderEntity(false, true, SelectedEntity)+",VV:"+SelectedEntity.VerticalVector.z);
 					}
 					debugInfo.add("Entities ("+Engine.world.getAllEntities().size()+"): "+Engine.world.getAllEntities());
-					long lastLightUpdateTick = Engine.Tick / (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) * (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY); 
-					debugInfo.add("TimePercent:"+Engine.getTimePercent()+
-							", level:"+Polygon3D.testLightLevel(Engine.getTimePercent())+
-							", cached:"+Polygon3D.testLightLevel(GameEngine.getTimePercent(lastLightUpdateTick)));
+					debugInfo.add("Sky light: "+Polygon3D.testLightLevel(Engine.getTimePercent())+", timePercent:"+Engine.getTimePercent());
 					// DEBUG SZÖVEG
 					g.setColor(Color.BLACK);
 					g.setFont(new Font(g.getFont().getName(), g.getFont().getStyle(), fontSize));

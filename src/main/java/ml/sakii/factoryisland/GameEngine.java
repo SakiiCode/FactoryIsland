@@ -267,9 +267,10 @@ public class GameEngine{
 
 		}
 		
-		if(Tick % (Globals.TICKS_PER_DAY/Globals.LIGHT_UPDATES_PER_DAY) == 0) {
+		if(Polygon3D.testLightLevel(getTimePercent(Tick)) != Polygon3D.testLightLevel(getTimePercent(Tick-1))){
 			game.updateSkyLight();
 		}
+		
 		Tick++;
 	}
 
