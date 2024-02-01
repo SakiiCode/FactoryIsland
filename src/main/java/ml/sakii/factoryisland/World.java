@@ -635,10 +635,12 @@ public class World {
 				game.notifyDeath();
 			}else {
 				game.Objects.removeAll(e.Objects);
+				Entities.remove(ID);
 			}
+		}else {
+			Entities.remove(ID);
 		}
 		
-		Entities.remove(ID);
 		
 		return false;
 	

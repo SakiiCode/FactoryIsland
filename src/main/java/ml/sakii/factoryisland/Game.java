@@ -417,6 +417,10 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 					Engine.performTick();
 					tickCounter -= MAX_TICKS;
 				}
+				
+				if(PE.getHealth()==0) {
+					Engine.world.hurtEntity(PE.ID, 0, false);
+				}
 			}
 				
 			firstframe = false;
@@ -1274,9 +1278,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 
 
 
-		if(PE.getHealth()==0) {
-			Engine.world.hurtEntity(PE.ID, 0, false);
-		}
+		
 
 
 		centerMouse();
@@ -1351,7 +1353,9 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	
 	public void respawn() {
 		PE.getPos().set(Engine.world.getSpawnBlock().pos).add(new Vector(0,0,2.7f));
+		PE.ViewAngle.set(-135,0);
 		PE.setHealth(PE.maxHealth);
+		PE.VerticalVector.z = Math.signum(PE.getPos().z);
 		Engine.world.addEntity(PE, true);
 	}
 
