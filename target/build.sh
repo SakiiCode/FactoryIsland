@@ -8,7 +8,7 @@ java -jar packr.jar \
      --executable launcher \
      --classpath factoryisland-$1.jar \
      --mainclass ml.sakii.factoryisland.Main \
-     --vmargs Xmx4G Dsun.java2d.d3d=false \
+     --vmargs Xmx4G \
      --useZgcIfSupportedOs \
      --output export/$1/FI_${1}_windows64
 
