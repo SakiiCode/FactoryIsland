@@ -30,6 +30,7 @@ public class Globals {
 			<li>F1 - hide HUD</li>
 			<li>F2 - take screenshot</li>
 			<li>F3 - debug info</li>
+			<li>F6 - open map to LAN</li>
 			</ul>""";
 	
 	public static final long TICKS_PER_DAY = 72000;

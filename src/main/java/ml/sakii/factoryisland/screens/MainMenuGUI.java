@@ -55,7 +55,6 @@ public class MainMenuGUI extends TexturedScreen implements ActionListener{
 		mp = new Button("Multiplayer", menuL, menuT+EntrySpacing, EntryWidth, EntryHeight);
 		mp.setActionCommand("multiplayer");
 		mp.addActionListener(this);
-		mp.setEnabled(false);
 		Menu.add(mp);
 
 		

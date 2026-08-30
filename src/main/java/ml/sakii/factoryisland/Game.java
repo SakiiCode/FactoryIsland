@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import javax.swing.JPanel;
@@ -63,7 +64,7 @@ public class Game extends JPanel implements KeyListener, MouseListener, MouseWhe
 	// ENGINE
 	GameEngine Engine;
 	public PlayerMP PE;
-	public final ArrayList<Object3D> Objects = new ArrayList<>();
+	public final CopyOnWriteArrayList<Object3D> Objects = new CopyOnWriteArrayList<>();
 	ArrayList<DynamicTextureComponent> TextureBlocks = new ArrayList<>();
 	final ArrayList<Sphere3D> Spheres = new ArrayList<>();
 	

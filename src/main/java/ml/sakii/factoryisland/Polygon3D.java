@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import ml.sakii.factoryisland.blocks.Block;
 import ml.sakii.factoryisland.blocks.BlockFace;
 import ml.sakii.factoryisland.blocks.Corner;
@@ -51,7 +53,7 @@ public class Polygon3D extends Object3D implements BufferRenderable{
 	private boolean[] SimpleOcclusions = new boolean[BlockFace.values().length];
 	private boolean[] CornerOcclusions = new boolean[Corner.values().length];
 	//private ArrayList<Point3D> CornerOcclusions = new ArrayList<>();
-	private ArrayList<GradientPaint> OcclusionPaints = new ArrayList<>();
+	private CopyOnWriteArrayList<GradientPaint> OcclusionPaints = new CopyOnWriteArrayList<>();
 	private boolean hasAO = false;
 
 	

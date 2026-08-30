@@ -1,12 +1,13 @@
 package ml.sakii.factoryisland;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinTask;
 
 public class ObjectUpdateThread extends ForkJoinTask<ArrayList<Object3D>> {
 
 	private static final long serialVersionUID = -4446511856579332836L;
-	private ArrayList<Object3D> Objects;
+	private CopyOnWriteArrayList<Object3D> Objects;
 	private int threadIndex;
 	private int threadCount;
 	private UpdateContext context;

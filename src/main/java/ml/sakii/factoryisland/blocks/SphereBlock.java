@@ -1,6 +1,5 @@
 package ml.sakii.factoryisland.blocks;
 
-import ml.sakii.factoryisland.AssetLibrary;
 import ml.sakii.factoryisland.Color4;
 import ml.sakii.factoryisland.GameEngine;
 import ml.sakii.factoryisland.Sphere3D;
@@ -9,7 +8,7 @@ import ml.sakii.factoryisland.Vector;
 
 public class SphereBlock extends Block {
 
-	private static final Surface[] surfaces = Block.generateSurfacesCopy(AssetLibrary.sphere);
+	private static final Surface[] surfaces = Block.generateSurfacesCopy(new Surface(new Color4(255, 0, 255)));
 
 	private Sphere3D sphere;
 
